@@ -1,8 +1,10 @@
 package de.jpx3.intave.tools.wrapper;
 
+import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.reflect.Reflection;
 import de.jpx3.intave.reflect.ReflectionFailureException;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
@@ -36,8 +38,8 @@ public class WrappedAxisAlignedBB {
       double maxY = (double) fromClassMaxYField.get(obj);
       double maxZ = (double) fromClassMaxZField.get(obj);
       return new WrappedAxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
-    } catch (IllegalAccessException e) {
-      throw new ReflectionFailureException(e);
+    } catch (Throwable throwable) {
+      throw new IntaveInternalException(throwable);
     }
   }
 
@@ -54,12 +56,14 @@ public class WrappedAxisAlignedBB {
     Double.TYPE, Double.TYPE, Double.TYPE,
     Double.TYPE, Double.TYPE, Double.TYPE
   };
+  private static Constructor<?> axisAlignedBBConstructor;
 
   public Object unwrap() {
     try {
-      return Reflection.NMS_AABB_CLASS
-        .getConstructor(AABB_CONSTRUCTOR)
-        .newInstance(minX, minY, minZ, maxX, maxY, maxZ);
+      if (axisAlignedBBConstructor == null) {
+        axisAlignedBBConstructor = Reflection.NMS_AABB_CLASS.getConstructor(AABB_CONSTRUCTOR);
+      }
+      return axisAlignedBBConstructor.newInstance(minX, minY, minZ, maxX, maxY, maxZ);
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
       throw new ReflectionFailureException(e);
     }
