@@ -6,6 +6,8 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.detect.EventProcessor;
+import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.tools.client.PlayerMovementLocaleHelper;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
@@ -16,9 +18,10 @@ import de.jpx3.intave.world.collision.CollisionFactory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
-public final class MovementDispatcher implements PacketEventSubscriber, Listener {
+public final class MovementDispatcher implements EventProcessor {
   private final TeleportPositionObserver teleportPositionObserver = new TeleportPositionObserver();
 
   private final IntavePlugin plugin;
@@ -27,6 +30,7 @@ public final class MovementDispatcher implements PacketEventSubscriber, Listener
   public MovementDispatcher(IntavePlugin plugin) {
     this.plugin = plugin;
     this.plugin.packetSubscriptionLinker().linkSubscriptionsIn(this);
+    this.plugin.eventLinker().registerEventsIn(this);
     this.physicsCheck = plugin.checkService().searchCheck(Physics.class);
     linkTeleportObserver(plugin);
   }
@@ -37,7 +41,7 @@ public final class MovementDispatcher implements PacketEventSubscriber, Listener
   }
 
   @BukkitEventSubscription
-  private void receiveWorldChange(PlayerChangedWorldEvent event) {
+  public void receiveWorldChange(PlayerChangedWorldEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     UserMetaMovementData movementData = user.meta().movementData();
@@ -105,11 +109,12 @@ public final class MovementDispatcher implements PacketEventSubscriber, Listener
     teleportPositionObserver.receiveMovement(event);
 
     if (movementData.awaitTeleport) {
+//      event.setCancelled(true);
       return;
     }
 
     if (violationLevelData.isInActiveTeleportBundle) {
-      event.setCancelled(true);
+//      event.setCancelled(true);
       return;
     }
 
@@ -124,7 +129,7 @@ public final class MovementDispatcher implements PacketEventSubscriber, Listener
 
     // flag -> remove packet
     if (movementData.invalidMovement) {
-//      event.setCancelled(true);
+      event.setCancelled(true);
     }
 
     movementData.invalidMovement = false;

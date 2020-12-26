@@ -28,6 +28,7 @@ import java.util.Set;
 public final class MovementEmulationEngine {
   private final IntavePlugin plugin;
   private final static boolean DEBUG_EMULATION = false;
+  private final static boolean KIN_KILL = false;
 
   public MovementEmulationEngine(IntavePlugin plugin) {
     this.plugin = plugin;
@@ -78,10 +79,12 @@ public final class MovementEmulationEngine {
       if (DEBUG_EMULATION) {
         player.sendMessage("[E-] (" + ticks + " ticks remaining)");
       }
+
+      teleport(player, futurePosition);
     } else {
       // teleport
       //player.teleport(futurePosition);
-      teleport(player, futurePosition);
+      teleport(player,KIN_KILL ? movementData.verifiedLocation : futurePosition);
 
       if (DEBUG_EMULATION) {
         String s = "[E/] " + MathHelper.formatMotion(motion) + " at " + MathHelper.formatPosition(futurePosition) + " (" + ticks + " ticks remaining)";
@@ -124,7 +127,7 @@ public final class MovementEmulationEngine {
     );
     movementData.setBoundingBox(entityBoundingBox);
     movementData.verifiedLocation = teleportLocation.clone();
-    //player.teleport(teleportLocation);
+//    player.teleport(teleportLocation);
     rotationlessTeleport(player, teleportLocation);
   }
 

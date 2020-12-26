@@ -27,7 +27,7 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
   final static boolean NEW_TELEPORTATION = ProtocolLibAdapter.serverVersion().isAtLeast(MinecraftVersion.COMBAT_UPDATE);
 
   @PacketSubscription(
-    priority = ListenerPriority.HIGH,
+    priority = ListenerPriority.LOWEST,
     packets = {
       @PacketDescriptor(sender = Sender.SERVER, packetName = "POSITION")
     }
@@ -61,8 +61,9 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
       if (TELEPORTATION_DEBUG) {
         System.out.println("[Intave] Cancel packet (Awaiting teleportation accept)");
       }
-      event.setCancelled(true);
+//      event.setCancelled(true);
       if (movementData.teleportResendCountdown-- < 0) {
+        System.out.println("[Intave] UPDATE POSITION BECAUSE OLD IS OUTDATED");
         Synchronizer.packetSynchronize(() -> {
           Location location = movementData.teleportLocation;
           player.teleport(location);

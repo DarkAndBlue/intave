@@ -38,7 +38,7 @@ import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UP
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_VILLAGE_UPDATE;
 
 public final class Physics extends IntaveCheck {
-  private final static boolean DEBUG_MOVEMENT = true;
+  private final static boolean DEBUG_MOVEMENT = false;
   private final static boolean DEBUG_PERFORMANCE = false; // Disable DEBUG_MOVEMENT
   private final static boolean MOVEMENT_EMULATION = true;
   private final static float STEP_HEIGHT = 0.6f;
@@ -658,7 +658,8 @@ public final class Physics extends IntaveCheck {
 
       if (violationLevelData.physicsVL > 20 && MOVEMENT_EMULATION) {
         Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
-        plugin.eventService().emulationEngine().emulationSetBack(player, emulationMotion, 7);
+        plugin.eventService().emulationEngine().emulationSetBack(player, emulationMotion, 2);
+
       }
     }
 
@@ -689,9 +690,11 @@ public final class Physics extends IntaveCheck {
 //      debug += " (size:" + movementData.width + "," + movementData.height + ")";
 //      debug += "handActive=" + inventoryData.handActive();
 //      debug += inventoryData.heldItem().getType().name();
+      debug += (violationLevelData.isInActiveTeleportBundle ? "+" : "-");
       player.sendMessage(debug + " dist=" + formatDouble(distance, 10));
     }
   }
+
 
   private double resolveVerticalViolationIncrease(
     User user,
