@@ -1,7 +1,7 @@
 package de.jpx3.intave.user;
 
-import de.jpx3.intave.tools.inventory.PlayerEnchantmentHelper;
-import de.jpx3.intave.tools.sync.Synchronizer;
+import de.jpx3.intave.tools.items.PlayerEnchantmentHelper;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -10,7 +10,6 @@ public final class UserMetaInventoryData {
   private final Player player;
   private ItemStack heldItem;
   private boolean handActive;
-  private boolean interactedWithFood;
 
   private boolean inventoryOpen;
   public int handActiveTicks;
@@ -27,10 +26,6 @@ public final class UserMetaInventoryData {
     this.heldItem = resolveMaterialInHand();
   }
 
-  public boolean interactedWithFood() {
-    return interactedWithFood;
-  }
-
   private ItemStack resolveMaterialInHand() {
     return player.getItemInHand();
   }
@@ -41,6 +36,10 @@ public final class UserMetaInventoryData {
 
   public ItemStack heldItem() {
     return heldItem;
+  }
+
+  public Material heldItemType() {
+    return heldItem == null ? Material.AIR : heldItem.getType();
   }
 
   public boolean inventoryOpen() {
@@ -58,14 +57,12 @@ public final class UserMetaInventoryData {
       movementData.pastRiptideSpin = 0;
     }
     this.handActive = false;
-    this.interactedWithFood = false;
     this.pastItemUsageTransition = 0;
     this.handActiveTicks = 0;
   }
 
-  public void activateHand(boolean interactedWithFood) {
+  public void activateHand() {
     this.handActive = true;
-    this.interactedWithFood = interactedWithFood;
     this.pastItemUsageTransition = 0;
     this.handActiveTicks = 0;
   }
@@ -83,10 +80,6 @@ public final class UserMetaInventoryData {
   private void setHeldItemSlot(int slot) {
     PlayerInventory inventory = player.getInventory();
     inventory.setHeldItemSlot(slot);
-  }
-
-  public void setInteractedWithFood(boolean interactedWithFood) {
-    this.interactedWithFood = interactedWithFood;
   }
 
   public void setInventoryOpen(boolean inventoryOpen) {

@@ -1,4 +1,4 @@
-package de.jpx3.intave.tools.inventory;
+package de.jpx3.intave.tools.items;
 
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -34,17 +34,11 @@ public final class PlayerEnchantmentHelper {
     return resolveEnchantmentLevel(ENCHANTMENT_RIPTIDE, stack);
   }
 
-  private static int resolveEnchantmentLevel(
-    Enchantment enchantment,
-    ItemStack itemStack
-  ) {
+  private static int resolveEnchantmentLevel(Enchantment enchantment, ItemStack itemStack) {
     return itemStack.getEnchantmentLevel(enchantment);
   }
 
-  private static int resolveEnchantmentLevel(
-    Enchantment enchantment,
-    ItemStack[] stacks
-  ) {
+  private static int resolveEnchantmentLevel(Enchantment enchantment, ItemStack[] stacks) {
     if (stacks == null || stacks.length == 0) {
       return 0;
     }

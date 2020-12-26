@@ -13,8 +13,8 @@ import de.jpx3.intave.tools.client.PlayerEffectHelper;
 import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.client.PlayerMovementLocaleHelper;
 import de.jpx3.intave.tools.client.SinusCache;
-import de.jpx3.intave.tools.inventory.InventoryUseItemHelper;
-import de.jpx3.intave.tools.inventory.PlayerEnchantmentHelper;
+import de.jpx3.intave.tools.items.InventoryUseItemHelper;
+import de.jpx3.intave.tools.items.PlayerEnchantmentHelper;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.*;
@@ -140,7 +140,7 @@ public final class Physics extends IntaveCheck {
     Physics process
      */
     context.flyingPacketAccurate = false;
-    PhysicsEntityMovementData predictedMovement = physicsFast(user, friction, sprinting, sneaking, yawSine, yawCosine);
+    PreciseCollisionResult predictedMovement = physicsFast(user, friction, sprinting, sneaking, yawSine, yawCosine);
 
     Vector moveVector = predictedMovement.moveVector;
     double differenceX = moveVector.getX() - receivedMotionX;
@@ -158,10 +158,6 @@ public final class Physics extends IntaveCheck {
 //      double endTime = (System.nanoTime() - startTime) / 1_000_000.0;
 //      System.out.println("[Intave] Physics-Performance-Debug: " + endTime + " ms/c");
 //    }
-    if (DEBUG_PERFORMANCE) {
-      double endTime = (System.nanoTime() - startTime) / 1_000_000.0;
-      System.out.println("[Intave] Physics-Performance-Debug: " + endTime + " ms/c");
-    }
 
     evaluateMovement(
       user, predictedMovement,
@@ -169,6 +165,10 @@ public final class Physics extends IntaveCheck {
       context.flyingPacketAccurate
     );
 
+    if (DEBUG_PERFORMANCE) {
+      double endTime = (System.nanoTime() - startTime) / 1_000_000.0;
+      System.out.println("[Intave] Physics-Performance-Debug: " + endTime + " ms/c");
+    }
 
     movementData.onGround = predictedMovement.onGround;
     movementData.collidedHorizontally = predictedMovement.collidedHorizontally;
@@ -178,7 +178,7 @@ public final class Physics extends IntaveCheck {
     movementData.pastRiptideSpin++;
   }
 
-  private PhysicsEntityMovementData physicsAccurate(
+  private PreciseCollisionResult physicsAccurate(
     User user, float friction,
     boolean sprinting, boolean sneaking,
     float yawSine, float yawCosine,
@@ -208,7 +208,7 @@ public final class Physics extends IntaveCheck {
     int bestStrafeKey = 0;
     double mostAccurateDistance = Integer.MAX_VALUE;
     PhysicsProcessorContext context = movementData.physicsProcessorContext;
-    PhysicsEntityMovementData predictedMovement = null;
+    PreciseCollisionResult predictedMovement = null;
 
     LOOP:
     for (int heldItemState = 0; heldItemState <= 1; heldItemState++) {
@@ -258,18 +258,18 @@ public final class Physics extends IntaveCheck {
                 sneaking, attackReduce, jumped, sprinting, handActive, isOnLadder
               );
 
-              PhysicsEntityMovementData contextMovement = resolveMoveVector(
+              PreciseCollisionResult collisionResult = resolveCollision(
                 user, inWeb,
                 positionX, positionY, positionZ,
                 context.predictedX, context.predictedY, context.predictedZ
               );
-              Vector moveVector = contextMovement.moveVector;
+              Vector moveVector = collisionResult.moveVector;
               double differenceX = moveVector.getX() - receivedMotionX;
               double differenceY = moveVector.getY() - receivedMotionY;
               double differenceZ = moveVector.getZ() - receivedMotionZ;
               double distance = MathHelper.resolveDistance(differenceX, differenceY, differenceZ);
               if (distance < mostAccurateDistance) {
-                predictedMovement = contextMovement;
+                predictedMovement = collisionResult;
                 mostAccurateDistance = distance;
                 bestForwardKey = keyForward;
                 bestStrafeKey = keyStrafe;
@@ -289,7 +289,7 @@ public final class Physics extends IntaveCheck {
     return predictedMovement;
   }
 
-  private PhysicsEntityMovementData physicsFast(
+  private PreciseCollisionResult physicsFast(
     User user, float friction,
     boolean sprinting, boolean sneaking,
     float yawSine, float yawCosine
@@ -317,7 +317,7 @@ public final class Physics extends IntaveCheck {
     );
 
     boolean inWeb = movementData.inWeb;
-    return resolveMoveVector(
+    return resolveCollision(
       user, inWeb,
       positionX, positionY, positionZ,
       context.predictedX, context.predictedY, context.predictedZ
@@ -560,7 +560,7 @@ public final class Physics extends IntaveCheck {
 
   private void evaluateMovement(
     User user,
-    PhysicsEntityMovementData expectedMovement,
+    PreciseCollisionResult expectedMovement,
     int lastKeyForward, int lastKeyStrafe,
     boolean flyingPacketAccurate
   ) {
@@ -1204,7 +1204,7 @@ public final class Physics extends IntaveCheck {
     return speed;
   }
 
-  private Physics.PhysicsEntityMovementData resolveMoveVector(
+  private PreciseCollisionResult resolveCollision(
     User user, boolean inWeb,
     double positionX, double positionY, double positionZ,
     double motionX, double motionY, double motionZ
@@ -1391,19 +1391,19 @@ public final class Physics extends IntaveCheck {
       newPositionZ - positionZ
     );
 
-    return new Physics.PhysicsEntityMovementData(
+    return new PreciseCollisionResult(
       moveVector, onGround,
       collidedHorizontally, collidedVertically,
       moveResetX, moveResetZ
     );
   }
 
-  private static final class PhysicsEntityMovementData {
+  private static final class PreciseCollisionResult {
     private final Vector moveVector;
     private final boolean onGround, collidedHorizontally, collidedVertically;
     private final boolean resetMotionX, resetMotionZ;
 
-    public PhysicsEntityMovementData(
+    public PreciseCollisionResult(
       Vector moveVector, boolean onGround,
       boolean collidedHorizontally, boolean collidedVertically,
       boolean resetMotionX, boolean resetMotionZ

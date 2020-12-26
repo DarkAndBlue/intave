@@ -14,7 +14,7 @@ import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketEventSubscriber;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
-import de.jpx3.intave.tools.inventory.InventoryUseItemHelper;
+import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.UserMetaInventoryData;
@@ -44,8 +44,10 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
   private void updatePlayerHandItem(Player player, int foodLevel) {
     User user = UserRepository.userOf(player);
     UserMetaInventoryData inventoryData = user.meta().inventoryData();
-    if (foodLevel >= 20 && inventoryData.handActive() && inventoryData.interactedWithFood()) {
-      inventoryData.deactivateHand();
+    if (foodLevel >= 20 && inventoryData.handActive()) {
+      if (!InventoryUseItemHelper.foodItemRegistry().foodConsumable(foodLevel, inventoryData.heldItemType())) {
+        inventoryData.deactivateHand();
+      }
     }
   }
 
@@ -130,8 +132,7 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
 
     boolean handActive = InventoryUseItemHelper.isUseItem(player, item) && inventoryData.handActive();
     if (handActive) {
-      boolean food = InventoryUseItemHelper.isFoodUsable(player, item);
-      inventoryData.activateHand(food);
+      inventoryData.activateHand();
     } else {
       inventoryData.deactivateHand();
     }
@@ -177,8 +178,7 @@ public final class PlayerInventoryEvaluator implements PacketEventSubscriber, Bu
     boolean useItem = InventoryUseItemHelper.isUseItem(player, heldItem);
 
     if (requestedItemUse && useItem) {
-      boolean food = InventoryUseItemHelper.isFoodUsable(player, heldItem);
-      inventoryData.activateHand(food);
+      inventoryData.activateHand();
     }
   }
 
