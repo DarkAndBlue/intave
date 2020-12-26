@@ -93,6 +93,8 @@ public final class IntavePlugin extends JavaPlugin {
   @Override
   public void onDisable() {
 
+    logger.shutdown();
+
   }
 
   public IntaveLogger logger() {
