@@ -86,8 +86,8 @@ public final class TeleportPositionObserver implements PacketEventSubscriber {
       System.out.println("[Intave] Checking potential legacy teleportation accept of " + player.getName() + ": " + MathHelper.formatPosition(positionX, positionY, positionZ));
     }
     boolean validPosition = positionDeviation < 1e-5;
-    boolean validRotation = validTeleportRotation(teleportLocation, movementData.rotationYaw, movementData.rotationPitch);
-    if (validPosition && validRotation) {
+//    boolean validRotation = validTeleportRotation(teleportLocation, movementData.rotationYaw, movementData.rotationPitch);
+    if (validPosition /*&& validRotation*/) {
       releaseAwaitTeleportLock(player);
       applyPositionConfirmationUpdate(player, positionX, positionY, positionZ);
       if (TELEPORTATION_DEBUG) {
