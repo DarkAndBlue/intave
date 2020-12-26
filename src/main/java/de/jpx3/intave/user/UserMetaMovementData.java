@@ -54,7 +54,7 @@ public final class UserMetaMovementData {
   public int pastRiptideSpin;
   public int pastPlayerAttackPhysics;
   public boolean physicsResetMotionX, physicsResetMotionZ;
-  public int lastForwardKey, lastStrafeKey;
+  public int keyForward, keyStrafe;
 
   public boolean teleport;
   public int teleportId;
