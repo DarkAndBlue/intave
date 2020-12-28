@@ -1,5 +1,6 @@
 package de.jpx3.intave.user;
 
+import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.tools.items.PlayerEnchantmentHelper;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -8,9 +9,10 @@ import org.bukkit.inventory.PlayerInventory;
 
 public final class UserMetaInventoryData {
   private final Player player;
-  private ItemStack heltItem;
+  private ItemStack heldItem;
   private boolean handActive;
 
+  private boolean foodItem;
   private boolean inventoryOpen;
   public int handActiveTicks;
   public int pastItemUsageTransition;
@@ -19,11 +21,11 @@ public final class UserMetaInventoryData {
 
   public UserMetaInventoryData(Player player) {
     this.player = player;
-    this.heltItem = resolveMaterialInHand();
+    this.heldItem = resolveMaterialInHand();
   }
 
   public void resynchronizeHeldItem() {
-    this.heltItem = resolveMaterialInHand();
+    this.heldItem = resolveMaterialInHand();
   }
 
   private ItemStack resolveMaterialInHand() {
@@ -35,11 +37,11 @@ public final class UserMetaInventoryData {
   }
 
   public ItemStack heldItem() {
-    return heltItem;
+    return heldItem;
   }
 
   public Material heldItemType() {
-    return heltItem == null ? Material.AIR : heltItem.getType();
+    return heldItem == null ? Material.AIR : heldItem.getType();
   }
 
   public boolean inventoryOpen() {
@@ -47,13 +49,13 @@ public final class UserMetaInventoryData {
   }
 
   public void setHeldItem(ItemStack heldItem) {
-    this.heltItem = heldItem;
+    this.heldItem = heldItem;
   }
 
   public void deactivateHand() {
     User user = UserRepository.userOf(player);
     UserMetaMovementData movementData = user.meta().movementData();
-    if (heltItem != null && PlayerEnchantmentHelper.tridentRiptideEnchanted(heltItem)) {
+    if (heldItem != null && PlayerEnchantmentHelper.tridentRiptideEnchanted(heldItem)) {
       movementData.pastRiptideSpin = 0;
     }
     this.handActive = false;
@@ -63,6 +65,7 @@ public final class UserMetaInventoryData {
 
   public void activateHand() {
     this.handActive = true;
+    this.foodItem = InventoryUseItemHelper.foodItemRegistry().foodConsumable(player.getFoodLevel(), heldItemType());
     this.pastItemUsageTransition = 0;
     this.handActiveTicks = 0;
   }
@@ -87,5 +90,9 @@ public final class UserMetaInventoryData {
 
   public void setInventoryOpen(boolean inventoryOpen) {
     this.inventoryOpen = inventoryOpen;
+  }
+
+  public boolean foodItem() {
+    return foodItem;
   }
 }

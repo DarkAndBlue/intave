@@ -8,7 +8,6 @@ import de.jpx3.intave.detect.checks.movement.physics.CollisionHelper;
 import de.jpx3.intave.detect.checks.movement.physics.collision.PhysicsCollisionRepository;
 import de.jpx3.intave.detect.checks.movement.physics.water.*;
 import de.jpx3.intave.tools.MathHelper;
-import de.jpx3.intave.tools.annotate.Nullable;
 import de.jpx3.intave.tools.client.PlayerEffectHelper;
 import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.client.PlayerMovementLocaleHelper;
@@ -38,7 +37,7 @@ import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UP
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_VILLAGE_UPDATE;
 
 public final class Physics extends IntaveCheck {
-  private final static boolean DEBUG_MOVEMENT = false;
+  private final static boolean DEBUG_MOVEMENT = true;
   private final static boolean DEBUG_PERFORMANCE = false; // Disable DEBUG_MOVEMENT
   private final static boolean MOVEMENT_EMULATION = true;
   private final static float STEP_HEIGHT = 0.6f;
@@ -99,15 +98,11 @@ public final class Physics extends IntaveCheck {
     Player player = user.bukkitPlayer();
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
-    UserMetaInventoryData inventoryData = meta.inventoryData();
     UserMetaClientData clientData = meta.clientData();
-    PhysicsProcessorContext context = movementData.physicsProcessorContext;
-
     double positionX = movementData.verifiedPositionX;
     double positionY = movementData.verifiedPositionY;
     double positionZ = movementData.verifiedPositionZ;
     float friction = resolveFriction(player, movementData, positionX, positionY, positionZ);
-
     boolean sneaking;
     if (clientData.delayedSneak()) {
       sneaking = movementData.lastSneaking;
@@ -116,28 +111,20 @@ public final class Physics extends IntaveCheck {
     } else {
       sneaking = movementData.sneaking;
     }
-
     float rotationYaw = movementData.rotationYaw;
     float yawSine = SinusCache.sin(rotationYaw * (float) Math.PI / 180.0F, false);
     float yawCosine = SinusCache.cos(rotationYaw * (float) Math.PI / 180.0F, false);
     boolean sprinting = movementData.sprinting;
-
-    int lastForwardKey = movementData.keyForward;
-    int lastStrafeKey = movementData.keyStrafe;
-
     long startTime = System.nanoTime();
-
     /*
     Physics process
      */
-    context.flyingPacketAccurate = false;
     PreciseCollisionResult predictedMovement = physicsFast(user, friction, sprinting, sneaking, yawSine, yawCosine);
-    Vector moveVector = predictedMovement.moveVector;
-    double differenceX = moveVector.getX() - receivedMotionX;
-    double differenceY = moveVector.getY() - receivedMotionY;
-    double differenceZ = moveVector.getZ() - receivedMotionZ;
+    PhysicsProcessorContext contextFastProcess = predictedMovement.context;
+    double differenceX = contextFastProcess.motionX - receivedMotionX;
+    double differenceY = contextFastProcess.motionY - receivedMotionY;
+    double differenceZ = contextFastProcess.motionZ - receivedMotionZ;
     double distance = MathHelper.resolveDistance(differenceX, differenceY, differenceZ);
-
     if (distance > 0.001) {
       predictedMovement = physicsAccurate(
         user, friction, sprinting, sneaking, yawSine, yawCosine,
@@ -148,18 +135,11 @@ public final class Physics extends IntaveCheck {
 //      double endTime = (System.nanoTime() - startTime) / 1_000_000.0;
 //      System.out.println("[Intave] Physics-Performance-Debug: " + endTime + " ms/c");
 //    }
-
-    evaluateMovement(
-      user, predictedMovement,
-      lastForwardKey, lastStrafeKey,
-      context.flyingPacketAccurate
-    );
-
+    evaluateMovement(user, predictedMovement);
     if (DEBUG_PERFORMANCE) {
       double endTime = (System.nanoTime() - startTime) / 1_000_000.0;
       System.out.println("[Intave] Physics-Performance-Debug: " + endTime + " ms/c");
     }
-
     movementData.onGround = predictedMovement.onGround;
     movementData.collidedHorizontally = predictedMovement.collidedHorizontally;
     movementData.collidedVertically = predictedMovement.collidedVertically;
@@ -177,14 +157,12 @@ public final class Physics extends IntaveCheck {
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
     UserMetaInventoryData inventoryData = meta.inventoryData();
-
     double positionX = movementData.verifiedPositionX;
     double positionY = movementData.verifiedPositionY;
     double positionZ = movementData.verifiedPositionZ;
     double lastMotionX = movementData.physicsLastMotionX;
     double lastMotionY = movementData.physicsLastMotionY;
     double lastMotionZ = movementData.physicsLastMotionZ;
-
     boolean lenientItemUsageChecking = lenientItemUsageChecking(user);
     boolean isOnLadder = PlayerMovementHelper.isOnLadder(user, positionX, positionY, positionZ);
     boolean inventoryOpen = inventoryData.inventoryOpen();
@@ -193,7 +171,6 @@ public final class Physics extends IntaveCheck {
     boolean inWater = movementData.inWater;
     boolean lastOnGround = movementData.lastOnGround;
     boolean elytraFlying = movementData.elytraFlying;
-
     int bestForwardKey = 0;
     int bestStrafeKey = 0;
     double mostAccurateDistance = Integer.MAX_VALUE;
@@ -210,7 +187,6 @@ public final class Physics extends IntaveCheck {
         if (inventoryData.handActiveTicks >= blockLenience && inventoryData.handActive() && !handActive) {
           continue;
         }
-
         // Remove the ability to accept the item usage
         if (!inventoryData.handActive() && handActive) {
           continue;
@@ -219,13 +195,12 @@ public final class Physics extends IntaveCheck {
 
       for (int attackState = 0; attackState <= 1; attackState++) {
         boolean attackReduce = attackState == 1;
-        if (attackReduce && movementData.pastPlayerAttackPhysics > 2) {
+        if (attackReduce && movementData.pastPlayerAttackPhysics > 5) {
           continue;
         }
 
         for (int jumpState = 0; jumpState <= 1; jumpState++) {
           boolean jumped = jumpState == 1;
-
           // Jumps are only allowed on the ground :(
           if (jumped && !lastOnGround && !inLava && !inWater) {
             continue;
@@ -241,22 +216,19 @@ public final class Physics extends IntaveCheck {
                   continue;
                 }
               }
-
               context.reset(lastMotionX, lastMotionY, lastMotionZ);
               physicsCalculate(
                 user, context, yawSine, yawCosine, friction, keyForward, keyStrafe,
                 sneaking, attackReduce, jumped, sprinting, handActive, isOnLadder
               );
-
-              PreciseCollisionResult collisionResult = resolveCollision(
-                user, inWeb,
-                positionX, positionY, positionZ,
-                context.predictedX, context.predictedY, context.predictedZ
+              PreciseCollisionResult collisionResult = physicsCalculateCollision(
+                user, context, inWeb,
+                positionX, positionY, positionZ
               );
-              Vector moveVector = collisionResult.moveVector;
-              double differenceX = moveVector.getX() - receivedMotionX;
-              double differenceY = moveVector.getY() - receivedMotionY;
-              double differenceZ = moveVector.getZ() - receivedMotionZ;
+              PhysicsProcessorContext collisionContext = collisionResult.context;
+              double differenceX = collisionContext.motionX - receivedMotionX;
+              double differenceY = collisionContext.motionY - receivedMotionY;
+              double differenceZ = collisionContext.motionZ - receivedMotionZ;
               double distance = MathHelper.resolveDistance(differenceX, differenceY, differenceZ);
               if (distance < mostAccurateDistance) {
                 predictedMovement = collisionResult;
@@ -273,7 +245,6 @@ public final class Physics extends IntaveCheck {
         }
       }
     }
-
     movementData.keyForward = bestForwardKey;
     movementData.keyStrafe = bestStrafeKey;
     return predictedMovement;
@@ -287,35 +258,30 @@ public final class Physics extends IntaveCheck {
     UserMetaMovementData movementData = user.meta().movementData();
     UserMetaInventoryData inventoryData = user.meta().inventoryData();
     PhysicsProcessorContext context = movementData.physicsProcessorContext;
-
     int keyForward = movementData.keyForward;
     int keyStrafe = movementData.keyStrafe;
-
-    if (inventoryData.inventoryOpen()) {
-      keyForward = 0;
-      keyStrafe = 0;
-    }
-
+//    if (inventoryData.inventoryOpen()) {
+//      keyForward = 0;
+//      keyStrafe = 0;
+//    }
     double positionX = movementData.verifiedPositionX;
     double positionY = movementData.verifiedPositionY;
     double positionZ = movementData.verifiedPositionZ;
-
     boolean isOnLadder = PlayerMovementHelper.isOnLadder(user, positionX, positionY, positionZ);
     boolean handActive = inventoryData.handActive();
     boolean attackReduce = movementData.pastPlayerAttackPhysics == 0;
-    boolean jumped = movementData.jumpUpwardsMotion() == movementData.motionY() && movementData.onGround;
-
+    boolean jumped = movementData.jumpUpwardsMotion() == movementData.motionY()
+      && movementData.onGround
+      && !inventoryData.inventoryOpen();
     context.reset(movementData.physicsLastMotionX, movementData.physicsLastMotionY, movementData.physicsLastMotionZ);
     physicsCalculate(
       user, context, yawSine, yawCosine, friction, keyForward, keyStrafe,
       sneaking, attackReduce, jumped, sprinting, handActive, isOnLadder
     );
-
     boolean inWeb = movementData.inWeb;
-    return resolveCollision(
-      user, inWeb,
-      positionX, positionY, positionZ,
-      context.predictedX, context.predictedY, context.predictedZ
+    return physicsCalculateCollision(
+      user, context, inWeb,
+      positionX, positionY, positionZ
     );
   }
 
@@ -330,69 +296,59 @@ public final class Physics extends IntaveCheck {
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
     UserMetaClientData clientData = meta.clientData();
-
     float moveStrafe = keyStrafe * 0.98f;
     float moveForward = keyForward * 0.98f;
-    float rotationYaw = movementData.rotationYaw;
     float rotationPitch = movementData.rotationPitch;
-
     double positionX = movementData.verifiedPositionX;
     double positionY = movementData.verifiedPositionY;
     double positionZ = movementData.verifiedPositionZ;
-
     boolean inWater = movementData.inWater;
     boolean elytraFlying = movementData.elytraFlying;
     boolean inLava = movementData.inLava();
     boolean swimming = movementData.swimming;
     boolean waterUpdate = clientData.waterUpdate();
-
     double gravity = movementData.gravity;
-
     if (sneaking) {
       moveStrafe = (float) ((double) moveStrafe * 0.3);
       moveForward = (float) ((double) moveForward * 0.3);
       if (inWater && clientData.waterUpdate()) {
-        context.predictedY -= 0.04F;
+        context.motionY -= 0.04F;
       }
     }
     if (handActive) {
       moveStrafe *= 0.2f;
       moveForward *= 0.2f;
     }
-
     if (attackReduce) {
-      context.predictedX *= 0.6;
-      context.predictedZ *= 0.6;
+      context.motionX *= 0.6;
+      context.motionZ *= 0.6;
     }
-
     if (jumped) {
       if (inWater) {
-        context.predictedY += 0.04F;
+        context.motionY += 0.04F;
       } else if (inLava) {
         // #handleJumpLava
-        context.predictedY += 0.03999999910593033D;
+        context.motionY += 0.03999999910593033D;
       } else {
-        context.predictedY = movementData.jumpUpwardsMotion();
+        context.motionY = movementData.jumpUpwardsMotion();
         if (sprinting) {
-          context.predictedX -= yawSine * 0.2F;
-          context.predictedZ += yawCosine * 0.2F;
+          context.motionX -= yawSine * 0.2F;
+          context.motionZ += yawCosine * 0.2F;
         }
       }
     }
-
     if (waterUpdate && swimming) {
       double d3 = movementData.lookVector.getY();
       double d4 = d3 < -0.2D ? 0.085D : 0.06D;
       boolean fluidStateEmpty = aquaticWaterMovement.fluidStateEmpty(user, positionX, positionY + 1.0 - 0.1, positionZ);
       if (d3 <= 0.0D || jumped || !fluidStateEmpty) {
-        context.predictedY += (d3 - context.predictedY) * d4;
+        context.motionY += (d3 - context.motionY) * d4;
       }
     }
-
     if (inWater) {
       physicsCalculateWater(user, context, moveForward, moveStrafe, yawSine, yawCosine);
     } else if (elytraFlying) {
-      physicsCalculateElytra(movementData.lookVector, context, rotationPitch, rotationYaw, gravity);
+      physicsCalculateElytra(movementData.lookVector, context, rotationPitch, gravity);
     } else if (inLava) {
       physicsCalculateLava(context, moveForward, moveStrafe, yawSine, yawCosine);
     } else {
@@ -407,52 +363,46 @@ public final class Physics extends IntaveCheck {
   ) {
     Player player = user.bukkitPlayer();
     UserMetaMovementData movementData = user.meta().movementData();
-
     float f = moveStrafe * moveStrafe + moveForward * moveForward;
     float f2 = 0.02F;
     float f3 = (float) PlayerEnchantmentHelper.resolveDepthStriderModifier(player);
-
     if (f3 > 3.0F) {
       f3 = 3.0F;
     }
-
     if (!movementData.lastOnGround) {
       f3 *= 0.5F;
     }
-
     if (f3 > 0.0F) {
       f2 += (movementData.aiMoveSpeed() - f2) * f3 / 3.0F;
     }
-
     if (f >= 1.0E-4F) {
       f = (float) Math.sqrt(f);
       f = f2 / Math.max(1.0f, f);
       moveStrafe *= f;
       moveForward *= f;
-      context.predictedX += moveStrafe * yawCosine - moveForward * yawSine;
-      context.predictedZ += moveForward * yawCosine + moveStrafe * yawSine;
+      context.motionX += moveStrafe * yawCosine - moveForward * yawSine;
+      context.motionZ += moveForward * yawCosine + moveStrafe * yawSine;
     }
   }
 
   private void physicsCalculateElytra(
     Vector lookVector, PhysicsProcessorContext context,
-    float rotationPitch, float rotationYaw,
-    double gravity
+    float rotationPitch, double gravity
   ) {
     float f = rotationPitch * 0.017453292F;
     double rotationVectorDistance = Math.sqrt(lookVector.getX() * lookVector.getX() + lookVector.getZ() * lookVector.getZ());
-    double dist2 = Math.sqrt(context.predictedX * context.predictedX + context.predictedZ * context.predictedZ);
+    double dist2 = Math.sqrt(context.motionX * context.motionX + context.motionZ * context.motionZ);
     double rotationVectorLength = Math.sqrt(lookVector.lengthSquared());
     float pitchCosine = WrappedMathHelper.cos(f);
     pitchCosine = (float) ((double) pitchCosine * (double) pitchCosine * Math.min(1.0D, rotationVectorLength / 0.4D));
 //                predictedMotionY += -0.08 + (double) f4 * 0.06D;
-    context.predictedY += gravity * (-1 + pitchCosine * 0.75);
+    context.motionY += gravity * (-1 + pitchCosine * 0.75);
 
-    if (context.predictedY < 0.0D && rotationVectorDistance > 0.0D) {
-      double d2 = context.predictedY * -0.1D * (double) pitchCosine;
-      context.predictedY += d2;
-      context.predictedX += lookVector.getX() * d2 / rotationVectorDistance;
-      context.predictedZ += lookVector.getZ() * d2 / rotationVectorDistance;
+    if (context.motionY < 0.0D && rotationVectorDistance > 0.0D) {
+      double d2 = context.motionY * -0.1D * (double) pitchCosine;
+      context.motionY += d2;
+      context.motionX += lookVector.getX() * d2 / rotationVectorDistance;
+      context.motionZ += lookVector.getZ() * d2 / rotationVectorDistance;
     }
 
     // 1.9
@@ -465,16 +415,16 @@ public final class Physics extends IntaveCheck {
     // 1.16
     if (f < 0.0F && rotationVectorDistance > 0.0D) {
       double d9 = dist2 * (double) (-WrappedMathHelper.sin(f)) * 0.04D;
-      context.predictedY += d9 * 3.2D;
-      context.predictedX += -lookVector.getX() * d9 / rotationVectorDistance;
-      context.predictedZ += -lookVector.getZ() * d9 / rotationVectorDistance;
+      context.motionY += d9 * 3.2D;
+      context.motionX += -lookVector.getX() * d9 / rotationVectorDistance;
+      context.motionZ += -lookVector.getZ() * d9 / rotationVectorDistance;
 //                  vector3d = vector3d.add(-vector3d1.x * d9 / d1, d9 * 3.2D, -vector3d1.z * d9 / d1);
     }
 
     // 1.9
     if (rotationVectorDistance > 0.0D) {
-      context.predictedX += (lookVector.getX() / rotationVectorDistance * dist2 - context.predictedX) * 0.1D;
-      context.predictedZ += (lookVector.getZ() / rotationVectorDistance * dist2 - context.predictedZ) * 0.1D;
+      context.motionX += (lookVector.getX() / rotationVectorDistance * dist2 - context.motionX) * 0.1D;
+      context.motionZ += (lookVector.getZ() / rotationVectorDistance * dist2 - context.motionZ) * 0.1D;
     }
     // 1.16
 //                if (d6 > 0.0D) {
@@ -482,9 +432,9 @@ public final class Physics extends IntaveCheck {
 //                  predictedMotionZ += (elytraMoveVector.getZ() / d6 * d1 - predictedMotionZ) * 0.1D;
 //                }
 
-    context.predictedX *= 0.99f;
-    context.predictedY *= 0.98f;
-    context.predictedZ *= 0.99f;
+    context.motionX *= 0.99f;
+    context.motionY *= 0.98f;
+    context.motionZ *= 0.99f;
   }
 
   private void physicsCalculateLava(
@@ -499,8 +449,8 @@ public final class Physics extends IntaveCheck {
       f = friction / Math.max(1.0f, f);
       moveStrafe *= f;
       moveForward *= f;
-      context.predictedX += moveStrafe * yawCosine - moveForward * yawSine;
-      context.predictedZ += moveForward * yawCosine + moveStrafe * yawSine;
+      context.motionX += moveStrafe * yawCosine - moveForward * yawSine;
+      context.motionZ += moveForward * yawCosine + moveStrafe * yawSine;
     }
   }
 
@@ -512,39 +462,119 @@ public final class Physics extends IntaveCheck {
   ) {
     UserMetaMovementData movementData = user.meta().movementData();
     float f = moveStrafe * moveStrafe + moveForward * moveForward;
-
     if (f >= 1.0E-4F) {
       f = (float) Math.sqrt(f);
       f = friction / Math.max(1.0f, f);
       moveStrafe *= f;
       moveForward *= f;
-      context.predictedX += moveStrafe * yawCosine - moveForward * yawSine;
-      context.predictedZ += moveForward * yawCosine + moveStrafe * yawSine;
+      context.motionX += moveStrafe * yawCosine - moveForward * yawSine;
+      context.motionZ += moveForward * yawCosine + moveStrafe * yawSine;
     }
-
     if (isOnLadder) {
       float f6 = 0.15F;
-      context.predictedX = WrappedMathHelper.clamp_double(context.predictedX, -f6, f6);
-      context.predictedZ = WrappedMathHelper.clamp_double(context.predictedZ, -f6, f6);
-      if (context.predictedY < -0.15D) {
-        context.predictedY = -0.15D;
+      context.motionX = WrappedMathHelper.clamp_double(context.motionX, -f6, f6);
+      context.motionZ = WrappedMathHelper.clamp_double(context.motionZ, -f6, f6);
+      if (context.motionY < -0.15D) {
+        context.motionY = -0.15D;
       }
-      if (movementData.sneaking && context.predictedY < 0.0D) {
-        context.predictedY = 0.0D;
+      if (movementData.sneaking && context.motionY < 0.0D) {
+        context.motionY = 0.0D;
       }
     }
+    physicsCalculateFlying(user, context);
+  }
 
-    if (!context.flyingPacketAccurate) {
-      double motionDistance = MathHelper.resolveDistance(context.predictedX, context.predictedY, context.predictedZ);
-      context.flyingPacketAccurate = motionDistance < 0.009;
-    }
 
-    Vector flyingVector = resolveFlyingVectorMidAir(user, context.predictedX, context.predictedY, context.predictedZ);
-    if (flyingVector != null) {
-      context.predictedX = flyingVector.getX();
-      context.predictedY = flyingVector.getY();
-      context.predictedZ = flyingVector.getZ();
+  private void physicsCalculateFlying(User user, PhysicsProcessorContext context) {
+    Player player = user.bukkitPlayer();
+    UserMetaMovementData movementData = user.meta().movementData();
+
+    double positionX = movementData.verifiedPositionX;
+    double positionY = movementData.verifiedPositionY;
+    double positionZ = movementData.verifiedPositionZ;
+
+    boolean onGround;
+    Location location = new Location(player.getWorld(), positionX, positionY, positionZ);
+    double slipperiness = movementData.lastOnGround ? PlayerMovementHelper.resolveSlipperiness(location) : 0.91f;
+    double resetMotion = movementData.resetMotion();
+    double jumpUpwardsMotion = movementData.jumpUpwardsMotion();
+
+    double i = 0;
+    double interpolateX = context.motionX;
+    double interpolateY = context.motionY;
+    double interpolateZ = context.motionZ;
+
+    for (i++; i <= 1; i++) {
+      CollisionHelper.CollisionResult collisionResult = CollisionHelper.resolveQuickCollisions(
+        player, positionX, positionY, positionZ,
+        interpolateX, interpolateY, interpolateZ
+      );
+
+      positionX += collisionResult.motionX();
+      positionY += collisionResult.motionZ();
+      positionZ += collisionResult.motionY();
+
+      double diffX = positionX - movementData.verifiedPositionX;
+      double diffY = positionY - movementData.verifiedPositionY;
+      double diffZ = positionZ - movementData.verifiedPositionZ;
+
+      onGround = collisionResult.onGround();
+
+      if (flyingPacket(diffX, diffY, diffZ)) {
+        if (Math.abs(diffX) < resetMotion) {
+          diffX = 0;
+        }
+        if (Math.abs(diffY) < resetMotion) {
+          diffY = 0;
+        }
+        if (Math.abs(diffZ) < resetMotion) {
+          diffZ = 0;
+        }
+
+        movementData.pastFlyingPacketAccurate = 0;
+        double nextPredictedX = diffX * slipperiness;
+        double nextPredictedY = (diffY - 0.08) * 0.98f;
+        double nextPredictedZ = diffZ * slipperiness;
+
+        applyCollidedMotionsToContext(
+          player, context,
+          positionX, positionY, positionZ,
+          nextPredictedX, nextPredictedY, nextPredictedZ
+        );
+        break;
+      }
+      interpolateX *= slipperiness;
+      interpolateY -= movementData.gravity;
+      interpolateY *= 0.98f;
+      interpolateZ *= slipperiness;
+      if (Math.abs(interpolateX) < resetMotion) {
+        interpolateX = 0;
+      }
+      if (Math.abs(interpolateY) < resetMotion) {
+        interpolateY = 0;
+      }
+      if (Math.abs(interpolateZ) < resetMotion) {
+        interpolateZ = 0;
+      }
     }
+  }
+
+  private void applyCollidedMotionsToContext(
+    Player player, PhysicsProcessorContext context,
+    double positionX, double positionY, double positionZ,
+    double motionX, double motionY, double motionZ
+  ) {
+    CollisionHelper.CollisionResult result = CollisionHelper.resolveQuickCollisions(player, positionX, positionY, positionZ, motionX, motionY, motionZ);
+    context.motionX = result.motionX();
+    context.motionY = result.motionY();
+    context.motionZ = result.motionZ();
+  }
+
+  private final static double FLYING_DISTANCE = 0.0009;
+
+  private boolean flyingPacket(double diffX, double diffY, double diffZ) {
+    double distance = diffX * diffX + diffY * diffY + diffZ * diffZ;
+    return distance <= FLYING_DISTANCE;
   }
 
   private boolean lenientItemUsageChecking(User user) {
@@ -553,18 +583,14 @@ public final class Physics extends IntaveCheck {
     return heldItemStack != null && heldItemStack.getType() == InventoryUseItemHelper.ITEM_TRIDENT;
   }
 
-  private void evaluateMovement(
-    User user,
-    PreciseCollisionResult expectedMovement,
-    int lastKeyForward, int lastKeyStrafe,
-    boolean flyingPacketAccurate
-  ) {
+  private void evaluateMovement(User user, PreciseCollisionResult expectedMovement) {
     Player player = user.bukkitPlayer();
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
     UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
     UserMetaInventoryData inventoryData = meta.inventoryData();
     UserMetaAbilityData abilityData = meta.abilityData();
+    PhysicsProcessorContext context = expectedMovement.context;
 
     int keyForward = movementData.keyForward;
     int keyStrafe = movementData.keyStrafe;
@@ -579,36 +605,14 @@ public final class Physics extends IntaveCheck {
     double receivedPositionY = movementData.positionY;
     double receivedPositionZ = movementData.positionZ;
 
-    Vector moveVector = expectedMovement.moveVector;
-    double predictedX = moveVector.getX();
-    double predictedY = moveVector.getY();
-    double predictedZ = moveVector.getZ();
+    double predictedX = context.motionX;
+    double predictedY = context.motionY;
+    double predictedZ = context.motionZ;
 
-    double differenceX = moveVector.getX() - receivedMotionX;
-    double differenceY = moveVector.getY() - receivedMotionY;
-    double differenceZ = moveVector.getZ() - receivedMotionZ;
+    double differenceX = predictedX - receivedMotionX;
+    double differenceY = predictedY - receivedMotionY;
+    double differenceZ = predictedZ - receivedMotionZ;
     double distance = MathHelper.resolveDistance(differenceX, differenceY, differenceZ);
-
-    double hDistance = Math.hypot(
-      receivedPositionX - movementData.verifiedPositionX,
-      receivedPositionZ - movementData.verifiedPositionZ
-    );
-
-    // A + D; W + S; spam on the ground
-    if (expectedMovement.onGround && hDistance < 0.2) {
-      boolean forwardCritical = keyForward != lastKeyForward;
-      boolean strafeCritical = keyStrafe != lastKeyStrafe;
-
-      if ((forwardCritical || strafeCritical) || hDistance < 0.01) {
-        flyingPacketAccurate = true;
-      }
-    }
-
-    if (flyingPacketAccurate) {
-      movementData.pastFlyPacket = 0;
-    } else {
-      movementData.pastFlyPacket++;
-    }
 
     double verticalViolationIncrease = resolveVerticalViolationIncrease(user, predictedY);
     double horizontalViolationIncrease = resolveHorizontalViolationIncrease(user, predictedX, predictedZ);
@@ -622,7 +626,7 @@ public final class Physics extends IntaveCheck {
       if (violationLevelIncrease > 0) {
         violationLevelIncrease = Math.max(violationLevelIncrease, 1.0);
       }
-      violationLevelIncrease *= 9.5;
+      violationLevelIncrease *= 3.5;
     }
 
     if (violationLevelIncrease == 0 && violationLevelData.physicsVL > 0) {
@@ -656,24 +660,24 @@ public final class Physics extends IntaveCheck {
 
       plugin.retributionService().markPlayer(player, (int) violationLevelIncrease, "Physics", message);
 
-      if (violationLevelData.physicsVL > 20 && MOVEMENT_EMULATION) {
+      if (violationLevelData.physicsVL > 40 && MOVEMENT_EMULATION) {
         Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
-        plugin.eventService().emulationEngine().emulationSetBack(player, emulationMotion, 2);
+        plugin.eventService().emulationEngine().emulationSetBack(player, emulationMotion, 1);
       }
     }
 
     violationLevelData.physicsVL = Math.max(0, violationLevelData.physicsVL);
-    violationLevelData.physicsVL = Math.min(35, violationLevelData.physicsVL);
+    violationLevelData.physicsVL = Math.min(100, violationLevelData.physicsVL);
 
     if (DEBUG_MOVEMENT) {
-      ChatColor chatColor = violationLevelIncrease == 0 ? ChatColor.GRAY : ChatColor.YELLOW;
+      ChatColor chatColor = violationLevelIncrease == 0 ? ChatColor.GRAY : ChatColor.DARK_GRAY;
       String position = MathHelper.formatPositionAsInt(receivedPositionX, receivedPositionY, receivedPositionZ);
       String displayPhysicsVL = formatDouble(violationLevelData.physicsVL, 4);
       String displayHorizontalVL = formatDouble(horizontalViolationIncrease, 3);
       String displayVerticalVL = formatDouble(verticalViolationIncrease, 3);
       String displayViolationIncrease = formatDouble(violationLevelIncrease, 3);
 
-      if (movementData.pastFlyPacket <= 1) {
+      if (movementData.pastFlyingPacketAccurate == 0) {
         key += ".";
       }
 
@@ -689,11 +693,14 @@ public final class Physics extends IntaveCheck {
 //      debug += " (size:" + movementData.width + "," + movementData.height + ")";
 //      debug += "handActive=" + inventoryData.handActive();
 //      debug += inventoryData.heldItem().getType().name();
-      debug += (violationLevelData.isInActiveTeleportBundle ? "+" : "-");
-      player.sendMessage(debug + " dist=" + formatDouble(distance, 10));
+//      debug += " flying:" + movementData.pastFlyingPacketAccurate;
+
+      debug += " " + (violationLevelData.isInActiveTeleportBundle ? "+" : "-");
+      player.sendMessage(player.getName() + "| " + debug + " dist=" + formatDouble(distance, 10));
+
+//      player.sendMessage(debug + " dist=" + formatDouble(distance, 10));
     }
   }
-
 
   private double resolveVerticalViolationIncrease(
     User user,
@@ -712,7 +719,7 @@ public final class Physics extends IntaveCheck {
     double receivedMotionY = movementData.motionY();
     double differenceY = Math.abs(receivedMotionY - predictedY);
 
-    boolean accountedSkippedMovement = movementData.pastFlyPacket <= 2;
+    boolean accountedSkippedMovement = movementData.pastFlyingPacketAccurate <= 2;
     double legitimateDeviation = accountedSkippedMovement ? 1e-2 : 1e-5;
 
     // MotionY calculations with sin/cos (FastMath affected)
@@ -780,8 +787,8 @@ public final class Physics extends IntaveCheck {
     }
 
     // Flying packet
-    if (movementData.pastFlyPacket <= 2) {
-      legitimateDeviation = movementData.onGround ? 0.155 : 0.009;
+    if (movementData.pastFlyingPacketAccurate <= 2) {
+      legitimateDeviation = movementData.onGround ? 0.155 : 0.05;
     }
 
     // Riptide
@@ -789,15 +796,17 @@ public final class Physics extends IntaveCheck {
       legitimateDeviation = resolveRiptideDeviation(movementData);
     }
 
-    double blindDistance = movementData.inWater ? 0.09 : 0.07;
-    if (distanceMoved < blindDistance) {
-      legitimateDeviation = Math.max(blindDistance * 0.7, legitimateDeviation);
+    if (movementData.pastFlyingPacketAccurate == 0) {
+      boolean lessThanExpected = distanceMoved <= predictedDistanceMoved;
+      if (lessThanExpected || distanceMoved < 0.2) {
+        legitimateDeviation = distanceMoved;
+      }
     }
 
     double distance = MathHelper.resolveHorizontalDistance(predictedX, predictedZ, motionX, motionZ);
     double abuseHorizontally = Math.max(0, distance - legitimateDeviation);
     boolean movedTooQuickly = distanceMoved > predictedDistanceMoved * 1.005;
-    if (movedTooQuickly && distanceMoved > 0.2) {
+    if (movedTooQuickly && distanceMoved > 0.2 && abuseHorizontally > 0) {
       return Math.max(abuseHorizontally, 0.05) * 60.0;
     }
     return abuseHorizontally * ((abuseHorizontally > 0.1) ? 20.0 : 10.0);
@@ -827,43 +836,87 @@ public final class Physics extends IntaveCheck {
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
     UserMetaClientData clientData = meta.clientData();
+    PhysicsProcessorContext context = movementData.physicsProcessorContext;
+    context.reset(motionX, motionY, motionZ);
 
     boolean elytraFlying = PlayerMovementLocaleHelper.flyingWithElytra(player);
-
     boolean inWater = movementData.inWater;
     boolean inLava = movementData.inLava();
     boolean collidedHorizontally = movementData.collidedHorizontally;
     double gravity = movementData.gravity;
-
-    double multiplier;
+    double slipperiness;
     if (movementData.lastOnGround) {
       double blockPositionX = WrappedMathHelper.floor(movementData.verifiedPositionX);
       double blockPositionY = WrappedMathHelper.floor(movementData.verifiedPositionY - 1.0);
       double blockPositionZ = WrappedMathHelper.floor(movementData.verifiedPositionZ);
       Location blockBelow = new Location(world, blockPositionX, blockPositionY, blockPositionZ);
-      multiplier = PlayerMovementHelper.resolveSlipperiness(blockBelow);
+      slipperiness = PlayerMovementHelper.resolveSlipperiness(blockBelow);
     } else {
-      multiplier = 0.91f;
+      slipperiness = 0.91f;
     }
 
-    WrappedAxisAlignedBB entityBoundingBox = CollisionHelper.entityBoundingBoxOf(user, positionX, positionY, positionZ);
-    movementData.setBoundingBox(entityBoundingBox);
+    WrappedAxisAlignedBB boundingBox = CollisionHelper.entityBoundingBoxOf(user, positionX, positionY, positionZ);
+    movementData.setBoundingBox(boundingBox);
 
     if (movementData.inWeb) {
-      motionX = 0.0;
-      motionY = 0.0;
-      motionZ = 0.0;
+      context.motionX = 0.0;
+      context.motionY = 0.0;
+      context.motionZ = 0.0;
       movementData.inWeb = false;
     }
 
     if (clientData.motionResetOnCollision()) {
       if (movementData.physicsResetMotionX) {
-        motionX = 0.0;
+        context.motionX = 0.0;
       }
       if (movementData.physicsResetMotionZ) {
-        motionZ = 0.0;
+        context.motionZ = 0.0;
       }
     }
+
+    physicsCalculateBlockCollisions(user, context, boundingBox);
+
+    if (inWater) {
+      physicsCalculateWaterAfter(user, context, boundingBox, collidedHorizontally, gravity);
+    } else if (inLava) {
+      physicsCalculateLavaAfter(player, user, context, boundingBox, collidedHorizontally);
+    } else if (!elytraFlying) {
+      physicsCalculateElytraAfter(user, context, collidedHorizontally, gravity, slipperiness);
+    }
+
+    physicsCalculateMovementClamp(user, context);
+
+    movementData.physicsLastMotionX = context.motionX;
+    movementData.physicsLastMotionY = context.motionY;
+    movementData.physicsLastMotionZ = context.motionZ;
+
+    updateAquatics(user);
+
+    movementData.verifiedPositionX = positionX;
+    movementData.verifiedPositionY = positionY;
+    movementData.verifiedPositionZ = positionZ;
+
+    movementData.lastOnGround = movementData.onGround;
+    movementData.lastSprinting = movementData.sprinting;
+    movementData.lastSneaking = movementData.sneaking;
+    movementData.pastPlayerAttackPhysics++;
+    movementData.pastFlyingPacketAccurate++;
+    movementData.pastPushedByWaterFlow++;
+  }
+
+  private void physicsCalculateBlockCollisions(
+    User user, PhysicsProcessorContext context,
+    WrappedAxisAlignedBB entityBoundingBox
+  ) {
+    Player player = user.bukkitPlayer();
+    World world = player.getWorld();
+    User.UserMeta meta = user.meta();
+    UserMetaMovementData movementData = meta.movementData();
+    UserMetaClientData clientData = meta.clientData();
+
+    double positionX = movementData.positionX;
+    double positionY = movementData.positionY;
+    double positionZ = movementData.positionZ;
 
     int blockCollisionPosX = WrappedMathHelper.floor(positionX);
     int blockCollisionPosY = WrappedMathHelper.floor(positionY - 0.20000000298023224D);
@@ -883,14 +936,14 @@ public final class Physics extends IntaveCheck {
     if (movementData.collidedVertically) {
       Vector collisionVector = collisionRepository.blockLanded(
         user, block.getType(),
-        motionX, movementData.physicsLastMotionY, motionZ
+        context.motionX, movementData.physicsLastMotionY, context.motionZ
       );
       if (collisionVector != null) {
-        motionX = collisionVector.getX();
-        motionY = collisionVector.getY();
-        motionZ = collisionVector.getZ();
+        context.motionX = collisionVector.getX();
+        context.motionY = collisionVector.getY();
+        context.motionZ = collisionVector.getZ();
       } else {
-        motionY = 0.0;
+        context.motionY = 0.0;
       }
     }
 
@@ -898,12 +951,12 @@ public final class Physics extends IntaveCheck {
     if (movementData.onGround && !movementData.sneaking) {
       Vector collisionVector = collisionRepository.entityCollision(
         user, block.getType(),
-        motionX, motionY, motionZ
+        context.motionX, context.motionY, context.motionZ
       );
       if (collisionVector != null) {
-        motionX = collisionVector.getX();
-        motionY = collisionVector.getY();
-        motionZ = collisionVector.getZ();
+        context.motionX = collisionVector.getX();
+        context.motionY = collisionVector.getY();
+        context.motionZ = collisionVector.getZ();
       }
     }
 
@@ -925,12 +978,12 @@ public final class Physics extends IntaveCheck {
             user, material,
             location,
             blockCollisionFrom,
-            motionX, motionY, motionZ
+            context.motionX, context.motionY, context.motionZ
           );
           if (collisionVector != null) {
-            motionX = collisionVector.getX();
-            motionY = collisionVector.getY();
-            motionZ = collisionVector.getZ();
+            context.motionX = collisionVector.getX();
+            context.motionY = collisionVector.getY();
+            context.motionZ = collisionVector.getZ();
           }
         }
       }
@@ -941,126 +994,127 @@ public final class Physics extends IntaveCheck {
       if (soulSandModifier == 0) {
         Block blockAccess = BlockAccessor.blockAccess(world, positionX, positionY - 0.6, positionZ);
         Material material = blockAccess.getType();
-        Vector speedFactor = collisionRepository.speedFactor(user, material, motionX, motionY, motionZ);
+        Vector speedFactor = collisionRepository.speedFactor(user, material, context.motionX, context.motionY, context.motionZ);
         if (speedFactor != null) {
-          motionX = speedFactor.getX();
-          motionY = speedFactor.getY();
-          motionZ = speedFactor.getZ();
+          context.motionX = speedFactor.getX();
+          context.motionY = speedFactor.getY();
+          context.motionZ = speedFactor.getZ();
         }
       }
     }
+  }
 
-    if (inWater) {
-      float f1;
-      if (clientData.waterUpdate()) {
-        f1 = movementData.sprinting ? 0.9f : 0.8f;
-      } else {
-        f1 = 0.8f;
-      }
-
-      float f3 = Math.min(3.0f, (float) PlayerEnchantmentHelper.resolveDepthStriderModifier(player));
-
-      if (!movementData.lastOnGround) {
-        f3 *= 0.5F;
-      }
-      if (f3 > 0.0F) {
-        f1 += (0.54600006F - f1) * f3 / 3.0F;
-      }
-
-      //fixme
+  private void physicsCalculateWaterAfter(
+    User user, PhysicsProcessorContext context, WrappedAxisAlignedBB entityBoundingBox,
+    boolean collidedHorizontally, double gravity
+  ) {
+    Player player = user.bukkitPlayer();
+    User.UserMeta meta = user.meta();
+    UserMetaMovementData movementData = meta.movementData();
+    UserMetaClientData clientData = meta.clientData();
+    double positionY = movementData.positionY;
+    float f1;
+    if (clientData.waterUpdate()) {
+      f1 = movementData.sprinting ? 0.9f : 0.8f;
+    } else {
+      f1 = 0.8f;
+    }
+    float f3 = Math.min(3.0f, (float) PlayerEnchantmentHelper.resolveDepthStriderModifier(player));
+    if (!movementData.lastOnGround) {
+      f3 *= 0.5F;
+    }
+    if (f3 > 0.0F) {
+      f1 += (0.54600006F - f1) * f3 / 3.0F;
+    }
+    //fixme
 //        if (this.isPotionActive(MobEffects.DOLPHINS_GRACE)) {
 //          f1 = 0.96F;
 //        }
-
-      motionX *= f1;
-      motionY *= 0.8f;
-      motionZ *= f1;
-
-      if (!clientData.waterUpdate()) {
-        motionY -= 0.02D;
-      }
-
-      if (clientData.waterUpdate() && !movementData.sprinting) {
-        if (motionY <= 0.0D && Math.abs(motionY - 0.005D) >= 0.003D && Math.abs(motionY - gravity / 16.0D) < 0.003D) {
-          motionY = -0.003D;
-        } else {
-          motionY -= gravity / 16.0D;
-        }
-      }
-
-      double liquidPositionY;
-      if (clientData.waterUpdate()) {
-        liquidPositionY = motionY + 0.6f - positionY + movementData.verifiedPositionY;
-      } else {
-        liquidPositionY = motionY + 0.6f;
-      }
-
-      boolean offsetPositionInLiquid = PlayerMovementHelper.isOffsetPositionInLiquid(
-        player, entityBoundingBox, motionX, liquidPositionY, motionZ
-      );
-      if (collidedHorizontally && offsetPositionInLiquid) {
-        motionY = 0.3f;
-      }
-    } else if (inLava) {
-      motionX *= 0.5D;
-      motionY *= 0.5D;
-      motionZ *= 0.5D;
-      motionY -= 0.02D;
-
-      boolean offsetPositionInLiquid = PlayerMovementHelper.isOffsetPositionInLiquid(
-        player, entityBoundingBox,
-        motionX,
-        motionY + 0.6f - positionY + movementData.verifiedPositionY,
-        motionZ
-      );
-      if (collidedHorizontally && offsetPositionInLiquid) {
-        motionY = 0.30000001192092896D;
-      }
-    } else if (!elytraFlying) {
-      boolean climbing = Math.abs(movementData.motionY() - (0.2 - 0.08) * 0.98f) < 1e-5;
-      if (PlayerMovementHelper.isOnLadder(user, positionX, positionY, positionZ) && (climbing || collidedHorizontally)) {
-        motionY = 0.2;
-      }
-
-      if (PlayerEffectHelper.isPotionLevitationActive(player)) {
-        int levitationAmplifier = PlayerEffectHelper.effectAmplifier(player, PlayerEffectHelper.EFFECT_LEVITATION);
-        motionY += (0.05D * (double) (levitationAmplifier + 1) - motionY) * 0.2D;
-      } else {
-        motionY -= gravity;
-      }
-
-      motionX *= multiplier;
-      motionY *= 0.98f;
-      motionZ *= multiplier;
+    context.motionX *= f1;
+    context.motionY *= 0.8f;
+    context.motionZ *= f1;
+    if (!clientData.waterUpdate()) {
+      context.motionY -= 0.02D;
     }
+    if (clientData.waterUpdate() && !movementData.sprinting) {
+      if (context.motionY <= 0.0D && Math.abs(context.motionY - 0.005D) >= 0.003D && Math.abs(context.motionY - gravity / 16.0D) < 0.003D) {
+        context.motionY = -0.003D;
+      } else {
+        context.motionY -= gravity / 16.0D;
+      }
+    }
+    double liquidPositionY;
+    if (clientData.waterUpdate()) {
+      liquidPositionY = context.motionY + 0.6f - positionY + movementData.verifiedPositionY;
+    } else {
+      liquidPositionY = context.motionY + 0.6f;
+    }
+    boolean offsetPositionInLiquid = PlayerMovementHelper.isOffsetPositionInLiquid(
+      player, entityBoundingBox, context.motionX, liquidPositionY, context.motionZ
+    );
+    if (collidedHorizontally && offsetPositionInLiquid) {
+      context.motionY = 0.3f;
+    }
+  }
 
+  private void physicsCalculateLavaAfter(
+    Player player, User user,
+    PhysicsProcessorContext context, WrappedAxisAlignedBB boundingBox,
+    boolean collidedHorizontally
+  ) {
+    UserMetaMovementData movementData = user.meta().movementData();
+    double positionY = movementData.positionY;
+    context.motionX *= 0.5D;
+    context.motionY *= 0.5D;
+    context.motionZ *= 0.5D;
+    context.motionY -= 0.02D;
+    boolean offsetPositionInLiquid = PlayerMovementHelper.isOffsetPositionInLiquid(
+      player, boundingBox,
+      context.motionX,
+      context.motionY + 0.6f - positionY + movementData.verifiedPositionY,
+      context.motionZ
+    );
+    if (collidedHorizontally && offsetPositionInLiquid) {
+      context.motionY = 0.30000001192092896D;
+    }
+  }
+
+  private void physicsCalculateElytraAfter(
+    User user, PhysicsProcessorContext context,
+    boolean collidedHorizontally, double gravity, double multiplier
+  ) {
+    Player player = user.bukkitPlayer();
+    UserMetaMovementData movementData = user.meta().movementData();
+    double positionX = movementData.positionX;
+    double positionY = movementData.positionY;
+    double positionZ = movementData.positionZ;
+    boolean climbing = Math.abs(movementData.motionY() - (0.2 - 0.08) * 0.98f) < 1e-5;
+    if (PlayerMovementHelper.isOnLadder(user, positionX, positionY, positionZ) && (climbing || collidedHorizontally)) {
+      context.motionY = 0.2;
+    }
+    if (PlayerEffectHelper.isPotionLevitationActive(player)) {
+      int levitationAmplifier = PlayerEffectHelper.effectAmplifier(player, PlayerEffectHelper.EFFECT_LEVITATION);
+      context.motionY += (0.05D * (double) (levitationAmplifier + 1) - context.motionY) * 0.2D;
+    } else {
+      context.motionY -= gravity;
+    }
+    context.motionX *= multiplier;
+    context.motionY *= 0.98f;
+    context.motionZ *= multiplier;
+  }
+
+  private void physicsCalculateMovementClamp(User user, PhysicsProcessorContext context) {
+    UserMetaMovementData movementData = user.meta().movementData();
     double resetMotion = movementData.resetMotion();
-    if (Math.abs(motionX) < resetMotion) {
-      motionX = 0.0;
+    if (Math.abs(context.motionX) < resetMotion) {
+      context.motionX = 0.0;
     }
-    if (Math.abs(motionY) < resetMotion) {
-      motionY = 0.0;
+    if (Math.abs(context.motionY) < resetMotion) {
+      context.motionY = 0.0;
     }
-    if (Math.abs(motionZ) < resetMotion) {
-      motionZ = 0.0;
+    if (Math.abs(context.motionZ) < resetMotion) {
+      context.motionZ = 0.0;
     }
-
-    movementData.physicsLastMotionX = motionX;
-    movementData.physicsLastMotionY = motionY;
-    movementData.physicsLastMotionZ = motionZ;
-
-    updateAquatics(user);
-
-    movementData.verifiedPositionX = positionX;
-    movementData.verifiedPositionY = positionY;
-    movementData.verifiedPositionZ = positionZ;
-
-    movementData.lastOnGround = movementData.onGround;
-    movementData.lastSprinting = movementData.sprinting;
-    movementData.lastSneaking = movementData.sneaking;
-    movementData.pastPlayerAttackPhysics++;
-    movementData.pastFlyPacket++;
-    movementData.pastPushedByWaterFlow++;
   }
 
   private void updateAquatics(User user) {
@@ -1092,99 +1146,6 @@ public final class Physics extends IntaveCheck {
     }
   }
 
-  private final static double FLYING_DEVIATION = 6e-3;
-  private final static boolean DEBUG_FLYING = false;
-
-  @Nullable
-  private Vector resolveFlyingVectorMidAir(User user, double predictedX, double predictedY, double predictedZ) {
-    Player player = user.bukkitPlayer();
-    UserMetaMovementData movementData = user.meta().movementData();
-
-    if (Math.abs(predictedY - movementData.motionY()) <= FLYING_DEVIATION) {
-      return null;
-    }
-
-    double positionX = movementData.verifiedPositionX;
-    double positionY = movementData.verifiedPositionY;
-    double positionZ = movementData.verifiedPositionZ;
-
-    boolean onGround;
-    float accumulation = 0.91f;
-    if (movementData.lastOnGround) {
-      accumulation = 0.6f;
-    }
-    double resetMotion = movementData.resetMotion();
-    double jumpUpwardsMotion = movementData.jumpUpwardsMotion();
-
-    double i = 0;
-    double flyingMotionX = predictedX;
-    double flyingMotionY = predictedY;
-    double flyingMotionZ = predictedZ;
-
-    for (i++; i <= 2; i++) {
-      CollisionHelper.CollisionResult collisionResult = CollisionHelper.resolveQuickCollisions(
-        player, positionX, positionY, positionZ,
-        flyingMotionX, flyingMotionY, flyingMotionZ
-      );
-      flyingMotionX = collisionResult.motionX();
-      flyingMotionY = collisionResult.motionY();
-      flyingMotionZ = collisionResult.motionZ();
-      onGround = collisionResult.onGround();
-
-      // Packet comparison
-      if (onGround) {
-        double jumpFlyingMotionY = flyingMotionY + jumpUpwardsMotion;
-        if (Math.abs(jumpFlyingMotionY - movementData.motionY()) < FLYING_DEVIATION && jumpFlyingMotionY < jumpUpwardsMotion) {
-          if (i == 1) {
-            predictedX = flyingMotionX;
-            predictedZ = flyingMotionZ;
-            predictedY = jumpFlyingMotionY;
-            if (DEBUG_FLYING) {
-              player.sendMessage("@f jump:" + jumpFlyingMotionY + ", loop:" + i);
-            }
-            break;
-          }
-        }
-      } else {
-        double vDistance = Math.abs(flyingMotionY - movementData.motionY());
-        if (vDistance < FLYING_DEVIATION && !collisionResult.collidedVertically()) {
-          predictedX = flyingMotionX;
-          predictedY = flyingMotionY;
-          predictedZ = flyingMotionZ;
-          if (DEBUG_FLYING) {
-            player.sendMessage("@f air:" + predictedY + ", recv:" + movementData.motionY());
-          }
-          break;
-        }
-      }
-
-      if (onGround) {
-        flyingMotionY = 0.0;
-      }
-
-      flyingMotionX *= accumulation;
-      flyingMotionY -= 0.08;
-      flyingMotionY *= 0.98f;
-      flyingMotionZ *= accumulation;
-
-      positionX += flyingMotionX;
-      positionY += flyingMotionY;
-      positionZ += flyingMotionZ;
-
-      if (Math.abs(flyingMotionX) < resetMotion) {
-        flyingMotionX = 0.0;
-      }
-      if (Math.abs(flyingMotionY) < resetMotion) {
-        flyingMotionY = 0.0;
-      }
-      if (Math.abs(flyingMotionZ) < resetMotion) {
-        flyingMotionZ = 0.0;
-      }
-    }
-
-    return new Vector(predictedX, predictedY, predictedZ);
-  }
-
   private float resolveFriction(
     Player player,
     UserMetaMovementData movementData,
@@ -1207,107 +1168,109 @@ public final class Physics extends IntaveCheck {
     return speed;
   }
 
-  private PreciseCollisionResult resolveCollision(
-    User user, boolean inWeb,
-    double positionX, double positionY, double positionZ,
-    double motionX, double motionY, double motionZ
+  private PreciseCollisionResult physicsCalculateCollision(
+    User user, PhysicsProcessorContext context,
+    boolean inWeb,
+    double positionX, double positionY, double positionZ
   ) {
     Player player = user.bukkitPlayer();
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
 
     if (inWeb) {
-      motionX *= 0.25D;
-      motionY *= 0.05f;
-      motionZ *= 0.25D;
+      context.motionX *= 0.25D;
+      context.motionY *= 0.05f;
+      context.motionZ *= 0.25D;
     }
 
-    double startMotionX = motionX;
-    double startMotionY = motionY;
-    double startMotionZ = motionZ;
+    double startMotionX = context.motionX;
+    double startMotionY = context.motionY;
+    double startMotionZ = context.motionZ;
 
-    boolean safeWalkActive = movementData.onGround && movementData.lastSneaking;
+    boolean safeWalkActive = movementData.onGround && movementData.sneaking;
     if (safeWalkActive) {
+      WrappedAxisAlignedBB boundingBox = movementData.boundingBox();
+
       double d6;
 
-      for (d6 = 0.05D; motionX != 0.0D && CollisionFactory.getCollisionBoxes(player, movementData.boundingBox().offset(motionX, -1.0D, 0.0D)).isEmpty(); startMotionX = motionX) {
-        if (motionX < d6 && motionX >= -d6) {
-          motionX = 0.0D;
-        } else if (motionX > 0.0D) {
-          motionX -= d6;
+      for (d6 = 0.05D; context.motionX != 0.0D && CollisionFactory.getCollisionBoxes(player, boundingBox.offset(context.motionX, -1.0D, 0.0D)).isEmpty(); startMotionX = context.motionX) {
+        if (context.motionX < d6 && context.motionX >= -d6) {
+          context.motionX = 0.0D;
+        } else if (context.motionX > 0.0D) {
+          context.motionX -= d6;
         } else {
-          motionX += d6;
+          context.motionX += d6;
         }
       }
 
-      for (; motionZ != 0.0D && CollisionFactory.getCollisionBoxes(player, movementData.boundingBox().offset(0.0D, -1.0D, motionZ)).isEmpty(); startMotionZ = motionZ) {
-        if (motionZ < d6 && motionZ >= -d6) {
-          motionZ = 0.0D;
-        } else if (motionZ > 0.0D) {
-          motionZ -= d6;
+      for (; context.motionZ != 0.0D && CollisionFactory.getCollisionBoxes(player, boundingBox.offset(0.0D, -1.0D, context.motionZ)).isEmpty(); startMotionZ = context.motionZ) {
+        if (context.motionZ < d6 && context.motionZ >= -d6) {
+          context.motionZ = 0.0D;
+        } else if (context.motionZ > 0.0D) {
+          context.motionZ -= d6;
         } else {
-          motionZ += d6;
+          context.motionZ += d6;
         }
       }
 
-      for (; motionX != 0.0D && motionZ != 0.0D && CollisionFactory.getCollisionBoxes(player, movementData.boundingBox().offset(motionX, -1.0D, motionZ)).isEmpty(); startMotionZ = motionZ) {
-        if (motionX < d6 && motionX >= -d6) {
-          motionX = 0.0D;
-        } else if (motionX > 0.0D) {
-          motionX -= d6;
+      for (; context.motionX != 0.0D && context.motionZ != 0.0D && CollisionFactory.getCollisionBoxes(player, boundingBox.offset(context.motionX, -1.0D, context.motionZ)).isEmpty(); startMotionZ = context.motionZ) {
+        if (context.motionX < d6 && context.motionX >= -d6) {
+          context.motionX = 0.0D;
+        } else if (context.motionX > 0.0D) {
+          context.motionX -= d6;
         } else {
-          motionX += d6;
+          context.motionX += d6;
         }
 
-        startMotionX = motionX;
+        startMotionX = context.motionX;
 
-        if (motionZ < d6 && motionZ >= -d6) {
-          motionZ = 0.0D;
-        } else if (motionZ > 0.0D) {
-          motionZ -= d6;
+        if (context.motionZ < d6 && context.motionZ >= -d6) {
+          context.motionZ = 0.0D;
+        } else if (context.motionZ > 0.0D) {
+          context.motionZ -= d6;
         } else {
-          motionZ += d6;
+          context.motionZ += d6;
         }
       }
     }
 
     List<WrappedAxisAlignedBB> collisionBoxes = CollisionFactory.getCollisionBoxes(
       player,
-      movementData.boundingBox().addCoord(motionX, motionY, motionZ)
+      movementData.boundingBox().addCoord(context.motionX, context.motionY, context.motionZ)
     );
     WrappedAxisAlignedBB startBoundingBox = movementData.boundingBox();
     WrappedAxisAlignedBB entityBoundingBox = movementData.boundingBox();
 
     for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
-      motionY = collisionBox.calculateYOffset(entityBoundingBox, motionY);
+      context.motionY = collisionBox.calculateYOffset(entityBoundingBox, context.motionY);
     }
-    entityBoundingBox = (entityBoundingBox.offset(0.0D, motionY, 0.0D));
-    boolean flag1 = movementData.lastOnGround || startMotionY != motionY && startMotionY < 0.0D;
+    entityBoundingBox = (entityBoundingBox.offset(0.0D, context.motionY, 0.0D));
+    boolean flag1 = movementData.lastOnGround || startMotionY != context.motionY && startMotionY < 0.0D;
 
     for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
-      motionX = collisionBox.calculateXOffset(entityBoundingBox, motionX);
+      context.motionX = collisionBox.calculateXOffset(entityBoundingBox, context.motionX);
     }
-    entityBoundingBox = entityBoundingBox.offset(motionX, 0.0D, 0.0D);
+    entityBoundingBox = entityBoundingBox.offset(context.motionX, 0.0D, 0.0D);
 
     for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
-      motionZ = collisionBox.calculateZOffset(entityBoundingBox, motionZ);
+      context.motionZ = collisionBox.calculateZOffset(entityBoundingBox, context.motionZ);
     }
-    entityBoundingBox = entityBoundingBox.offset(0.0, 0.0, motionZ);
+    entityBoundingBox = entityBoundingBox.offset(0.0, 0.0, context.motionZ);
 
-    if (flag1 && (startMotionX != motionX || startMotionZ != motionZ)) {
-      double copyX = motionX;
-      double copyY = motionY;
-      double copyZ = motionZ;
+    if (flag1 && (startMotionX != context.motionX || startMotionZ != context.motionZ)) {
+      double copyX = context.motionX;
+      double copyY = context.motionY;
+      double copyZ = context.motionZ;
       WrappedAxisAlignedBB axisalignedbb3 = entityBoundingBox;
       entityBoundingBox = startBoundingBox;
-      motionY = STEP_HEIGHT;
+      context.motionY = STEP_HEIGHT;
       List<WrappedAxisAlignedBB> list = CollisionFactory.getCollisionBoxes(
         player,
-        entityBoundingBox.addCoord(startMotionX, motionY, startMotionZ)
+        entityBoundingBox.addCoord(startMotionX, context.motionY, startMotionZ)
       );
       WrappedAxisAlignedBB axisalignedbb4 = entityBoundingBox;
       WrappedAxisAlignedBB axisalignedbb5 = axisalignedbb4.addCoord(startMotionX, 0.0D, startMotionZ);
-      double d9 = motionY;
+      double d9 = context.motionY;
 
       for (WrappedAxisAlignedBB axisalignedbb6 : list) {
         d9 = axisalignedbb6.calculateYOffset(axisalignedbb5, d9);
@@ -1329,7 +1292,7 @@ public final class Physics extends IntaveCheck {
 
       axisalignedbb4 = axisalignedbb4.offset(0.0D, 0.0D, d16);
       WrappedAxisAlignedBB axisalignedbb14 = entityBoundingBox;
-      double d17 = motionY;
+      double d17 = context.motionY;
 
       for (WrappedAxisAlignedBB axisalignedbb9 : list) {
         d17 = axisalignedbb9.calculateYOffset(axisalignedbb14, d17);
@@ -1354,64 +1317,58 @@ public final class Physics extends IntaveCheck {
       double d10 = d18 * d18 + d19 * d19;
 
       if (d20 > d10) {
-        motionX = d15;
-        motionZ = d16;
-        motionY = -d9;
+        context.motionX = d15;
+        context.motionZ = d16;
+        context.motionY = -d9;
         entityBoundingBox = axisalignedbb4;
       } else {
-        motionX = d18;
-        motionZ = d19;
-        motionY = -d17;
+        context.motionX = d18;
+        context.motionZ = d19;
+        context.motionY = -d17;
         entityBoundingBox = axisalignedbb14;
       }
 
       for (WrappedAxisAlignedBB axisalignedbb12 : list) {
-        motionY = axisalignedbb12.calculateYOffset(entityBoundingBox, motionY);
+        context.motionY = axisalignedbb12.calculateYOffset(entityBoundingBox, context.motionY);
       }
 
-      entityBoundingBox = entityBoundingBox.offset(0.0, motionY, 0.0);
+      entityBoundingBox = entityBoundingBox.offset(0.0, context.motionY, 0.0);
 
-      if (copyX * copyX + copyZ * copyZ >= motionX * motionX + motionZ * motionZ) {
-        motionX = copyX;
-        motionY = copyY;
-        motionZ = copyZ;
+      if (copyX * copyX + copyZ * copyZ >= context.motionX * context.motionX + context.motionZ * context.motionZ) {
+        context.motionX = copyX;
+        context.motionY = copyY;
+        context.motionZ = copyZ;
         entityBoundingBox = axisalignedbb3;
       }
     }
 
-    boolean collidedVertically = startMotionY != motionY;
-    boolean collidedHorizontally = startMotionX != motionX || startMotionZ != motionZ;
-    boolean onGround = startMotionY != motionY && startMotionY < 0.0;
-    boolean moveResetX = startMotionX != motionX;
-    boolean moveResetZ = startMotionZ != motionZ;
+    boolean collidedVertically = startMotionY != context.motionY;
+    boolean collidedHorizontally = startMotionX != context.motionX || startMotionZ != context.motionZ;
+    boolean onGround = startMotionY != context.motionY && startMotionY < 0.0;
+    boolean moveResetX = startMotionX != context.motionX;
+    boolean moveResetZ = startMotionZ != context.motionZ;
 
     double newPositionX = (entityBoundingBox.minX + entityBoundingBox.maxX) / 2.0D;
     double newPositionY = entityBoundingBox.minY;
     double newPositionZ = (entityBoundingBox.minZ + entityBoundingBox.maxZ) / 2.0D;
-    Vector moveVector = new Vector(
-      newPositionX - positionX,
-      newPositionY - positionY,
-      newPositionZ - positionZ
-    );
+    context.motionX = newPositionX - positionX;
+    context.motionY = newPositionY - positionY;
+    context.motionZ = newPositionZ - positionZ;
 
-    return new PreciseCollisionResult(
-      moveVector, onGround,
-      collidedHorizontally, collidedVertically,
-      moveResetX, moveResetZ
-    );
+    return new PreciseCollisionResult(PhysicsProcessorContext.from(context), onGround, collidedHorizontally, collidedVertically, moveResetX, moveResetZ);
   }
 
   private static final class PreciseCollisionResult {
-    private final Vector moveVector;
+    private final PhysicsProcessorContext context;
     private final boolean onGround, collidedHorizontally, collidedVertically;
     private final boolean resetMotionX, resetMotionZ;
 
     public PreciseCollisionResult(
-      Vector moveVector, boolean onGround,
+      PhysicsProcessorContext context, boolean onGround,
       boolean collidedHorizontally, boolean collidedVertically,
       boolean resetMotionX, boolean resetMotionZ
     ) {
-      this.moveVector = moveVector;
+      this.context = context;
       this.onGround = onGround;
       this.collidedHorizontally = collidedHorizontally;
       this.collidedVertically = collidedVertically;
@@ -1421,15 +1378,28 @@ public final class Physics extends IntaveCheck {
   }
 
   public static final class PhysicsProcessorContext {
-    private double predictedX;
-    private double predictedY;
-    private double predictedZ;
-    private boolean flyingPacketAccurate;
+    private double motionX;
+    private double motionY;
+    private double motionZ;
+
+    public PhysicsProcessorContext() {
+      this(0.0, 0.0, 0.0);
+    }
+
+    public PhysicsProcessorContext(double motionX, double motionY, double motionZ) {
+      this.motionX = motionX;
+      this.motionY = motionY;
+      this.motionZ = motionZ;
+    }
 
     public void reset(double x, double y, double z) {
-      this.predictedX = x;
-      this.predictedY = y;
-      this.predictedZ = z;
+      this.motionX = x;
+      this.motionY = y;
+      this.motionZ = z;
+    }
+
+    public static PhysicsProcessorContext from(PhysicsProcessorContext context) {
+      return new PhysicsProcessorContext(context.motionX, context.motionY, context.motionZ);
     }
   }
 }

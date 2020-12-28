@@ -3,14 +3,13 @@ package de.jpx3.intave.user;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 import de.jpx3.intave.detect.checks.movement.Physics;
+import de.jpx3.intave.detect.checks.movement.physics.CollisionHelper;
+import de.jpx3.intave.reflect.Reflection;
 import de.jpx3.intave.tools.client.PlayerEffectHelper;
 import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.client.PlayerMovementLocaleHelper;
 import de.jpx3.intave.tools.client.PlayerRotationHelper;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
-import de.jpx3.intave.detect.checks.movement.physics.CollisionHelper;
-import de.jpx3.intave.reflect.Reflection;
-import de.jpx3.intave.tools.wrapper.WrappedVector;
 import de.jpx3.intave.world.BlockLiquidHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -33,7 +32,6 @@ public final class UserMetaMovementData {
   public Physics.PhysicsProcessorContext physicsProcessorContext = new Physics.PhysicsProcessorContext();
   public Vector lookVector;
   public double verifiedPositionX, verifiedPositionY, verifiedPositionZ;
-  public double thirdPositionX, thirdPositionY, thirdPositionZ;
   public double lastPositionX, lastPositionY, lastPositionZ;
   public double positionX, positionY, positionZ;
   public boolean sprinting, lastSprinting, sneaking, lastSneaking;
@@ -43,12 +41,12 @@ public final class UserMetaMovementData {
   private WrappedAxisAlignedBB boundingBox;
   private double resetMotion;
   private double jumpUpwardsMotion;
-  public int pastFlyPacket, pastWaterMovement;
+  public int pastFlyingPacketAccurate, pastWaterMovement;
   private float aiMoveSpeed, jumpMovementFactor;
   public boolean inWater, eyesInWater;
   public boolean inWeb;
   public int pastPushedByWaterFlow;
-  public int pastElytraFlying, pastVelocity;
+  public int pastElytraFlying, pastVelocity = 100;
 
   public boolean invalidMovement;
   public double physicsLastMotionX, physicsLastMotionY, physicsLastMotionZ;
@@ -74,8 +72,8 @@ public final class UserMetaMovementData {
 
   private void applyPlayerLocation() {
     Location location;
-    if(player == null) {
-      location = new Location(Bukkit.getWorlds().get(0), 0,0,0);
+    if (player == null) {
+      location = new Location(Bukkit.getWorlds().get(0), 0, 0, 0);
     } else {
       location = player.getLocation();
     }
@@ -90,7 +88,7 @@ public final class UserMetaMovementData {
   }
 
   private void applyPlayerStats() {
-    if(player == null) {
+    if (player == null) {
       return;
     }
     sprinting = player.isSprinting();
@@ -98,7 +96,7 @@ public final class UserMetaMovementData {
   }
 
   public void updateWorld() {
-    if(player == null) {
+    if (player == null) {
       nmsWorld = Reflection.resolveWorldNMSHandle(Bukkit.getWorlds().get(0));
       return;
     }
@@ -121,9 +119,6 @@ public final class UserMetaMovementData {
 
     if (hasMovement) {
       StructureModifier<Double> modifier = packet.getDoubles();
-      thirdPositionX = lastPositionX;
-      thirdPositionY = lastPositionY;
-      thirdPositionZ = lastPositionZ;
       lastPositionX = positionX;
       lastPositionY = positionY;
       lastPositionZ = positionZ;
