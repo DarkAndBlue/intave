@@ -43,9 +43,12 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
   )
   public void receiveUseEntity(PacketEvent event) {
     Player player = event.getPlayer();
+    HeuristicMeta heuristicMeta = metaOf(player);
     PacketContainer packet = event.getPacket();
     if (packet.getEntityUseActions().read(0) == EnumWrappers.EntityUseAction.ATTACK) {
-      metaOf(player).overallAttacks++;
+      if (heuristicMeta.overallAttacks++ == 0) {
+        heuristicMeta.firstAttack = AccessHelper.now();
+      }
     }
   }
 
@@ -284,5 +287,6 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
     public List<Anomaly> anomalies = Lists.newCopyOnWriteArrayList();
     public List<MiningStrategy> performedMiningStrategies = Lists.newCopyOnWriteArrayList();
     public int overallAttacks = 0;
+    public long firstAttack = Long.MAX_VALUE;
   }
 }

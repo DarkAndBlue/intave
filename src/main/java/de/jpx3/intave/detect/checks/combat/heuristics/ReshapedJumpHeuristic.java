@@ -8,6 +8,7 @@ import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
+import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.client.SinusCache;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaMovementData;
@@ -48,8 +49,9 @@ public final class ReshapedJumpHeuristic extends IntaveCheckPart<Heuristics> {
       physicsCalculateRelativeMovement(motion, friction, yawSine, yawCosine, moveForward, moveStrafe);
       double distance = Math.hypot(motion.getX() - movementData.motionX(), motion.getZ() - movementData.motionZ());
       double abs = Math.abs(distance - 0.2);
-      if (abs < 1e-5 && heuristicMeta.overallAttacks > 200) {
-        Heuristics.Anomaly anomaly = new Heuristics.Anomaly("jump", Heuristics.Confidence.LIKELY, Heuristics.MiningStrategy.EMULATION_LIGHT);
+      if (abs < 1e-5 && heuristicMeta.overallAttacks > 50 && AccessHelper.now() - heuristicMeta.firstAttack > 70_000) {
+//        player.sendMessage("Registered flag! (" + (AccessHelper.now() - heuristicMeta.firstAttack) + ")");
+        Heuristics.Anomaly anomaly = new Heuristics.Anomaly("jump", Heuristics.Confidence.VERY_LIKELY, Heuristics.MiningStrategy.EMULATION_LIGHT);
         parentCheck().saveAnomaly(player, anomaly);
       }
     }
