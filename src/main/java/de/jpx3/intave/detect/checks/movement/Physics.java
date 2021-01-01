@@ -38,7 +38,6 @@ public final class Physics extends IntaveCheck {
   private final static boolean DEBUG_MOVEMENT = false;
   private final static boolean DEBUG_PERFORMANCE = false; // Disable DEBUG_MOVEMENT
   private final static boolean MOVEMENT_EMULATION = true;
-  private final static float STEP_HEIGHT = 0.6f;
 
   private final IntavePlugin plugin;
   private final PhysicsCollisionRepository collisionRepository;
@@ -584,7 +583,7 @@ public final class Physics extends IntaveCheck {
   private void evaluateMovement(User user, PreciseCollisionResult expectedMovement) {
     Player player = user.player();
     User.UserMeta meta = user.meta();
-    boolean specator = player.getGameMode() == GameMode.SPECTATOR;
+    boolean spectator = player.getGameMode() == GameMode.SPECTATOR;
 
     UserMetaMovementData movementData = meta.movementData();
     UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
@@ -617,8 +616,8 @@ public final class Physics extends IntaveCheck {
     double distance = MathHelper.resolveDistance(differenceX, differenceY, differenceZ);
 
     boolean onLadder = PlayerMovementHelper.isOnLadder(user, positionX, positionY + 1.5, positionZ);
-    onLadder = onLadder || PlayerMovementHelper.isOnLadder(user, positionX, positionY - 0.5, positionZ);
-    onLadder = onLadder || PlayerMovementHelper.isOnLadder(user, positionX, positionY, positionZ);
+    onLadder |= PlayerMovementHelper.isOnLadder(user, positionX, positionY - 0.5, positionZ);
+    onLadder |= PlayerMovementHelper.isOnLadder(user, positionX, positionY, positionZ);
     boolean onLadderLast = movementData.onLadderLast;
     movementData.onLadderLast = onLadder;
     onLadder = movementData.onLadderLast || onLadderLast;
@@ -627,7 +626,7 @@ public final class Physics extends IntaveCheck {
     double horizontalViolationIncrease = resolveHorizontalViolationIncrease(user, keyForward, keyStrafe, predictedX, predictedZ, onLadder);
     double violationLevelIncrease = horizontalViolationIncrease + verticalViolationIncrease;
 
-    if (flying || specator) {
+    if (flying || spectator) {
       violationLevelIncrease = 0;
     }
 
@@ -635,7 +634,7 @@ public final class Physics extends IntaveCheck {
       if (violationLevelIncrease > 0) {
         violationLevelIncrease = Math.max(violationLevelIncrease, 1.0);
       }
-      violationLevelIncrease *= 3.5;
+      violationLevelIncrease *= 8.5;
     }
 
     if (violationLevelIncrease == 0 && violationLevelData.physicsVL > 0) {
@@ -649,7 +648,7 @@ public final class Physics extends IntaveCheck {
     boolean boundingBoxIntersectionCurrent = CollisionHelper.checkBoundingBoxIntersection(user, CollisionHelper.boundingBoxOf(user, receivedPositionX, receivedPositionY, receivedPositionZ));
     boolean movedIntoBlock = !boundingBoxIntersectionLast && boundingBoxIntersectionCurrent;
 
-    if (boundingBoxIntersectionCurrent && !specator) {
+    if (boundingBoxIntersectionCurrent && !spectator) {
       if (movedIntoBlock) {
         movementData.invalidMovement = true;
         String message = "intersected with bounding-box";
@@ -663,7 +662,7 @@ public final class Physics extends IntaveCheck {
     }
 
     // Update the player's verified location
-    if (specator || violationLevelIncrease == 0 && !movedIntoBlock) {
+    if (spectator || violationLevelIncrease == 0 && !movedIntoBlock) {
       Location location = new Location(player.getWorld(), receivedPositionX, receivedPositionY, receivedPositionZ, movementData.rotationYaw, movementData.rotationPitch);
       movementData.setVerifiedLocation(location, "Movement validation (normal)");
     }
@@ -675,13 +674,13 @@ public final class Physics extends IntaveCheck {
       }
     }
 
-    if (violationLevelIncrease > 0 && !specator) {
+    if (violationLevelIncrease > 0 && !spectator) {
       violationLevelIncrease = Math.min(60.0, violationLevelIncrease);
       violationLevelIncrease = Math.max(1, violationLevelIncrease);
       violationLevelData.physicsVL += violationLevelIncrease;
     }
 
-    if (!specator && !movedIntoBlock && violationLevelData.physicsVL > 20 && violationLevelIncrease > 0) {
+    if (!spectator && !movedIntoBlock && violationLevelData.physicsVL > 20 && violationLevelIncrease > 0) {
       movementData.invalidMovement = true;
       String received = formatPosition(receivedMotionX, receivedMotionY, receivedMotionZ);
       String expected = formatPosition(predictedX, predictedY, predictedZ);
@@ -723,8 +722,6 @@ public final class Physics extends IntaveCheck {
 //      debug += "handActive=" + inventoryData.handActive();
 //      debug += inventoryData.heldItem().getType().name();
 //      debug += " flying:" + movementData.pastFlyingPacketAccurate;
-//      if (violationLevelIncrease > 0) {
-//      }
       debug += " dist=" + formatDouble(distance, 10);
 //      debug += " inventoryOpen=" + inventoryData.inventoryOpen();
       debug += " " + (violationLevelData.isInActiveTeleportBundle ? "+" : "-");
@@ -741,6 +738,7 @@ public final class Physics extends IntaveCheck {
   private final static double LADDER_UPWARDS_MOTION = (0.2 - 0.08) * 0.98005f;
 
   private double resolveVerticalViolationIncrease(User user, double predictedY, boolean onLadder) {
+    Player player = user.player();
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
     double distanceMoved = MathHelper.resolveHorizontalDistance(
@@ -763,11 +761,6 @@ public final class Physics extends IntaveCheck {
       legitimateDeviation = 0.1;
     }
 
-    // Jump out of water
-    if (movementData.pastWaterMovement < 5 && !movementData.inWater && distanceMoved < 0.1) {
-      legitimateDeviation = 0.6;
-    }
-
     // Movement in webs is always skipped
     if (movementData.inWeb && receivedMotionY < 0.0) {
       legitimateDeviation = 0.1;
@@ -788,6 +781,15 @@ public final class Physics extends IntaveCheck {
     }
 
     double abuseVertically = Math.max(0, differenceY - legitimateDeviation);
+
+    // Jump out of water
+    if (movementData.inWater && abuseVertically > 1e-5 && receivedMotionY > 0.0) {
+      Location location = new Location(player.getWorld(), movementData.positionX, movementData.positionY, movementData.positionZ);
+      if (CollisionHelper.nearBySolidBlock(location, 0.4)) {
+        abuseVertically = 0;
+      }
+    }
+
     double multiplier = abuseVertically > 1e-5 ? 205.0 : 25.0;
 
     if (onLadder && movementData.motionY() <= LADDER_UPWARDS_MOTION) {
@@ -817,7 +819,7 @@ public final class Physics extends IntaveCheck {
     );
     double predictedDistanceMoved = Math.hypot(predictedX, predictedZ);
     boolean pushedByWaterFlow = movementData.pastPushedByWaterFlow <= 20;
-    double legitimateDeviation = 7e-4;
+    double legitimateDeviation = 0.0007;
 
     if (movementData.pastWaterMovement < 10) {
       legitimateDeviation = 0.01;
@@ -858,9 +860,9 @@ public final class Physics extends IntaveCheck {
 
     double distance = MathHelper.resolveHorizontalDistance(predictedX, predictedZ, motionX, motionZ);
     double abuseHorizontally = Math.max(0, distance - legitimateDeviation);
-    boolean movedTooQuickly = distanceMoved > predictedDistanceMoved * 1.005
+    boolean movedTooQuickly = distanceMoved > predictedDistanceMoved * 1.0005
       && inventoryData.pastItemUsageTransition > 10;
-    if (movedTooQuickly && distanceMoved > 0.2 && abuseHorizontally > 0 && !recentlySentFlying && !recentlyVelocity) {
+    if (movedTooQuickly && distanceMoved > 0.2 && abuseHorizontally > 0 && !recentlyVelocity) {
 //      double v = Math.max(abuseHorizontally, 0.3) * 100.0;
 //      Bukkit.broadcastMessage(user.bukkitPlayer().getName() + " moved too quickly: vl+" + v + " -" + inventoryData.pastItemUsageTransition);
       return Math.max(abuseHorizontally, 0.3) * 100.0;
@@ -1212,6 +1214,8 @@ public final class Physics extends IntaveCheck {
     }
     return speed;
   }
+
+  private final static float STEP_HEIGHT = 0.6f;
 
   private PreciseCollisionResult physicsCalculateCollision(
     User user, PhysicsProcessorContext context,
