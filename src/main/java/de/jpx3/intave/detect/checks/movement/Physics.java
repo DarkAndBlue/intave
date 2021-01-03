@@ -29,8 +29,7 @@ import org.bukkit.util.Vector;
 import java.util.List;
 
 import static de.jpx3.intave.detect.checks.movement.physics.PhysicsHelper.resolveKeysFromInput;
-import static de.jpx3.intave.tools.MathHelper.formatDouble;
-import static de.jpx3.intave.tools.MathHelper.formatPosition;
+import static de.jpx3.intave.tools.MathHelper.*;
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UPDATE;
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_VILLAGE_UPDATE;
 
@@ -92,6 +91,7 @@ public final class Physics extends IntaveCheck {
     }
   }
 
+  // receiveMovementUpdate
   private void processMovement(User user, double receivedMotionX, double receivedMotionY, double receivedMotionZ) {
     Player player = user.player();
     User.UserMeta meta = user.meta();
@@ -148,6 +148,7 @@ public final class Physics extends IntaveCheck {
     movementData.pastRiptideSpin++;
   }
 
+  // simulateMovementDeep
   private PreciseCollisionResult physicsAccurate(
     User user, float friction,
     boolean sprinting, boolean sneaking,
@@ -200,7 +201,7 @@ public final class Physics extends IntaveCheck {
 
         for (int jumpState = 0; jumpState <= 1; jumpState++) {
           boolean jumped = jumpState == 1;
-          // Jumps are only allowed on the ground :(
+          // Only allow jumping when on ground
           if (jumped && !lastOnGround && !inLava && !inWater) {
             continue;
           }
@@ -249,6 +250,7 @@ public final class Physics extends IntaveCheck {
     return predictedMovement;
   }
 
+  // New name: simulateMovementBiased
   private PreciseCollisionResult physicsFast(
     User user, float friction,
     boolean sprinting, boolean sneaking,
@@ -283,6 +285,7 @@ public final class Physics extends IntaveCheck {
     );
   }
 
+  // performStateExactMovementSimulation
   private void physicsCalculate(
     User user, PhysicsProcessorContext context,
     float yawSine, float yawCosine, float friction,
@@ -354,6 +357,7 @@ public final class Physics extends IntaveCheck {
     }
   }
 
+  // performStateExactWaterSimulation
   private void physicsCalculateWater(
     User user, PhysicsProcessorContext context,
     float moveForward, float moveStrafe,
@@ -375,6 +379,7 @@ public final class Physics extends IntaveCheck {
     physicsCalculateRelativeMovement(context, f2, yawSine, yawCosine, moveForward, moveStrafe);
   }
 
+  // performStateExactKeySimulation
   private void physicsCalculateRelativeMovement(
     PhysicsProcessorContext context, float friction,
     float yawSine, float yawCosine,
@@ -391,6 +396,7 @@ public final class Physics extends IntaveCheck {
     }
   }
 
+  // performStateExactElytraSimulation
   private void physicsCalculateElytra(
     Vector lookVector, PhysicsProcessorContext context,
     float rotationPitch, double gravity
@@ -443,6 +449,7 @@ public final class Physics extends IntaveCheck {
     context.motionZ *= 0.99f;
   }
 
+  // performStateExactLavaSimulation
   private void physicsCalculateLava(
     PhysicsProcessorContext context,
     float moveForward, float moveStrafe,
@@ -452,6 +459,7 @@ public final class Physics extends IntaveCheck {
     physicsCalculateRelativeMovement(context, friction, yawSine, yawCosine, moveForward, moveStrafe);
   }
 
+  // performStateExactUnaffectedSimulation
   private void physicsCalculateNormal(
     User user, PhysicsProcessorContext context,
     float moveForward, float moveStrafe,
@@ -474,6 +482,7 @@ public final class Physics extends IntaveCheck {
     physicsCalculateFlying(user, context);
   }
 
+  // tryRelinkMovementContext
   private void physicsCalculateFlying(User user, PhysicsProcessorContext context) {
     Player player = user.player();
     UserMetaMovementData movementData = user.meta().movementData();
@@ -581,6 +590,7 @@ public final class Physics extends IntaveCheck {
     return heldItemStack != null && heldItemStack.getType() == InventoryUseItemHelper.ITEM_TRIDENT;
   }
 
+  // evaluateBestSimulation
   private void evaluateMovement(User user, PreciseCollisionResult expectedMovement) {
     Player player = user.player();
     User.UserMeta meta = user.meta();
@@ -643,7 +653,6 @@ public final class Physics extends IntaveCheck {
       violationLevelData.physicsVL -= 0.012;
     }
 
-
     Location verifiedLocation = movementData.verifiedLocation();
     boolean boundingBoxIntersectionLast = CollisionHelper.checkBoundingBoxIntersection(user, CollisionHelper.boundingBoxOf(user, verifiedLocation.getX(), verifiedLocation.getY(), verifiedLocation.getZ()));
     boolean boundingBoxIntersectionCurrent = CollisionHelper.checkBoundingBoxIntersection(user, CollisionHelper.boundingBoxOf(user, receivedPositionX, receivedPositionY, receivedPositionZ));
@@ -662,7 +671,7 @@ public final class Physics extends IntaveCheck {
       }
     }
 
-    // Update the player's verified location
+    // Update the players verified location
     if (specator || violationLevelIncrease == 0 && !movedIntoBlock) {
       Location location = new Location(player.getWorld(), receivedPositionX, receivedPositionY, receivedPositionZ, movementData.rotationYaw, movementData.rotationPitch);
       movementData.setVerifiedLocation(location, "Movement validation (normal)");
@@ -700,14 +709,15 @@ public final class Physics extends IntaveCheck {
 
     if (DEBUG_MOVEMENT) {
       ChatColor chatColor = violationLevelIncrease == 0 ? ChatColor.GRAY : ChatColor.YELLOW;
-      String position = MathHelper.formatPositionAsInt(receivedPositionX, receivedPositionY, receivedPositionZ);
+      String position = formatPositionAsInt(receivedPositionX, receivedPositionY, receivedPositionZ);
+      String motion = formatDouble(receivedMotionX, 4) + ", " + formatDouble(receivedMotionY, 4) + ", " + formatDouble(receivedMotionZ, 4);
       String displayPhysicsVL = formatDouble(violationLevelData.physicsVL, 4);
       String displayHorizontalVL = formatDouble(horizontalViolationIncrease, 3);
       String displayVerticalVL = formatDouble(verticalViolationIncrease, 3);
       String displayViolationIncrease = formatDouble(violationLevelIncrease, 3);
 
       if (movementData.pastFlyingPacketAccurate == 0) {
-        key += ".";
+        key += "f";
       }
 
       String violationLevelInfo;
@@ -717,7 +727,7 @@ public final class Physics extends IntaveCheck {
       } else {
         violationLevelInfo = "g:" + displayPhysicsVL;
       }
-      String debug = chatColor + position + " (" + key + ") " + " " + violationLevelInfo;
+      String debug = chatColor + /*position*/motion + " (" + key + ") " + " " + violationLevelInfo;
 //      debug += " (sneak " + movementData.sneaking + ")";
 //      debug += " (size:" + movementData.width + "," + movementData.height + ")";
 //      debug += "handActive=" + inventoryData.handActive();
@@ -729,7 +739,7 @@ public final class Physics extends IntaveCheck {
 //      debug += " inventoryOpen=" + inventoryData.inventoryOpen();
       debug += " " + (violationLevelData.isInActiveTeleportBundle ? "+" : "-");
       if (movedIntoBlock) {
-        debug += " bb-intersection";
+        debug += " evil-block";
       }
       String finalDebug = debug;
       Synchronizer.packetSynchronize(() -> player.sendMessage(player.getName() + "| " + finalDebug));
@@ -1082,7 +1092,7 @@ public final class Physics extends IntaveCheck {
     if (f3 > 0.0F) {
       f1 += (0.54600006F - f1) * f3 / 3.0F;
     }
-    //fixme
+    //fixme, daddy
 //        if (this.isPotionActive(MobEffects.DOLPHINS_GRACE)) {
 //          f1 = 0.96F;
 //        }

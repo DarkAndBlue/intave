@@ -105,7 +105,7 @@ public final class MovementDispatcher implements EventProcessor {
   }
 
   @PacketSubscription(
-//    priority = ListenerPriority.HIGH,
+    priority = ListenerPriority.HIGH,
     packets = {
       @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION"),
       @PacketDescriptor(sender = Sender.CLIENT, packetName = "POSITION_LOOK"),

@@ -1,6 +1,5 @@
 package de.jpx3.intave.detect.checks.combat;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import de.jpx3.intave.IntavePlugin;
@@ -11,7 +10,10 @@ import de.jpx3.intave.user.UserCustomCheckMeta;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -25,7 +27,7 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
     this.setupSubChecks();
   }
 
-  public void setupSubChecks() {
+  private void setupSubChecks() {
     appendCheckPart(new ExampleHeuristic(this));
   }
 
@@ -33,22 +35,20 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
     metaOf(player).anomalies.add(anomaly);
   }
 
-  public void evaluateAll() {
+  private void evaluateAll() {
     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
       evaluate(onlinePlayer, false);
     }
   }
 
-  public void evaluate(Player player, boolean enforceDecision) {
+  private void evaluate(Player player, boolean enforceDecision) {
     HeuristicMeta heuristicMeta = metaOf(player);
     List<Anomaly> anomalies = heuristicMeta.anomalies;
     anomalies.removeIf(Anomaly::expired);
 
-    List<MiningStrategy> recommendedMiningStrategies = new ArrayList<>();
     List<Confidence> confidences = new ArrayList<>();
     for (Anomaly anomaly : anomalies) {
       confidences.add(anomaly.confidence);
-      recommendedMiningStrategies.add(anomaly.recommendedMiningStrategy);
     }
     Confidence overallConfidence = computeOverallConfidence(confidences);
 
@@ -57,36 +57,47 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
       boolean mightBeAGoodIdeaToPerformMiningStrategy = overallConfidence.level <= Confidence.VERY_LIKELY.level();
 
       if(!hasPerformedMiningStrategyYet && mightBeAGoodIdeaToPerformMiningStrategy) {
-
+        MiningStrategy miningStrategy = findSuitableMiningStrategy(player, overallConfidence);
+        performMiningStrategy(player, miningStrategy);
       }
 
       plugin.retributionService().markPlayer(player, -1, this.name(), "is fighting suspiciously (confidence: "+overallConfidence.output()+")");
     }
   }
 
-  public MiningStrategy findSuitableMiningStrategy(Player player, Confidence overallConfidence) {
+  // this implementation is pure garbage, please get some experience with this check and refactor this method
+  private MiningStrategy findSuitableMiningStrategy(Player player, Confidence overallConfidence) {
     HeuristicMeta heuristicMeta = metaOf(player);
     List<MiningStrategy> availableMiningStrategies = Arrays.stream(MiningStrategy.values()).collect(Collectors.toList());
     availableMiningStrategies.removeAll(heuristicMeta.performedMiningStrategies);
-
     Confidence confidenceGoal = Confidence.CERTAIN;
     int overallConfidenceInteger = overallConfidence.level;
     int requiredConfidenceInter = confidenceGoal.level - overallConfidenceInteger;
     Confidence requiredConfidence = Confidence.confidenceFrom(requiredConfidenceInter);
-
-    return null;
+    return MiningStrategy.RATING
+            .keySet()
+            .stream()
+            .filter(
+              miningStrategy -> availableMiningStrategies.contains(miningStrategy) &&
+                                miningStrategy.detectionConfidence().level() > requiredConfidence.level()
+            ).findFirst()
+            .orElseThrow(IllegalStateException::new);
   }
 
-
-  public void performMiningStrategy(MiningStrategy miningStrategy) {
-
+  private void performMiningStrategy(Player player, MiningStrategy miningStrategy) {
+    HeuristicMeta heuristicMeta = metaOf(player);
+    if(heuristicMeta.performedMiningStrategies.contains(miningStrategy)) {
+      return;
+    }
+    heuristicMeta.performedMiningStrategies.add(miningStrategy);
+    miningStrategy.apply(player);
   }
 
-  public Confidence computeOverallConfidence(List<Confidence> confidences) {
+  private Confidence computeOverallConfidence(List<Confidence> confidences) {
     return computeOverallConfidence(confidences.toArray(new Confidence[0]));
   }
 
-  public Confidence computeOverallConfidence(Confidence... confidences) {
+  private Confidence computeOverallConfidence(Confidence... confidences) {
     return Confidence.confidenceFrom(Confidence.levelFrom(confidences));
   }
 
@@ -189,8 +200,7 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
     }
 
     static {
-      Map<MiningStrategy, Integer> ratings = Arrays.stream(MiningStrategy.values()).collect(Collectors.toMap(value -> value, MiningStrategy::computeStrategyRating, (a, b) -> b));
-      RATING = ImmutableMap.copyOf(ratings);
+      RATING = ImmutableMap.copyOf(Arrays.stream(MiningStrategy.values()).collect(Collectors.toMap(value -> value, MiningStrategy::computeStrategyRating, (a, b) -> b)));
     }
 
     public static int computeStrategyRating(MiningStrategy strategy) {
@@ -204,11 +214,11 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
   }
 
   public enum Confidence {
-    CERTAIN("!!!", 1600),
-    VERY_LIKELY("!!", 800),
-    LIKELY("!", 400),
-    PROBABLE("?!", 200),
-    UNCERTAIN("?", 50),
+    CERTAIN("!!", 1600),
+    VERY_LIKELY("!", 800),
+    LIKELY("?!", 400),
+    PROBABLE("?", 200),
+    MAYBE("??", 50),
     NONE("-", 0),
 
     ;

@@ -13,11 +13,11 @@ public abstract class IntaveMetaCheck<META extends UserCustomCheckMeta> extends 
     this.metaClass = metaClass;
   }
 
-  public META metaOf(Player player) {
+  protected META metaOf(Player player) {
     return metaOf(UserRepository.userOf(player));
   }
 
-  public META metaOf(User user) {
+  protected META metaOf(User user) {
     //noinspection unchecked
     return (META) user.customMeta(metaClass);
   }
