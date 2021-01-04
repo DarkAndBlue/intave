@@ -1,6 +1,6 @@
 package de.jpx3.intave.access;
 
-public final class IntaveException extends RuntimeException {
+public class IntaveException extends RuntimeException {
   public IntaveException() {
     super();
   }

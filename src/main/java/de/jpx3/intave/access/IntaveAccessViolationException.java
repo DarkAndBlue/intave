@@ -1,7 +1,5 @@
 package de.jpx3.intave.access;
 
-import de.jpx3.intave.access.linked.exceptions.IntaveException;
-
 public final class IntaveAccessViolationException extends IntaveException {
   public IntaveAccessViolationException() {
     super();
