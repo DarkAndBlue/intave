@@ -26,6 +26,13 @@ public class WrappedEntity {
 
   private WrappedAxisAlignedBB boundingBox;
 
+  private boolean enabledResponseTracing;
+
+  /**
+   * Internal value - do not change
+   */
+  public double distanceToPlayerCache;
+
   public WrappedEntity(
     String entityName,
     boolean isEntityLiving,
@@ -182,6 +189,14 @@ public class WrappedEntity {
   public boolean moving(double distance) {
     EntityPositionContext positions = this.positions;
     return Math.hypot(positions.newPosX - positions.prevPosX, positions.newPosZ - positions.prevPosZ) >= distance;
+  }
+
+  public boolean isResponseTracingEnabled() {
+    return enabledResponseTracing;
+  }
+
+  public void setResponseTracingEnabled(boolean enabledResponseTracing) {
+    this.enabledResponseTracing = enabledResponseTracing;
   }
 
   /**

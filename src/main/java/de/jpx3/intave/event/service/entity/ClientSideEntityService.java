@@ -4,6 +4,7 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
+import com.google.common.collect.Lists;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.event.packet.*;
@@ -11,6 +12,7 @@ import de.jpx3.intave.reflect.Reflection;
 import de.jpx3.intave.tools.hitbox.EntityHitBoxResolver;
 import de.jpx3.intave.tools.hitbox.HitBoxBoundaries;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
+import de.jpx3.intave.tools.wrapper.WrappedVector;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaSynchronizeData;
 import de.jpx3.intave.user.UserRepository;
@@ -18,13 +20,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 public final class ClientSideEntityService implements PacketEventSubscriber {
-  private final static int SYNCHRONIZATIONS_PER_SECOND = 80; // 4 Entities
   private final IntavePlugin plugin;
 
   public ClientSideEntityService(IntavePlugin plugin) {
@@ -34,19 +39,50 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   }
 
   private void setupSynchronizer() {
-    Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::resetSynchronizationsAll, 0, 20);
+    // async required?
+    Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::reevaluateTracingEntities, 0, 20);
   }
 
-  private void resetSynchronizationsAll() {
+  private void reevaluateTracingEntities() {
     for (Player player : Bukkit.getOnlinePlayers()) {
       resetSynchronizationsPerSecondFor(player);
     }
   }
 
+  private final static int REQUIRED_DISTANCE = 16;
+  private final static int MAX_TRACED_ENTITIES = 8;
+
   private void resetSynchronizationsPerSecondFor(Player player) {
     User user = UserRepository.userOf(player);
     UserMetaSynchronizeData synchronizeData = user.meta().synchronizeData();
-    synchronizeData.synchronizedEntitiesPerSecond = 0;
+
+    Vector location = new Vector(0,0,0);
+    Vector playerLocation = player.getLocation().toVector();
+    List<WrappedEntity> validEntities = new ArrayList<>();
+
+    for (WrappedEntity entity : synchronizeData.synchronizedEntityMap().values()) {
+      boolean firstSurvive = false;
+      if(entity.isEntityLiving) {
+        WrappedEntity.EntityPositionContext positions = entity.positions;
+        location.setX(positions.posX);
+        location.setY(positions.posY);
+        location.setZ(positions.posZ);
+        double distance = location.distance(playerLocation);
+        if(distance <= REQUIRED_DISTANCE) {
+          validEntities.add(entity);
+          entity.distanceToPlayerCache = distance;
+          firstSurvive = true;
+        }
+      }
+      entity.setResponseTracingEnabled(firstSurvive);
+    }
+
+    validEntities.sort(Comparator.comparingDouble(entity -> entity.distanceToPlayerCache));
+
+    int count = 0;
+    for (WrappedEntity entity : validEntities) {
+      entity.setResponseTracingEnabled(count++ < MAX_TRACED_ENTITIES);
+    }
   }
 
   @PacketSubscription(
@@ -141,12 +177,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
       entity = entityByIdentifier(user, entityId);
     }
     if (entity != null) {
-      boolean synchronizeEntityMovement = suitableDistanceForSynchronization(player, entity);
-      boolean exceededSynchronizationLimit = synchronizeData.synchronizedEntitiesPerSecond++ > SYNCHRONIZATIONS_PER_SECOND;
-      if (!entity.isEntityLiving || synchronizeEntityMovement && exceededSynchronizationLimit) {
-        synchronizeEntityMovement = false;
-      }
-      if (synchronizeEntityMovement) {
+      if (entity.isEntityLiving || entity.isResponseTracingEnabled()) {
         WrappedEntity finalEntity = entity;
         plugin.eventService().transactionFeedbackService().requestPong(player, event, (player1, event1) -> {
           finalEntity.clientSynchronized = true;
@@ -159,6 +190,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     }
   }
 
+/*
   private boolean suitableDistanceForSynchronization(Player player, WrappedEntity entity) {
     WrappedEntity.EntityPositionContext positions = entity.positions;
     Location location = player.getLocation();
@@ -167,6 +199,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     double diffZ = location.getZ() - positions.posZ;
     return Math.sqrt(diffX * diffX + diffY * diffY + diffZ * diffZ) < 7.0;
   }
+*/
 
   private void processEntityTeleport(Player player, PacketEvent event) {
     PacketType packetType = event.getPacketType();
