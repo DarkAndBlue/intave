@@ -1,0 +1,29 @@
+check:
+  physics:
+
+
+  heuristics:
+
+
+  attackRaytrace:
+
+
+  interactionRaytrace:
+
+
+  abilitySpeedLimiter:
+
+
+  protocolScanner:
+
+
+  chat:
+
+
+
+filter:
+
+  health: true
+
+  enchantments: true
+

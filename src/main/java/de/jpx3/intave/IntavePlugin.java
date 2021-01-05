@@ -70,6 +70,8 @@ public final class IntavePlugin extends JavaPlugin {
 
     // stage 6
 
+//    BlockBoxResolver.setup();
+
     SinusCache.setup();
     BlockAccessor.setup();
     ViaVersionAdapter.setup();

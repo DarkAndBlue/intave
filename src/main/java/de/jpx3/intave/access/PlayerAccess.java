@@ -11,7 +11,6 @@ public interface PlayerAccess {
   boolean syncMarginOverflow();
 
   TrustFactor trustFactor();
-  void setTrustFactor(TrustFactor trustFactor);
 
   PlayerNetStatistics networkStatistics();
   PlayerClickStatistics clickStatistics();

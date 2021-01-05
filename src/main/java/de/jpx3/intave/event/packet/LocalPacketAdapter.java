@@ -14,6 +14,7 @@ public final class LocalPacketAdapter implements Comparable<LocalPacketAdapter> 
       .anyMatch(method -> method.getName().equalsIgnoreCase("isPlayerTemporary"));
   }
 
+  private final String methodName;
   private final ListenerPriority priority;
   private final PacketEventSubscriber subscriber;
   private final PacketSubscriptionMethodExecutor executor;
@@ -24,8 +25,9 @@ public final class LocalPacketAdapter implements Comparable<LocalPacketAdapter> 
     ListenerPriority priority, PacketType[] packetTypes,
     String methodName, PacketSubscriptionMethodExecutor executor
   ) {
-//    super(plugin, com.comphenix.protocol.events.ListenerPriority.LOWEST, packetTypes);
+//    super(plugin, com.comphenix.protocol.events.ListenerPriority.LOWEST, packetTypes);\
     this.subscriber = subscriber;
+    this.methodName = methodName;
     this.priority = priority;
     this.executor = executor;
   }
@@ -72,7 +74,9 @@ public final class LocalPacketAdapter implements Comparable<LocalPacketAdapter> 
       System.out.println("[Intave] We recommend updating ProtocolLib");
       processException(exception);
     } */catch (RuntimeException exception) {
+      exception.fillInStackTrace();
       processException(exception);
+      throw exception;
     }
   }
 
@@ -95,7 +99,7 @@ public final class LocalPacketAdapter implements Comparable<LocalPacketAdapter> 
 
   private void processException(RuntimeException exception) {
     String simpleName = exception.getClass().getSimpleName();
-    System.out.println("[Intave] " + resolveIndefArticle(simpleName) + " " + simpleName + " occurred while processing a packet ");
+    System.out.println("[Intave] " + resolveIndefArticle(simpleName) + " " + simpleName + " occurred while processing a packet ("+subscriber.getClass().getSimpleName()+"."+methodName+")");
     exception.printStackTrace();
   }
 

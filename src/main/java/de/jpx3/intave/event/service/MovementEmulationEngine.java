@@ -1,6 +1,7 @@
 package de.jpx3.intave.event.service;
 
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.access.IntaveException;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.detect.checks.movement.physics.CollisionHelper;
 import de.jpx3.intave.reflect.Reflection;
@@ -243,15 +244,18 @@ public final class MovementEmulationEngine {
         if (!internalTeleport.isAccessible()) {
           internalTeleport.setAccessible(true);
         }
-        Class<?> entityClass = Reflection.lookupServerClass("Entity");
-        Field yawField = entityClass.getField("yaw");
-        Field pitchField = entityClass.getField("pitch");
-        float yaw = (float) yawField.get(playerHandle);
-        float pitch = (float) pitchField.get(playerHandle);
         Location dest = event.getTo();
+        if(dest == null) {
+          throw new IntaveException("Setback location can't be null");
+        }
         if(Math.abs(nativeYaw) > 360f) {
           internalTeleport.invoke(playerConnection, dest.getX(), dest.getY(), dest.getZ(), nativeYaw % 360f, nativePitch, Collections.emptySet());
         } else {
+          Class<?> entityClass = Reflection.lookupServerClass("Entity");
+          Field yawField = entityClass.getField("yaw");
+          Field pitchField = entityClass.getField("pitch");
+          float yaw = (float) yawField.get(playerHandle);
+          float pitch = (float) pitchField.get(playerHandle);
           yawField.set(playerHandle, 0f);
           pitchField.set(playerHandle, 0f);
           if (teleportFlags.isEmpty()) {
