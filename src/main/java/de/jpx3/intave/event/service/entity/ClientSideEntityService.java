@@ -42,7 +42,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   private void setupSynchronizer() {
     // async required?
-    Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::reevaluateTracingEntities, 0, 20);
+    Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, this::reevaluateTracingEntities, 0, 20);
   }
 
   private void registerDataWatcherEntityFieldName() {
@@ -78,7 +78,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     for (WrappedEntity entity : synchronizeData.synchronizedEntityMap().values()) {
       boolean firstSurvive = false;
       if(entity.isEntityLiving) {
-        WrappedEntity.EntityPositionContext positions = entity.positions;
+        WrappedEntity.EntityPositionContext positions = entity.position;
         location.setX(positions.posX);
         location.setY(positions.posY);
         location.setZ(positions.posZ);
@@ -191,14 +191,14 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
       entity = entityByIdentifier(user, entityId);
     }
     if (entity != null) {
-      if (entity.isEntityLiving || entity.isResponseTracingEnabled()) {
+      if (entity.isEntityLiving && entity.tracingEnabled()) {
         WrappedEntity finalEntity = entity;
         plugin.eventService().transactionFeedbackService().requestPong(player, event, (player1, event1) -> {
+          processEntityTeleport(player1, event1, true);
           finalEntity.clientSynchronized = true;
-          processEntityTeleport(player1, event1);
         });
       } else {
-        processEntityTeleport(player, event);
+        processEntityTeleport(player, event, false);
         entity.clientSynchronized = false;
       }
     }
@@ -215,7 +215,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   }
 */
 
-  private void processEntityTeleport(Player player, PacketEvent event) {
+  private void processEntityTeleport(Player player, PacketEvent event, boolean clientTickSync) {
     PacketType packetType = event.getPacketType();
     User user = UserRepository.userOf(player);
     PacketContainer packet = event.getPacket();
@@ -226,6 +226,17 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
       } else {
         entity.handleEntityMovement(packet);
       }
+      if(!clientTickSync) {
+        if(entity.possiblePositions.size() > 7) {
+          entity.possiblePositions.remove(0);
+          entity.possibleAlternativePositions.remove(0);
+        }
+      } else if (!entity.possiblePositions.isEmpty()) {
+        entity.possiblePositions.clear();
+        entity.possibleAlternativePositions.clear();
+      }
+      entity.possiblePositions.add(entity.position.clone());
+      entity.possibleAlternativePositions.add(entity.alternativePosition.clone());
     }
   }
 

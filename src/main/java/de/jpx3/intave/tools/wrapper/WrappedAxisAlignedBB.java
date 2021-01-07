@@ -3,6 +3,8 @@ package de.jpx3.intave.tools.wrapper;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.reflect.Reflection;
 import de.jpx3.intave.reflect.ReflectionFailureException;
+import org.bukkit.Location;
+import org.bukkit.util.Vector;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -356,6 +358,36 @@ public class WrappedAxisAlignedBB {
 
       return new WrappedMovingObjectPosition(vec36, enumfacing);
     }
+  }
+
+  public double nearestDistanceTo(WrappedVector fieldPoint) {
+    WrappedVector wrappedVector = nearestPointTo(fieldPoint);
+    return wrappedVector.distanceTo(fieldPoint);
+  }
+
+  private WrappedVector nearestPointTo(WrappedVector fieldPoint) {
+    double pointX, pointY, pointZ;
+    double refX = fieldPoint.xCoord,
+           refY = fieldPoint.yCoord,
+           refZ = fieldPoint.zCoord;
+
+    if (refX > maxX/*(targetX + (hitboxWidth / 2))*/) {
+      pointX = maxX/*targetX + (hitboxWidth / 2)*/;
+    } else {
+      pointX = Math.max(refX, minX/*(targetX - (hitboxWidth / 2))*/);
+    }
+    double boxOffset = 0.1;
+    if (refY > minY/*(targetY + (hitboxHeight - boxOffset))*/) {
+      pointY = minY/*targetY + (hitboxHeight - boxOffset)*/;
+    } else {
+      pointY = Math.max(refY, minY/*(targetY - boxOffset)*/);
+    }
+    if (refZ > maxZ/*(targetZ + (hitboxWidth / 2))*/) {
+      pointZ = maxZ/*targetZ + (hitboxWidth / 2)*/;
+    } else {
+      pointZ = Math.max(refZ, minZ/*(targetZ - (hitboxWidth / 2))*/);
+    }
+    return new WrappedVector(pointX, pointY, pointZ);
   }
 
   public WrappedAxisAlignedBB addJustMaxY(double expansionY) {

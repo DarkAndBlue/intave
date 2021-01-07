@@ -28,7 +28,7 @@ public final class UserMetaAttackData {
 
     // Set prefect yaw & pitch
     if (lastAttackedEntity != null) {
-      WrappedEntity.EntityPositionContext positions = lastAttackedEntity.positions;
+      WrappedEntity.EntityPositionContext positions = lastAttackedEntity.position;
       perfectYaw = PlayerRotationHelper.resolveYawRotation(positions, positionX, positionZ);
       perfectPitch = PlayerRotationHelper.resolvePitchRotation(positions, positionX, positionY, positionZ);
     }

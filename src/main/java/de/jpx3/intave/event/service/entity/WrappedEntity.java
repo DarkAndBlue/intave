@@ -1,9 +1,16 @@
 package de.jpx3.intave.event.service.entity;
 
 import com.comphenix.protocol.events.PacketContainer;
+import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.tools.hitbox.HitBoxBoundaries;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
+
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class WrappedEntity {
   private final static boolean NEW_POSITION_PROCESSING = ProtocolLibAdapter.serverVersion().isAtLeast(ProtocolLibAdapter.COMBAT_UPDATE);
@@ -20,11 +27,15 @@ public class WrappedEntity {
   /**
    * This value is used to interpolate the positions of the Entity
    */
-  protected int newPosRotationIncrements;
+  public int newPosRotationIncrements;
   public int serverPosX, serverPosY, serverPosZ;
 
-  public EntityPositionContext positions;
-  public EntityPositionContext alternativePositions;
+  public EntityPositionContext position;
+  public EntityPositionContext alternativePosition;
+
+  // -> when entity is not traced
+  public List<EntityPositionContext> possiblePositions = new CopyOnWriteArrayList<>();
+  public List<EntityPositionContext> possibleAlternativePositions = new CopyOnWriteArrayList<>();
 
   private WrappedAxisAlignedBB boundingBox;
 
@@ -44,14 +55,23 @@ public class WrappedEntity {
     this.hitBoxBoundaries = hitBoxBoundaries;
     this.entityName = entityName;
 
-    this.positions = new EntityPositionContext();
-    this.alternativePositions = new EntityPositionContext();
+    this.position = new EntityPositionContext();
+    this.alternativePosition = new EntityPositionContext();
   }
 
-  public static class EntityPositionContext {
+  public static class EntityPositionContext implements Cloneable {
     public double prevPosX, prevPosY, prevPosZ;
     public double posX, posY, posZ;
     public double newPosX, newPosY, newPosZ;
+
+    @Override
+    public EntityPositionContext clone()  {
+      try {
+        return (EntityPositionContext) super.clone();
+      } catch (CloneNotSupportedException exception) {
+        throw new IntaveInternalException(exception);
+      }
+    }
   }
 
   /**
@@ -62,10 +82,10 @@ public class WrappedEntity {
   public void onLivingUpdate() {
     if (isEntityLiving) {
       if (this.newPosRotationIncrements > 0) {
-        double newPosX = positions.posX + (positions.newPosX - positions.posX) / (double) this.newPosRotationIncrements;
-        double newPosY = positions.posY + (positions.newPosY - positions.posY) / (double) this.newPosRotationIncrements;
-        double alternativeNewPosY = alternativePositions.posY + (alternativePositions.newPosY - alternativePositions.posY) / (double) this.newPosRotationIncrements;
-        double newPosZ = positions.posZ + (positions.newPosZ - positions.posZ) / (double) this.newPosRotationIncrements;
+        double newPosX = position.posX + (position.newPosX - position.posX) / (double) this.newPosRotationIncrements;
+        double newPosY = position.posY + (position.newPosY - position.posY) / (double) this.newPosRotationIncrements;
+        double alternativeNewPosY = alternativePosition.posY + (alternativePosition.newPosY - alternativePosition.posY) / (double) this.newPosRotationIncrements;
+        double newPosZ = position.posZ + (position.newPosZ - position.posZ) / (double) this.newPosRotationIncrements;
 
         --this.newPosRotationIncrements;
         setPosition(newPosX, newPosY, newPosZ);
@@ -99,20 +119,22 @@ public class WrappedEntity {
       newPosZ = serverPosZ / 32.0;
     }
 
-    if (Math.abs(positions.posX - newPosX) < 0.03125d &&
-      Math.abs(positions.posY - newPosY) < 0.015625d &&
-      Math.abs(positions.posZ - newPosZ) < 0.03125d) {
-      setPositionAndRotationEntityLiving(positions.posX, positions.posY, positions.posZ, 3);
+    if (
+      Math.abs(position.posX - newPosX) < 0.03125d &&
+      Math.abs(position.posY - newPosY) < 0.015625d &&
+      Math.abs(position.posZ - newPosZ) < 0.03125d
+    ) {
+      setPositionAndRotationEntityLiving(position.posX, position.posY, position.posZ, 3);
     } else {
       setPositionAndRotationEntityLiving(newPosX, newPosY, newPosZ, 3);
     }
 
     double alternativeNewPosY = (double) this.serverPosY / 32d + 0.015625d;
 
-    if (Math.abs(positions.posX - newPosX) < 0.03125d &&
-      Math.abs(alternativePositions.posY - alternativeNewPosY) < 0.015625d &&
-      Math.abs(positions.posZ - newPosZ) < 0.03125d) {
-      setPositionAndRotationEntityLiving(alternativePositions.posY);
+    if (Math.abs(position.posX - newPosX) < 0.03125d &&
+      Math.abs(alternativePosition.posY - alternativeNewPosY) < 0.015625d &&
+      Math.abs(position.posZ - newPosZ) < 0.03125d) {
+      setPositionAndRotationEntityLiving(alternativePosition.posY);
     } else {
       setPositionAndRotationEntityLiving(alternativeNewPosY);
     }
@@ -149,33 +171,27 @@ public class WrappedEntity {
    * applied for rotation changes.
    */
   public void setPositionAndRotationSpawnMob(double x, double y, double z, double alternativeY) {
-    positions.prevPosX = positions.posX = x;
-    positions.prevPosY = positions.posY = y;
-    alternativePositions.prevPosY = alternativePositions.posY = alternativeY;
-    positions.prevPosZ = positions.posZ = z;
+    position.prevPosX = position.posX = x;
+    position.prevPosY = position.posY = y;
+    alternativePosition.prevPosY = alternativePosition.posY = alternativeY;
+    position.prevPosZ = position.posZ = z;
 
-    setPosition(positions.posX, positions.posY, positions.posZ);
-    setPosition(alternativePositions.posY);
+    setPosition(position.posX, position.posY, position.posZ);
+    setPosition(alternativePosition.posY);
   }
 
   /**
-   * Sets the position of the entity and updates its {@link WrappedAxisAlignedBB}.
+   * Sets the position of the entity.
    */
   public void setPosition(double x, double y, double z) {
-    positions.posX = x;
-    positions.posY = y;
-    positions.posZ = z;
-
-    double halfWidth = this.hitBoxBoundaries.width() / 2.0;
-    double length = this.hitBoxBoundaries.length();
-    this.boundingBox = new WrappedAxisAlignedBB(
-      x - halfWidth, y, z - halfWidth,
-      x + halfWidth, y + length, z + halfWidth
-    );
+    position.posX = x;
+    position.posY = y;
+    position.posZ = z;
+    boundingBox = null;
   }
 
   public void setPosition(double alternativeNewPosY) {
-    alternativePositions.posY = alternativeNewPosY;
+    alternativePosition.posY = alternativeNewPosY;
   }
 
   /**
@@ -190,9 +206,9 @@ public class WrappedEntity {
       return;
     }
 
-    positions.newPosX = x;
-    positions.newPosY = y;
-    positions.newPosZ = z;
+    position.newPosX = x;
+    position.newPosY = y;
+    position.newPosZ = z;
     this.newPosRotationIncrements = newPosRotationIncrements;
   }
 
@@ -202,15 +218,15 @@ public class WrappedEntity {
       return;
     }
 
-    alternativePositions.newPosY = alternativeY;
+    alternativePosition.newPosY = alternativeY;
   }
 
   public boolean moving(double distance) {
-    EntityPositionContext positions = this.positions;
+    EntityPositionContext positions = this.position;
     return Math.hypot(positions.newPosX - positions.prevPosX, positions.newPosZ - positions.prevPosZ) >= distance;
   }
 
-  public boolean isResponseTracingEnabled() {
+  public boolean tracingEnabled() {
     return enabledResponseTracing;
   }
 
@@ -229,8 +245,9 @@ public class WrappedEntity {
    * Returns whether the entity is checkable.
    */
   public boolean checkable() {
-    return isEntityLiving && clientSynchronized;
+    return isEntityLiving /*&& clientSynchronized*/;
   }
+
 
   /**
    * Resolves the current {@link WrappedAxisAlignedBB} of the entity.
@@ -238,6 +255,22 @@ public class WrappedEntity {
    * @return the {@link WrappedAxisAlignedBB}
    */
   public WrappedAxisAlignedBB entityBoundingBox() {
-    return this.boundingBox;
+    if(boundingBox != null) {
+      return boundingBox;
+    }
+    return boundingBox = entityBoundingBoxFrom(position, this);
+  }
+
+  public static WrappedAxisAlignedBB entityBoundingBoxFrom(EntityPositionContext position, WrappedEntity entity) {
+    double x = position.posX;
+    double y = position.posY;
+    double z = position.posZ;
+
+    double halfWidth = entity.hitBoxBoundaries.width() / 2.0;
+    double length = entity.hitBoxBoundaries.length();
+    return new WrappedAxisAlignedBB(
+      x - halfWidth, y, z - halfWidth,
+      x + halfWidth, y + length, z + halfWidth
+    );
   }
 }

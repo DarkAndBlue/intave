@@ -48,14 +48,14 @@ public final class Raytracer {
     return blockRayTrace(player, playerLocation, playerLocation, blockReachDistance, eyeHeight, 1.0f);
   }
 
-  private static WrappedMovingObjectPosition blockRayTrace(Player player, Location location, Location prevLocation, double blockReachDistance, double eyeHeight, float partialTicks) {
+  public static WrappedMovingObjectPosition blockRayTrace(Player player, Location location, Location prevLocation, double blockReachDistance, double eyeHeight, float partialTicks) {
     WrappedVector eyeVector = resolvePositionEyes(location, prevLocation, eyeHeight, partialTicks);
     WrappedVector vec4 = resolveLookVector(location, prevLocation, partialTicks);
     WrappedVector targetVector = eyeVector.addVector(vec4.xCoord * blockReachDistance, vec4.yCoord * blockReachDistance, vec4.zCoord * blockReachDistance);
     return blockRayTrace(location.getWorld(), player, eyeVector, targetVector);
   }
 
-  private static WrappedMovingObjectPosition blockRayTrace(World world, Player player, WrappedVector eyeVector, WrappedVector targetVector) {
+  public static WrappedMovingObjectPosition blockRayTrace(World world, Player player, WrappedVector eyeVector, WrappedVector targetVector) {
     return versionRaytracer.raytrace(world, player, eyeVector, targetVector);
   }
 

@@ -10,9 +10,11 @@ import de.jpx3.intave.event.bukkit.BukkitEventLinker;
 import de.jpx3.intave.event.packet.PacketSubscriptionLinker;
 import de.jpx3.intave.event.service.RetributionService;
 import de.jpx3.intave.logging.IntaveLogger;
+import de.jpx3.intave.permission.PermissionCheck;
 import de.jpx3.intave.tools.annotate.Natify;
 import de.jpx3.intave.tools.client.SinusCache;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
+import de.jpx3.intave.trustfactor.TrustFactorService;
 import de.jpx3.intave.world.BlockAccessor;
 import de.jpx3.intave.world.collision.CollisionEngine;
 import de.jpx3.intave.world.permission.InteractionPermissionService;
@@ -32,7 +34,7 @@ public final class IntavePlugin extends JavaPlugin {
   private RetributionService retributionService;
   private CheckService checkService;
   private InteractionPermissionService interactionPermissionService;
-
+  private TrustFactorService trustFactorService;
   static {
     // stage 1
 
@@ -65,6 +67,9 @@ public final class IntavePlugin extends JavaPlugin {
 
     componentLoader = new ComponentLoader(this);
     componentLoader.loadComponents();
+
+    trustFactorService = new TrustFactorService(this);
+    trustFactorService.setup();
 
     // version mambo jumbo
 

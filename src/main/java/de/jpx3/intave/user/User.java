@@ -1,6 +1,7 @@
 package de.jpx3.intave.user;
 
 import de.jpx3.intave.access.IntaveInternalException;
+import de.jpx3.intave.permission.PermissionCache;
 import de.jpx3.intave.reflect.Reflection;
 import de.jpx3.intave.tools.AccessHelper;
 import org.bukkit.entity.Player;
@@ -15,6 +16,7 @@ public final class User {
   private final WeakReference<Player> playerRef;
   private final WeakReference<Object> nmsEntity;
   private final UserMeta userMeta;
+  private final PermissionCache permissionCache;
   private final boolean hasPlayer;
 
   private User(Player player) {
@@ -22,6 +24,7 @@ public final class User {
     this.nmsEntity = new WeakReference<>(Reflection.resolveEntityNMSHandle(player));
     this.hasPlayer = player != null;
     this.userMeta = new UserMeta(player, this);
+    this.permissionCache = new PermissionCache();
   }
 
   public UserMeta meta() {
@@ -56,6 +59,10 @@ public final class User {
       }
     }
     return userCustomCheckMeta;
+  }
+
+  public PermissionCache permissionCache() {
+    return permissionCache;
   }
 
   public static User empty() {

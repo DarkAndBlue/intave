@@ -3,8 +3,6 @@ package de.jpx3.intave.access;
 import java.util.List;
 
 public interface IntaveInternalAccess {
-  void setPermissionProcessor(IntavePermissionCheck resolver);
-
   void setTrustFactorResolver(TrustFactorResolver resolver);
   void setDefaultTrustFactor(TrustFactor defaultTrustFactor);
 

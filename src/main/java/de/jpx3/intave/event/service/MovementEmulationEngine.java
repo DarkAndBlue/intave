@@ -61,7 +61,7 @@ public final class MovementEmulationEngine {
       player.sendMessage("[E+] " + motion + " (" + ticks + " ticks)");
     }
 
-    proceedEmulationTick(player, motion, ticks);
+    proceedEmulationTick(player, motion, ticks, ticks);
   }
 
   public void emulationPushOutOfBlock(Player player) {
@@ -129,10 +129,10 @@ public final class MovementEmulationEngine {
     }
   }
 
-  private void proceedEmulationTick(Player player, Vector motion, int ticks) {
+  private void proceedEmulationTick(Player player, Vector motion, int ticks, int startingTicks) {
     if (!Bukkit.isPrimaryThread()) {
       Vector finalMotion1 = motion;
-      Synchronizer.synchronizeDelayed(() -> proceedEmulationTick(player, finalMotion1, ticks), 0);
+      Synchronizer.synchronizeDelayed(() -> proceedEmulationTick(player, finalMotion1, ticks, startingTicks), 0);
       return;
     }
 
@@ -140,6 +140,7 @@ public final class MovementEmulationEngine {
     if (!user.hasOnlinePlayer()) {
       return;
     }
+
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
     UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
@@ -147,17 +148,19 @@ public final class MovementEmulationEngine {
     // check motion status (velocity?)
     Location futurePosition = movementData.verifiedLocation();
     WrappedAxisAlignedBB boundingBox = CollisionHelper.boundingBoxOf(user, futurePosition);
-    motion = motionProceed(motion, user, boundingBox);
+
+    motion = motionProceed(motion, user, boundingBox, startingTicks > ticks);
 
     futurePosition = futurePosition.clone().add(motion);
     futurePosition.setYaw(movementData.rotationYaw);
     futurePosition.setPitch(movementData.rotationPitch);
 
     if ((Math.abs(motion.getX()) < 0.05 && Math.abs(motion.getZ()) < 0.05 && motion.getY() == 0.0) || ticks <= 0) {
+      // velocity
+
       teleport(player, futurePosition);
 
-      // velocity
-      Vector futureMotion = motionProceed(motion, user, boundingBox);
+      Vector futureMotion = motionProceed(motion, user, boundingBox, true);
       player.setVelocity(futureMotion);
 
       violationLevelData.isInActiveTeleportBundle = false;
@@ -177,32 +180,40 @@ public final class MovementEmulationEngine {
       //   s += " @" + movementData.entityBoundingBox();
 
       Vector finalMotion = motion;
-      Synchronizer.synchronizeDelayed(() -> proceedEmulationTick(player, finalMotion, ticks - 1), 1);
+      Synchronizer.synchronizeDelayed(() -> proceedEmulationTick(player, finalMotion, ticks - 1, startingTicks), 1);
 
       // velocity
-      Vector futureMotion = motionProceed(motion, user, boundingBox);
+      Vector futureMotion = motionProceed(motion, user, boundingBox, true);
       player.setVelocity(futureMotion);
     }
   }
 
-  private Vector motionProceed(Vector lastMotion, User user, WrappedAxisAlignedBB boundingBox) {
+  private Vector motionProceed(Vector lastMotion, User user, WrappedAxisAlignedBB boundingBox, boolean applyPhysics) {
     Player player = user.player();
     UserMetaMovementData movementData = user.meta().movementData();
-    double motionY;
-    if (movementData.inWater) {
-      motionY = lastMotion.getY() * 0.8f;
-      motionY -= 0.02;
-    } else {
-      motionY = (lastMotion.getY() - 0.08) * 0.98f;
+    double motionY = lastMotion.getY();
+    if(applyPhysics) {
+      // TODO: 01/07/21 ladder/vines
+
+      if (movementData.inWater) {
+        motionY = lastMotion.getY() * 0.8f;
+        motionY -= 0.02;
+      } else {
+        motionY = (lastMotion.getY() - 0.08) * 0.98f;
+      }
     }
     Vector collisionVector = resolveCollisionVector(player, boundingBox, lastMotion.getX(), motionY, lastMotion.getZ());
     boolean onGround = motionY != collisionVector.getY() && motionY < 0.0;
     motionY = collisionVector.getY();
     double multiplier;
-    if (movementData.inWater) {
-      multiplier = 0.8f;
+    if(applyPhysics) {
+      if (movementData.inWater) {
+        multiplier = 0.8f;
+      } else {
+        multiplier = onGround ? 0.546f : 0.91f;
+      }
     } else {
-      multiplier = onGround ? 0.546f : 0.91f;
+      multiplier = 1;
     }
     double motionX = lastMotion.getX() * multiplier;
     double motionZ = lastMotion.getZ() * multiplier;

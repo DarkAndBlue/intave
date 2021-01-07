@@ -8,7 +8,7 @@ import org.bukkit.ChatColor;
  * Created by Richard Strunk 2021
  */
 
-public enum TrustFactor {
+public enum TrustFactor implements Comparable<TrustFactor> {
   BYPASS(1000, ChatColor.WHITE, "intave.bypass"), // pocketmc
   DARK_GREEN(2, ChatColor.DARK_GREEN, "intave.trust.darkgreen"), // badlion
   GREEN(1, ChatColor.GREEN, "intave.trust.green"), // labymod / playtime
@@ -37,5 +37,17 @@ public enum TrustFactor {
   public TrustFactor unsafer() {
     TrustFactor[] values = values();
     return values[MathHelper.minmax(0, ordinal() + 1, values.length)];
+  }
+
+  public int factor() {
+    return factor;
+  }
+
+  public ChatColor chatColor() {
+    return chatColor;
+  }
+
+  public String permission() {
+    return permission;
   }
 }

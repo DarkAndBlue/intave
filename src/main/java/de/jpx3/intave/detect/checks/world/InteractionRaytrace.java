@@ -40,6 +40,8 @@ import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.STOP_DE
 public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytrace.InteractionMeta> {
   private final IntavePlugin plugin;
 
+  // TODO: 01/07/21 ADD USE_ITEM Packet (1.9+ !!!)
+
   public InteractionRaytrace(IntavePlugin plugin) {
     super("InteractionRaytrace", "interactionRaytrace", InteractionMeta.class);
     this.plugin = plugin;
