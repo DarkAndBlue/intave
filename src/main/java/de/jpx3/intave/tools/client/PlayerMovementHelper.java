@@ -8,7 +8,7 @@ import de.jpx3.intave.user.UserMetaPotionData;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.world.BlockAccessor;
 import de.jpx3.intave.world.BlockLiquidHelper;
-import de.jpx3.intave.world.collision.CollisionFactory;
+import de.jpx3.intave.world.collision.Collision;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -62,7 +62,7 @@ public final class PlayerMovementHelper {
   }
 
   private static boolean isLiquidPresentInAABB(Player player, WrappedAxisAlignedBB boundingBox) {
-    List<WrappedAxisAlignedBB> collisionBoxes = CollisionFactory.getCollisionBoxes(player, boundingBox);
+    List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolveCollidingBoundingBoxes(player, boundingBox);
     return collisionBoxes.isEmpty() && !isAnyLiquid(player.getWorld(), boundingBox);
   }
 

@@ -6,7 +6,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 
-public final class CBBreakPermissionResolver extends BlockBreakPermissionCheck {
+public final class CBBreakPermissionResolver implements BlockBreakPermissionCheck {
   @Override
   public boolean hasPermission(Player player, Block block) {
     BlockBreakEvent blockBreakEvent = new PermissionCheckBlockBreakEvent(block, player);

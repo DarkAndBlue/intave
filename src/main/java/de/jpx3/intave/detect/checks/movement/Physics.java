@@ -19,7 +19,7 @@ import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.BlockAccessor;
-import de.jpx3.intave.world.collision.CollisionFactory;
+import de.jpx3.intave.world.collision.Collision;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -127,6 +127,13 @@ public final class Physics extends IntaveCheck {
     float yawSine = SinusCache.sin(rotationYaw * (float) Math.PI / 180.0F, false);
     float yawCosine = SinusCache.cos(rotationYaw * (float) Math.PI / 180.0F, false);
     long startTime = System.nanoTime();
+
+//    WrappedAxisAlignedBB grow = movementData.boundingBox().grow(0.5);
+//    long start = System.nanoTime();
+//    List<WrappedAxisAlignedBB> resolve = Collision.resolve(player, grow);
+//    long duration = System.nanoTime() - start;
+//    player.sendMessage(resolve + " " + duration + " ns");
+
     /*
     Physics process
      */
@@ -1270,7 +1277,7 @@ public final class Physics extends IntaveCheck {
 
       double d6;
 
-      for (d6 = 0.05D; context.motionX != 0.0D && CollisionFactory.getCollisionBoxes(player, boundingBox.offset(context.motionX, -1.0D, 0.0D)).isEmpty(); startMotionX = context.motionX) {
+      for (d6 = 0.05D; context.motionX != 0.0D && Collision.resolveCollidingBoundingBoxes(player, boundingBox.offset(context.motionX, -1.0D, 0.0D)).isEmpty(); startMotionX = context.motionX) {
         if (context.motionX < d6 && context.motionX >= -d6) {
           context.motionX = 0.0D;
         } else if (context.motionX > 0.0D) {
@@ -1280,7 +1287,7 @@ public final class Physics extends IntaveCheck {
         }
       }
 
-      for (; context.motionZ != 0.0D && CollisionFactory.getCollisionBoxes(player, boundingBox.offset(0.0D, -1.0D, context.motionZ)).isEmpty(); startMotionZ = context.motionZ) {
+      for (; context.motionZ != 0.0D && Collision.resolveCollidingBoundingBoxes(player, boundingBox.offset(0.0D, -1.0D, context.motionZ)).isEmpty(); startMotionZ = context.motionZ) {
         if (context.motionZ < d6 && context.motionZ >= -d6) {
           context.motionZ = 0.0D;
         } else if (context.motionZ > 0.0D) {
@@ -1290,7 +1297,7 @@ public final class Physics extends IntaveCheck {
         }
       }
 
-      for (; context.motionX != 0.0D && context.motionZ != 0.0D && CollisionFactory.getCollisionBoxes(player, boundingBox.offset(context.motionX, -1.0D, context.motionZ)).isEmpty(); startMotionZ = context.motionZ) {
+      for (; context.motionX != 0.0D && context.motionZ != 0.0D && Collision.resolveCollidingBoundingBoxes(player, boundingBox.offset(context.motionX, -1.0D, context.motionZ)).isEmpty(); startMotionZ = context.motionZ) {
         if (context.motionX < d6 && context.motionX >= -d6) {
           context.motionX = 0.0D;
         } else if (context.motionX > 0.0D) {
@@ -1311,7 +1318,7 @@ public final class Physics extends IntaveCheck {
       }
     }
 
-    List<WrappedAxisAlignedBB> collisionBoxes = CollisionFactory.getCollisionBoxes(
+    List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolveCollidingBoundingBoxes(
       player, movementData.boundingBox().addCoord(context.motionX, context.motionY, context.motionZ)
     );
     WrappedAxisAlignedBB startBoundingBox = movementData.boundingBox();
@@ -1340,7 +1347,7 @@ public final class Physics extends IntaveCheck {
       WrappedAxisAlignedBB axisalignedbb3 = entityBoundingBox;
       entityBoundingBox = startBoundingBox;
       context.motionY = STEP_HEIGHT;
-      List<WrappedAxisAlignedBB> list = CollisionFactory.getCollisionBoxes(
+      List<WrappedAxisAlignedBB> list = Collision.resolveCollidingBoundingBoxes(
         player,
         entityBoundingBox.addCoord(startMotionX, startMotionY, startMotionZ)
       );

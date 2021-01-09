@@ -21,7 +21,7 @@ import org.bukkit.inventory.ItemStack;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public final class DualHandCBPlacePermissionResolver extends BlockPlacePermissionCheck {
+public final class DualHandCBPlacePermissionResolver implements BlockPlacePermissionCheck {
   @Override
   @PatchyAutoTranslation
   public boolean hasPermission(Player player, World world, boolean mainHand, int blockX, int blockY, int blockZ, int typeId, byte data) {

@@ -14,7 +14,7 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserMetaViolationLevelData;
 import de.jpx3.intave.user.UserRepository;
-import de.jpx3.intave.world.collision.CollisionFactory;
+import de.jpx3.intave.world.collision.Collision;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -295,7 +295,7 @@ public final class MovementEmulationEngine {
     WrappedAxisAlignedBB entityBoundingBox,
     double motionX, double motionY, double motionZ
   ) {
-    List<WrappedAxisAlignedBB> collisionBoxes = CollisionFactory.getCollisionBoxes(player, entityBoundingBox.addCoord(motionX, motionY, motionZ));
+    List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolveCollidingBoundingBoxes(player, entityBoundingBox.addCoord(motionX, motionY, motionZ));
 
     // motion y
     for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
@@ -360,6 +360,6 @@ public final class MovementEmulationEngine {
   }
 
   private boolean hasEmptyCollisionBox(Player player, WrappedBlockPosition blockPosition) {
-    return CollisionFactory.getCollisionBoxes(player, CollisionHelper.boundingBoxOf(blockPosition)).isEmpty();
+    return Collision.resolveCollidingBoundingBoxes(player, CollisionHelper.boundingBoxOf(blockPosition)).isEmpty();
   }
 }

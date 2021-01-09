@@ -13,11 +13,14 @@ import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.annotate.Natify;
 import de.jpx3.intave.tools.client.SinusCache;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
+import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.trustfactor.TrustFactorService;
 import de.jpx3.intave.world.BlockAccessor;
-import de.jpx3.intave.world.collision.CollisionEngine;
+import de.jpx3.intave.world.collision.BoundingBoxAccess;
+import de.jpx3.intave.world.collision.garbage.ForwardingCBBResolver;
 import de.jpx3.intave.world.permission.InteractionPermissionService;
 import de.jpx3.intave.world.raytrace.Raytracer;
+import de.jpx3.patchy.PatchyLoadingInjector;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class IntavePlugin extends JavaPlugin {
@@ -34,12 +37,12 @@ public final class IntavePlugin extends JavaPlugin {
   private CheckService checkService;
   private InteractionPermissionService interactionPermissionService;
   private TrustFactorService trustFactorService;
+
   static {
     // stage 1
 
 
-    // minecraft injection patches
-  }
+ }
 
   public IntavePlugin() {
     // stage 2
@@ -84,10 +87,11 @@ public final class IntavePlugin extends JavaPlugin {
 
     Raytracer.setup();
     SinusCache.setup();
+    Synchronizer.setup();
     BlockAccessor.setup();
     ViaVersionAdapter.setup();
     InventoryUseItemHelper.setup();
-    CollisionEngine.setup();
+    ForwardingCBBResolver.setup();
 
     try {
       // stage 7

@@ -1,4 +1,4 @@
-package de.jpx3.intave.world.collision;
+package de.jpx3.intave.world.collision.garbage.forward;
 
 import com.google.common.collect.Lists;
 import de.jpx3.intave.reflect.Reflection;
@@ -18,17 +18,17 @@ import java.util.stream.Stream;
 import static de.jpx3.intave.reflect.Reflection.NMS_AABB_CLASS;
 import static de.jpx3.intave.reflect.Reflection.NMS_ENTITY_CLASS;
 
-public final class CollisionResolverVoxelShapes extends AbstractCollisionDefaultResolver {
-  private static MethodHandle collisionBoxesMethodHandle;
+public final class CollisionResolverBeeUpdate extends AbstractCollisionDefaultResolver {
+  private static MethodHandle cubeMethodHandle;
   private static MethodHandle voxelShapesToBoundingBoxHandle;
 
   @Override
-  void setup() throws Exception {
-    Class<?> collisionClass = resolveConditionalClass();
-    MethodType methodType = resolveMethodType();
-    collisionBoxesMethodHandle = MethodHandles
+  public void setup() throws Exception {
+    Class<?> collisionAccessClass = resolveCollisionAccessClass();
+    MethodType methodType = resolveNewMethodType();
+    cubeMethodHandle = MethodHandles
       .lookup()
-      .findVirtual(collisionClass, "b", methodType);
+      .findVirtual(collisionAccessClass, "b", methodType);
 
     MethodType boundingBoxMethodType = voxelShapeToBoundingBoxesMethodType();
     Class<?> voxelShapeClass = resolveVoxelShapeClass();
@@ -45,7 +45,7 @@ public final class CollisionResolverVoxelShapes extends AbstractCollisionDefault
     Object world = movementData.nmsWorld();
 
     try {
-      Stream<?> voxelShapes = (Stream<?>) collisionBoxesMethodHandle.invoke(world, nmsEntity, boundingBox.unwrap());
+      Stream<?> voxelShapes = (Stream<?>) cubeMethodHandle.invoke(world, nmsEntity, boundingBox.unwrap());
       List<WrappedAxisAlignedBB> boundingBoxes = Lists.newArrayList();
       voxelShapes.forEach(voxelShape -> boundingBoxes.addAll(boundingBoxesFromVoxelShape(voxelShape)));
       return boundingBoxes;
@@ -67,17 +67,16 @@ public final class CollisionResolverVoxelShapes extends AbstractCollisionDefault
     }
   }
 
+  private MethodType resolveNewMethodType() {
+    return MethodType.methodType(Stream.class, NMS_ENTITY_CLASS, NMS_AABB_CLASS);
+  }
+
+  private Class<?> resolveCollisionAccessClass() {
+    return Reflection.lookupServerClass("ICollisionAccess");
+  }
+
   private Class<?> resolveVoxelShapeClass() {
     return Reflection.lookupServerClass("VoxelShape");
-  }
-
-  private Class<?> resolveConditionalClass() {
-    String className = "IWorldReader";
-    return Reflection.lookupServerClass(className);
-  }
-
-  private MethodType resolveMethodType() {
-    return MethodType.methodType(Stream.class, NMS_ENTITY_CLASS, NMS_AABB_CLASS);
   }
 
   private MethodType voxelShapeToBoundingBoxesMethodType() {

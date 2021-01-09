@@ -4,6 +4,7 @@ import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.permission.PermissionCache;
 import de.jpx3.intave.reflect.Reflection;
 import de.jpx3.intave.tools.AccessHelper;
+import de.jpx3.intave.world.collision.BoundingBoxAccess;
 import org.bukkit.entity.Player;
 
 import java.lang.ref.WeakReference;
@@ -17,6 +18,7 @@ public final class User {
   private final WeakReference<Object> nmsEntity;
   private final UserMeta userMeta;
   private final PermissionCache permissionCache;
+  private final BoundingBoxAccess boundingBoxAccess;
   private final boolean hasPlayer;
   private boolean ignoreNextPacket;
 
@@ -26,6 +28,7 @@ public final class User {
     this.hasPlayer = player != null;
     this.userMeta = new UserMeta(player, this);
     this.permissionCache = new PermissionCache();
+    this.boundingBoxAccess = new BoundingBoxAccess(hasOnlinePlayer() ? player() : null);
   }
 
   public UserMeta meta() {
@@ -76,6 +79,10 @@ public final class User {
 
   public void receiveNextPacket() {
     this.ignoreNextPacket = false;
+  }
+
+  public BoundingBoxAccess boundingBoxAccess() {
+    return boundingBoxAccess;
   }
 
   public static User empty() {

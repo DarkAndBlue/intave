@@ -2,14 +2,13 @@ package de.jpx3.intave.event.packet;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
-import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.user.UserRepository;
 
 import java.util.Collection;
 
-public final class ForwardingPacketAdapter extends PacketAdapter {
+public final class ForwardingPacketAdapter extends IntavePacketAdapter {
   private final Collection<LocalPacketAdapter> targetList;
 
   public ForwardingPacketAdapter(
@@ -38,9 +37,5 @@ public final class ForwardingPacketAdapter extends PacketAdapter {
     for (LocalPacketAdapter localPacketAdapter : targetList) {
       localPacketAdapter.onPacketReceiving(event);
     }
-  }
-
-  public void tryRemovePluginReference() {
-    plugin = null;
   }
 }

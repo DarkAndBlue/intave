@@ -5,23 +5,35 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.detect.EventProcessor;
+import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.event.packet.*;
 import de.jpx3.intave.tools.MathHelper;
+import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedEnumDirection;
+import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.world.BlockAccessor;
+import de.jpx3.intave.world.collision.BoundingBoxAccess;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.STOP_DESTROY_BLOCK;
 
-public final class BlockActionDispatcher implements PacketEventSubscriber {
+public final class BlockActionDispatcher implements EventProcessor {
   private final IntavePlugin plugin;
+
+  // TODO: 01/09/21 prevent invalid chunk access
 
   public BlockActionDispatcher(IntavePlugin plugin) {
     this.plugin = plugin;
     this.plugin.packetSubscriptionLinker().linkSubscriptionsIn(this);
+    this.plugin.eventLinker().registerEventsIn(this);
   }
 
   @PacketSubscription(
@@ -56,11 +68,15 @@ public final class BlockActionDispatcher implements PacketEventSubscriber {
     boolean isPlacement = itemTypeInHand != Material.AIR && itemTypeInHand.isBlock();
 
     if(isPlacement) {
-      final int blockX = blockPlacementLocation.getBlockX();
-      final int blockY = blockPlacementLocation.getBlockY();
-      final int blockZ = blockPlacementLocation.getBlockZ();
+      int blockX = blockPlacementLocation.getBlockX();
+      int blockY = blockPlacementLocation.getBlockY();
+      int blockZ = blockPlacementLocation.getBlockZ();
 
       EnumWrappers.Hand hand = packet.getHands().readSafely(0);
+
+      int id = itemTypeInHand.getId();
+      byte shape = 0;
+
       boolean access = plugin.interactionPermissionService()
         .blockPlacePermissionCheck()
         .hasPermission(
@@ -68,15 +84,27 @@ public final class BlockActionDispatcher implements PacketEventSubscriber {
           world,
           hand == null || hand == EnumWrappers.Hand.MAIN_HAND,
           blockX, blockY, blockZ,
-          itemTypeInHand.getId(),
+          id,
           (byte) 0
         );
 
       if(access) {
         // add to future bounding boxes
 
-        player.sendMessage("Block-placement confirmation for " + MathHelper.formatPosition(blockPlacementLocation));
+//        player.sendMessage("Block-placement confirmation for " + MathHelper.formatPosition(blockPlacementLocation));
+
+        BoundingBoxAccess boundingBoxAccess = UserRepository.userOf(player).boundingBoxAccess();
+        boundingBoxAccess.override(world, blockX, blockY, blockZ, id, shape);
+
+        Synchronizer.synchronize(() -> {
+          boundingBoxAccess.invalidate(blockX, blockY, blockZ);
+          boundingBoxAccess.invalidateOverride(world, blockX, blockY, blockZ);
+        });
       }
+    } else {
+
+      // doors etc
+
     }
   }
 
@@ -117,10 +145,62 @@ public final class BlockActionDispatcher implements PacketEventSubscriber {
         BlockAccessor.blockAccess(blockBreakLocation)
       );
 
+    Bukkit.broadcastMessage("Block-break confirmation for " + MathHelper.formatPosition(blockBreakLocation) + ": " + access);
+
     if(access) {
+      int blockX = blockBreakLocation.getBlockX();
+      int blockY = blockBreakLocation.getBlockY();
+      int blockZ = blockBreakLocation.getBlockZ();
+
       // add to future bounding boxes
 
-      player.sendMessage("Block-break confirmation for " + MathHelper.formatPosition(blockBreakLocation));
+      BoundingBoxAccess boundingBoxAccess = UserRepository.userOf(player).boundingBoxAccess();
+      boundingBoxAccess.override(world, blockX, blockY, blockZ, 0, (byte) 0);
+
+      Synchronizer.synchronize(() -> {
+        boundingBoxAccess.invalidate(blockX, blockY, blockZ);
+        boundingBoxAccess.invalidateOverride(world, blockX, blockY, blockZ);
+      });
     }
   }
+
+/*  @BukkitEventSubscription
+  public void on(BlockPlaceEvent event) {
+    if(event.getClass() != BlockPlaceEvent.class) {
+      return;
+    }
+
+    Player player = event.getPlayer();
+
+    Block block = event.getBlockPlaced();
+    World world = block.getWorld();
+
+    int posX = block.getX();
+    int posY = block.getY();
+    int posZ = block.getZ();
+
+    BoundingBoxAccess boundingBoxAccess = UserRepository.userOf(player).boundingBoxAccess();
+    boundingBoxAccess.invalidate(posX, posY, posZ);
+    boundingBoxAccess.invalidateOverride(world, posX, posY, posZ);
+  }
+
+  @BukkitEventSubscription
+  public void on(BlockBreakEvent event) {
+    if(event.getClass() != BlockBreakEvent.class) {
+      return;
+    }
+
+    Player player = event.getPlayer();
+
+    Block block = event.getBlock();
+    World world = block.getWorld();
+
+    int posX = block.getX();
+    int posY = block.getY();
+    int posZ = block.getZ();
+
+    BoundingBoxAccess boundingBoxAccess = UserRepository.userOf(player).boundingBoxAccess();
+    boundingBoxAccess.invalidate(posX, posY, posZ);
+    boundingBoxAccess.invalidateOverride(world, posX, posY, posZ);
+  }*/
 }

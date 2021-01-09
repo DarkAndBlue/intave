@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PacketSubscription {
   ListenerPriority priority() default ListenerPriority.NORMAL;
+  PrioritySlot prioritySlot() default PrioritySlot.INTERNAL;
   String identifier() default "no identifier assigned";
   PacketDescriptor[] packets();
 }

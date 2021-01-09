@@ -79,7 +79,11 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
 
     List<Attack> remainingAttacks = attackRaytraceMeta.remainingAttacks;
 
+
     if(!remainingAttacks.isEmpty()) {
+//      int attacks = remainingAttacks.size();
+//      long duration = 0;
+
 //      player.sendMessage(String.valueOf(diff));
       for (Attack remainingAttack : remainingAttacks) {
         WrappedEntity entity = entityByIdentifier(user, remainingAttack.entityId());
@@ -96,15 +100,18 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
             invalid = processReachCheck(player, entity);
           } else {
             //TODO: Old check
+//            iterative = true;
             invalid = processIterativeReachCheck(player, entity);
           }
         }
+//        duration += System.nanoTime() - start;
 
         if(!invalid) {
           receiveExcludedPacket(player, remainingAttack.packet);
         }
       }
 
+//      player.sendMessage(duration + " ns | " + attacks);
       remainingAttacks.clear();
     }
 
@@ -212,7 +219,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
       entity.position = possiblePosition.clone();
       entity.alternativePosition = entity.possibleAlternativePositions.get(index).clone();
 
-      // TODO: 01/07/21 add trust-factor-based length tolerance
+      // TODO: 01/07/21 add trust-factor based length tolerance
 
       int originalNewPosRotationIncrements = entity.newPosRotationIncrements;
       entity.newPosRotationIncrements = 3;
@@ -224,7 +231,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
         // normal
         double reach = distanceOf(
           player,
-          entity.entityBoundingBox().grow(0.1),
+          entity.entityBoundingBox().grow(0.15),
           entity.position, entity.alternativePosition,
           alternativePositionY,
           movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ,
@@ -236,7 +243,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
           // mouse delay fix
           reach = distanceOf(
             player,
-            entity.entityBoundingBox().grow(0.1),
+            entity.entityBoundingBox().grow(0.15),
             entity.position, entity.alternativePosition,
             alternativePositionY,
             movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ,

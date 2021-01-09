@@ -7,7 +7,7 @@ import de.jpx3.intave.user.UserRepository;
 
 import java.util.Arrays;
 
-public final class LocalPacketAdapter implements Comparable<LocalPacketAdapter> {
+public final class LocalPacketAdapter extends IntavePacketAdapter implements Comparable<LocalPacketAdapter> {
   private final static boolean TEMP_PLAYER_CHECK;
   static {
     TEMP_PLAYER_CHECK = Arrays.stream(PacketEvent.class.getMethods())
@@ -26,7 +26,7 @@ public final class LocalPacketAdapter implements Comparable<LocalPacketAdapter> 
     ListenerPriority priority, PacketType[] packetTypes,
     String methodName, PacketSubscriptionMethodExecutor executor
   ) {
-//    super(plugin, com.comphenix.protocol.events.ListenerPriority.LOWEST, packetTypes);\
+    super(plugin, com.comphenix.protocol.events.ListenerPriority.LOWEST, packetTypes);
     this.subscriber = subscriber;
     this.methodName = methodName;
     this.priority = priority;

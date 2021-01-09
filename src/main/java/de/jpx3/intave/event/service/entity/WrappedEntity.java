@@ -19,7 +19,7 @@ public class WrappedEntity {
   /**
    * Indicates if the entity position is synchronized with the client
    */
-  public volatile boolean clientSynchronized;
+  public volatile boolean clientSynchronized = true;
 
   /**
    * This value is used to interpolate the positions of the Entity

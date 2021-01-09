@@ -13,7 +13,7 @@ import de.jpx3.intave.tools.client.PlayerMovementLocaleHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.*;
-import de.jpx3.intave.world.collision.CollisionFactory;
+import de.jpx3.intave.world.collision.Collision;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.util.Vector;
@@ -241,7 +241,7 @@ public final class MovementDispatcher implements EventProcessor {
     if (width != movementData.width || height != movementData.height) {
       WrappedAxisAlignedBB boundingBox = movementData.boundingBox();
       boundingBox = new WrappedAxisAlignedBB(boundingBox.minX, boundingBox.minY, boundingBox.minZ, boundingBox.minX + (double) width, boundingBox.minY + (double) height, boundingBox.minZ + (double) width);
-      if (CollisionFactory.getCollisionBoxes(user.player(), boundingBox).isEmpty()) {
+      if (Collision.resolveCollidingBoundingBoxes(user.player(), boundingBox).isEmpty()) {
         movementData.width = width;
         movementData.height = height;
       }
@@ -249,7 +249,8 @@ public final class MovementDispatcher implements EventProcessor {
   }
 
   @PacketSubscription(
-    priority = ListenerPriority.LOW,
+    priority = ListenerPriority.MONITOR,
+    prioritySlot = PrioritySlot.EXTERNAL,
     packets = {
       @PacketDescriptor(sender = Sender.SERVER, packetName = "ENTITY_VELOCITY")
     }

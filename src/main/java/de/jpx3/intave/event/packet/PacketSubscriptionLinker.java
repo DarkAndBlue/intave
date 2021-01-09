@@ -17,8 +17,9 @@ import java.util.function.IntFunction;
 
 public final class PacketSubscriptionLinker {
   private final IntavePlugin plugin;
-  private final Map<PacketType, SCOWAList<LocalPacketAdapter>> intavePacketListeners = new ConcurrentHashMap<>();
-  private final List<ForwardingPacketAdapter> outboundPacketListener = new ArrayList<>();
+  private final Map<PacketType, SCOWAList<LocalPacketAdapter>> internalPacketListenerMappings = new ConcurrentHashMap<>();
+  private final List<IntavePacketAdapter> internalPacketListener = new ArrayList<>();
+  private final List<IntavePacketAdapter> externalPacketListener = new ArrayList<>();
   private final static boolean NO_CHAT_HOOKUP = false;
 
   public PacketSubscriptionLinker(IntavePlugin plugin) {
@@ -37,7 +38,7 @@ public final class PacketSubscriptionLinker {
   }
 
   public void removeSubscriptionsOf(PacketEventSubscriber subscriber) {
-    for (SCOWAList<LocalPacketAdapter> value : intavePacketListeners.values()) {
+    for (SCOWAList<LocalPacketAdapter> value : internalPacketListenerMappings.values()) {
       value.removeIf(localPacketAdapter -> localPacketAdapter.subscriber() == subscriber);
     }
     if(plugin.isEnabled()) {
@@ -46,46 +47,44 @@ public final class PacketSubscriptionLinker {
   }
 
   public void reset() {
-    for (ForwardingPacketAdapter packetListener : outboundPacketListener) {
+    for (IntavePacketAdapter packetListener : internalPacketListener) {
       unlinkAdapter(packetListener);
       packetListener.tryRemovePluginReference();
     }
-    outboundPacketListener.clear();
+    internalPacketListener.clear();
+    for (IntavePacketAdapter packetListener : externalPacketListener) {
+      unlinkAdapter(packetListener);
+      packetListener.tryRemovePluginReference();
+    }
+    externalPacketListener.clear();
     ProtocolLibrary.getProtocolManager().removePacketListeners(plugin);
-    intavePacketListeners.values().forEach(SCOWAList::clear);
-    intavePacketListeners.clear();
+    internalPacketListenerMappings.values().forEach(SCOWAList::clear);
+    internalPacketListenerMappings.clear();
   }
 
   public void refreshInternalSubscriptions() {
     ProtocolLibrary.getProtocolManager().removePacketListeners(plugin);
-    for (PacketType packetType : intavePacketListeners.keySet()) {
-      bakeSubscriptions(packetType, intavePacketListeners.get(packetType));
+    for (PacketType packetType : internalPacketListenerMappings.keySet()) {
+      bakeSubscriptions(packetType, internalPacketListenerMappings.get(packetType));
+    }
+    for (IntavePacketAdapter intavePacketAdapter : externalPacketListener) {
+      linkAdapter(intavePacketAdapter);
     }
   }
 
   private void bakeSubscriptions(PacketType type, SCOWAList<LocalPacketAdapter> localPacketAdapters) {
     ForwardingPacketAdapter adapter = new ForwardingPacketAdapter(plugin, type, localPacketAdapters);
-    outboundPacketListener.add(adapter);
+    internalPacketListener.add(adapter);
     linkAdapter(adapter);
   }
 
-  private void linkAdapter(ForwardingPacketAdapter adapter) {
+  private void linkAdapter(IntavePacketAdapter adapter) {
     ProtocolLibrary.getProtocolManager().addPacketListener(adapter);
   }
 
-  private void unlinkAdapter(ForwardingPacketAdapter adapter) {
+  private void unlinkAdapter(IntavePacketAdapter adapter) {
     ProtocolLibrary.getProtocolManager().removePacketListener(adapter);
   }
-
-  /*public void removeSubscriptionsOf(PacketEventSubscriber subscriber) {
-    for (WeakReference<ForwardingPacketAdapter> packetAdapterWR : packetAdapters) {
-      ForwardingPacketAdapter packetAdapter = packetAdapterWR.get();
-      if (packetAdapter != null && packetAdapter.subscriber() == subscriber) {
-        ProtocolLibrary.getProtocolManager().removePacketListener(packetAdapter);
-      }
-    }
-    packetAdapters.removeIf(x -> x.get() == null);
-  }*/
 
   private boolean methodRequestsSubscription(Method method) {
     return annotatedAsSubscription(method) && validParameters(method) && validModifiers(method);
@@ -107,7 +106,11 @@ public final class PacketSubscriptionLinker {
   private void linkSubscription(PacketEventSubscriber subscriber, Method method) {
     PacketSubscription metadata = method.getAnnotation(PacketSubscription.class);
     PacketSubscriptionMethodExecutor executor = assembleSubscriptionMethodCaller(subscriber, method, metadata.identifier());
-    performInternalLinkage(plugin, subscriber, metadata.priority(), translatePacketTypes(metadata.packets()), method.getName(), executor);
+    if(metadata.prioritySlot() == PrioritySlot.INTERNAL) {
+      performInternalLinkage(plugin, subscriber, metadata.priority(), translatePacketTypes(metadata.packets()), method.getName(), executor);
+    } else {
+      performExternalLinkage(plugin, subscriber, metadata.priority(), translatePacketTypes(metadata.packets()), method.getName(), executor);
+    }
   }
 
   private PacketType[] translatePacketTypes(PacketDescriptor[] packetDescriptors) {
@@ -135,10 +138,6 @@ public final class PacketSubscriptionLinker {
         packetType == PacketType.Play.Server.TAB_COMPLETE ||
         packetType == PacketType.Play.Client.CHAT;
     }
-
-//    return !(packetType == PacketType.Play.Client.POSITION ||
-//      packetType == PacketType.Play.Client.POSITION_LOOK);
-
     return false;
   }
 
@@ -218,7 +217,20 @@ public final class PacketSubscriptionLinker {
     }
     LocalPacketAdapter adapter = new LocalPacketAdapter(plugin, subscriber, priority, translatePacketTypes, methodName, executor);
     for (PacketType translatePacketType : translatePacketTypes) {
-      intavePacketListeners.computeIfAbsent(translatePacketType, x -> new SCOWAList<>()).add(adapter);
+      internalPacketListenerMappings.computeIfAbsent(translatePacketType, x -> new SCOWAList<>()).add(adapter);
     }
+  }
+
+  private void performExternalLinkage(
+    IntavePlugin plugin, PacketEventSubscriber subscriber,
+    ListenerPriority priority, PacketType[] translatePacketTypes,
+    String methodName, PacketSubscriptionMethodExecutor executor
+  ) {
+    if(translatePacketTypes.length == 0) {
+      return;
+    }
+    LocalPacketAdapter adapter = new LocalPacketAdapter(plugin, subscriber, priority, translatePacketTypes, methodName, executor);
+    linkAdapter(adapter);
+    externalPacketListener.add(adapter);
   }
 }

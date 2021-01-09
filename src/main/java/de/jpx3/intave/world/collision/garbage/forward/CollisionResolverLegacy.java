@@ -1,4 +1,4 @@
-package de.jpx3.intave.world.collision;
+package de.jpx3.intave.world.collision.garbage.forward;
 
 import com.google.common.collect.Lists;
 import de.jpx3.intave.reflect.ReflectionFailureException;
@@ -19,7 +19,7 @@ public final class CollisionResolverLegacy extends AbstractCollisionDefaultResol
   private static MethodHandle cubeMethodHandle;
 
   @Override
-  void setup() throws Exception {
+  public void setup() throws Exception {
     MethodType methodType = resolveLegacyMethodType();
     cubeMethodHandle = MethodHandles
       .lookup()
