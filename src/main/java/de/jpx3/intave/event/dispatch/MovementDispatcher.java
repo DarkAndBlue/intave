@@ -14,7 +14,6 @@ import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.collision.Collision;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.util.Vector;
@@ -267,18 +266,18 @@ public final class MovementDispatcher implements EventProcessor {
     );
     if (packet.getEntityModifier(event).readSafely(0) == player) {
 
-      // ignore setback velocity packet
-      User user1 = UserRepository.userOf(player);
-      if(user1.meta().violationLevelData().isInActiveTeleportBundle) {
-        return;
-      }
-
       plugin.eventService().transactionFeedbackService().requestPong(player, velocity, (player1, velocity1) -> {
         User user = UserRepository.userOf(player1);
-        UserMetaMovementData movementData = user.meta().movementData();
-        movementData.physicsLastMotionX = velocity1.getX();
-        movementData.physicsLastMotionY = velocity1.getY();
-        movementData.physicsLastMotionZ = velocity1.getZ();
+        User.UserMeta meta = user.meta();
+        UserMetaMovementData movementData = meta.movementData();
+        UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
+        if (violationLevelData.isInActiveTeleportBundle) {
+          movementData.emulationVelocity = velocity1.clone();
+        } else {
+          movementData.physicsLastMotionX = velocity1.getX();
+          movementData.physicsLastMotionY = velocity1.getY();
+          movementData.physicsLastMotionZ = velocity1.getZ();
+        }
         movementData.pastVelocity = 0;
       });
     }
