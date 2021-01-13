@@ -1,10 +1,15 @@
 package de.jpx3.intave.world.raytrace;
 
+import de.jpx3.intave.event.service.entity.WrappedEntity;
 import de.jpx3.intave.reflect.Reflection;
 import de.jpx3.intave.reflect.ReflectionFailureException;
+import de.jpx3.intave.tools.client.PlayerRotationHelper;
 import de.jpx3.intave.tools.client.SinusCache;
+import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMovingObjectPosition;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.patchy.PatchyLoadingInjector;
 import org.bukkit.GameMode;
@@ -40,22 +45,68 @@ public final class Raytracer {
     }
   }
 
-/*  public static void ignoreBlock(Player player, Location location) {
-    UserRepository.userOf(player).raytracerIgnore.add(location);
+  public static double distanceOf(
+    Player player, WrappedEntity entity,
+    boolean useAlternativePositionY,
+    double prevPosX, double prevPosY, double prevPosZ,
+    float prevYaw, float pitch
+  ) {
+    return distanceOf(
+      player,
+      entity.entityBoundingBox(),
+      entity.position, entity.alternativePosition,
+      useAlternativePositionY,
+      prevPosX, prevPosY, prevPosZ,
+      prevYaw, pitch
+    );
   }
 
-  public static void clearIgnoreBlock(Player player, Location location) {
-    UserRepository.userOf(player).raytracerIgnore.remove(location);
-  }
+  /**
+   * Takes a entity and returns the range between the player and the entity. (Client side its called "getMouseOver" and
+   * is from EntityRenderer.java)
+   *
+   * @return distance the distance between the entity and the eyes of the player 0 means the player is inside of the
+   * entity -1 means the player hit outside of the hitbox of the entity >0 means the reach of the player
+   */
+  public static double distanceOf(
+    Player player,
+    WrappedAxisAlignedBB entityBoundingBox,
+    WrappedEntity.EntityPositionContext position,
+    WrappedEntity.EntityPositionContext alternativePosition,
+    boolean alternativePositionY,
+    double prevPosX, double prevPosY, double prevPosZ,
+    float prevYaw, float pitch
+  ) {
+    WrappedVector eyeVector = positionEyes(player, prevPosX, prevPosY, prevPosZ);
+    double blockReachDistance = 6d;
+    WrappedVector interpolatedLookVec = PlayerRotationHelper.wrappedVectorForRotation(pitch, prevYaw);
+    WrappedVector lookVector = eyeVector.addVector(
+      interpolatedLookVec.xCoord * blockReachDistance,
+      interpolatedLookVec.yCoord * blockReachDistance,
+      interpolatedLookVec.zCoord * blockReachDistance
+    );
 
-  public static boolean isIgnored(Player player, BlockPosition blockPosition) {
-    for (Location location : UserRepository.userOf(player).raytracerIgnore) {
-      if(blockPosition.toLocation(player.getWorld()).equals(location)) {
-        return true;
-      }
+    WrappedAxisAlignedBB hitBox = entityBoundingBox.expand(0.1f, 0.1f, 0.1f);
+    if (alternativePositionY) {
+      hitBox = hitBox.addJustMaxY(alternativePosition.posY - position.posY);
     }
-    return false;
-  }*/
+    WrappedMovingObjectPosition movingObjectPosition = hitBox.calculateIntercept(eyeVector, lookVector);
+    if (hitBox.isVecInside(eyeVector)) {
+      return 0;
+    } else if (movingObjectPosition != null) {
+      WrappedMovingObjectPosition blockMovingPosition = Raytracer.blockRayTrace(player.getWorld(), player, eyeVector, lookVector);
+
+      double distanceToBlock = blockMovingPosition == null || blockMovingPosition.hitVec == null ? 10 : eyeVector.distanceTo(blockMovingPosition.hitVec);
+      double distanceToEntity = eyeVector.distanceTo(movingObjectPosition.hitVec);
+
+      return distanceToBlock < distanceToEntity ? 10 : distanceToEntity;
+    }
+    return 10;
+  }
+
+  private static WrappedVector positionEyes(Player player, double prevPosX, double prevPosY, double prevPosZ) {
+    return new WrappedVector(prevPosX, prevPosY + resolvePlayerEyeHeight(player), prevPosZ);
+  }
 
   public static WrappedMovingObjectPosition blockRayTrace(Player player, Location playerLocation) {
     double blockReachDistance = resolveBlockReachDistance(player.getGameMode());
@@ -112,12 +163,14 @@ public final class Raytracer {
   }
 
   private static double resolvePlayerEyeHeight(Player player) {
+    User user = UserRepository.userOf(player);
+    UserMetaMovementData movementData = user.meta().movementData();
     float f = 1.62f;
     if (player.isSleeping()) {
       f = 0.2f;
     }
-    if (player.isSneaking()) {
-      f -= UserRepository.userOf(player).meta().clientData().cameraSneakOffset();
+    if (movementData.sneaking) {
+      f -= user.meta().clientData().cameraSneakOffset();
     }
     return f;
   }

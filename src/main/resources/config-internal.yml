@@ -16,6 +16,10 @@ check:
 
   heuristics:
 
+    # DEBUG
+    thresholds:
+      50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is fighting suspiciously"
+
     confidence-thresholds:
 
       "??":

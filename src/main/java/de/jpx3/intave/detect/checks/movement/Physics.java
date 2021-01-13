@@ -1,6 +1,7 @@
 package de.jpx3.intave.detect.checks.movement;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.detect.IntaveCheck;
@@ -35,10 +36,6 @@ import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UP
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_VILLAGE_UPDATE;
 
 public final class Physics extends IntaveCheck {
-  private final static boolean DEBUG_MOVEMENT = false;
-  private final static boolean DEBUG_PERFORMANCE = false;
-  private final static boolean MOVEMENT_EMULATION = true;
-
   private final IntavePlugin plugin;
   private final PhysicsCollisionRepository collisionRepository;
 
@@ -156,10 +153,8 @@ public final class Physics extends IntaveCheck {
 //    }
     }
     evaluateBestSimulation(user, predictedMovement);
-    if (DEBUG_PERFORMANCE) {
-      double endTime = (System.nanoTime() - startTime) / 1_000_000.0;
-      System.out.println("[Intave] Physics-Performance-Debug: " + endTime + " ms/c");
-    }
+//      double endTime = (System.nanoTime() - startTime) / 1_000_000.0;
+//      System.out.println("[Intave] Physics-Performance-Debug: " + endTime + " ms/c");
     movementData.onGround = predictedMovement.onGround;
     movementData.collidedHorizontally = predictedMovement.collidedHorizontally;
     movementData.collidedVertically = predictedMovement.collidedVertically;
@@ -731,8 +726,8 @@ public final class Physics extends IntaveCheck {
       String message = "moved incorrectly";
       String details = received + " e: " + expected;
 
-      plugin.retributionService().processViolation(player, violationLevelIncrease / 10d, "Physics", message, details);
-      if (violationLevelData.physicsVL > 40 && MOVEMENT_EMULATION && emulationMotion != null) {
+      boolean setback = plugin.retributionService().processViolation(player, violationLevelIncrease / 10d, "Physics", message, details);
+      if (setback) {
         plugin.eventService().emulationEngine().emulationSetBack(player, emulationMotion, 8);
       }
     }
@@ -740,7 +735,7 @@ public final class Physics extends IntaveCheck {
     violationLevelData.physicsVL = Math.max(0, violationLevelData.physicsVL);
     violationLevelData.physicsVL = Math.min(100, violationLevelData.physicsVL);
 
-    if (DEBUG_MOVEMENT) {
+    if (IntaveControl.DEBUG_MOVEMENT) {
       ChatColor chatColor = violationLevelIncrease == 0 ? ChatColor.GRAY : ChatColor.YELLOW;
       String motion = MathHelper.formatPositionAsInt(positionX, positionY, positionZ);
       String displayPhysicsVL = formatDouble(violationLevelData.physicsVL, 4);

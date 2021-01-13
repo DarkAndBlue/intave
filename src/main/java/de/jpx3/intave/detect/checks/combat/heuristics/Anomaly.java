@@ -10,15 +10,19 @@ public class Anomaly {
   private final long added;
   private final String description;
   private final Confidence confidence;
+  private final Type type;
   private final int options;
 
-  public Anomaly(
-    String description,
+  private Anomaly(
     Confidence confidence,
-    int options) {
+    Type type,
+    String description,
+    int options
+  ) {
     this.added = AccessHelper.now();
     this.description = description;
     this.confidence = confidence;
+    this.type = type;
     this.options = options;
   }
 
@@ -36,6 +40,33 @@ public class Anomaly {
 
   public boolean expired() {
     return AccessHelper.now() - added > ANOMALY_EXPIRE_DURATION;
+  }
+
+  public Type type() {
+    return type;
+  }
+
+  public static Anomaly anomalyOf(Confidence confidence, Type type, String description) {
+    return new Anomaly(confidence, type, description, AnomalyOption.LIMIT_2);
+  }
+
+  public static Anomaly anomalyOf(Confidence confidence, Type type, String description, int options) {
+    return new Anomaly(confidence, type, description, options);
+  }
+
+  public enum Type {
+    KILL_AURA("killaura"),
+    AUTO_CLICKER("autoclicker");
+
+    private final String details;
+
+    Type(String details) {
+      this.details = details;
+    }
+
+    public String details() {
+      return details;
+    }
   }
 
   public static class AnomalyOption {

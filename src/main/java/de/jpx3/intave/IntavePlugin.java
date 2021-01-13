@@ -210,6 +210,10 @@ public final class IntavePlugin extends JavaPlugin {
     return interactionPermissionService;
   }
 
+  public SibylIntegrationService sibylIntegrationService() {
+    return sibylIntegrationService;
+  }
+
   public static String version() {
     return version;
   }

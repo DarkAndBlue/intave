@@ -11,7 +11,10 @@ public final class UserMetaAttackData {
   private final Player player;
   private double lastReach;
   private int lastAttackedEntityID = -1;
+
   private long lastAttack = Long.MAX_VALUE;
+  private long lastEntitySwitch = Long.MAX_VALUE;
+
   private WrappedEntity lastAttackedEntity;
   private float perfectYaw, perfectPitch;
 
@@ -36,6 +39,10 @@ public final class UserMetaAttackData {
 
   public boolean recentlyAttacked(long time) {
     return AccessHelper.now() - lastAttack <= time;
+  }
+
+  public boolean recentlySwitchedEntity(long time) {
+    return AccessHelper.now() - lastEntitySwitch <= time;
   }
 
   public double lastReach() {
@@ -65,7 +72,14 @@ public final class UserMetaAttackData {
 
   public void setLastAttackedEntityID(int lastAttackedEntityID) {
     this.lastAttackedEntityID = lastAttackedEntityID;
-    this.lastAttackedEntity = ClientSideEntityService.entityByIdentifier(UserRepository.userOf(player), lastAttackedEntityID);
+
+    WrappedEntity lastAttackedEntity = this.lastAttackedEntity;
+    WrappedEntity attackedEntity = ClientSideEntityService.entityByIdentifier(UserRepository.userOf(player), lastAttackedEntityID);
+    if (attackedEntity != null && attackedEntity != lastAttackedEntity) {
+      this.lastEntitySwitch = AccessHelper.now();
+    }
+
+    this.lastAttackedEntity = attackedEntity;
     this.lastAttack = AccessHelper.now();
   }
 }

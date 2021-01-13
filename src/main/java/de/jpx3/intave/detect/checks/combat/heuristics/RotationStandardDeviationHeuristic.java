@@ -24,11 +24,6 @@ public final class RotationStandardDeviationHeuristic extends IntaveMetaCheckPar
     super(parentCheck, RotationStandardDeviationMeta.class);
   }
 
-  public static class RotationStandardDeviationMeta extends UserCustomCheckMeta {
-    private final List<Float> distancesToPerfectYaw = Lists.newArrayList();
-    private double rotationBalance;
-  }
-
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
     packets = {
@@ -48,22 +43,23 @@ public final class RotationStandardDeviationHeuristic extends IntaveMetaCheckPar
     if (attackedEntity != null && attackedEntity.moving(0.05) && attackData.recentlyAttacked(1000)) {
       float yawSpeed = MathHelper.distanceInDegrees(movementData.rotationYaw, movementData.lastRotationYaw);
       float distanceToPerfectYaw = MathHelper.distanceInDegrees(attackData.perfectYaw(), movementData.rotationYaw);
-      if (yawSpeed > 1.5) {
+      if (yawSpeed > 2.5) {
         heuristicMeta.distancesToPerfectYaw.add(distanceToPerfectYaw);
       }
       if (heuristicMeta.distancesToPerfectYaw.size() >= 7) {
-        compareResult(user);
+        evaluateResult(user);
       }
     }
   }
 
-  private void compareResult(User user) {
+  private void evaluateResult(User user) {
     Player player = user.player();
     RotationStandardDeviationMeta heuristicMeta = metaOf(user);
     double standardDeviation = RotationMathHelper.calculateStandardDeviationFloat(heuristicMeta.distancesToPerfectYaw);
     if (standardDeviation < 1.0) {
       if (heuristicMeta.rotationBalance++ >= 2) {
-        Anomaly anomaly = new Anomaly("rx", Confidence.PROBABLE, Anomaly.AnomalyOption.LIMIT_1);
+        String description = "standard deviation (" + standardDeviation + ")";
+        Anomaly anomaly = Anomaly.anomalyOf(Confidence.PROBABLE, Anomaly.Type.KILL_AURA, description, Anomaly.AnomalyOption.LIMIT_2);
         parentCheck().saveAnomaly(player, anomaly);
         heuristicMeta.rotationBalance--;
       }
@@ -71,5 +67,10 @@ public final class RotationStandardDeviationHeuristic extends IntaveMetaCheckPar
       heuristicMeta.rotationBalance -= heuristicMeta.rotationBalance > 0 ? 0.2 : 0;
     }
     heuristicMeta.distancesToPerfectYaw.clear();
+  }
+
+  public static class RotationStandardDeviationMeta extends UserCustomCheckMeta {
+    private final List<Float> distancesToPerfectYaw = Lists.newArrayList();
+    private double rotationBalance;
   }
 }
