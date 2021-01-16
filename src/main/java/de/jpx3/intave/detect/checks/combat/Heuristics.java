@@ -90,7 +90,7 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
         plugin.retributionService().processViolation(
           player, 25, this.name(),
           "is fighting suspiciously",
-          type.details() + " " + overallConfidence.output(),
+          type.details() + overallConfidence.output(),
           "confidence-thresholds." + overallConfidence.output()
         );
       }

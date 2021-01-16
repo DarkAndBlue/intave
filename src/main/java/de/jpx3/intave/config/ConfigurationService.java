@@ -58,6 +58,10 @@ public final class ConfigurationService {
     }
   }
 
+  public ConfigurationLoader loader() {
+    return loader;
+  }
+
   public YamlConfiguration configuration() {
     return loader.configuration();
   }

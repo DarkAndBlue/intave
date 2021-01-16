@@ -14,7 +14,10 @@ import de.jpx3.intave.event.packet.PacketSubscriptionLinker;
 import de.jpx3.intave.event.service.CustomEventService;
 import de.jpx3.intave.event.service.ViolationService;
 import de.jpx3.intave.executor.BackgroundExecutor;
+import de.jpx3.intave.lib.asm.Frame;
 import de.jpx3.intave.logging.IntaveLogger;
+import de.jpx3.intave.security.HWIDVerification;
+import de.jpx3.intave.security.SSLConnectionVerifier;
 import de.jpx3.intave.tools.annotate.Natify;
 import de.jpx3.intave.tools.client.SinusCache;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
@@ -27,10 +30,22 @@ import de.jpx3.intave.world.raytrace.Raytracer;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
 public final class IntavePlugin extends JavaPlugin {
   private static IntavePlugin singletonInstance;
   private static String version = "UNKNOWN";
-  private static String prefix = "§8[§c§lIntave§8]§7 ";
+  private static String prefix = "&8[&c&lIntave&8]&7 ";
   private static String defaultColor = "";
   private static boolean offlineMode = false;
 
@@ -77,6 +92,8 @@ public final class IntavePlugin extends JavaPlugin {
     logger.info("Please stand by..");
     // stage 4
 
+    prefix = ChatColor.translateAlternateColorCodes('&', prefix);
+
     try {
       SinusCache.setup();
       Synchronizer.setup();
@@ -111,10 +128,145 @@ public final class IntavePlugin extends JavaPlugin {
 
       // license check call
 
+      String requiredConfigurationHash;
+
+      // ja das muss so krebsig hier hin
+      if(IntaveControl.DISABLE_LICENSE_CHECK) {
+        logger().info("This version has no license check");
+        System.setProperty("8ugyoiodfg", "~bypass");
+        requiredConfigurationHash = null;
+      } else {
+        File currentJavaJarFile = new File(IntavePlugin.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+        StringBuilder jarChecksum = new StringBuilder();
+        try {
+          MessageDigest md = MessageDigest.getInstance("SHA-256");// MD5
+          FileInputStream fis = new FileInputStream(currentJavaJarFile);
+          byte[] dataBytes = new byte[1024];
+          int nread;
+          while((nread = fis.read(dataBytes)) != -1) {
+            md.update(dataBytes, 0, nread);
+          }
+          byte[] mdbytes = md.digest();
+          for (byte mdbyte : mdbytes) jarChecksum.append(Integer.toString((mdbyte & 0xff) + 0x100, 16).substring(1));
+        } catch (NoSuchAlgorithmException | IOException exception) {
+          exception.printStackTrace();
+          jarChecksum.append("~invalid");
+        }
+        long identificationKey;
+        try {
+          identificationKey = Frame.class.getField("x").getLong(null);
+        } catch (NoSuchFieldException exception) {
+          identificationKey = 0;
+        }
+        byte[] bytes = new byte[8];
+        for (int i = 0; i < 8; i++) {
+          byte value = (byte) ((identificationKey >> (i * 8) & 0xFF));
+          bytes[7 - i] = value;
+        }
+        String idKey = identificationKey > 0 ? new String(bytes) : "aaaaaaaa", response = "";
+        try {
+          String url_path = "https://intave.de/auth.php";
+          URL url = new URL(url_path);
+          URLConnection connection = url.openConnection();
+          connection.setUseCaches(false);
+          connection.setDefaultUseCaches(false);
+          connection.addRequestProperty("User-Agent", "Intave/" + version());
+          connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+          connection.addRequestProperty("Pragma", "no-cache");
+          connection.addRequestProperty("A", jarChecksum.toString());
+          connection.addRequestProperty("B", idKey);
+          connection.addRequestProperty("C", HWIDVerification.publicHardwareIdentifier());
+          connection.addRequestProperty("D", configurationKey);
+          connection.connect();
+          SSLConnectionVerifier.verifyURLConnection((HttpsURLConnection) connection);
+          connection.setConnectTimeout(4000);
+          connection.setReadTimeout(4000);
+          Scanner scanner2 = new Scanner(connection.getInputStream(), "UTF-8");
+          StringBuilder raw2 = new StringBuilder();
+          while (scanner2.hasNext())
+            raw2.append(scanner2.next());
+          response = raw2.toString();
+//          System.out.println(response);
+        } catch (IOException exception) {
+          exception.printStackTrace();
+          response = "timeout";
+        }
+        String message;
+        boolean bad = false;
+        switch (response) {
+          case "banned":
+          case "invalid":
+            message = "Unable to boot: Something went wrong verifying integrity";
+            bad = true;
+            break;
+          case "hwid":
+            message = "Unable to boot: Hardware identification failed";
+            bad = true;
+            break;
+          case "hwidr":
+            message = "Unable to boot: You need to enable hardware locking (see website)";
+            bad = true;
+            break;
+          case "expired":
+            message = "Unable to boot: Buy Intave for continued use :)";
+            bad = true;
+            break;
+          case "timeout":
+            message = "Unable to connect to service";
+            break;
+          default:
+            message = null;
+            break;
+        }
+
+        if(message != null) {
+          logger().error(message);
+        }
+
+        if(bad || response.length() < 2) {
+          getCommand("intave").setExecutor((commandSender, command, s, strings) -> {
+            commandSender.sendMessage(prefix() + ChatColor.RED + "Intave couldn't boot properly");
+            return false;
+          });
+          performShutdown();
+          return;
+        }
+
+        if(response.equals("timeout")) {
+          System.setProperty("8ugyoiodfg", "~timeout");
+          requiredConfigurationHash = null;
+        } else {
+          // Intavede#key1=value1#key2=value2 ...
+
+          String[] split = response.split("#");
+          String licenseName = split[0];
+          System.setProperty("8ugyoiodfg", licenseName);
+
+          Map<String, String> properties = new HashMap<>();
+          boolean first = true;
+          for (String propertyPair : split) {
+            if(first) {
+              first = false;
+              continue;
+            }
+            String[] split1 = propertyPair.split("=");
+            properties.put(split1[0], split1[1]);
+          }
+          requiredConfigurationHash = properties.get("configuration-hash");
+        }
+      }
+
+      if(requiredConfigurationHash == null && !configurationService.loader().configurationCacheExists()) {
+        logger().error("Unable to boot: Intave requires an internet connection for first-time startup");
+        getCommand("intave").setExecutor((commandSender, command, s, strings) -> {
+          commandSender.sendMessage(prefix() + ChatColor.RED + "Intave couldn't boot properly");
+          return false;
+        });
+        performShutdown();
+        return;
+      }
 
       // resolve config hash
-
-      String requiredConfigurationHash = "server response";
       configurationService.setupConfiguration(requiredConfigurationHash);
 
       prefix = configurationService.configuration().getString("layout.prefix", prefix);
@@ -141,7 +293,7 @@ public final class IntavePlugin extends JavaPlugin {
       logger.error("Unable to boot");
       exception.printStackTrace();
       getCommand("intave").setExecutor((commandSender, command, s, strings) -> {
-        commandSender.sendMessage(prefix() + ChatColor.RED + "Intave wasn't properly loaded");
+        commandSender.sendMessage(prefix() + ChatColor.RED + "Intave couldn't boot properly");
         return false;
       });
       performShutdown();
@@ -159,11 +311,12 @@ public final class IntavePlugin extends JavaPlugin {
 
   @Natify
   public void performShutdown() {
+    logger().info("Stopping Intave");
     BackgroundExecutor.stopBlocking();
-
     logger.shutdown();
     packetSubscriptionLinker.reset();
     eventLinker.performShutdown();
+    logger().info("Intave offline");
   }
 
   public TrustFactorService trustFactorService() {

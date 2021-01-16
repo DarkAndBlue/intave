@@ -1360,15 +1360,16 @@ public final class Physics extends IntaveCheck {
     entityBoundingBox = (entityBoundingBox.offset(0.0D, context.motionY, 0.0D));
     boolean flag1 = movementData.onGround || startMotionY != context.motionY && startMotionY < 0.0D;
 
-    for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
-      context.motionX = collisionBox.calculateXOffset(entityBoundingBox, context.motionX);
-    }
-    entityBoundingBox = entityBoundingBox.offset(context.motionX, 0.0D, 0.0D);
 
     for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
       context.motionZ = collisionBox.calculateZOffset(entityBoundingBox, context.motionZ);
     }
+
     entityBoundingBox = entityBoundingBox.offset(0.0, 0.0, context.motionZ);
+    for (WrappedAxisAlignedBB collisionBox : collisionBoxes) {
+      context.motionX = collisionBox.calculateXOffset(entityBoundingBox, context.motionX);
+    }
+    entityBoundingBox = entityBoundingBox.offset(context.motionX, 0.0D, 0.0D);
 
     if (flag1 && (startMotionX != context.motionX || startMotionZ != context.motionZ)) {
       double copyX = context.motionX;

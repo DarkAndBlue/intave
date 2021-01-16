@@ -208,7 +208,7 @@ public final class ConfigurationLoader {
     return new SecretKeySpec(key, "AES");
   }
 
-  private boolean configurationCacheExists() {
+  public boolean configurationCacheExists() {
     return configurationCache().exists();
   }
 

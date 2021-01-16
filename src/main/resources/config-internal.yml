@@ -71,7 +71,7 @@ layout:
 
   verbose: "{prefix} &c{player}&7/{trust-color}&7 {message} {details} (+{vladded} -> {vl})"
 
-  notify: "{prefix} &cNotify&8: &7{text}"
+  notify: "{prefix} &c&lNotify&8: &7{text}"
 
   prefix: "&8[&c&lIntave&8]&7 "
 

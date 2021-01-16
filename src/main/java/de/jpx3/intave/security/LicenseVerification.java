@@ -1,13 +1,18 @@
 package de.jpx3.intave.security;
 
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.tools.annotate.Natify;
+
+import java.io.InputStream;
+import java.util.Scanner;
 
 public final class LicenseVerification {
   private static String licenseName;
+  private static String networkName;
 
   @Natify
   public static String network() {
-    return "Intavede";
+    return System.getProperty("8ugyoiodfg");
   }
 
   @Natify
@@ -19,14 +24,17 @@ public final class LicenseVerification {
   @Natify
   public static String rawLicense() {
     if(licenseName == null) {
-/*      InputStream resourceAsStream = LicenseVerification.class.getResourceAsStream("5ee6db6d-6751-4081-9cbf-28eb0f6cc055");
-      StringBuilder stringBuilder = new StringBuilder();
-      Scanner scanner = new Scanner(resourceAsStream);
-      while (scanner.hasNext()) {
-        stringBuilder.append(scanner.next());
+      if(IntaveControl.DISABLE_LICENSE_CHECK) {
+        licenseName = "TkxzRWpMdE1NVmdCUUdOMjdmNmdTdz09yB1f45kTpS5yiTeuw6DrRQ==";// Intavede
+      } else {
+        InputStream resourceAsStream = LicenseVerification.class.getResourceAsStream("5ee6db6d-6751-4081-9cbf-28eb0f6cc055");
+        StringBuilder stringBuilder = new StringBuilder();
+        Scanner scanner = new Scanner(resourceAsStream);
+        while (scanner.hasNext()) {
+          stringBuilder.append(scanner.next());
+        }
+        licenseName = stringBuilder.toString();
       }
-      licenseName = stringBuilder.toString();*/
-      licenseName = "TkxzRWpMdE1NVmdCUUdOMjdmNmdTdz09yB1f45kTpS5yiTeuw6DrRQ==";// Intavede
     }
     return licenseName;
   }

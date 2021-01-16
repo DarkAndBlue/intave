@@ -1,6 +1,5 @@
 package de.jpx3.intave.detect.checks.movement;
 
-import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.IntaveMetaCheck;
@@ -31,7 +30,7 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
     }
   )
   public void sentPosition(PacketEvent event) {
-    metaOf(event.getPlayer()).timerBalance -= 10.5;
+    metaOf(event.getPlayer()).timerBalance -= 10.0;
   }
 
   @PacketSubscription(
@@ -57,12 +56,13 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
     timerData.lastFlyingPacket = AccessHelper.now();
     timerData.timerBalance -= delta / 5.0;
 
-    if(!user.meta().clientData().flyingPacketStream() && event.getPacketType() == PacketType.Play.Client.FLYING) {
+/*    if(!user.meta().clientData().flyingPacketStream() && event.getPacketType() == PacketType.Play.Client.FLYING) {
       // account missing flying packets
       timerData.timerBalance += 200;
-    } else {
+      player.sendMessage("Flying packet -> +200");
+    } else {*/
       timerData.timerBalance += 10;
-    }
+//    }
 
     int allowedLagInSeconds = trustFactorSetting("buffer-size", player);
     int packetLimit = allowedLagInSeconds * -(20 * 10);

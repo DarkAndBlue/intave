@@ -41,11 +41,18 @@ public final class MovementEmulationEngine {
   public void emulationSetBack(Player player, Vector motion, int ticks) {
     User user = UserRepository.userOf(player);
     User.UserMeta meta = user.meta();
+    UserMetaMovementData movementData = meta.movementData();
     UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
     double jumpUpwardsMotion = meta.movementData().jumpUpwardsMotion();
 
     if (violationLevelData.isInActiveTeleportBundle) {
       return;
+    }
+
+    if(movementData.emulationVelocity != null) {
+      motion = movementData.emulationVelocity;
+//      Bukkit.broadcastMessage(player.getName() + ": velocity start apply " + motion);
+      movementData.emulationVelocity = null;
     }
 
 //    if (Math.abs(motion.getY() - jumpUpwardsMotion) < 0.01) {
@@ -149,11 +156,10 @@ public final class MovementEmulationEngine {
     Location futurePosition = movementData.verifiedLocation();
     WrappedAxisAlignedBB boundingBox = CollisionHelper.boundingBoxOf(user, futurePosition);
 
-
     Vector emulationVelocity = movementData.emulationVelocity;
     if (emulationVelocity != null) {
-      motion = emulationVelocity;
-//      player.sendMessage("Set emulation motion to " + MathHelper.formatMotion(emulationVelocity));
+//      Bukkit.broadcastMessage(player.getName() + ": velocity midair apply " + emulationVelocity);
+      motion = motionProceed(emulationVelocity, user, boundingBox, false);
       movementData.emulationVelocity = null;
     } else {
       motion = motionProceed(motion, user, boundingBox, startingTicks > ticks);

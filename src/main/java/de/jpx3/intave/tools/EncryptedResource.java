@@ -15,17 +15,16 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
+import java.util.Locale;
 import java.util.UUID;
 
 public final class EncryptedResource {
-  private final static String KEY = "AES/GCM/NoPadding";
-  private final static String otherRandomStringToMakeTheKeyLookNormal = "PBKDF2WithHmacSHA1";
   private final String name;
-  private final boolean useId;
+  private final boolean versionDependent;
 
-  public EncryptedResource(String name, boolean useId) {
+  public EncryptedResource(String name, boolean versionDependent) {
     this.name = name;
-    this.useId = useId;
+    this.versionDependent = versionDependent;
   }
 
   @Natify
@@ -46,7 +45,7 @@ public final class EncryptedResource {
       ByteBuffer byteBuffer = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
       byte[] iv = new byte[byteBuffer.getInt()];
       byteBuffer.get(iv);
-      KeySpec spec = new PBEKeySpec(KEY.toCharArray(), iv, 65536, 128); // AES-128
+      KeySpec spec = new PBEKeySpec("AES/GCM/NoPadding".toCharArray(), iv, 65536, 128); // AES-128
       SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
       byte[] key = secretKeyFactory.generateSecret(spec).getEncoded();
       SecretKey secretKey = new SecretKeySpec(key, "AES");
@@ -70,6 +69,7 @@ public final class EncryptedResource {
     try {
       file.createNewFile();
     } catch (IOException e) {
+      e.printStackTrace();
       return false;
     }
     try {
@@ -83,7 +83,7 @@ public final class EncryptedResource {
       SecureRandom secureRandom = new SecureRandom();
       byte[] iv = new byte[12];
       secureRandom.nextBytes(iv);
-      KeySpec spec = new PBEKeySpec(KEY.toCharArray(), iv, 65536, 128); // AES-128
+      KeySpec spec = new PBEKeySpec("AES/GCM/NoPadding".toCharArray(), iv, 65536, 128); // AES-128
       SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
       byte[] key = secretKeyFactory.generateSecret(spec).getEncoded();
       SecretKey secretKey = new SecretKeySpec(key, "AES");
@@ -114,13 +114,15 @@ public final class EncryptedResource {
   }
 
   private File fileStore() {
+    String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.ROOT);
     File workDirectory;
-    String operatingSystem = System.getProperty("os.name");
+    String filePath;
     if(operatingSystem.contains("win")) {
-      workDirectory = new File(System.getenv("APPDATA") + "/Intave");
+      filePath = System.getenv("APPDATA") + "/Intave/";
     } else {
-      workDirectory = new File("var/lib/intave");
+      filePath ="var/lib/intave/";
     }
+    workDirectory = new File(filePath);
     if(!workDirectory.exists()) {
       workDirectory.mkdir();
     }
@@ -128,7 +130,7 @@ public final class EncryptedResource {
   }
 
   private String resourceId() {
-    return new UUID(~name.hashCode(), useId ? ~intaveVersion().hashCode() : -391180952).toString() + "e";
+    return new UUID(~name.hashCode(), versionDependent ? ~intaveVersion().hashCode() : -391180952).toString() + "e";
   }
 
   private String intaveVersion() {

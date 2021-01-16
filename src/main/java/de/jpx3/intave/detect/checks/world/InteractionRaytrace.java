@@ -56,8 +56,6 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
   )
   public void receiveInteraction(PacketEvent event) {
 
-
-
     Player player = event.getPlayer();
     PacketContainer packet = event.getPacket();
     BlockPosition blockPosition = packet.getBlockPositionModifier().readSafely(0);

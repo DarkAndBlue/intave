@@ -100,7 +100,7 @@ package de.jpx3.intave.lib.asm;
  *
  * @author Eric Bruneton
  */
-class Frame {
+public class Frame {
 
   // Constants used in the StackMapTable attribute.
   // See https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html#jvms-4.7.4.

@@ -183,6 +183,15 @@ public final class MovementDispatcher implements EventProcessor {
     movementData.applyGroundInformationToPacket(packet);
 
     if (!movementData.isTeleportConfirmationPacket) {
+
+      // delete velocity cache if not used
+//      if(!violationLevelData.isInActiveTeleportBundle && !movementData.invalidMovement) {
+//        if(movementData.emulationVelocity != null) {
+//          Bukkit.broadcastMessage("Delete emulation space " + movementData.emulationVelocity);
+//          movementData.emulationVelocity = null;
+//        }
+//      }
+
       attackData.updatePerfectRotation();
       // Check calls
 
@@ -388,9 +397,11 @@ public final class MovementDispatcher implements EventProcessor {
         return;
       }
 
-      if(isInActiveTeleportBundle) {
-        movementData.emulationVelocity = velocity.clone();
-      }
+//      Bukkit.broadcastMessage(player.getName() + ": motion update force: " + MathHelper.formatMotion(velocity) + " " + isInActiveTeleportBundle);
+
+      //if(isInActiveTeleportBundle) {
+      //}
+      movementData.emulationVelocity = velocity.clone();
 
       plugin.eventService().transactionFeedbackService().requestPong(player, velocity, (player1, velocity1) -> {
         if (!isInActiveTeleportBundle) {
@@ -398,6 +409,9 @@ public final class MovementDispatcher implements EventProcessor {
           movementData.physicsLastMotionY = velocity1.getY();
           movementData.physicsLastMotionZ = velocity1.getZ();
         }
+        Synchronizer.synchronize(() -> {
+          movementData.emulationVelocity = null;
+        });
         movementData.pastVelocity = 0;
       });
     }
