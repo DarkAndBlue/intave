@@ -40,7 +40,7 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
   public void setupSubChecks() {
     appendCheckPart(new ReshapedJumpHeuristic(this));
     appendCheckPart(new RotationAccuracyHeuristic(this));
-    appendCheckPart(new RotationGCDHeuristic(this));
+    appendCheckPart(new RotationSensitivityHeuristic(this));
     appendCheckPart(new RotationStandardDeviationHeuristic(this));
     appendCheckPart(new RotationModuloResetHeuristic(this));
     appendCheckPart(new PacketOrderSwingHeuristic(this));
@@ -55,8 +55,8 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
       }
     });
 
-   // player.sendMessage(ChatColor.RED + "[HEUR] [DEB] " + player.getName() + ": " + anomaly.description() + " (" +
-    // anomaly.confidence() + ")");
+    player.sendMessage(ChatColor.RED + "[HEUR] [DEB] " + player.getName() + ": " + anomaly.description() + " (" +
+     anomaly.confidence() + ")");
 
     metaOf(player).anomalies.add(anomaly);
   }
