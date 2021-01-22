@@ -120,13 +120,30 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
     }
 
 //    if(meta.startBreakThisTick && meta.getRealClicksPerTick() != 2 && !meta.stopBreakThisTick) {
-//      player.sendMessage("missing swing packet on start break block " + meta.getClicksPerTick());
-//      parentCheck().saveAnomaly(player,
-//        Anomaly.anomalyOf(
-//          Confidence.VERY_LIKELY,
-//          Anomaly.Type.AUTOCLICKER,
-//          "missing swing packet on start break block", Anomaly.AnomalyOption.DELAY_128s | Anomaly.AnomalyOption.LIMIT_1
-//        ));
+//      World world = event.getPlayer().getWorld();
+//      UserMetaMovementData movementData = user.meta().movementData();
+//
+//      Location playerLocation = new Location(world,
+//        movementData.positionX,
+//        movementData.positionY,
+//        movementData.positionZ);
+//
+//      playerLocation.setYaw(movementData.lastRotationYaw);
+//      playerLocation.setPitch(movementData.lastRotationPitch);
+//
+//      WrappedMovingObjectPosition raycastResult = Raytracer.blockRayTrace(player, playerLocation);
+//      if (raycastResult != null && raycastResult.hitVec != WrappedVector.ZERO) {
+//      }else{
+//        player.sendMessage("noweeeee " + raycastResult);
+//      }
+//
+////      player.sendMessage("missing swing packet on start break block ");
+////      parentCheck().saveAnomaly(player,
+////        Anomaly.anomalyOf(
+////          Confidence.VERY_LIKELY,
+////          Anomaly.Type.AUTOCLICKER,
+////          "missing swing packet on start break block", Anomaly.AnomalyOption.DELAY_128s | Anomaly.AnomalyOption.LIMIT_1
+////        ));
 //    }
 
     if(meta.currentDiggedBlock != null && !meta.isBreakingClientSide && meta.getRealClicksPerTick() > 0 && meta.getRealClicksOfLastTick() == 0) {
@@ -154,6 +171,10 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
       meta.removeClickFromTickArray();
     }
 
+    if(meta.startBreakThisTick && !meta.stopBreakThisTick) {
+      meta.removeClickFromTickArray();
+    }
+
     if(meta.isBreakingClientSide || meta.isBreakingServerSide) {
       meta.removeClickFromTickArray();
     }
@@ -163,14 +184,14 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
       sum += clickOfTick;
     }
 
-//    player.sendMessage("cps: " + sum);
+//    player.sendMessage("cps: " + sum + " " + meta.startBreakThisTick);
 
     if(sum > 13 && user.meta().clientData().protocolVersion() <= UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE) {
       parentCheck().saveAnomaly(player,
         Anomaly.anomalyOf(
           sum > 14 ? Confidence.VERY_LIKELY : Confidence.MAYBE,
           Anomaly.Type.AUTOCLICKER,
-          "too many swing packets in air", Anomaly.AnomalyOption.DELAY_128s
+          "too many swing packets in air " + sum, Anomaly.AnomalyOption.DELAY_128s
         ));
     }
 
