@@ -365,7 +365,6 @@ public final class MovementDispatcher implements EventProcessor {
     inventoryData.pastItemUsageTransition++;
     movementData.pastWaterMovement++;
     movementData.pastVelocity++;
-    movementData.pastOutgoingVelocity++;
     movementData.pastExternalVelocity++;
     movementData.physicsUnpredictableVelocityExpected = false;
 

@@ -126,13 +126,14 @@ public final class PhysicsSimulationService {
     boolean attackReduce = sprinting && movementData.pastPlayerAttackPhysics == 0;
 
     boolean jumped = false;
-    if (movementData.lastOnGround && !inventoryData.inventoryOpen()) {
+    if (movementData.lastOnGround && !inventoryData.inventoryOpen() && !movementData.exceededJumpPrevention()) {
       double motionY = movementData.motionY();
       jumped = Math.abs(motionY - 0.2) < 1e-5 || motionY == movementData.jumpUpwardsMotion();
     }
 
     float moveForward = keyForward * 0.98f;
     float moveStrafe = keyStrafe * 0.98f;
+    movementData.physicsJumped = jumped;
     context.reset(movementData.physicsLastMotionX, movementData.physicsLastMotionY, movementData.physicsLastMotionZ);
     return calculationPart.performSimulation(
       user, context, yawSine, yawCosine, friction, moveForward, moveStrafe,
@@ -166,6 +167,7 @@ public final class PhysicsSimulationService {
     boolean elytraFlying = movementData.elytraFlying;
     int bestForwardKey = 0;
     int bestStrafeKey = 0;
+    boolean jumpedOnBestSimulation = false;
     double mostAccurateDistance = Integer.MAX_VALUE;
     Physics.PhysicsProcessorContext context = movementData.physicsProcessorContext;
     EntityCollisionResult predictedMovement = null;
@@ -174,16 +176,8 @@ public final class PhysicsSimulationService {
     for (int heldItemState = 0; heldItemState <= 1; heldItemState++) {
       boolean handActive = heldItemState == 1;
 
-      if (!lenientItemUsageChecking) {
-        // Force the player to accept the item usage
-        int blockLenience = inventoryData.pastItemUsageTransition < 5 && inventoryData.pastHotBarSlotChange < 5 ? 5 : 0;
-        if (inventoryData.handActiveTicks >= blockLenience && inventoryData.handActive() && !handActive) {
-          continue;
-        }
-        // Remove the ability to accept the item usage
-        if (!inventoryData.handActive() && handActive) {
-          continue;
-        }
+      if (!lenientItemUsageChecking && handActive && !inventoryData.handActive()) {
+        continue;
       }
 
       for (int attackState = 0; attackState <= 1; attackState++) {
@@ -196,6 +190,9 @@ public final class PhysicsSimulationService {
           boolean jumped = jumpState == 1;
           // Jumps are only allowed on the ground :(
           if (jumped && ((!lastOnGround && !inLava && !inWater) || inventoryOpen)) {
+            continue;
+          }
+          if (jumped && movementData.exceededJumpPrevention()) {
             continue;
           }
 
@@ -226,6 +223,7 @@ public final class PhysicsSimulationService {
                 mostAccurateDistance = distance;
                 bestForwardKey = keyForward;
                 bestStrafeKey = keyStrafe;
+                jumpedOnBestSimulation = jumped;
               }
               boolean fastMovementProcess = (!inWater && inLava) || elytraFlying;
               if (distance < 5e-4 && fastMovementProcess) {
@@ -241,6 +239,7 @@ public final class PhysicsSimulationService {
     }
     movementData.keyForward = bestForwardKey;
     movementData.keyStrafe = bestStrafeKey;
+    movementData.physicsJumped = jumpedOnBestSimulation;
     return predictedMovement;
   }
 

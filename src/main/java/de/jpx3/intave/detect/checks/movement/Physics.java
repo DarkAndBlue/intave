@@ -116,6 +116,15 @@ public final class Physics extends IntaveCheck {
     if (hasMovement) {
       PhysicsMovementPoseType movementPoseType = movementData.movementPoseType();
       PhysicsCalculationPart calculationPart = movementPoseType.calculationPart();
+
+      if (movementData.pastVelocity == 0) {
+        if (movementData.physicsJumped) {
+          movementData.physicsJumpedOverrideVL++;
+        } else if (movementData.physicsJumpedOverrideVL > 0) {
+          movementData.physicsJumpedOverrideVL--;
+        }
+      }
+
       calculationPart.prepareNextTick(user, movementData.positionX, movementData.positionY, movementData.positionZ, motionX, motionY, motionZ);
     }
   }

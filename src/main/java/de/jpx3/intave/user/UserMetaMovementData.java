@@ -2,6 +2,7 @@ package de.jpx3.intave.user;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
+import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.checks.movement.Physics;
 import de.jpx3.intave.detect.checks.movement.physics.CollisionHelper;
 import de.jpx3.intave.detect.checks.movement.physics.pose.PhysicsMovementPoseType;
@@ -11,6 +12,7 @@ import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.client.PlayerMovementPoseHelper;
 import de.jpx3.intave.tools.client.PlayerRotationHelper;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
+import de.jpx3.intave.trustfactor.TrustFactorService;
 import de.jpx3.intave.world.BlockLiquidHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -55,7 +57,7 @@ public final class UserMetaMovementData {
   public boolean inWater, eyesInWater;
   public boolean inWeb;
   public int pastPushedByWaterFlow = 100;
-  public int pastElytraFlying = 100, pastVelocity = 100, pastOutgoingVelocity= 100, pastExternalVelocity = 100;
+  public int pastElytraFlying = 100, pastVelocity = 100, pastExternalVelocity = 100;
   public boolean onLadderLast;
 
   public int physicsPacketRelinkFlyVL; // In Air
@@ -69,6 +71,9 @@ public final class UserMetaMovementData {
 
   // Will be set to true if the player sends a flying packet and receives server velocity later
   public boolean physicsUnpredictableVelocityExpected;
+  // Jump prevention
+  public boolean physicsJumped;
+  public double physicsJumpedOverrideVL;
 
   public boolean isTeleportConfirmationPacket;
   public boolean willReceiveSetbackVelocity;
@@ -223,6 +228,13 @@ public final class UserMetaMovementData {
     }
   }
 
+  public boolean exceededJumpPrevention() {
+    IntavePlugin plugin = IntavePlugin.singletonInstance();
+    TrustFactorService trustFactorService = plugin.trustFactorService();
+    int trustFactorSetting = trustFactorService.trustFactorSetting("physics.joap-limit", player);
+    return pastVelocity == 0 && physicsJumpedOverrideVL >= trustFactorSetting;
+  }
+
   public void resetFlyingPacketAccurate() {
     pastFlyingPacketAccurate = 0;
   }
@@ -294,14 +306,6 @@ public final class UserMetaMovementData {
       Bukkit.broadcastMessage(ChatColor.DARK_RED + "Position was set into a block: " + reason);
     }*/
     this.verifiedLocation = verifiedLocation;
-  }
-
-  public void setJumpMovementFactor(float jumpMovementFactor) {
-    this.jumpMovementFactor = jumpMovementFactor;
-  }
-
-  public void setAiMoveSpeed(float aiMoveSpeed) {
-    this.aiMoveSpeed = aiMoveSpeed;
   }
 
   public void setMovementPoseType(PhysicsMovementPoseType movementPoseType) {
