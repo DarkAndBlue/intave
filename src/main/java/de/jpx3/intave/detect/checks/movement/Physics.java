@@ -19,7 +19,6 @@ import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.client.PlayerMovementPoseHelper;
-import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.*;
@@ -307,8 +306,10 @@ public final class Physics extends IntaveCheck {
       violationLevelIncrease = Math.min(60.0, violationLevelIncrease);
       violationLevelIncrease = Math.max(1, violationLevelIncrease);
       violationLevelData.physicsVL += violationLevelIncrease;
-
+      violationLevelData.physicsInvalidMovementsInRow++;
       user.boundingBoxAccess().invalidate();
+    } else {
+      violationLevelData.physicsInvalidMovementsInRow = 0;
     }
 
     if ((!spectator && !movedIntoBlock && violationLevelData.physicsVL > 20 && violationLevelIncrease > 0)) {
@@ -377,8 +378,9 @@ public final class Physics extends IntaveCheck {
         debug += " bb-intersection";
       }
 
-      String finalDebug = debug + " " + movementData.collidedHorizontally;
-      Synchronizer.synchronize(() -> player.sendMessage(finalDebug));
+      String finalDebug = debug;
+      player.sendMessage(finalDebug);
+//      Synchronizer.synchronize(() -> player.sendMessage(finalDebug));
     }
   }
 
@@ -473,6 +475,7 @@ public final class Physics extends IntaveCheck {
 
   private double calculateHorizontalViolationIncrease(User user, double predictedX, double predictedZ, boolean onLadder) {
     User.UserMeta meta = user.meta();
+    UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
     UserMetaMovementData movementData = meta.movementData();
 
     PhysicsMovementPoseType movementPoseType = movementData.movementPoseType();
@@ -547,10 +550,17 @@ public final class Physics extends IntaveCheck {
       legitimateDeviation = Math.max(legitimateDeviation, velocityDistance * 1.2 - distanceMoved);
     }
 
-    double abuseHorizontally = Math.max(0, distance - legitimateDeviation);
+    if (movementData.sneaking || movementData.lastSneaking) {
+      if (Math.abs(movementData.motionX()) < 0.05 || Math.abs(movementData.motionZ()) < 0.05) {
+        legitimateDeviation = Math.max(legitimateDeviation, 0.1);
+      }
+    }
 
+    double abuseHorizontally = Math.max(0, distance - legitimateDeviation);
     boolean movedTooQuickly = distanceMoved > predictedDistanceMoved * 1.0005;
-    if (movedTooQuickly && distanceMoved > 0.15 && abuseHorizontally > 0 && !recentlyVelocity) {
+    boolean movedTooQuicklyCheckable = distanceMoved > 0.15 || violationLevelData.physicsInvalidMovementsInRow >= 3;
+
+    if (movedTooQuickly && movedTooQuicklyCheckable && abuseHorizontally > 0 && !recentlyVelocity) {
 //      double vl = Math.max(abuseHorizontally, 0.3) * 100.0;
 //      Bukkit.broadcastMessage(user.player().getName() + " moved too quickly: vl+" + vl);
       return Math.max(abuseHorizontally, 0.3) * 100.0;

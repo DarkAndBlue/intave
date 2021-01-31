@@ -70,7 +70,6 @@ public final class UserMetaMovementData {
   public int pastPlayerAttackPhysics = 100;
   public boolean physicsResetMotionX, physicsResetMotionZ;
   public int keyForward, keyStrafe;
-  public boolean physicsSneakEdge;
 
   // Will be set to true if the player sends a flying packet and receives server velocity later
   public boolean physicsUnpredictableVelocityExpected;

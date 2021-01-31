@@ -7,6 +7,7 @@ import java.util.Map;
 
 public final class UserMetaViolationLevelData {
   public double physicsVL;
+  public double physicsInvalidMovementsInRow;
   public volatile boolean isInActiveTeleportBundle;
 
   public Map<String, Map<String, Double>> violationLevel = Maps.newConcurrentMap();

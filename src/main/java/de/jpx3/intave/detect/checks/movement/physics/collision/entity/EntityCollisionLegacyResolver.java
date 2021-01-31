@@ -27,12 +27,7 @@ public final class EntityCollisionLegacyResolver implements PhysicsEntityCollisi
     double startMotionY = context.motionY;
     double startMotionZ = context.motionZ;
 
-    boolean safewalk = //movementData.lastLastOnGround && !movementData.onGround && !movementData.lastOnGround ||
-      movementData.onGround;
-
-    if (safewalk && movementData.sneaking) {
-      movementData.physicsSneakEdge = true;
-
+    if (movementData.onGround && movementData.sneaking) {
       WrappedAxisAlignedBB boundingBox = movementData.boundingBox();
       double d6;
 
