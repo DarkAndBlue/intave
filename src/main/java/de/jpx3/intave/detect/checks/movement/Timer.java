@@ -26,14 +26,14 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
     this.plugin = plugin;
   }
 
-//  @PacketSubscription(
-//    packets = {
-//      @PacketDescriptor(sender = Sender.SERVER, packetName = "POSITION")
-//    }
-//  )
-//  public void sentPosition(PacketEvent event) {
-//    metaOf(event.getPlayer()).timerBalance -= 10.0;
-//  }
+  @PacketSubscription(
+    packets = {
+      @PacketDescriptor(sender = Sender.SERVER, packetName = "POSITION")
+    }
+  )
+  public void sentPosition(PacketEvent event) {
+    metaOf(event.getPlayer()).timerBalance -= 4;
+  }
 
   public void receiveMovement(PacketEvent event, boolean teleportConf) {
     Player player = event.getPlayer();
@@ -98,6 +98,8 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
       // leniency
       timerData.timerBalance -= 5.5;
     }
+
+    player.sendMessage("balance:" + timerData.timerBalance);
   }
 
   @PacketSubscription(
