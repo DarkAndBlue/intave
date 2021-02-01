@@ -169,7 +169,7 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
     }
 
 //    if(sum != 0)
-    player.sendMessage("cps: " + sum + out);
+//    player.sendMessage("cps: " + sum + out);
 
     if(sum > 13 && user.meta().clientData().protocolVersion() <= UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE) {
       parentCheck().saveAnomaly(player,
