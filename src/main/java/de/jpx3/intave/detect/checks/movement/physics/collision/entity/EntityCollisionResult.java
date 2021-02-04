@@ -6,11 +6,12 @@ public final class EntityCollisionResult {
   private final Physics.PhysicsProcessorContext context;
   private final boolean onGround, collidedHorizontally, collidedVertically;
   private final boolean resetMotionX, resetMotionZ;
+  private final boolean step;
 
   public EntityCollisionResult(
     Physics.PhysicsProcessorContext context, boolean onGround,
     boolean collidedHorizontally, boolean collidedVertically,
-    boolean resetMotionX, boolean resetMotionZ
+    boolean resetMotionX, boolean resetMotionZ, boolean step
   ) {
     if (context == null) {
       throw new IllegalArgumentException("Context cannot be null");
@@ -21,6 +22,7 @@ public final class EntityCollisionResult {
     this.collidedVertically = collidedVertically;
     this.resetMotionX = resetMotionX;
     this.resetMotionZ = resetMotionZ;
+    this.step = step;
   }
 
   public Physics.PhysicsProcessorContext context() {
@@ -37,6 +39,10 @@ public final class EntityCollisionResult {
 
   public boolean collidedVertically() {
     return collidedVertically;
+  }
+
+  public boolean step() {
+    return step;
   }
 
   public boolean resetMotionX() {

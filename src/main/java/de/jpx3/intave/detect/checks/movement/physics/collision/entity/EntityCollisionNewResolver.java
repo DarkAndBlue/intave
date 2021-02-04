@@ -30,6 +30,8 @@ public final class EntityCollisionNewResolver implements PhysicsEntityCollision 
     double startMotionX = context.motionX;
     double startMotionY = context.motionY;
     double startMotionZ = context.motionZ;
+    boolean step = false;
+
     List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolve(
       player, movementData.boundingBox().addCoord(context.motionX, context.motionY, context.motionZ)
     );
@@ -176,6 +178,8 @@ public final class EntityCollisionNewResolver implements PhysicsEntityCollision 
         context.motionY = copyY;
         context.motionZ = copyZ;
         entityBoundingBox = axisalignedbb3;
+      } else {
+        step = true;
       }
     }
 
@@ -195,7 +199,7 @@ public final class EntityCollisionNewResolver implements PhysicsEntityCollision 
     return new EntityCollisionResult(
       Physics.PhysicsProcessorContext.from(context), onGround,
       collidedHorizontally, collidedVertically,
-      moveResetX, moveResetZ
+      moveResetX, moveResetZ, step
     );
   }
 }

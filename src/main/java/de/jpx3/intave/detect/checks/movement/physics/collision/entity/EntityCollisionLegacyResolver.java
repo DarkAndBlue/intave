@@ -26,6 +26,7 @@ public final class EntityCollisionLegacyResolver implements PhysicsEntityCollisi
     double startMotionX = context.motionX;
     double startMotionY = context.motionY;
     double startMotionZ = context.motionZ;
+    boolean step = false;
 
     if (movementData.onGround && movementData.sneaking) {
       WrappedAxisAlignedBB boundingBox = movementData.boundingBox();
@@ -171,6 +172,8 @@ public final class EntityCollisionLegacyResolver implements PhysicsEntityCollisi
         context.motionY = copyY;
         context.motionZ = copyZ;
         entityBoundingBox = axisalignedbb3;
+      } else {
+        step = true;
       }
     }
 
@@ -187,6 +190,9 @@ public final class EntityCollisionLegacyResolver implements PhysicsEntityCollisi
     context.motionY = newPositionY - positionY;
     context.motionZ = newPositionZ - positionZ;
 
-    return new EntityCollisionResult(Physics.PhysicsProcessorContext.from(context), onGround, collidedHorizontally, collidedVertically, moveResetX, moveResetZ);
+    return new EntityCollisionResult(
+      Physics.PhysicsProcessorContext.from(context), onGround,
+      collidedHorizontally, collidedVertically, moveResetX, moveResetZ, step
+    );
   }
 }

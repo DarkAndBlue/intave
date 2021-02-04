@@ -140,7 +140,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
       rotationYaw, movementData.rotationPitch
     );
 
-    if (hasAlwaysMouseDelayFix && reach > blockReachDistance) {
+    if (!hasAlwaysMouseDelayFix && reach > blockReachDistance) {
       // normal
       reach = distanceOf(
         player,
@@ -233,7 +233,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
           rotationYaw, movementData.rotationPitch
         );
 
-        if (hasAlwaysMouseDelayFix && reach > blockReachDistance) {
+        if (!hasAlwaysMouseDelayFix && reach > blockReachDistance) {
           // normal
           reach = distanceOf(
             player,

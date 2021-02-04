@@ -173,6 +173,7 @@ public final class Physics extends IntaveCheck {
     movementData.collidedVertically = predictedMovement.collidedVertically();
     movementData.physicsResetMotionX = predictedMovement.resetMotionX();
     movementData.physicsResetMotionZ = predictedMovement.resetMotionZ();
+    movementData.step = predictedMovement.step();
     Timings.CHECK_PHYSICS_PROC_TOT.stop();
     Timings.CHECK_PHYSICS_EVAL.start();
     evaluateBestSimulation(user, predictedMovement);
@@ -196,6 +197,9 @@ public final class Physics extends IntaveCheck {
 
     boolean flying = abilityData.flying();
     String key = resolveKeysFromInput(keyForward, keyStrafe);
+    if (movementData.physicsJumped) {
+      key += key.isEmpty() ? "SPACE" : " | SPACE";
+    }
 
     double receivedMotionX = movementData.motionX();
     double receivedMotionY = movementData.motionY();

@@ -265,9 +265,15 @@ public final class MovementDispatcher implements EventProcessor {
       interactionRaytraceCheck.receiveMovement(event);
 
       physicsCheck.receiveMovement(user, hasMovement);
-    }
-    if (!vehicleMove) {
-      movementData.applyGroundInformationToPacket(packet);
+      Boolean clientOnGround = packet.getBooleans().read(0);
+
+      if (!vehicleMove) {
+        movementData.applyGroundInformationToPacket(packet);
+      }
+
+      if (movementData.onGround && !clientOnGround && movementData.step) {
+        movementData.onGround = false;
+      }
     }
 
     if (!movementData.isTeleportConfirmationPacket) {
@@ -384,6 +390,7 @@ public final class MovementDispatcher implements EventProcessor {
     movementData.pastVelocity++;
     movementData.pastExternalVelocity++;
     movementData.physicsUnpredictableVelocityExpected = false;
+    movementData.step = false;
 
     if (!inventoryData.handActive()) {
       movementData.physicsEatingSlotSwitchVL = 0;

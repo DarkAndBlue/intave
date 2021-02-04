@@ -32,7 +32,7 @@ public final class UserMetaMovementData {
 
   public boolean swimming, elytraFlying;
 
-  public boolean onGround, lastOnGround;
+  public boolean onGround, lastOnGround, step;
   public boolean collidedHorizontally, collidedVertically;
   public float artificialFallDistance;
   public boolean allowFallDamage;

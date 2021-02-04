@@ -208,7 +208,10 @@ public final class PhysicsSimulationService {
             float moveForward = keyForward * 0.98f;
             float moveStrafe = keyStrafe * 0.98f;
             context.reset(lastMotionX, lastMotionY, lastMotionZ);
-            EntityCollisionResult collisionResult = calculationPart.performSimulation(user, context, yawSine, yawCosine, friction, moveForward, moveStrafe, sneaking, attackReduce, jumped, sprinting, inventoryData.handActive());
+            EntityCollisionResult collisionResult = calculationPart.performSimulation(
+              user, context, yawSine, yawCosine, friction,
+              moveForward, moveStrafe, sneaking, attackReduce, jumped, sprinting, inventoryData.handActive()
+            );
             Physics.PhysicsProcessorContext collisionContext = collisionResult.context();
             double differenceX = collisionContext.motionX - receivedMotionX;
             double differenceY = collisionContext.motionY - receivedMotionY;
