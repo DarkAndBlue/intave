@@ -161,7 +161,9 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
 
 //        player.sendMessage("Is digging client side but not server side");
         meta.resetedLeftClickCounterThisTick = true;
-        Synchronizer.synchronize(() -> sendStopDig(player, meta));
+        if(meta.currentDiggedBlock != null) {
+          Synchronizer.synchronize(() -> sendStopDig(player, meta));
+        }
       }
     }
 
