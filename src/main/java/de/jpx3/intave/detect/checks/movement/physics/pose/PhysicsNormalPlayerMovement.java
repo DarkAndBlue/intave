@@ -7,6 +7,7 @@ import de.jpx3.intave.tools.client.PlayerEffectHelper;
 import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.client.PlayerMovementPoseHelper;
 import de.jpx3.intave.tools.items.PlayerEnchantmentHelper;
+import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
@@ -210,7 +211,7 @@ public class PhysicsNormalPlayerMovement extends PhysicsCalculationPart {
         context.motionY = jumpUpwardsMotion;
         movementData.physicsPacketRelinkFlyVL = 0;
         break;
-      } else if (movementData.motionY() < 0){
+      } else if (movementData.motionY() < 0) {
         double nextPredictedX = interpolateX * slipperiness;
         double nextPredictedY = (interpolateY - 0.08) * 0.98f;
         double nextPredictedZ = interpolateZ * slipperiness;
@@ -313,6 +314,8 @@ public class PhysicsNormalPlayerMovement extends PhysicsCalculationPart {
       movementData.inWeb = false;
     }
 
+    updateFallState(user, motionY, movementData.onGround);
+
     if (movementData.physicsResetMotionX) {
       context.motionX = 0.0;
     }
@@ -344,6 +347,27 @@ public class PhysicsNormalPlayerMovement extends PhysicsCalculationPart {
     }
   }
 
+  private void updateFallState(User user, double motionY, boolean onGround) {
+    UserMetaMovementData movementData = user.meta().movementData();
+    if (!movementData.inWater) {
+      physics().updateAquatics(user);
+    }
+    if (onGround) {
+      if (movementData.artificialFallDistance > 0.0F) {
+        float fallDistance = movementData.artificialFallDistance;
+        Synchronizer.synchronize(() -> {
+          Object playerHandle = user.playerHandle();
+          movementData.allowFallDamage = true;
+          physics().dealFallDamage(playerHandle, fallDistance);
+          movementData.allowFallDamage = false;
+        });
+        movementData.artificialFallDistance = 0.0F;
+      }
+    } else if (motionY < 0.0D) {
+      movementData.artificialFallDistance += -motionY;
+    }
+  }
+
   private void simulateMovementOfCollidedBlocks(
     User user, Physics.PhysicsProcessorContext context,
     WrappedAxisAlignedBB entityBoundingBox
@@ -364,7 +388,7 @@ public class PhysicsNormalPlayerMovement extends PhysicsCalculationPart {
     Material block = BlockAccessor.cacheAppliedTypeAccess(user, world, blockCollisionPosX, blockCollisionPosY, blockCollisionPosZ);
 
     if (block == Material.AIR) {
-      Material blockBelow =  BlockAccessor.cacheAppliedTypeAccess(user, world, blockCollisionPosX, blockCollisionPosY, blockCollisionPosZ);
+      Material blockBelow = BlockAccessor.cacheAppliedTypeAccess(user, world, blockCollisionPosX, blockCollisionPosY, blockCollisionPosZ);
       if (blockBelow.name().contains("FENCE") || blockBelow.name().contains("WALL")) {
         block = blockBelow;
       }

@@ -5,14 +5,12 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.detect.EventProcessor;
 import de.jpx3.intave.detect.checks.movement.Physics;
 import de.jpx3.intave.detect.checks.movement.Timer;
 import de.jpx3.intave.detect.checks.world.InteractionRaytrace;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.event.packet.*;
-import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.reflect.ReflectiveEntityAccess;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.client.PlayerMovementPoseHelper;
@@ -32,10 +30,6 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-
 import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_COMBAT_UPDATE;
 
 public final class MovementDispatcher implements EventProcessor {
@@ -45,7 +39,6 @@ public final class MovementDispatcher implements EventProcessor {
   private final Physics physicsCheck;
   private final InteractionRaytrace interactionRaytraceCheck;
   private final Timer timerCheck;
-  private MethodHandle fallDamageInvokeMethod;
 
   public MovementDispatcher(IntavePlugin plugin) {
     this.plugin = plugin;
@@ -55,29 +48,11 @@ public final class MovementDispatcher implements EventProcessor {
     this.interactionRaytraceCheck = plugin.checkService().searchCheck(InteractionRaytrace.class);
     this.timerCheck = plugin.checkService().searchCheck(Timer.class);
     linkTeleportObserver(plugin);
-    linkFallDamageInvokeMethod();
   }
 
   private void linkTeleportObserver(IntavePlugin plugin) {
     PacketSubscriptionLinker subscriptionLinker = plugin.packetSubscriptionLinker();
     subscriptionLinker.linkSubscriptionsIn(teleportPositionObserver);
-  }
-
-  private void linkFallDamageInvokeMethod() {
-    Class<?> entityLivingClass = ReflectiveAccess.lookupServerClass("EntityLiving");
-    String methodName = "e";
-    if (ProtocolLibAdapter.VILLAGE_UPDATE.atOrAbove()) {
-      methodName = "b";
-    } else if (ProtocolLibAdapter.AQUATIC_UPDATE.atOrAbove()) {
-      methodName = "c";
-    }
-    try {
-      this.fallDamageInvokeMethod = MethodHandles
-        .publicLookup()
-        .findVirtual(entityLivingClass, methodName, MethodType.methodType(Void.TYPE, Float.TYPE, Float.TYPE));
-    } catch (NoSuchMethodException | IllegalAccessException e) {
-      throw new IllegalStateException(e);
-    }
   }
 
   @PacketSubscription(
@@ -332,7 +307,6 @@ public final class MovementDispatcher implements EventProcessor {
     UserMetaMovementData movementData = meta.movementData();
     UserMetaAbilityData abilityData = meta.abilityData();
     UserMetaInventoryData inventoryData = meta.inventoryData();
-    UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
 
     PacketType packetType = event.getPacketType();
     boolean vehicleMove = packetType == PacketType.Play.Client.VEHICLE_MOVE;
@@ -346,29 +320,6 @@ public final class MovementDispatcher implements EventProcessor {
 
     if (!event.isCancelled() && !movementData.isTeleportConfirmationPacket) {
       physicsCheck.endMovement(user, hasMovement);
-    }
-
-    if (!violationLevelData.isInActiveTeleportBundle && !movementData.lastOnGround && movementData.motionY() < 0) {
-      movementData.artificialFallDistance += -movementData.motionY();
-    }
-
-    if (movementData.onGround) {
-      if (movementData.artificialFallDistance > 3.4) {
-        float fallDistance = movementData.artificialFallDistance;
-
-        Synchronizer.synchronize(() -> {
-          Object playerHandle = user.playerHandle();
-          movementData.allowFallDamage = true;
-          try {
-            fallDamageInvokeMethod.invoke(playerHandle, fallDistance, 1.0f);
-          } catch (Throwable throwable) {
-            throwable.printStackTrace();
-          }
-          movementData.allowFallDamage = false;
-        });
-      }
-
-      movementData.artificialFallDistance = 0;
     }
 
     if (!movementData.isTeleportConfirmationPacket) {
@@ -584,10 +535,6 @@ public final class MovementDispatcher implements EventProcessor {
     User user = UserRepository.userOf(player);
     User.UserMeta meta = user.meta();
     UserMetaInventoryData inventoryData = meta.inventoryData();
-    UserMetaMovementData movementData = meta.movementData();
-//    if (movementData.sneaking && !user.meta().clientData().sprintWhenSneaking()) {
-//      return false;
-//    }
     return !inventoryData.inventoryOpen();
   }
 }

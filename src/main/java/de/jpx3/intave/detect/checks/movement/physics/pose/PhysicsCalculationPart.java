@@ -8,18 +8,10 @@ import de.jpx3.intave.detect.checks.movement.physics.water.AquaticWaterMovementB
 import de.jpx3.intave.user.User;
 
 public abstract class PhysicsCalculationPart {
-  private EntityCollisionRepository entityCollisionRepository;
-  private BlockCollisionRepository blockCollisionRepository;
-  private AquaticWaterMovementBase aquaticWaterMovementBase;
+  private Physics physics;
 
-  public final void setup(
-    EntityCollisionRepository entityCollisionRepository,
-    BlockCollisionRepository blockCollisionRepository,
-    AquaticWaterMovementBase aquaticWaterMovementBase
-  ) {
-    this.entityCollisionRepository = entityCollisionRepository;
-    this.blockCollisionRepository = blockCollisionRepository;
-    this.aquaticWaterMovementBase = aquaticWaterMovementBase;
+  public final void setup(Physics physics) {
+    this.physics = physics;
   }
 
   public abstract EntityCollisionResult performSimulation(
@@ -37,16 +29,20 @@ public abstract class PhysicsCalculationPart {
     double motionX, double motionY, double motionZ
   );
 
+  public Physics physics() {
+    return physics;
+  }
+
   public EntityCollisionRepository entityCollisionRepository() {
-    return entityCollisionRepository;
+    return physics.entityCollisionRepository();
   }
 
   public AquaticWaterMovementBase aquaticWaterMovementBase() {
-    return aquaticWaterMovementBase;
+    return physics.aquaticWaterMovementBase();
   }
 
   public BlockCollisionRepository blockCollisionRepository() {
-    return blockCollisionRepository;
+    return physics.blockCollisionRepository();
   }
 
   public boolean requiresKeyCalculation() {

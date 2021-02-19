@@ -18,6 +18,7 @@ import de.jpx3.intave.detect.checks.movement.physics.water.AquaticWaterMovementB
 import de.jpx3.intave.detect.checks.movement.physics.water.WaterMovementLegacyResolver;
 import de.jpx3.intave.detect.checks.movement.physics.water.aquatics.*;
 import de.jpx3.intave.diagnostics.timings.Timings;
+import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.client.PlayerMovementHelper;
 import de.jpx3.intave.tools.client.PlayerMovementPoseHelper;
@@ -34,6 +35,9 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.List;
 
 import static de.jpx3.intave.detect.checks.movement.physics.PhysicsHelper.resolveKeysFromInput;
@@ -46,39 +50,50 @@ public final class Physics extends IntaveCheck {
 
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer decrementer;
+  private MethodHandle fallDamageInvokeMethod;
+
   private final PhysicsSimulationService simulationService;
   private final AquaticWaterMovementBase aquaticWaterMovementBase;
+  private final EntityCollisionRepository entityCollisionRepository;
+  private final BlockCollisionRepository blockCollisionRepository;
 
   public Physics(IntavePlugin plugin) {
     super("Physics", "physics");
     this.plugin = plugin;
     this.decrementer = new CheckViolationLevelDecrementer(this, VL_DECREMENT_PER_VALID_MOVE * 20);
     this.simulationService = new PhysicsSimulationService();
-    EntityCollisionRepository entityCollisionRepository = new EntityCollisionRepository();
-    BlockCollisionRepository blockCollisionRepository = new BlockCollisionRepository();
-    AquaticWaterMovementBase aquaticWaterMovementBase = resolveAquaticMovement();
-    this.aquaticWaterMovementBase = aquaticWaterMovementBase;
-    setupPoseTypes(entityCollisionRepository, blockCollisionRepository, aquaticWaterMovementBase);
+    this.entityCollisionRepository = new EntityCollisionRepository();
+    this.blockCollisionRepository = new BlockCollisionRepository();
+    this.aquaticWaterMovementBase = resolveAquaticMovement();
+    linkFallDamageInvokeMethod();
+    setupPoseTypes();
   }
 
-  private void setupPoseTypes(
-    EntityCollisionRepository entityCollisionRepository,
-    BlockCollisionRepository blockCollisionRepository,
-    AquaticWaterMovementBase aquaticWaterMovementBase
-  ) {
-    for (PhysicsMovementPoseType value : PhysicsMovementPoseType.values()) {
-      setupPose(value, entityCollisionRepository, blockCollisionRepository, aquaticWaterMovementBase);
+  private void linkFallDamageInvokeMethod() {
+    Class<?> entityLivingClass = ReflectiveAccess.lookupServerClass("EntityLiving");
+    String methodName = "e";
+    if (ProtocolLibAdapter.VILLAGE_UPDATE.atOrAbove()) {
+      methodName = "b";
+    } else if (ProtocolLibAdapter.AQUATIC_UPDATE.atOrAbove()) {
+      methodName = "c";
+    }
+    try {
+      fallDamageInvokeMethod = MethodHandles
+        .publicLookup()
+        .findVirtual(entityLivingClass, methodName, MethodType.methodType(Void.TYPE, Float.TYPE, Float.TYPE));
+    } catch (NoSuchMethodException | IllegalAccessException e) {
+      throw new IllegalStateException(e);
     }
   }
 
-  private void setupPose(
-    PhysicsMovementPoseType movementPoseType,
-    EntityCollisionRepository entityCollisionRepository,
-    BlockCollisionRepository blockCollisionRepository,
-    AquaticWaterMovementBase aquaticWaterMovementBase
-  ) {
-    PhysicsCalculationPart calculationPart = movementPoseType.calculationPart();
-    calculationPart.setup(entityCollisionRepository, blockCollisionRepository, aquaticWaterMovementBase);
+  private void setupPoseTypes() {
+    for (PhysicsMovementPoseType pose : PhysicsMovementPoseType.values()) {
+      setupPose(pose.calculationPart());
+    }
+  }
+
+  private void setupPose(PhysicsCalculationPart poseType) {
+    poseType.setup(this);
   }
 
   private AquaticWaterMovementBase resolveAquaticMovement() {
@@ -96,6 +111,14 @@ public final class Physics extends IntaveCheck {
       aquaticWaterMovement = new AquaticUnknownMovementResolver();
     }
     return aquaticWaterMovement;
+  }
+
+  public void dealFallDamage(Object playerHandle, float fallDistance) {
+    try {
+      fallDamageInvokeMethod.invoke(playerHandle, fallDistance, 1.0f);
+    } catch (Throwable throwable) {
+      throwable.printStackTrace();
+    }
   }
 
   public void receiveMovement(User user, boolean hasMovement) {
@@ -185,7 +208,7 @@ public final class Physics extends IntaveCheck {
     movementData.pastRiptideSpin++;
   }
 
-  private void updateAquatics(User user) {
+  public void updateAquatics(User user) {
     updateInWater(user);
     updateEyesInWater(user);
   }
@@ -210,6 +233,7 @@ public final class Physics extends IntaveCheck {
     }
     if (movementData.inWater) {
       movementData.pastWaterMovement = 0;
+      movementData.artificialFallDistance = 0;
     }
   }
 
@@ -412,8 +436,7 @@ public final class Physics extends IntaveCheck {
 
     violationLevelData.physicsVL = MathHelper.minmax(0, violationLevelData.physicsVL, 100);
 
-    boolean inWater = movementData.inWater;
-    if (inWater || movementData.onLadderLast) {
+    if (movementData.onLadderLast) {
       movementData.artificialFallDistance = 0;
     }
 
@@ -676,6 +699,18 @@ public final class Physics extends IntaveCheck {
     if (Math.abs(movementData.physicsMotionZ) < resetMotion) {
       movementData.physicsMotionZ = 0.0;
     }
+  }
+
+  public AquaticWaterMovementBase aquaticWaterMovementBase() {
+    return aquaticWaterMovementBase;
+  }
+
+  public EntityCollisionRepository entityCollisionRepository() {
+    return entityCollisionRepository;
+  }
+
+  public BlockCollisionRepository blockCollisionRepository() {
+    return blockCollisionRepository;
   }
 
   public static final class PhysicsProcessorContext {
