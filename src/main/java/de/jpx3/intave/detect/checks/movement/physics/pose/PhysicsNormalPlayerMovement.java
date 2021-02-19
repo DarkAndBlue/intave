@@ -314,8 +314,6 @@ public class PhysicsNormalPlayerMovement extends PhysicsCalculationPart {
       movementData.inWeb = false;
     }
 
-    updateFallState(user, motionY, movementData.onGround);
-
     if (movementData.physicsResetMotionX) {
       context.motionX = 0.0;
     }
@@ -324,6 +322,7 @@ public class PhysicsNormalPlayerMovement extends PhysicsCalculationPart {
     }
 
     simulateMovementOfCollidedBlocks(user, context, boundingBox);
+    updateFallState(user, motionY, movementData.onGround);
 
     if (inWater) {
       simulateWaterAfter(user, context, boundingBox, collidedHorizontally, gravity);
