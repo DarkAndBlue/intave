@@ -27,6 +27,11 @@ public final class ViolationService {
     this.plugin = plugin;
   }
 
+  @Deprecated
+  public boolean processViolation(Player detectedPlayer, double vl, String checkName, String message) {
+    return processViolation(detectedPlayer, vl, checkName, message, "", "thresholds");
+  }
+
   public boolean processViolation(Player detectedPlayer, double vl, String checkName, String message, String details) {
     return processViolation(detectedPlayer, vl, checkName, message, details, "thresholds");
   }
@@ -103,7 +108,9 @@ public final class ViolationService {
     ViolationContext compactViolationContext = new ViolationContext(checkName, message, "", oldVl, newVl);
     ViolationContext fullViolationContext = new ViolationContext(checkName, message, details, oldVl, newVl);
     String trustFactorStringOutput = detectedUser.trustFactor().name().toLowerCase().replace("_", "");
-    plugin.logger().violation(detectedPlayer.getName() + "/" +trustFactorStringOutput + " " + message + " (" + details +") (+"+(newVl - oldVl) + " -> " + newVl+" on "+checkName+")");
+    String vlAdded = MathHelper.formatDouble((newVl - oldVl), 2);
+    String newVLDisplay = MathHelper.formatDouble(newVl, 2);
+    plugin.logger().violation(detectedPlayer.getName() + "/" +trustFactorStringOutput + " " + message + " (" + details +") (+"+ vlAdded + " -> " + newVLDisplay +" on "+checkName+")");
     broadcastVerbose(detectedPlayer, fullViolationContext, compactViolationContext);
   }
 
