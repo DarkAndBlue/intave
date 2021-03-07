@@ -150,7 +150,7 @@ public final class PhysicsSimulator {
       for (int jumpState = 0; jumpState <= 1; jumpState++) {
         boolean jumped = jumpState == 1;
         // Jumps are only allowed on the ground :(
-        if (jumped && ((!lastOnGround && !inLava && !inWater) || inventoryOpen)) {
+        if (jumped && (!lastOnGround && !inLava && !inWater)) {
           continue;
         }
         if (jumped && movementData.denyJump()) {
@@ -163,7 +163,7 @@ public final class PhysicsSimulator {
               continue;
             }
             if (inventoryOpen) {
-              if ((keyForward != 0 || keyStrafe != 0) || jumped) {
+              if ((keyForward != 0 && keyStrafe != 0) || jumped) {
                 continue;
               }
             }
