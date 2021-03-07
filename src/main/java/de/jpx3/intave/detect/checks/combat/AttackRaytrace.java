@@ -311,7 +311,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
     return isVocal ? "an" : "a";
   }
 
-  private float reachDistance(boolean creative) {
+  public static float reachDistance(boolean creative) {
     return (creative ? 5.0F : 3.0F) + 0.001f;
   }
 
