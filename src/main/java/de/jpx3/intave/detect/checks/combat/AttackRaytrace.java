@@ -4,6 +4,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
 import de.jpx3.intave.detect.IntaveMetaCheck;
@@ -203,13 +204,14 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
         thresholdKey = "applicable-thresholds.hitbox";
         vl = 2;
         Synchronizer.synchronize(() -> {
-          String sibylMessage = ChatColor.RED + "[R] " + player.getName() + " attacked " + entityName.toLowerCase();
-          Player p = playerByWrappedEntity(entity);
-          if(p != null) {
-            int lastTeleport = userOf(p).meta().movementData().lastTeleport;
-            sibylMessage += " last enemy TP " + (lastTeleport > 99 ? ">99" : lastTeleport);
+          String sibylMessage = ChatColor.RED + "[R] " + player.getName() + " missed hit on " + entityName.toLowerCase();
+          if(IntaveControl.GOMME_MODE) {
+            Player p = playerByWrappedEntity(entity);
+            if (p != null) {
+              int lastTeleport = userOf(p).meta().movementData().lastTeleport;
+              sibylMessage += " tp " + (lastTeleport > 99 ? ">99" : lastTeleport);
+            }
           }
-
           for (Player authenticatedPlayer : Bukkit.getOnlinePlayers()) {
             if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
               authenticatedPlayer.sendMessage(sibylMessage);
@@ -235,10 +237,12 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
         Synchronizer.synchronize(() -> {
           String sibylMessage = ChatColor.RED + "[R] " + player.getName() + " attacked " + entityName.toLowerCase() +
             " from " + displayReach;
-          Player p = playerByWrappedEntity(entity);
-          if(p != null) {
-            int lastTeleport = userOf(p).meta().movementData().lastTeleport;
-            sibylMessage += " last enemy TP " + (lastTeleport > 99 ? ">99" : lastTeleport);
+          if(IntaveControl.GOMME_MODE) {
+            Player p = playerByWrappedEntity(entity);
+            if (p != null) {
+              int lastTeleport = userOf(p).meta().movementData().lastTeleport;
+              sibylMessage += " tp " + (lastTeleport > 99 ? ">99" : lastTeleport);
+            }
           }
           for (Player authenticatedPlayer : Bukkit.getOnlinePlayers()) {
             if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
