@@ -1,9 +1,9 @@
 package de.jpx3.intave.detect.checks.movement.physics.water.aquatics;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
+import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.detect.checks.movement.physics.water.AquaticWaterMovementBase;
-import de.jpx3.intave.reflect.ReflectionFailureException;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
@@ -29,8 +29,7 @@ public final class AquaticNetherUpdateMovementResolver extends AquaticWaterMovem
     try {
       setup();
     } catch (Exception e) {
-      e.printStackTrace();
-      throw new ReflectionFailureException(e);
+      throw new IntaveInternalException(e);
     }
   }
 
@@ -127,7 +126,7 @@ public final class AquaticNetherUpdateMovementResolver extends AquaticWaterMovem
     try {
       return (boolean) worldTypeMethodHandle.invoke(fluidState);
     } catch (Throwable t) {
-      throw new ReflectionFailureException(t);
+      throw new IntaveInternalException(t);
     }
   }
 
@@ -138,7 +137,7 @@ public final class AquaticNetherUpdateMovementResolver extends AquaticWaterMovem
     try {
       return blockPositionClass.getConstructor(BLOCK_POSITION_CONSTRUCTOR).newInstance(x, y, z);
     } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      throw new ReflectionFailureException(e);
+      throw new IntaveInternalException(e);
     }
   }
 
@@ -149,7 +148,7 @@ public final class AquaticNetherUpdateMovementResolver extends AquaticWaterMovem
     try {
       return fluidMethodHandle.invoke(world, blockPosition);
     } catch (Throwable t) {
-      throw new ReflectionFailureException(t);
+      throw new IntaveInternalException(t);
     }
   }
 
@@ -158,7 +157,7 @@ public final class AquaticNetherUpdateMovementResolver extends AquaticWaterMovem
     try {
       return (boolean) fluidTaggedMethodHandle.invoke(fluidState, fluidTagWater);
     } catch (Throwable t) {
-      throw new ReflectionFailureException(t);
+      throw new IntaveInternalException(t);
     }
   }
 
@@ -167,7 +166,7 @@ public final class AquaticNetherUpdateMovementResolver extends AquaticWaterMovem
     try {
       return (float) fluidHeightMethodHandle.invoke(fluidState);
     } catch (Throwable t) {
-      throw new ReflectionFailureException(t);
+      throw new IntaveInternalException(t);
     }
   }
 
@@ -177,7 +176,7 @@ public final class AquaticNetherUpdateMovementResolver extends AquaticWaterMovem
       Object vector = fluidFlowMethodHandle.invoke(fluidState, world, blockPosition);
       return WrapperLinkage.vectorOf(vector);
     } catch (Throwable t) {
-      throw new ReflectionFailureException(t);
+      throw new IntaveInternalException(t);
     }
   }
 }
