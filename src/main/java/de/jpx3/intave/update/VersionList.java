@@ -25,9 +25,7 @@ public final class VersionList {
       "https://intave.de/api/versions.json",
       TimeUnit.DAYS.toMillis(2)
     );
-
     String raw = String.join("", cachedResource.readLines());
-
     JsonReader json = new JsonReader(new StringReader(raw));
     json.setLenient(true);
     JsonArray jsonArray = new JsonParser().parse(json).getAsJsonArray();
@@ -36,11 +34,9 @@ public final class VersionList {
       String name = jsonObject.get("name").getAsString();
       String release = jsonObject.get("release").getAsString();
       String status = jsonObject.get("status").getAsString();
-
       content.add(
         new VersionInformation(
-          name,
-          Long.parseLong(release),
+          name, Long.parseLong(release),
           VersionInformation.VersionTypeClassifier.valueOf(status.toUpperCase(Locale.ROOT))
         )
       );

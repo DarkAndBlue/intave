@@ -415,7 +415,7 @@ public final class IntavePlugin extends JavaPlugin {
       accessService.setup();
 
       customEventService = new CustomEventService(this);
-      interactionPermissionService = new InteractionPermissionService();
+      interactionPermissionService = new InteractionPermissionService(this);
       checkService = new CheckService(this);
       violationService = new ViolationService(this);
       eventService = new EventService(this);

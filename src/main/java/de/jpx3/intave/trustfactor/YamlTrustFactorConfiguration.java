@@ -1,6 +1,6 @@
 package de.jpx3.intave.trustfactor;
 
-import de.jpx3.intave.access.TrustFactor;
+import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.logging.IntaveLogger;
 import org.bukkit.configuration.file.YamlConfiguration;
 

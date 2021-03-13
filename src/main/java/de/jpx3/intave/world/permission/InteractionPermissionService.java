@@ -1,61 +1,33 @@
 package de.jpx3.intave.world.permission;
 
-import de.jpx3.intave.access.BlockBreakPermissionCheck;
-import de.jpx3.intave.access.BlockPlacePermissionCheck;
+import de.jpx3.intave.IntavePlugin;
 
 public final class InteractionPermissionService {
+  private final IntavePlugin plugin;
   private BlockPlacePermissionCheck blockPlacePermissionCheck;
   private BlockBreakPermissionCheck blockBreakPermissionCheck;
+  private BucketActionPermissionCheck bucketActionPermissionCheck;
 
-  public InteractionPermissionService() {
+  public InteractionPermissionService(IntavePlugin plugin) {
+    this.plugin = plugin;
     setup();
   }
 
   public void setup() {
-    // placement
-//    ClassLoader classLoader = InteractionPermissionService.class.getClassLoader();
-//    PatchyLoadingInjector.loadUnloadedClassPatched(classLoader, "de.jpx3.intave.world.permission.CustomCraftBlock");
-//    String className;
-//    if (ProtocolLibAdapter.COMBAT_UPDATE.atOrAbove()) {
-//      className = "de.jpx3.intave.world.permission.DualHandCBPlacePermissionResolver";
-//    } else {
-//      className = "de.jpx3.intave.world.permission.LegacyCBPlacePermissionResolver";
-//    }
-//    PatchyLoadingInjector.loadUnloadedClassPatched(classLoader, className);
-
-    blockPlacePermissionCheck = new AllowAllPlacePermissionResolver();//instanceOf(className);
-    blockPlacePermissionCheck.open();
-
-    // break
-    blockBreakPermissionCheck = new AllowAllBreakPermissionResolver();//new CBBreakPermissionResolver();
-    blockBreakPermissionCheck.open();
-  }
-
-  private <T> T instanceOf(String className) {
-    try {
-      return (T) Class.forName(className).newInstance();
-    } catch (InstantiationException | IllegalAccessException | ClassNotFoundException exception) {
-      throw new IllegalStateException(exception);
-    }
+    blockPlacePermissionCheck = new EventPlacePermissionResolver(plugin);
+    blockBreakPermissionCheck = new EventBreakPermissionResolver(plugin);
+    bucketActionPermissionCheck = new EventBukkitActionPermissionResolver(plugin);
   }
 
   public BlockPlacePermissionCheck blockPlacePermissionCheck() {
     return blockPlacePermissionCheck;
   }
 
-  public void setBlockPlacePermissionCheck(BlockPlacePermissionCheck blockPlacePermissionCheck) {
-    this.blockPlacePermissionCheck.close();
-    this.blockPlacePermissionCheck = blockPlacePermissionCheck;
-    this.blockPlacePermissionCheck.open();
-  }
-
   public BlockBreakPermissionCheck blockBreakPermissionCheck() {
     return blockBreakPermissionCheck;
   }
 
-  public void setBlockBreakPermissionCheck(BlockBreakPermissionCheck blockBreakPermissionCheck) {
-    this.blockBreakPermissionCheck.close();
-    this.blockBreakPermissionCheck = blockBreakPermissionCheck;
-    this.blockBreakPermissionCheck.open();
+  public BucketActionPermissionCheck bucketActionPermissionCheck() {
+    return bucketActionPermissionCheck;
   }
 }

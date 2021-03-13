@@ -28,10 +28,5 @@ public final class VersionInformation {
     LATEST,
     STABLE,
     INVALID
-
-    ;
-
-
-
   }
 }

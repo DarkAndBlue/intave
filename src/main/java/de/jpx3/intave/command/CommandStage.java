@@ -100,6 +100,7 @@ public abstract class CommandStage {
       .collect(Collectors.toList());
   }
 
+  @Native
   protected void showInfo(CommandSender sender) {
     sender.sendMessage(IntavePlugin.prefix() + "Available subcommands:");
     List<String> commandPath = new ArrayList<>();
@@ -111,6 +112,12 @@ public abstract class CommandStage {
     String commandPathAsString = commandPath.stream().map(s -> s + " ").collect(Collectors.joining());
     for (IntaveSubCommand intaveSubCommand : subCommandList) {
       if(intaveSubCommand.hideInHelp()) {
+        continue;
+      }
+      String permission = intaveSubCommand.permission();
+      if(sender instanceof Player && permission.equals("sibyl") && !IntavePlugin.singletonInstance().sibylIntegrationService().isAuthenticated((Player) sender)) {
+        continue;
+      } else if(sender instanceof Player && !permission.equals("none") && !permission.equals("sibyl") && !PermissionCheck.permissionCheck(sender, permission)) {
         continue;
       }
       sender.sendMessage(IntavePlugin.prefix() + commandPathAsString + intaveSubCommand.selectors()[0] + ": " + intaveSubCommand.description());

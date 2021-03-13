@@ -3,8 +3,8 @@ package de.jpx3.intave.accessbackend.check;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.access.CheckStatisticsAccess;
-import de.jpx3.intave.access.UnknownCheckException;
+import de.jpx3.intave.access.check.CheckStatisticsAccess;
+import de.jpx3.intave.access.check.UnknownCheckException;
 import de.jpx3.intave.detect.IntaveCheck;
 
 import java.util.Map;

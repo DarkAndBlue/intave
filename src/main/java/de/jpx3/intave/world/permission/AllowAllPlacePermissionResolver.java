@@ -1,6 +1,5 @@
 package de.jpx3.intave.world.permission;
 
-import de.jpx3.intave.access.BlockPlacePermissionCheck;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 

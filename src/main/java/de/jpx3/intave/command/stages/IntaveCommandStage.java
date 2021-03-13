@@ -46,7 +46,7 @@ public final class IntaveCommandStage extends CommandStage {
         String names = Arrays.stream(selectedPlayers).map(Entity::getName).map(s -> s + " ").collect(Collectors.joining()).trim();
         user.setChannelConstraint(UserMessageChannel.VERBOSE, player1 -> uniqueIds.contains(player1.getUniqueId()));
         String target = ChatColor.RED + names;
-        player.sendMessage(IntavePlugin.prefix() + "You have specified verbose output to: " + target);
+        player.sendMessage(IntavePlugin.prefix() + "You have specified verbose output to " + target);
         return;
       }
     }
@@ -119,7 +119,7 @@ public final class IntaveCommandStage extends CommandStage {
   @SubCommand(
     selectors = "root",
     usage = "",
-    description = "Internal performance tools",
+    description = "",
     permission = "sibyl",
     hideInHelp = true
   )
@@ -143,8 +143,7 @@ public final class IntaveCommandStage extends CommandStage {
     selectors = "internals",
     usage = "",
     description = "",
-    permission = "intave.command.internals.*",
-    hideInHelp = true
+    permission = "intave.command.internals.*"
   )
   @Forward(
     target = IntaveInternalsStage.class

@@ -1,7 +1,7 @@
 package de.jpx3.intave.tools.placeholder;
 
 import com.google.common.collect.ImmutableMap;
-import de.jpx3.intave.access.TrustFactor;
+import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.user.User;
 import org.bukkit.entity.Player;
 

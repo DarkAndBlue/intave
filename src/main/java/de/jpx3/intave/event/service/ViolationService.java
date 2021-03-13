@@ -1,8 +1,8 @@
 package de.jpx3.intave.event.service;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.access.IntaveCommandExecutionEvent;
-import de.jpx3.intave.access.IntaveViolationEvent;
+import de.jpx3.intave.access.check.event.IntaveCommandExecutionEvent;
+import de.jpx3.intave.access.check.event.IntaveViolationEvent;
 import de.jpx3.intave.detect.IntaveCheck;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.MathHelper;

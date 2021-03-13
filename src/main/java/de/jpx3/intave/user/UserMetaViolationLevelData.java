@@ -1,7 +1,7 @@
 package de.jpx3.intave.user;
 
 import com.google.common.collect.Maps;
-import de.jpx3.intave.access.TrustFactor;
+import de.jpx3.intave.access.player.trust.TrustFactor;
 
 import java.util.Map;
 

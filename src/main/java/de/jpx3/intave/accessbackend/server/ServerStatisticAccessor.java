@@ -2,7 +2,7 @@ package de.jpx3.intave.accessbackend.server;
 
 import com.google.common.collect.Maps;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.access.ServerHealthStatisticAccess;
+import de.jpx3.intave.access.server.ServerHealthStatisticAccess;
 import de.jpx3.intave.tools.TpsResolver;
 
 import java.util.ArrayList;

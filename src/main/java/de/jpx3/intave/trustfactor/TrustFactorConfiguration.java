@@ -1,6 +1,6 @@
 package de.jpx3.intave.trustfactor;
 
-import de.jpx3.intave.access.TrustFactor;
+import de.jpx3.intave.access.player.trust.TrustFactor;
 
 /**
  * Class generated using IntelliJ IDEA

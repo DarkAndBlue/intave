@@ -2,7 +2,7 @@ package de.jpx3.intave.user;
 
 import com.google.common.collect.Maps;
 import de.jpx3.intave.access.IntaveInternalException;
-import de.jpx3.intave.access.TrustFactor;
+import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.connect.shadow.ShadowPacketDataLink;
 import de.jpx3.intave.permission.PermissionCache;
 import de.jpx3.intave.permission.PermissionCheck;

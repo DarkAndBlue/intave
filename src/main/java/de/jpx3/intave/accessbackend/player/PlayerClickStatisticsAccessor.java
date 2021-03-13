@@ -3,7 +3,7 @@ package de.jpx3.intave.accessbackend.player;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.access.PlayerClicks;
+import de.jpx3.intave.access.player.PlayerClicks;
 import de.jpx3.intave.tools.GarbageCollector;
 import org.bukkit.entity.Player;
 

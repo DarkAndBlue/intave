@@ -2,9 +2,9 @@ package de.jpx3.intave.trustfactor;
 
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.access.DefaultForwardingPermissionTrustFactorResolver;
-import de.jpx3.intave.access.TrustFactor;
-import de.jpx3.intave.access.TrustFactorResolver;
+import de.jpx3.intave.access.player.trust.DefaultForwardingPermissionTrustFactorResolver;
+import de.jpx3.intave.access.player.trust.TrustFactor;
+import de.jpx3.intave.access.player.trust.TrustFactorResolver;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.executor.BackgroundExecutor;
@@ -17,7 +17,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 public final class TrustFactorService implements BukkitEventSubscriber {
-
   private final IntavePlugin plugin;
   private TrustFactorResolver trustFactorResolver;
   private TrustFactorConfiguration trustFactorConfiguration;

@@ -1,7 +1,7 @@
 package de.jpx3.intave.accessbackend.server;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.access.ServerAccess;
+import de.jpx3.intave.access.server.ServerAccess;
 
 public final class ServerAccessor {
   private final IntavePlugin plugin;

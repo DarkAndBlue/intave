@@ -1,14 +1,23 @@
 package de.jpx3.intave.accessbackend;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.access.*;
+import de.jpx3.intave.access.IntaveAccess;
+import de.jpx3.intave.access.IntaveEvent;
+import de.jpx3.intave.access.check.CheckAccess;
+import de.jpx3.intave.access.check.UnknownCheckException;
+import de.jpx3.intave.access.player.PlayerAccess;
+import de.jpx3.intave.access.player.trust.TrustFactor;
+import de.jpx3.intave.access.player.trust.TrustFactorResolver;
+import de.jpx3.intave.access.server.ServerAccess;
 import de.jpx3.intave.accessbackend.check.CheckAccessor;
 import de.jpx3.intave.accessbackend.player.PlayerAccessor;
 import de.jpx3.intave.accessbackend.server.ServerAccessor;
 import de.jpx3.intave.logging.IntaveLogger;
+import de.jpx3.intave.tools.annotate.Native;
 import org.bukkit.entity.Player;
 
 import java.io.PrintStream;
+import java.util.function.BiConsumer;
 
 /**
  * Created by Jpx3 on 01.12.2017.
@@ -31,18 +40,20 @@ public final class IntaveAccessService {
     plugin.setAccess(newIntaveAccess());
   }
 
-  public void fireEvent(AbstractIntaveExternalEvent externalEvent) {
+  public void fireEvent(IntaveEvent externalEvent) {
     plugin.eventLinker().fireEvent(externalEvent);
   }
 
   private IntaveAccess newIntaveAccess() {
     return new IntaveAccess() {
       @Override
+      @Native
       public void setTrustFactorResolver(TrustFactorResolver resolver) {
         plugin.trustFactorService().setTrustFactorResolver(resolver);
       }
 
       @Override
+      @Native
       public void setDefaultTrustFactor(TrustFactor defaultTrustFactor) {
         plugin.trustFactorService().setDefaultTrustFactor(defaultTrustFactor);
       }
@@ -55,6 +66,12 @@ public final class IntaveAccessService {
       @Override
       public void unsubscribeOutputStream(PrintStream stream) {
         IntaveLogger.logger().removeOutputStream(stream);
+      }
+
+      @Override
+      @Native
+      public void subscribeINX(BiConsumer<Object, Object> biConsumer) {
+
       }
 
       @Override
