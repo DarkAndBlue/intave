@@ -7,16 +7,14 @@ import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
+import de.jpx3.intave.event.dispatch.PlayerAbilityEvaluator;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.punishment.AttackCancelType;
 import de.jpx3.intave.tools.packet.PlayerAction;
 import de.jpx3.intave.tools.packet.PlayerActionResolver;
-import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaClientData;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.*;
 import org.bukkit.entity.Player;
 
 public final class PacketSprintToggleHeuristic extends IntaveMetaCheckPart<Heuristics, PacketSprintToggleHeuristic.PacketSprintToggleHeuristicMeta> {
@@ -51,6 +49,7 @@ public final class PacketSprintToggleHeuristic extends IntaveMetaCheckPart<Heuri
     User user = userOf(player);
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
+    UserMetaAbilityData abilityData = meta.abilityData();
     UserMetaClientData clientData = meta.clientData();
     PacketSprintToggleHeuristicMeta heuristicMeta = metaOf(user);
 
@@ -58,6 +57,11 @@ public final class PacketSprintToggleHeuristic extends IntaveMetaCheckPart<Heuri
     PlayerAction playerAction = PlayerActionResolver.resolveActionFromPacket(packet);
 
     if (playerAction != PlayerAction.START_SPRINTING && playerAction != PlayerAction.STOP_SPRINTING) {
+      return;
+    }
+
+    if (abilityData.inGameModeIncludePending(PlayerAbilityEvaluator.GameMode.SPECTATOR)) {
+      heuristicMeta.sprintTogglesInTick = 0;
       return;
     }
 
