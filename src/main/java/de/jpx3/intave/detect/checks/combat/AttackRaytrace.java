@@ -32,12 +32,15 @@ import static de.jpx3.intave.world.raytrace.Raytracer.distanceOf;
 
 public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytraceMeta> {
   private final IntavePlugin plugin;
-  private final CheckViolationLevelDecrementer decrementer;
+  private final CheckViolationLevelDecrementer hitboxDecrementer, reachDecrementer;
+
+  private final double VL_DECREMENT_PER_ATTACK = 0.25;
 
   public AttackRaytrace(IntavePlugin plugin) {
     super("AttackRaytrace", "attackraytrace", AttackRaytraceMeta.class);
     this.plugin = plugin;
-    this.decrementer = new CheckViolationLevelDecrementer(this, 1);
+    this.hitboxDecrementer = new CheckViolationLevelDecrementer(this, "applicable-thresholds.hitbox",VL_DECREMENT_PER_ATTACK * 0.5);
+    this.reachDecrementer = new CheckViolationLevelDecrementer(this, "applicable-thresholds.reach",VL_DECREMENT_PER_ATTACK * 2);
   }
 
   @PacketSubscription(
@@ -194,7 +197,6 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
     String thresholdKey;
     int vl;
 
-
     AttackRaytraceResult.ResultType attackRaytraceResult = AttackRaytraceResult.raytraceResultOf(blockReachDistance, reach);
     String entityName = entity.entityName();
     switch (attackRaytraceResult) {
@@ -254,7 +256,8 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
         break;
       }
       default: {
-        decrementer.decrement(user, 0.05);
+        hitboxDecrementer.decrement(user, VL_DECREMENT_PER_ATTACK);
+        reachDecrementer.decrement(user, VL_DECREMENT_PER_ATTACK);
         return false;
       }
     }
@@ -365,7 +368,8 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
       plugin.violationProcessor().processViolation(player, 0, "AttackRaytrace", message, details, thresholdKey);
       return true;
     }
-    decrementer.decrement(user, 0.05);
+    hitboxDecrementer.decrement(user, VL_DECREMENT_PER_ATTACK);
+    reachDecrementer.decrement(user, VL_DECREMENT_PER_ATTACK);
     return false;
   }
 
@@ -384,7 +388,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
   }
 
   public static float reachDistance(boolean creative) {
-    return (creative ? 5.0F : 3.0F) + 0.001f;
+    return (creative ? 5.0F : 3.0F) + 0.03f;
   }
 
   public static class AttackRaytraceMeta extends UserCustomCheckMeta {

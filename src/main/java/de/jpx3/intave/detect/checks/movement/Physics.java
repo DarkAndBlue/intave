@@ -452,13 +452,15 @@ public final class Physics extends IntaveCheck {
 //      debug += inventoryData.heldItem().getType().name();
 //      debug += " flying:" + movementData.pastFlyingPacketAccurate;
       debug += " dist=" + formatDouble(distance, 10);
-//      debug += " inventoryOpen=" + inventoryData.inventoryOpen();
-      debug += " " + (violationLevelData.isInActiveTeleportBundle ? "+" : "-");
+      debug += " " + movementData.pastWaterMovement + "/" + movementData.pastPushedByWaterFlow;
+      //      debug += " inventoryOpen=" + inventoryData.inventoryOpen();
+      debug += " " + (violationLevelData.isInActiveTeleportBundle ? "atb" : "");
       if (movedIntoBlock) {
         debug += " bb-intersection";
       }
 
-      String finalDebug = debug + " p " + movementData.pastExternalVelocity;
+
+      String finalDebug = debug;
       player.sendMessage(finalDebug);
 //      Synchronizer.synchronize(() -> player.sendMessage(finalDebug));
     }
@@ -724,10 +726,6 @@ public final class Physics extends IntaveCheck {
     if (Math.abs(movementData.physicsMotionZ) < resetMotion) {
       movementData.physicsMotionZ = 0.0;
     }
-  }
-
-  public AbstractWaterflow aquaticWaterMovementBase() {
-    return waterflow;
   }
 
   public CustomBlocks blockCollisionRepository() {

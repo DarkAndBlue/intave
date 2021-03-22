@@ -142,6 +142,8 @@ public final class IntaveLogger {
     } catch (IOException e) {
       e.printStackTrace();
     }
+
+    BackgroundExecutor.execute(this::performCompression);
   }
 
   public void shutdown() {

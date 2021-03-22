@@ -148,6 +148,49 @@ public final class BoundingBoxAccess {
     return cacheEntry.type();
   }
 
+  public int resolveData(Chunk chunk, int posX, int posY, int posZ) {
+    if (posY < 0 || 255 < posY) {
+      posY = 256;
+    }
+
+    Chunk chunkX = activeChunk.get();
+    if (chunkX == null || (chunk.getX() != chunkX.getX() || chunk.getZ() != chunkX.getZ())) {
+      activeChunk = new WeakReference<>(chunk);
+      chunkXPos = chunk.getX() << 4;
+      chunkZPos = chunk.getZ() << 4;
+      blockCache.clear();
+    }
+
+    byte dx = (byte) (chunkXPos - posX), dz = (byte) (chunkZPos - posZ);
+    int blockPositionKey = (posY & 0x1FF) << 16 | (dx & 0x0FF) << 8 | (dz & 0x0FF);
+
+    // global replacements (escape current-chunk constrain)
+    if (!globalReplacements.isEmpty()) {
+      for (Location location : globalReplacements.keySet()) {
+        if (location.getX() == posX && location.getZ() == posZ && location.getY() == posY) {
+          return globalReplacements.get(location).data();
+        }
+      }
+    }
+
+    CacheEntry cacheEntry = blockCache.get(blockPositionKey);
+    if (cacheEntry == null) {
+      List<WrappedAxisAlignedBB> boundingBoxes;
+      World world = chunk.getWorld();
+      Block block = BlockAccessor.blockAccess(world, posX, posY, posZ);
+      boundingBoxes = BoundingBoxPatcher.patch(
+        world, player,
+        block,
+        globalBoundingBoxResolver.resolve(world, posX, posY, posZ)
+      );
+      cacheEntry = new CacheEntry(boundingBoxes, block.getType(), block.getData());
+      if (!DISABLE_BLOCK_CACHING_ENTIRELY) {
+        blockCache.put(blockPositionKey, cacheEntry);
+      }
+    }
+    return cacheEntry.data();
+  }
+
   public void identityInvalidate() {
     invalidate();
     globalReplacements.clear();

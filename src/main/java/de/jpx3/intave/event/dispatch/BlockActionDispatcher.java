@@ -291,45 +291,58 @@ public final class BlockActionDispatcher implements EventProcessor {
     BoundingBoxAccess boundingBoxAccess = UserRepository.userOf(player).boundingBoxAccess();
 
     List<BlockPosition> blockPositions;
+    List<WrappedBlockData> blockDataList;
 
     if(packetType == PacketType.Play.Server.MULTI_BLOCK_CHANGE) {
       MultiBlockChangeInfo[] multiBlockChangeInfos = packet.getMultiBlockChangeInfoArrays().readSafely(0);
       blockPositions = new ArrayList<>();
+      blockDataList = new ArrayList<>();
       for (MultiBlockChangeInfo multiBlockChangeInfo : multiBlockChangeInfos) {
 //        boundingBoxAccess.invalidate(multiBlockChangeInfo.getAbsoluteX(), multiBlockChangeInfo.getY(), multiBlockChangeInfo.getAbsoluteZ());
         blockPositions.add(new BlockPosition(multiBlockChangeInfo.getAbsoluteX(), multiBlockChangeInfo.getY(), multiBlockChangeInfo.getAbsoluteZ()));
+        blockDataList.add(multiBlockChangeInfo.getData());
       }
     } else {
       BlockPosition position = packet.getBlockPositionModifier().readSafely(0);
 //      boundingBoxAccess.invalidate(position.getX(), position.getY(), position.getZ());
       blockPositions = Collections.singletonList(position);
+      blockDataList = Collections.singletonList(packet.getBlockData().read(0));
     }
 
     boolean transactionSynchronize = false;
 
     Location location = player.getLocation();
     for (BlockPosition blockPosition : blockPositions) {
-      if(distance(location, blockPosition) < 4) {
+      if(distance(location, blockPosition) < 8) {
         transactionSynchronize = true;
         break;
       }
     }
 
     if(transactionSynchronize) {
+//      player.sendMessage("Synchronized a " + packetType.name() + " packet: " + blockPositions.size() + " blocks updated");
       plugin.eventService().transactionFeedbackService().requestPong(player, blockPositions, (player1, target) -> {
-        for (BlockPosition blockPosition : blockPositions) {
-          boundingBoxAccess.invalidate(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
+        for (int i = 0; i < blockPositions.size(); i++) {
+          BlockPosition blockPosition = blockPositions.get(i);
+          WrappedBlockData blockData = blockDataList.get(i);
+
+//          if(blockData.getType() == Material.AIR) {
+//            boundingBoxAccess.invalidate(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
+//          } else {
+//          }
+          boundingBoxAccess.override(player1.getWorld(), blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(), blockData.getType().getId(), blockData.getData());
         }
       });
     } else {
       for (BlockPosition blockPosition : blockPositions) {
         boundingBoxAccess.invalidate(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
+        boundingBoxAccess.invalidateOverride(player.getWorld(), blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
       }
     }
   }
 
   private double distance(Location playerLocation, BlockPosition blockPosition) {
-    return NumberConversions.square(playerLocation.getBlockX() - blockPosition.getX()) + NumberConversions.square(playerLocation.getBlockY() - blockPosition.getY()) + NumberConversions.square(playerLocation.getBlockZ() - blockPosition.getZ());
+    return Math.sqrt(NumberConversions.square(playerLocation.getBlockX() - blockPosition.getX()) + NumberConversions.square(playerLocation.getBlockY() - blockPosition.getY()) + NumberConversions.square(playerLocation.getBlockZ() - blockPosition.getZ()));
   }
 
   private void refreshBlocksAround(Player player, Location targetLocation) {

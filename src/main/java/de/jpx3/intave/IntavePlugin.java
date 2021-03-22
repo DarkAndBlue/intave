@@ -171,6 +171,7 @@ public final class IntavePlugin extends JavaPlugin {
       EncryptedResource contextStatusResource = new EncryptedResource("context-status", false);
 
       String requiredState = null; // leave this be
+      boolean partnerServer = false;
 
       // ja das muss so krebsig hier hin
       if (IntaveControl.DISABLE_LICENSE_CHECK) {
@@ -294,6 +295,7 @@ public final class IntavePlugin extends JavaPlugin {
             properties.put(split1[0], split1[1]);
           }
           requiredState = properties.get("configuration-hash");
+          partnerServer = properties.containsKey("partner");
         }
       }
 
@@ -330,7 +332,7 @@ public final class IntavePlugin extends JavaPlugin {
                 try {
                   connection.connect();
                   allowLeniency = true;
-                } catch (IOException ignored) {}
+                } catch (Exception ignored) {}
               } else {
                 // perform github check
                 Scanner scanner2 = new Scanner(connection.getInputStream(), "UTF-8");

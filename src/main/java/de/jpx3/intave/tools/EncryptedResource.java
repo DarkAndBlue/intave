@@ -37,6 +37,7 @@ public final class EncryptedResource {
     if(!fileStore().exists()) {
       throw new IllegalStateException();
     }
+    fileStore().setLastModified(AccessHelper.now());
     try {
       FileInputStream fileInputStream = new FileInputStream(fileStore());
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

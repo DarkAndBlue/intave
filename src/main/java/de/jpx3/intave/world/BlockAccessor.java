@@ -61,6 +61,23 @@ public final class BlockAccessor implements BukkitEventSubscriber {
     return invalidRequestBlockMap.get(blockAccess).getType();
   }
 
+  public static int cacheAppliedDataAccess(User user, World blockAccess, int x, int y, int z) {
+    if (isInLoadedChunk(blockAccess, x, z) || Bukkit.isPrimaryThread()) {
+      return user.boundingBoxAccess().resolveData(blockAccess.getChunkAt(x >> 4, z >> 4), x, y, z);
+    }
+    return invalidRequestBlockMap.get(blockAccess).getData();
+  }
+
+  public static int cacheAppliedDataAccess(User user, World blockAccess, double x, double y, double z) {
+    int blockX = WrappedMathHelper.floor(x);
+    int blockY = WrappedMathHelper.floor(y);
+    int blockZ = WrappedMathHelper.floor(z);
+    if (isInLoadedChunk(blockAccess, blockX, blockZ) || Bukkit.isPrimaryThread()) {
+      return user.boundingBoxAccess().resolveData(blockAccess.getChunkAt(blockX >> 4, blockZ >> 4), blockX, blockY, blockZ);
+    }
+    return invalidRequestBlockMap.get(blockAccess).getData();
+  }
+
   public static Material cacheAppliedTypeAccess(User user, Location location) {
     return cacheAppliedTypeAccess(user, location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
   }
