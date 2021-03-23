@@ -25,8 +25,8 @@ public final class LegacyWaterPhysics {
     for (int x = minX; x < maxX; ++x) {
       for (int y = minY; y < maxY; ++y) {
         for (int z = minZ; z < maxZ; ++z) {
-          Material clientSideBlock = BlockAccessor.cacheAppliedTypeAccess(user, world, x, y, z);
-          if (ClientBlockHelper.isWater(clientSideBlock)) {
+          Material type = BlockAccessor.cacheAppliedTypeAccess(user, world, x, y, z);
+          if (ClientBlockHelper.isWater(type)) {
             int level = BlockAccessor.cacheAppliedDataAccess(user, world, x, y, z);
             double d0 = (float) (y + 1) - resolveLiquidHeightPercentage(level);
             if ((double) maxY >= d0) {
@@ -44,7 +44,6 @@ public final class LegacyWaterPhysics {
     if (inWater && flowVector != null && flowVector.lengthVector() > 0.0D) {
       flowVector = flowVector.normalize();
       double d1 = 0.014D;
-
       movementData.physicsMotionX += flowVector.xCoord * d1;
       movementData.physicsMotionY += flowVector.yCoord * d1;
       movementData.physicsMotionZ += flowVector.zCoord * d1;

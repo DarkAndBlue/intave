@@ -4,6 +4,7 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
@@ -277,6 +278,43 @@ public final class BlockActionDispatcher implements EventProcessor {
 
   @PacketSubscription(
     packets = {
+      @PacketDescriptor(sender = Sender.SERVER, packetName = "MAP_CHUNK"),
+      @PacketDescriptor(sender = Sender.SERVER, packetName = "MAP_CHUNK_BULK")
+    }
+  )
+  public void chunkUpdate(PacketEvent event) {
+    PacketContainer packet = event.getPacket();
+    PacketType type = packet.getType();
+    Player player = event.getPlayer();
+    if(type == PacketType.Play.Server.MAP_CHUNK_BULK) {
+      StructureModifier<int[]> integerArrays = packet.getIntegerArrays();
+      int[] xArr = integerArrays.read(0).clone();
+      int[] zArr = integerArrays.read(1).clone();
+      plugin.eventService().transactionFeedbackService().requestPong(player, null, (player1, target) -> {
+        for (int i = 0; i < xArr.length; i++) {
+          chunkInvalidate(player, xArr[i], zArr[i]);
+        }
+      });
+    } else {
+      int x = packet.getIntegers().read(0);
+      int z = packet.getIntegers().read(1);
+      plugin.eventService().transactionFeedbackService().requestPong(player, null, (player1, target) -> {
+        chunkInvalidate(player, x, z);
+      });
+    }
+  }
+
+  private void chunkInvalidate(Player player, int chunkX, int chunkZ) {
+    int chunkXMinPos = chunkX << 4,
+        chunkXMaxPos = chunkXMinPos + 16,
+        chunkZMinPos = chunkZ << 4,
+        chunkZMaxPos = chunkZMinPos + 16;
+    BoundingBoxAccess boundingBoxAccess = UserRepository.userOf(player).boundingBoxAccess();
+    boundingBoxAccess.invalidateOverridesInBounds(chunkXMinPos, chunkXMaxPos, chunkZMinPos, chunkZMaxPos);
+  }
+
+  @PacketSubscription(
+    packets = {
       @PacketDescriptor(sender = Sender.SERVER, packetName = "BLOCK_BREAK"),
 //      @PacketDescriptor(sender = Sender.SERVER, packetName = "BLOCK_ACTION"),
       @PacketDescriptor(sender = Sender.SERVER, packetName = "BLOCK_CHANGE"),
@@ -298,19 +336,16 @@ public final class BlockActionDispatcher implements EventProcessor {
       blockPositions = new ArrayList<>();
       blockDataList = new ArrayList<>();
       for (MultiBlockChangeInfo multiBlockChangeInfo : multiBlockChangeInfos) {
-//        boundingBoxAccess.invalidate(multiBlockChangeInfo.getAbsoluteX(), multiBlockChangeInfo.getY(), multiBlockChangeInfo.getAbsoluteZ());
         blockPositions.add(new BlockPosition(multiBlockChangeInfo.getAbsoluteX(), multiBlockChangeInfo.getY(), multiBlockChangeInfo.getAbsoluteZ()));
         blockDataList.add(multiBlockChangeInfo.getData());
       }
     } else {
       BlockPosition position = packet.getBlockPositionModifier().readSafely(0);
-//      boundingBoxAccess.invalidate(position.getX(), position.getY(), position.getZ());
       blockPositions = Collections.singletonList(position);
       blockDataList = Collections.singletonList(packet.getBlockData().read(0));
     }
 
     boolean transactionSynchronize = false;
-
     Location location = player.getLocation();
     for (BlockPosition blockPosition : blockPositions) {
       if(distance(location, blockPosition) < 8) {
@@ -319,24 +354,23 @@ public final class BlockActionDispatcher implements EventProcessor {
       }
     }
 
+    World world = player.getWorld();
     if(transactionSynchronize) {
-//      player.sendMessage("Synchronized a " + packetType.name() + " packet: " + blockPositions.size() + " blocks updated");
-      plugin.eventService().transactionFeedbackService().requestPong(player, blockPositions, (player1, target) -> {
+      plugin.eventService().transactionFeedbackService().requestPong(player, null, (player1, target) -> {
         for (int i = 0; i < blockPositions.size(); i++) {
           BlockPosition blockPosition = blockPositions.get(i);
           WrappedBlockData blockData = blockDataList.get(i);
-
-//          if(blockData.getType() == Material.AIR) {
-//            boundingBoxAccess.invalidate(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
-//          } else {
-//          }
-          boundingBoxAccess.override(player1.getWorld(), blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(), blockData.getType().getId(), blockData.getData());
+          int id = blockData.getType().getId();
+          boundingBoxAccess.override(world, blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(), id, blockData.getData());
+          boundingBoxAccess.invalidate(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
         }
       });
     } else {
-      for (BlockPosition blockPosition : blockPositions) {
+      for (int i = 0; i < blockPositions.size(); i++) {
+        BlockPosition blockPosition = blockPositions.get(i);
+        WrappedBlockData blockData = blockDataList.get(i);
+        boundingBoxAccess.override(world, blockPosition.getX(), blockPosition.getY(), blockPosition.getZ(), blockData.getType().getId(), blockData.getData());
         boundingBoxAccess.invalidate(blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
-        boundingBoxAccess.invalidateOverride(player.getWorld(), blockPosition.getX(), blockPosition.getY(), blockPosition.getZ());
       }
     }
   }
@@ -368,6 +402,16 @@ public final class BlockActionDispatcher implements EventProcessor {
       ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
     } catch (InvocationTargetException exception) {
       exception.printStackTrace();
+    }
+  }
+
+  public static abstract class ChunkDataMapper {
+    public final static int NO_MODIFICATION = -1;
+
+    public abstract int mapBlockData(int legacyId, int legacyData, int blockX, int blockY, int blockZ);
+
+    protected final int buildResponse(int legacyBlockId, int blockData) {
+      return (legacyBlockId << 4) | blockData;
     }
   }
 }

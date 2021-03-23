@@ -397,7 +397,7 @@ public final class Physics extends IntaveCheck {
 
       Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
       String message = "moved incorrectly";
-      String details = received + " e: " + expected;
+      String details = received + " pred: " + expected;
 
       user.boundingBoxAccess().identityInvalidate();
 
@@ -581,7 +581,7 @@ public final class Physics extends IntaveCheck {
     }
 
     // Long teleport
-    if (movementData.pastLongTeleport <= 5 && movementData.motionY() < 0.0 && movementData.motionY() > -0.1) {
+    if (movementData.pastLongTeleport <= 10 && movementData.motionY() < -0.097 && movementData.motionY() > -0.099) {
       double horizontalDistance = Math.hypot(movementData.motionX(), movementData.motionZ());
       if (horizontalDistance < 0.2) {
         abuseVertically = 0;

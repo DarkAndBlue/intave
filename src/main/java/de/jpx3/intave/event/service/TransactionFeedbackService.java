@@ -182,6 +182,7 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
     if (transactionCounter >= TRANSACTION_MAX_CODE) {
       synchronizeData.transactionCounter = TRANSACTION_MIN_CODE;
     }
+    //player.setLevel((int) transactionNumCounter);
     if(obj == null) {
       //noinspection unchecked
       obj = (T) FALLBACK_OBJECT;

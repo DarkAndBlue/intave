@@ -201,7 +201,7 @@ public final class User {
     return new User(null);
   }
 
-  public static User userFor(Player player) {
+  protected static User userFor(Player player) {
     return new User(player);
   }
 
