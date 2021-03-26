@@ -109,8 +109,14 @@ public final class Physics extends IntaveCheck {
   public void receiveMovement(User user) {
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
+    UserMetaClientData clientData = user.meta().clientData();
 
     movementData.setMovementPoseType(poseOf(user));
+
+    if (clientData.waterUpdate() && movementData.sneaking && movementData.inWater) {
+      handleSneakInWater(user);
+    }
+
     updateAquatics(user);
     simulateMotionClamp(user);
 
@@ -192,6 +198,11 @@ public final class Physics extends IntaveCheck {
   public void updateAquatics(User user) {
     updateInWater(user);
     updateEyesInWater(user);
+  }
+
+  private void handleSneakInWater(User user) {
+    UserMetaMovementData movementData = user.meta().movementData();
+    movementData.physicsMotionY -= 0.04F;
   }
 
   private void updateEyesInWater(User user) {
@@ -449,7 +460,6 @@ public final class Physics extends IntaveCheck {
 //      debug += inventoryData.heldItem().getType().name();
 //      debug += " flying:" + movementData.pastFlyingPacketAccurate;
       debug += " dist=" + formatDouble(distance, 10);
-      debug += " " + movementData.pastWaterMovement + "/" + movementData.pastPushedByWaterFlow;
       //      debug += " inventoryOpen=" + inventoryData.inventoryOpen();
       debug += " " + (violationLevelData.isInActiveTeleportBundle ? "atb" : "");
       if (movedIntoBlock) {

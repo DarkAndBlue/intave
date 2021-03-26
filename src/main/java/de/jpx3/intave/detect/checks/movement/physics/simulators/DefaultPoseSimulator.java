@@ -51,9 +51,6 @@ public class DefaultPoseSimulator extends PoseSimulator {
     if (movementData.actualSneaking()) {
       strafe = (float) ((double) strafe * 0.3);
       forward = (float) ((double) forward * 0.3);
-      if (inWater && clientData.waterUpdate()) {
-        context.motionY -= 0.04F;
-      }
     }
     if (handActive) {
       strafe *= 0.2f;
