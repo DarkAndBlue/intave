@@ -13,7 +13,6 @@ import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.*;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -21,7 +20,6 @@ import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.util.Vector;
 
-import java.util.Locale;
 import java.util.Map;
 
 public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
@@ -97,6 +95,7 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
 
     int packetLimit = allowedLagInSeconds * -(20 * 10);
     timerData.timerBalance = MathHelper.minmax(packetLimit, timerData.timerBalance, 200);
+//    player.sendMessage(timerData.timerBalance + " / " + allowedLagInSeconds);
 
     if (delta > 500) {
       timerData.lastLagSpike = AccessHelper.now();
@@ -114,11 +113,9 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
       timerData.timerBalance += adder;
     }
 
-//    player.sendMessage(String.valueOf(timerData.timerBalance));
-
     statistics().increaseTotal();
 
-    int overflowLimit = highToleranceMode ? 150 : 10;
+    int overflowLimit = highToleranceMode ? 150 : 20;
 
     if (timerData.timerBalance > overflowLimit) {
       String balanceAsString = MathHelper.formatDouble(timerData.timerBalance / 10, 2);

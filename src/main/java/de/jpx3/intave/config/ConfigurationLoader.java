@@ -5,6 +5,7 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.LicenseVerification;
 import de.jpx3.intave.security.SSLConnectionVerifier;
+import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.EncryptedResource;
 import de.jpx3.intave.tools.annotate.Native;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -191,6 +192,7 @@ public final class ConfigurationLoader {
       if(!configurationCache.exists()) {
         throw new IllegalStateException();
       }
+      configurationCache.setLastModified(AccessHelper.now());
       FileInputStream fileInputStream = new FileInputStream(configurationCache);
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       byte[] buf = new byte[4096];
@@ -278,7 +280,7 @@ public final class ConfigurationLoader {
       if(GOMME_MODE) {
         workDirectory = new File(ContextSecrets.secret("cache-directory"));
       } else {
-        workDirectory = new File("/home/.intave/");
+        workDirectory = new File(System.getProperty("user.home") + "/.intave/");
       }
     }
     if(!workDirectory.exists()) {

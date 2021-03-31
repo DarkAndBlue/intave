@@ -131,14 +131,14 @@ public final class EncryptedResource {
       if(GOMME_MODE) {
         filePath = ContextSecrets.secret("cache-directory");
       } else {
-        filePath = "/home/.intave/";
+        filePath = System.getProperty("user.home") + "/.intave/";
       }
     }
     workDirectory = new File(filePath);
     if(!workDirectory.exists()) {
       workDirectory.mkdir();
     }
-//    IntaveLogger.logger().globalPrintLn(workDirectory.exists());
+    System.out.println(workDirectory.getAbsolutePath() + " " + name);
     return new File(workDirectory, resourceId());
   }
 

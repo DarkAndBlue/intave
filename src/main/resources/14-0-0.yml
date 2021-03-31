@@ -36,7 +36,7 @@ protocolscanner:
 
 timer:
 
-  buffer-size: [100, 16, 8, 6, 4, 4]
+  buffer-size: [100, 8, 4, 3, 2, 1]
 
   prevention-activation: [100, 50, 15, 10, 10, 10]
 

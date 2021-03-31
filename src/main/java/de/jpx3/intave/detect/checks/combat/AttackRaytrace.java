@@ -37,7 +37,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer hitboxDecrementer, reachDecrementer;
 
-  private final double VL_DECREMENT_PER_ATTACK = 0.25;
+  private final double VL_DECREMENT_PER_ATTACK = 0.125;
 
   public AttackRaytrace(IntavePlugin plugin) {
     super("AttackRaytrace", "attackraytrace", AttackRaytraceMeta.class);

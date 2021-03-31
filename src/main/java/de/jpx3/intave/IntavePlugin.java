@@ -66,6 +66,8 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
+import static de.jpx3.intave.IntaveControl.GOMME_MODE;
+
 public final class IntavePlugin extends JavaPlugin {
   private static IntavePlugin singletonInstance;
   private static String version = "UNKNOWN";
@@ -243,9 +245,9 @@ public final class IntavePlugin extends JavaPlugin {
           bad = true;
           clearReloCache = true;
         } else if ("hwid".equals(response)) {
-          message = "Unable to boot: Hardware identification failed";
+          message = "Unable to boot: Hardware identification failed (see website)";
           bad = true;
-          clearReloCache = true;
+//          clearReloCache = true;
         } else if ("hwidr".equals(response)) {
           message = "Unable to boot: Hardware identification required (see website)";
           bad = true;
@@ -267,7 +269,7 @@ public final class IntavePlugin extends JavaPlugin {
           if(operatingSystem.contains("win")) {
             filePath = System.getenv("APPDATA") + "/Intave/Relocator/";
           } else {
-            filePath = "/home/.intave/relocator/";
+            filePath = System.getProperty("user.home") + "/.intave/relocator/";
           }
           File workDirectory = new File(filePath);
           File[] files = workDirectory.listFiles();
@@ -276,7 +278,7 @@ public final class IntavePlugin extends JavaPlugin {
               file.delete();
             }
           }
-          workDirectory.delete();
+//          workDirectory.delete();
         }
 
         if (bad) {
@@ -492,6 +494,37 @@ public final class IntavePlugin extends JavaPlugin {
             exception.printStackTrace();
           }
         });
+    } catch (IOException exception) {
+      exception.printStackTrace();
+    }
+  }
+
+  private final static long FILE_EXPIRE = TimeUnit.DAYS.toMillis(90);
+
+  public static void clearSaveFolderGarbage() {
+    String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.ROOT);
+    File workDirectory;
+    String filePath;
+    if(operatingSystem.contains("win")) {
+      filePath = System.getenv("APPDATA") + "/Intave/";
+    } else {
+      if(GOMME_MODE) {
+        filePath = ContextSecrets.secret("cache-directory");
+      } else {
+        filePath = System.getProperty("user.home") + "/.intave/";
+      }
+    }
+    workDirectory = new File(filePath);
+    if(!workDirectory.exists()) {
+      return;
+    }
+
+    try {
+      Files.walk(workDirectory.toPath())
+        .filter(Files::isRegularFile)
+        .map(Path::toFile)
+        .filter(file -> (AccessHelper.now() - file.lastModified()) > FILE_EXPIRE)
+        .forEach(File::delete);
     } catch (IOException exception) {
       exception.printStackTrace();
     }

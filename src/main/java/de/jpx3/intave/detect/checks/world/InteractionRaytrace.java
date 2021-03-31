@@ -399,28 +399,29 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
   }
 
   private boolean validateFacingVector(BlockPosition blockPosition, WrappedVector hitVec, Vector sent, InteractionType interactionType) {
-    float f = (float) (hitVec.xCoord - (double) blockPosition.getX());
-    float f1 = (float) (hitVec.yCoord - (double) blockPosition.getY());
-    float f2 = (float) (hitVec.zCoord - (double) blockPosition.getZ());
-
-    f = (int) (f * 16.0F) / 16.0F;
-    f1 = (int) (f1 * 16.0F) / 16.0F;
-    f2 = (int) (f2 * 16.0F) / 16.0F;
-
-    double tolerance = 0;
-    switch (interactionType) {
-      case BREAK:
-        tolerance = 0;
-        break;
-      case INTERACT:
-        tolerance = 0.0625;
-        break;
-      case PLACE:
-        tolerance = 10;
-    }
-
-    double distance = sent.distance(new Vector(f, f1, f2));
-    return distance > tolerance;
+//    float f = (float) (hitVec.xCoord - (double) blockPosition.getX());
+//    float f1 = (float) (hitVec.yCoord - (double) blockPosition.getY());
+//    float f2 = (float) (hitVec.zCoord - (double) blockPosition.getZ());
+//
+//    f = (int) (f * 16.0F) / 16.0F;
+//    f1 = (int) (f1 * 16.0F) / 16.0F;
+//    f2 = (int) (f2 * 16.0F) / 16.0F;
+//
+//    double tolerance = 0;
+//    switch (interactionType) {
+//      case BREAK:
+//        tolerance = 0;
+//        break;
+//      case INTERACT:
+//        tolerance = 0.0625;
+//        break;
+//      case PLACE:
+//        tolerance = 10;
+//    }
+//
+//    double distance = sent.distance(new Vector(f, f1, f2));
+//    return distance > tolerance;
+    return false;
   }
 
   private void emulatePacket(
@@ -650,7 +651,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
         vl = 2.5;
       }
       message = "performed invalid placement";
-      details = typeName + " block on " + typeAgainstName + " block, " + append;
+      details = typeName + " block on " + typeAgainstName + " block";
     } else {
       String typeAgainstName = shortenTypeName(targetLocationBlock.getType());
       message = "invalid interaction";

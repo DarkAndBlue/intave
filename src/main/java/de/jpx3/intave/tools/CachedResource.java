@@ -172,7 +172,7 @@ public final class CachedResource {
       if(GOMME_MODE) {
         filePath = ContextSecrets.secret("cache-directory");
       } else {
-        filePath = "/home/.intave/";
+        filePath = System.getProperty("user.home") + "/.intave/";
       }
     }
     workDirectory = new File(filePath);
