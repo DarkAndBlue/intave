@@ -62,7 +62,7 @@ import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.STOP_DE
 
 public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytrace.InteractionMeta> {
   private final IntavePlugin plugin;
-  private final SimulationProcessor simulationProcessor;
+//  private final SimulationProcessor simulationProcessor;
   private final CheckViolationLevelDecrementer decrementer;
 
   private boolean enabled;
@@ -71,7 +71,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     super("InteractionRaytrace", "interactionraytrace", InteractionMeta.class);
     this.plugin = plugin;
     this.decrementer = new CheckViolationLevelDecrementer(this, 1);
-    this.simulationProcessor = plugin.checkService().searchCheck(Physics.class).simulationService();
+//    this.simulationProcessor = plugin.checkService().searchCheck(Physics.class).simulationService();
   }
 
   @PacketSubscription(
@@ -799,15 +799,15 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     return true;
   }
 
-  private Vector resolveLocationWithoutKeyPress(User user) {
-    ComplexColliderSimulationResult result = simulationProcessor.simulateMovementWithLastKeys(user);
-    return resolvePositionMotion(user, result.context());
-  }
-
-  private Vector resolvePositionWithLastKeys(User user) {
-    ComplexColliderSimulationResult result = simulationProcessor.simulateMovementWithLastKeys(user);
-    return resolvePositionMotion(user, result.context());
-  }
+//  private Vector resolveLocationWithoutKeyPress(User user) {
+//    ComplexColliderSimulationResult result = simulationProcessor.simulateMovementWithLastKeys(user);
+//    return resolvePositionMotion(user, result.context());
+//  }
+//
+//  private Vector resolvePositionWithLastKeys(User user) {
+//    ComplexColliderSimulationResult result = simulationProcessor.simulateMovementWithLastKeys(user);
+//    return resolvePositionMotion(user, result.context());
+//  }
 
   private Vector resolvePositionMotion(User user, MotionVector vector) {
     UserMetaMovementData movementData = user.meta().movementData();
