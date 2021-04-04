@@ -16,13 +16,14 @@ public abstract class Movement extends HeadRotationMovement {
   public Location location;
   public Location prevLocation;
   public boolean onGround = false;
+  public boolean collidedHorizontally;
   public int lastOnGround = 0;
   public boolean sprinting = false, sneaking = false;
   public double velocityX = 0.0, velocityY = 0.0, velocityZ = 0.0;
   public boolean velocityChanged = false;
-  public double hidePartBotDistance = 0;
   public double botDistance = 0.0;
   private Location prevParentLocation;
+  private int lastCombatEvent = 100;
 
   Movement() {
   }
@@ -31,6 +32,7 @@ public abstract class Movement extends HeadRotationMovement {
 
   public void combatEvent() {
     this.botDistance = 2.0;
+    this.lastCombatEvent = 0;
   }
 
   public boolean doBlockCollisions() {
@@ -40,7 +42,7 @@ public abstract class Movement extends HeadRotationMovement {
   public final void applyMovementAndRotation(
     Location parentLocation
   ) {
-    if (shouldMove(parentLocation)) {
+    if (shouldMove(parentLocation) && this.lastCombatEvent++ > 50) {
       updateBotDistance();
     }
 
@@ -58,12 +60,13 @@ public abstract class Movement extends HeadRotationMovement {
       motionX, motionY, motionZ
     );
     if (doBlockCollisions()) {
-      this.motionX = result.motionX();
+//      this.motionX = result.motionX();
       this.motionY = result.motionY();
-      this.motionZ = result.motionZ();
+//      this.motionZ = result.motionZ();
       if (this.velocityChanged) {
         this.velocityChanged = false;
       }
+      this.collidedHorizontally = result.motionX() != motionX || result.motionZ() != motionZ;
     }
     this.onGround = result.onGround();
 
@@ -81,7 +84,7 @@ public abstract class Movement extends HeadRotationMovement {
       }
     }
 
-    updateHeadRotation(this.motionX, this.motionZ, distanceMoved());
+    updateHeadRotation(this.motionX, this.motionZ, distanceMoved(), parentLocation.getYaw());
     this.location.setYaw(this.rotationYaw);
     this.location.setPitch(this.rotationPitch);
   }

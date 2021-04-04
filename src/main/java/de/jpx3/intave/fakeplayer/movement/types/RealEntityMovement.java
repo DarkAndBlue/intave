@@ -28,15 +28,28 @@ public final class RealEntityMovement extends Movement {
     this.velocityZ *= MOVE_MULTIPLIER;
   }
 
+  @Override
+  public void combatEvent() {
+    this.botDistance = 3.0;
+  }
+
+  @Override
+  public double minBotDistance() {
+    return 2.5;
+  }
+
   private void calculateMovement(Location expectedLocation, double distance) {
     limitSmallMovement();
+    double startMotionX = this.motionX;
+    double startMotionZ = this.motionZ;
     this.motionX = (expectedLocation.getX() - this.location.getX()) * MOVE_MULTIPLIER;
     this.motionZ = (expectedLocation.getZ() - this.location.getZ()) * MOVE_MULTIPLIER;
     if (lastOnGround == 1) {
       this.motionX *= 0.6;
       this.motionZ *= 0.6;
     }
-    if (this.onGround && ++this.lastJump > 4 && distance > 1.0) {
+    boolean movedEnoughForJump = Math.hypot(startMotionX - motionX, startMotionZ - motionZ) > 0.1;
+    if (this.onGround && movedEnoughForJump && ((++this.lastJump > 2 && distance > 1.0) || collidedHorizontally)) {
       this.lastJump = 0;
       jump();
     } else if (!this.onGround) {
@@ -46,6 +59,25 @@ public final class RealEntityMovement extends Movement {
     if (this.sneaking) {
       this.motionX *= 0.2;
       this.motionZ *= 0.2;
+    }
+    tryJumpBoost(expectedLocation);
+  }
+
+  @Override
+  public double maxBotDistance() {
+    return 17;
+  }
+
+  private void tryJumpBoost(Location expectedLocation) {
+    double deviation = expectedLocation.getY() - location.getY();
+    if (deviation > 7) {
+      jump();
+      motionY *= 3.5;
+    } else if (deviation > 4) {
+      jump();
+      motionY *= 2.0;
+    } else if (deviation > 1.5 && onGround) {
+      jump();
     }
   }
 

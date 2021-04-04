@@ -108,7 +108,7 @@ public final class FakePlayer implements TickTaskScheduler {
   public void spawn(Location location) {
     Preconditions.checkNotNull(location);
     this.movement.location = location;
-    this.movement.botDistance = this.movement.hidePartBotDistance = location.distance(parentPlayer.getLocation());
+    this.movement.botDistance = (movement.minBotDistance() + movement.maxBotDistance()) / 2;
     PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.NAMED_ENTITY_SPAWN);
     packet.getModifier().writeSafely(0, fakePlayerID);
     packet.getModifier().writeSafely(1, wrappedGameProfile.getUUID());
@@ -360,7 +360,7 @@ public final class FakePlayer implements TickTaskScheduler {
       }
     }
     if (look) {
-      headRotation(to.getYaw(), to.getPitch());
+      headRotation(to.getYaw());
     }
 
     plugin.eventService()
@@ -391,7 +391,6 @@ public final class FakePlayer implements TickTaskScheduler {
     } catch (InvocationTargetException e) {
       e.printStackTrace();
     }
-    headRotation(rotationYaw, rotationPitch);
     movement.registerTeleport(to);
     plugin.eventService()
       .transactionFeedbackService()
@@ -404,11 +403,10 @@ public final class FakePlayer implements TickTaskScheduler {
       });
   }
 
-  public void headRotation(float yaw, float pitch) {
+  public void headRotation(float yaw) {
     PacketContainer packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_HEAD_ROTATION);
     packet.getIntegers().writeSafely(0, this.fakePlayerID);
     packet.getBytes().writeSafely(0, FakeEntityPositionHelper.getFixRotation(yaw));
-    packet.getBytes().writeSafely(1, FakeEntityPositionHelper.getFixRotation(pitch));
     try {
       protocolManager.sendServerPacket(this.parentPlayer, packet);
     } catch (InvocationTargetException e) {
