@@ -247,7 +247,7 @@ public class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackRaytrac
     int vl = 0;
     switch (attackRaytraceResult) {
       case MISS: {
-        vl = 14;
+        vl = 4;
         break;
       }
       case REACH: {
