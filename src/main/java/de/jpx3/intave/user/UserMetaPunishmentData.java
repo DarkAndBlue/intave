@@ -10,7 +10,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
 @Relocate
@@ -23,25 +22,18 @@ public final class UserMetaPunishmentData {
   private final List<DamageCancel> damageCancels;
 
   public int damageTicksBefore = -1;
-  public int attackCount;
-
   public long timeLastBlockCancel;
-  public long timeLastBowCancel;
 
   public UserMetaPunishmentData(Player player) {
     this.damageCancels = Lists.newArrayList(
       new DamageCancel(AttackCancelType.HEAVY, DAMAGE_CANCEL_HEAVY_DURATION, (event) -> event.setCancelled(true)),
       new DamageCancel(AttackCancelType.MEDIUM, DAMAGE_CANCEL_MEDIUM_DURATION, (event) -> {
-        attackCount++;
-        if (attackCount % 10 == 0 || attackCount % ThreadLocalRandom.current().nextInt(1, 5) == 0) {
-          event.setDamage(0);
-        }
         // Perform hurt-time change
-        EntityNoDamageTickChanger.applyHurtTimeChangeTo(player, (int) (DAMAGE_CANCEL_MEDIUM_DURATION / 50));
+        EntityNoDamageTickChanger.applyHurtTimeChangeTo(player, (int) (DAMAGE_CANCEL_MEDIUM_DURATION / 50), true);
       }),
       new DamageCancel(AttackCancelType.LIGHT, DAMAGE_CANCEL_LIGHT_DURATION, (event) -> {
         // Perform hurt-time change
-        EntityNoDamageTickChanger.applyHurtTimeChangeTo(player, (int) (DAMAGE_CANCEL_LIGHT_DURATION / 50));
+        EntityNoDamageTickChanger.applyHurtTimeChangeTo(player, (int) (DAMAGE_CANCEL_LIGHT_DURATION / 50), false);
       }),
       new DamageCancel(AttackCancelType.BLOCKING, BLOCKING_DAMAGE_CANCEL_DURATION, (event) -> {
         double blockingDamageAbsorption = event.getDamage(EntityDamageEvent.DamageModifier.BLOCKING);

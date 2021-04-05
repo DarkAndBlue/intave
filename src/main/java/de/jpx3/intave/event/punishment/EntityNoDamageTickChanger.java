@@ -14,7 +14,7 @@ import java.lang.reflect.Field;
 public final class EntityNoDamageTickChanger {
   private static boolean hitDelayLinkageError = false;
 
-  public static void applyHurtTimeChangeTo(Player player, int durationTicks) {
+  public static void applyHurtTimeChangeTo(Player player, int durationTicks, boolean heavy) {
     if (hitDelayLinkageError) {
       return;
     }
@@ -28,26 +28,24 @@ public final class EntityNoDamageTickChanger {
     }
 
     int noDamageTicksBefore = resolveNoDamageTicksOf(player);
-    int newNoDamageTicks = calculateNewNoDamageTicks(noDamageTicksBefore);
+    int newNoDamageTicks = calculateNewNoDamageTicks(noDamageTicksBefore, heavy);
     punishmentData.damageTicksBefore = noDamageTicksBefore;
     setNoDamageTicksOf(player, newNoDamageTicks);
-    Synchronizer.synchronizeDelayed(new Runnable() {
-      @Override
-      public void run() {
-        removeNoDamageTickChangeOf(user);
-      }
-    }, durationTicks);
+    Synchronizer.synchronizeDelayed(() -> removeNoDamageTickChangeOf(user, heavy), durationTicks);
   }
 
-  private static int calculateNewNoDamageTicks(int noDamageTicks) {
-    return Math.max(0, noDamageTicks - ThreadLocalRandom.current().nextInt(1, 2));
+  private static int calculateNewNoDamageTicks(int noDamageTicks, boolean heavy) {
+    int subtraction = heavy
+      ? ThreadLocalRandom.current().nextInt(3, 4)
+      : ThreadLocalRandom.current().nextInt(1, 2);
+    return Math.max(0, noDamageTicks - subtraction);
   }
 
-  private static void removeNoDamageTickChangeOf(User user) {
+  private static void removeNoDamageTickChangeOf(User user, boolean heavy) {
     Player player = user.player();
     UserMetaPunishmentData punishmentData = user.meta().punishmentData();
     int noDamageTicksBefore = punishmentData.damageTicksBefore;
-    int expectedPlayerNoDamageTicks = calculateNewNoDamageTicks(noDamageTicksBefore);
+    int expectedPlayerNoDamageTicks = calculateNewNoDamageTicks(noDamageTicksBefore, heavy);
     if (expectedPlayerNoDamageTicks != resolveNoDamageTicksOf(player)) {
       // The server has changed the noDamageTicks field, do not override
       punishmentData.damageTicksBefore = -1;
