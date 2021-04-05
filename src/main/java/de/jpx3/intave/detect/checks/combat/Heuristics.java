@@ -63,9 +63,7 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
     appendCheckPart(new RotationModuloResetHeuristic(this));
     appendCheckPart(new PacketOrderSwingHeuristic(this));
     appendCheckPart(new PacketSprintToggleHeuristic(this));
-    if(!IntaveControl.DISABLE_AUTOCLICKER_CHECK) {
-      appendCheckPart(new AirClickLimitHeuristic(this));
-    }
+    appendCheckPart(new AirClickLimitHeuristic(this));
     appendCheckPart(new RotationLHeuristics(this));
     appendCheckPart(new AttackReduceIgnoreHeuristic(this));
     appendCheckPart(new PacketInventoryHeuristic(this));
@@ -132,7 +130,7 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
     }
 
     boolean suitableConfidence = overallConfidenceWithoutDelay.level() >= Confidence.MAYBE.level() && overallConfidenceWithoutDelay.level() < Confidence.CERTAIN.level();
-    if (IntaveControl.USE_ANTIBOTS && suitableConfidence && !enforceDecision) {
+    if (IntaveControl.USE_MINING_STRATEGIES && suitableConfidence && !enforceDecision) {
       // perform mining strategies
       if (attackData.activeMiningStrategy == null) {
         MiningStrategy strategy = findSuitableMiningStrategy(

@@ -8,7 +8,6 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
-import com.google.common.collect.Maps;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.event.BucketAction;
 import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
@@ -51,7 +50,6 @@ import org.bukkit.util.Vector;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.ABORT_DESTROY_BLOCK;
@@ -609,7 +607,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
 
   @Override
   public boolean enabled() {
-    this.enabled = super.enabled();
+    this.enabled = false;//super.enabled();
     return true;
   }
 

@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.adapter.ProtocolLibAdapter;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
@@ -182,13 +183,15 @@ public class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics, AirC
     }
 
     if(sum > 13 && user.meta().clientData().protocolVersion() <= UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE) {
-      parentCheck().saveAnomaly(player,
-        Anomaly.anomalyOf(
-          "11",
-          sum > 14 ? Confidence.VERY_LIKELY : Confidence.PROBABLE,
-          Anomaly.Type.AUTOCLICKER,
-          "too many swing packets in air " + sum, Anomaly.AnomalyOption.DELAY_128s
-        ));
+      if(!IntaveControl.DISABLE_AUTOCLICKER_CHECK) {
+        parentCheck().saveAnomaly(player,
+          Anomaly.anomalyOf(
+            "11",
+            sum > 14 ? Confidence.VERY_LIKELY : Confidence.PROBABLE,
+            Anomaly.Type.AUTOCLICKER,
+            "too many swing packets in air " + sum, Anomaly.AnomalyOption.DELAY_128s
+          ));
+      }
     }
 
     prepareNextTick(meta);

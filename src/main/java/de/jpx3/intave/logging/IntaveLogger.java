@@ -1,5 +1,6 @@
 package de.jpx3.intave.logging;
 
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.executor.BackgroundExecutor;
 import de.jpx3.intave.tools.AccessHelper;
@@ -16,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class IntaveLogger {
 
   public static boolean FILE_OUTPUT = true;
-  public static boolean CONSOLE_OUTPUT;
+  public static boolean CONSOLE_OUTPUT = IntaveControl.GOMME_MODE;
 
   private final static String LOG_PATH = "plugins" + File.separator + "Intave" + File.separator + "logs";
   private final IntavePlugin plugin;
