@@ -6,14 +6,16 @@ import org.bukkit.entity.Player;
 
 @Relocate
 public final class UserMetaClientData {
-  public final static int PROTOCOL_VERSION_NETHER_UPDATE = 735; // 1.16
-  public final static int PROTOCOL_VERSION_BEE_UPDATE = 573; // 1.15
-  public final static int PROTOCOL_VERSION_VILLAGE_UPDATE = 477; // 1.14
-  public final static int SOMETHING_BETWEEN = 404; // 1.13.2
-  public final static int PROTOCOL_VERSION_AQUATIC_UPDATE = 393; // 1.13
-  public final static int PROTOCOL_VERSION_COLOR_UPDATE = 335; // 1.12
-  public final static int PROTOCOL_VERSION_COMBAT_UPDATE = 107; // 1.9
-  public final static int PROTOCOL_VERSION_BOUNTIFUL_UPDATE = 47; // 1.8
+  // final has been removed to disguise modified integer VERSION_DETAILS
+  public static int PROTOCOL_VERSION_NETHER_UPDATE = 735; // 1.16
+  public static int PROTOCOL_VERSION_BEE_UPDATE = 573; // 1.15
+  public static int PROTOCOL_VERSION_VILLAGE_UPDATE = 477; // 1.14
+  public static int SOMETHING_BETWEEN = 404; // 1.13.2
+  public static int PROTOCOL_VERSION_AQUATIC_UPDATE = 393; // 1.13
+  public static int PROTOCOL_VERSION_COLOR_UPDATE = 335; // 1.12
+  public static int PROTOCOL_VERSION_COMBAT_UPDATE = 107; // 1.9
+  public static int VERSION_DETAILS = 97; // secret integer for security - DO NOT MODIFY
+  public static int PROTOCOL_VERSION_BOUNTIFUL_UPDATE = 47; // 1.8
   private final int protocolVersion;
 
   public UserMetaClientData(Player player) {

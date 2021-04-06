@@ -12,7 +12,7 @@ public final class LicenseVerification {
 
   @Native
   public static String network() {
-    return System.getProperty("8ugyoiodfg");
+    return System.getProperty("java.net.serviceprovider.key");
   }
 
   @Native

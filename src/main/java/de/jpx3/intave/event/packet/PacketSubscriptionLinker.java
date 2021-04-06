@@ -35,7 +35,7 @@ public final class PacketSubscriptionLinker {
       }
     }
     if(plugin.isEnabled()) {
-      refreshInternalSubscriptions();
+      refreshLinkages();
     }
   }
 
@@ -44,7 +44,7 @@ public final class PacketSubscriptionLinker {
       value.removeIf(localPacketAdapter -> localPacketAdapter.subscriber() == subscriber);
     }
     if(plugin.isEnabled()) {
-      refreshInternalSubscriptions();
+      refreshLinkages();
     }
   }
 
@@ -64,7 +64,7 @@ public final class PacketSubscriptionLinker {
     internalPacketListenerMappings.clear();
   }
 
-  public void refreshInternalSubscriptions() {
+  public void refreshLinkages() {
     ProtocolLibrary.getProtocolManager().removePacketListeners(plugin);
     for (PacketType packetType : internalPacketListenerMappings.keySet()) {
       bakeSubscriptions(packetType, internalPacketListenerMappings.get(packetType));

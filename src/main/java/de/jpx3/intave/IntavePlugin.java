@@ -37,6 +37,7 @@ import de.jpx3.intave.tools.wrapper.link.WrapperLinkage;
 import de.jpx3.intave.trustfactor.TrustFactorService;
 import de.jpx3.intave.update.Version;
 import de.jpx3.intave.update.VersionList;
+import de.jpx3.intave.user.UserMetaClientData;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.warning.ClientWarningService;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
@@ -61,10 +62,8 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static de.jpx3.intave.IntaveControl.GOMME_MODE;
@@ -160,23 +159,7 @@ public final class IntavePlugin extends JavaPlugin {
 
       // stage 6
 
-//    BlockBoxResolver.setup();
-
       ProtocolLibAdapter.checkIfOutdated();
-
-      ReflectiveAccess.setup();
-      WrapperLinkage.setup();
-      Raytracer.setup();
-      Collider.setup();
-      Waterflow.setup();
-      BukkitBlockAccess.setup();
-      BlockDataAccess.setup();
-      ViaVersionAdapter.setup();
-      BoundingBoxAccess.setup();
-      WorldPermission.setup(this);
-      BlockPhysics.setup();
-      InventoryUseItemHelper.setup();
-      BoundingBoxPatcher.setup();
 
       // stage 7
       configurationService = new ConfigurationService(this);
@@ -193,13 +176,16 @@ public final class IntavePlugin extends JavaPlugin {
       EncryptedResource contextStatusResource = new EncryptedResource("context-status", false);
 
       String requiredState = null; // leave this be
-      boolean partnerServer = false;
       boolean offlineMode = false;
+      boolean partnerServer = false;
+      boolean enterpriseEdition = false;
 
       // ja das muss so krebsig hier hin
       if (IntaveControl.DISABLE_LICENSE_CHECK) {
         logger().info("This self-signed version bypasses certification requirements");
-        System.setProperty("8ugyoiodfg", "~bypass");
+        System.setProperty("java.net.serviceprovider.key", "~bypass");
+        partnerServer = true;
+        enterpriseEdition = true;
       } else {
         File currentJavaJarFile = new File(IntavePlugin.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         long identificationKey;
@@ -213,6 +199,10 @@ public final class IntavePlugin extends JavaPlugin {
           byte value = (byte) ((identificationKey >> (i * 8) & 0xFF));
           bytes[7 - i] = value;
         }
+
+        long longOne = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE);
+        long longTwo = ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE);
+
         String idKey = identificationKey > 0 ? new String(bytes) : "aaaaaaaa", response = "";
         try {
           String path = "https://intave.de/auth.php";
@@ -228,9 +218,8 @@ public final class IntavePlugin extends JavaPlugin {
           connection.addRequestProperty("C", HWIDVerification.publicHardwareIdentifier());
           connection.addRequestProperty("D", configurationKey);
           connection.addRequestProperty("E", LicenseVerification.rawLicense());
-
+          connection.addRequestProperty("F", String.valueOf(new UUID(longOne, longTwo)));
           connection.connect();
-//          SSLConnectionVerifier.verifyURLConnection((HttpsURLConnection) connection);
           connection.setConnectTimeout(4000);
           connection.setReadTimeout(4000);
           Scanner scanner2 = new Scanner(connection.getInputStream(), "UTF-8");
@@ -238,6 +227,9 @@ public final class IntavePlugin extends JavaPlugin {
           while (scanner2.hasNext())
             raw2.append(scanner2.next());
           response = raw2.toString();
+          if(response.equalsIgnoreCase("timeout")) {
+            response += "_";
+          }
         } catch (IOException exception) {
           exception.printStackTrace();
           response = "timeout";
@@ -286,7 +278,6 @@ public final class IntavePlugin extends JavaPlugin {
               file.delete();
             }
           }
-//          workDirectory.delete();
         }
 
         if (bad) {
@@ -297,7 +288,7 @@ public final class IntavePlugin extends JavaPlugin {
         }
 
         if (response.equals("timeout")) {
-          System.setProperty("8ugyoiodfg", "~timeout");
+          System.setProperty("java.net.serviceprovider.key", "~timeout");
           offlineMode = true;
           requiredState = null;
         } else {
@@ -305,7 +296,7 @@ public final class IntavePlugin extends JavaPlugin {
 
           String[] split = response.split("#");
           String licenseName = split[0];
-          System.setProperty("8ugyoiodfg", licenseName);
+          System.setProperty("java.net.serviceprovider.key", licenseName);
 
           Map<String, String> properties = new HashMap<>();
           boolean first = true;
@@ -319,12 +310,44 @@ public final class IntavePlugin extends JavaPlugin {
           }
           requiredState = properties.get("configuration-hash");
           partnerServer = properties.containsKey("partner");
+          enterpriseEdition = properties.containsKey("enterprise");
+          String keyResponse = properties.get("exchange-key");
+
+          if(partnerServer) {
+            UserMetaClientData.VERSION_DETAILS |= 0x100;
+          }
+          if(enterpriseEdition) {
+            UserMetaClientData.VERSION_DETAILS |= 0x200;
+          }
+
+          // verify the server integrity
+
+          boolean validResponse = false;
+          if(keyResponse != null) {
+            UUID receivedResponse = UUID.fromString(keyResponse);
+            for (int i = 0; i < 64; i++) {
+              longOne |= (longTwo & (1L << i));
+              longTwo |= (longOne & (1L << i * 2));
+            }
+            longTwo &= longOne << 4;
+            longTwo &= longOne << 2;
+            longTwo &= longOne;
+            validResponse = receivedResponse.getMostSignificantBits() == longOne && receivedResponse.getLeastSignificantBits() == longTwo;
+          }
+          if(!validResponse) {
+            logger.error("Unable to boot: Authentication response not trustworthy");
+            contextStatusResource.write(new ByteArrayInputStream(("failure-"+response).getBytes(StandardCharsets.UTF_8)));
+            boolFailure();
+            performShutdown();
+            return;
+          }
         }
       }
 
       if (offlineMode) {
         // check last online
         boolean allowLeniency = IntaveControl.DISABLE_LICENSE_CHECK;
+        //noinspection ConstantConditions
         if(!allowLeniency && contextStatusResource.exists()) {
           InputStream input = contextStatusResource.read();
           Scanner scanner = new Scanner(input);
@@ -389,36 +412,23 @@ public final class IntavePlugin extends JavaPlugin {
         contextStatusResource.write(new ByteArrayInputStream(("success/" + AccessHelper.now()).getBytes(StandardCharsets.UTF_8)));
       }
 
+      ReflectiveAccess.setup();
+      WrapperLinkage.setup();
+      Raytracer.setup();
+      Collider.setup();
+      Waterflow.setup();
+      BukkitBlockAccess.setup();
+      BlockDataAccess.setup();
+      ViaVersionAdapter.setup();
+      BoundingBoxAccess.setup();
+      WorldPermission.setup(this);
+      BlockPhysics.setup();
+      InventoryUseItemHelper.setup();
+      BoundingBoxPatcher.setup();
+
       versionList = new VersionList();
       versionList.setup();
-
-      Version version = versionList.versionInformation(version());
-
-      if (version == null) {
-        logger().info("This version of Intave is not listed in the official version index");
-      } else {
-        long duration = AccessHelper.now() - version.release();
-        String durationAsString = DurationTranslator.translateDuration(duration);
-
-        String infoMessage = "";
-        switch (version.typeClassifier()) {
-          case LATEST:
-            infoMessage = "Running the latest version of Intave (" + durationAsString + " old)";
-            break;
-          case STABLE:
-            infoMessage = "Running a stable version of Intave (" + durationAsString + " old)";
-            break;
-          case OUTDATED:
-            infoMessage = "A newer version of Intave is available (this version is " + durationAsString + " old)";
-            break;
-          case INVALID:
-            logger().error("Unable to boot: This version has been deactivated");
-            boolFailure();
-            performShutdown();
-            return;
-        }
-        logger().info(infoMessage);
-      }
+      displayVersionInformation();
 
       IntavePlugin.offlineMode = offlineMode;
 
@@ -475,8 +485,38 @@ public final class IntavePlugin extends JavaPlugin {
 
     BackgroundExecutor.execute(this::clearIntegrityGarbage);
     BackgroundExecutor.execute(this::clearSaveFolderGarbage);
-    packetSubscriptionLinker.refreshInternalSubscriptions();
+    packetSubscriptionLinker.refreshLinkages();
     logger.info("Intave booted successfully");
+  }
+
+  @Native
+  public void displayVersionInformation() {
+    Version version = versionList.versionInformation(version());
+    if (version == null) {
+      logger().info("This version of Intave is not listed in the official version index");
+    } else {
+      long duration = AccessHelper.now() - version.release();
+      String durationAsString = DurationTranslator.translateDuration(duration);
+
+      String infoMessage = "";
+      switch (version.typeClassifier()) {
+        case LATEST:
+          infoMessage = "Running the latest version of Intave (" + durationAsString + " old)";
+          break;
+        case STABLE:
+          infoMessage = "Running a stable version of Intave (" + durationAsString + " old)";
+          break;
+        case OUTDATED:
+          infoMessage = "A newer version of Intave is available (this version is " + durationAsString + " old)";
+          break;
+        case INVALID:
+          logger().error("Unable to boot: This version has been deactivated");
+          boolFailure();
+          performShutdown();
+          return;
+      }
+      logger().info(infoMessage);
+    }
   }
 
   public final static long INTEGRITY_ERASE_BUFFER = TimeUnit.MINUTES.toMillis(1);

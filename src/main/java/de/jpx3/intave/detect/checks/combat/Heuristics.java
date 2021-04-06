@@ -24,6 +24,7 @@ import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
 import de.jpx3.intave.user.UserMetaAttackData;
+import de.jpx3.intave.user.UserMetaClientData;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
@@ -124,6 +125,9 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
     List<Anomaly> anomaliesWithoutDelay = catchAnomaliesOf(user, false);
     List<Confidence> allConfidencesWithoutDelay = resolveConfidencesOf(anomaliesWithoutDelay);
     Confidence overallConfidenceWithoutDelay = computeOverallConfidence(allConfidencesWithoutDelay);
+
+    boolean isPartner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
+    boolean isEnterprise = (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
 
     if (attackData.activeMiningStrategy != null) {
       this.tryRemoveMiningStrategy(attackData.activeMiningStrategy);
