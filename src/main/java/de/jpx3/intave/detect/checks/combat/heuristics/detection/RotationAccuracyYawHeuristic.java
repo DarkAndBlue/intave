@@ -86,7 +86,7 @@ public final class RotationAccuracyYawHeuristic extends IntaveMetaCheckPart<Heur
           if (heuristicMeta.followBalance > 25) {
             String description = "follows entity movement too precisely";
             int options = LIMIT_4 | SUGGEST_MINING | DELAY_64s;
-            Anomaly anomaly = Anomaly.anomalyOf("81", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
+            Anomaly anomaly = Anomaly.anomalyOf("81", Confidence.NONE, Anomaly.Type.KILLAURA, description, options);
             parentCheck().saveAnomaly(player, anomaly);
             heuristicMeta.followBalance -= 7;
             plugin.eventService().attackCancelService().requestDamageCancel(user, AttackCancelType.LIGHT);
