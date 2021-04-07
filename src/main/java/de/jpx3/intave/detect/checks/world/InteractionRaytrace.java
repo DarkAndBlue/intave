@@ -334,38 +334,73 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     World world = interaction.world();
     Location clickedBlockLocation = interaction.targetBlock.toLocation(world);
     Block clickedBlock = BukkitBlockAccess.blockAccess(clickedBlockLocation);
-    Material clickedType = clickedBlock.getType();
     Material itemTypeInHand = interaction.itemTypeInHand;
-    BoundingBoxAccess boundingBoxAccess = userOf(player).boundingBoxAccess();
     Location placementLocation = clickedBlockLocation.clone().add(WrappedEnumDirection.getFront(interaction.targetDirection).getDirectionVec().convertToBukkitVec());
-    Material placementType = placementLocation.getBlock().getType();
-    if(itemTypeInHand == Material.BUCKET) {
-      // remove liquid on location if exists
-      if(MaterialLogic.isLiquid(placementType)) {
-        // emulate
-        if (WorldPermission.bukkitActionPermission(player, BucketAction.FILL_BUCKET, clickedBlock, BlockFace.SELF, itemTypeInHand, null)) {
-          boundingBoxAccess.override(world, placementLocation.getBlockX(), placementLocation.getBlockY(), placementLocation.getBlockZ(), Material.AIR, 0);
-        }
-      }
-    } else if(itemTypeInHand == Material.WATER_BUCKET || itemTypeInHand == Material.LAVA_BUCKET) {
-      // emulate
-      if (WorldPermission.bukkitActionPermission(player, BucketAction.EMPTY_BUCKET, clickedBlock, BlockFace.SELF, itemTypeInHand, null)) {
-        boundingBoxAccess.override(world, placementLocation.getBlockX(), placementLocation.getBlockY(), placementLocation.getBlockZ(), itemTypeInHand == Material.WATER_BUCKET ? Material.WATER : Material.LAVA, 15);
-      }
-    }
-    if(clickedType == Material.WOODEN_DOOR) {
-
-    } else if(clickedType == Material.TRAP_DOOR) {
-      int data = clickedBlock.getData();
-      boolean newOpen = (data & 4) != 0;
-      int bitMask = 4;
-      byte newData = (byte) (!newOpen ? (data | bitMask) : (data & ~bitMask));
-      Material material = clickedBlock.getType();
-      boundingBoxAccess.override(world, clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ(), material, newData);
-      Synchronizer.packetSynchronize(() ->
-        boundingBoxAccess.invalidateOverride(clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ()));
-    }
+    emulateInteractWithHandItem(player, clickedBlock, placementLocation, itemTypeInHand);
+    emulatePhysicalInteract(player, clickedBlock);
     return true;
+  }
+
+  private void emulateInteractWithHandItem(
+    Player player,
+    Block clickedBlock,
+    Location placementLocation,
+    Material itemTypeInHand
+  ) {
+    BoundingBoxAccess boundingBoxAccess = userOf(player).boundingBoxAccess();
+    World world = player.getWorld();
+    Material placementType = placementLocation.getBlock().getType();
+    switch (itemTypeInHand) {
+      case BUCKET: {
+        // remove liquid on location if exists
+        if(MaterialLogic.isLiquid(placementType)) {
+          // emulate
+          if (WorldPermission.bukkitActionPermission(player, BucketAction.FILL_BUCKET, clickedBlock, BlockFace.SELF, itemTypeInHand, null)) {
+            boundingBoxAccess.override(world, placementLocation.getBlockX(), placementLocation.getBlockY(), placementLocation.getBlockZ(), Material.AIR, 0);
+          }
+        }
+        break;
+      }
+      case WATER_BUCKET:
+      case LAVA_BUCKET: {
+        // emulate
+        if (WorldPermission.bukkitActionPermission(player, BucketAction.EMPTY_BUCKET, clickedBlock, BlockFace.SELF, itemTypeInHand, null)) {
+          boundingBoxAccess.override(world, placementLocation.getBlockX(), placementLocation.getBlockY(), placementLocation.getBlockZ(), itemTypeInHand == Material.WATER_BUCKET ? Material.WATER : Material.LAVA, 15);
+        }
+        break;
+      }
+    }
+  }
+
+  private void emulatePhysicalInteract(Player player, Block clickedBlock) {
+    World world = player.getWorld();
+    BoundingBoxAccess boundingBoxAccess = userOf(player).boundingBoxAccess();
+    Material clickedType = clickedBlock.getType();
+    switch (clickedType) {
+      case WOODEN_DOOR: {
+        //TODO
+        break;
+      }
+      case ACACIA_FENCE_GATE:
+      case BIRCH_FENCE_GATE:
+      case DARK_OAK_FENCE_GATE:
+      case FENCE_GATE:
+      case JUNGLE_FENCE_GATE:
+      case SPRUCE_FENCE_GATE: {
+        //TODO
+        break;
+      }
+      case TRAP_DOOR: {
+        int data = clickedBlock.getData();
+        boolean newOpen = (data & 4) != 0;
+        int bitMask = 4;
+        byte newData = (byte) (!newOpen ? (data | bitMask) : (data & ~bitMask));
+        Material material = clickedBlock.getType();
+        boundingBoxAccess.override(world, clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ(), material, newData);
+        Synchronizer.packetSynchronize(() -> boundingBoxAccess.invalidateOverride(clickedBlock.getX(), clickedBlock.getY(), clickedBlock.getZ()));
+        break;
+      }
+    }
   }
 
   @BukkitEventSubscription

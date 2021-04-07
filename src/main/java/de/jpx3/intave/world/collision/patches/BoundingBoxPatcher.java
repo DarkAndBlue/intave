@@ -12,14 +12,14 @@ import java.util.List;
 import java.util.Map;
 
 public final class BoundingBoxPatcher {
-  private final static Map<Integer, BoundingBoxPatch> patches = new HashMap<>();
-  private final static Map<Material, BoundingBoxPatch> patchesMaterial = new HashMap<>();
+  private final static Map<Material, BoundingBoxPatch> patches = new HashMap<>();
 
   public static void setup() {
     add(BlockTrapdoorPatch.class);
     add(BlockAnvilPatch.class);
     add(BlockLadderPatch.class);
     add(BlockLilyPadPatch.class);
+    add(BlockFenceGatePatch.class);
   }
 
   private static void add(Class<? extends BoundingBoxPatch> patchClass) {
@@ -32,23 +32,27 @@ public final class BoundingBoxPatcher {
   }
 
   private static void add(BoundingBoxPatch boundingBoxPatch) {
-    patchesMaterial.put(boundingBoxPatch.material(), boundingBoxPatch);
+    for (Material type : Material.values()) {
+      if(boundingBoxPatch.appliesTo(type)) {
+        patches.put(type, boundingBoxPatch);
+      }
+    }
   }
 
   public static List<WrappedAxisAlignedBB> patch(World world, Player player, Block block, List<WrappedAxisAlignedBB> bbs) {
-    BoundingBoxPatch boundingBoxPatch = patchesMaterial.get(block.getType());
+    BoundingBoxPatch boundingBoxPatch = patches.get(block.getType());
     return boundingBoxPatch == null ? bbs : transpose(boundingBoxPatch.patch(world, player, block, bbs), block.getX(), block.getY(), block.getZ());
   }
 
   public static List<WrappedAxisAlignedBB> patch(World world, Player player, int blockX, int blockY, int blockZ, Material type, int blockState, List<WrappedAxisAlignedBB> bbs) {
-    BoundingBoxPatch boundingBoxPatch = patchesMaterial.get(type);
+    BoundingBoxPatch boundingBoxPatch = patches.get(type);
     return boundingBoxPatch == null ? bbs : transpose(boundingBoxPatch.patch(world, player, type, blockState, bbs), blockX, blockY, blockZ);
   }
 
   public static List<WrappedAxisAlignedBB> transpose(List<WrappedAxisAlignedBB> boundingBoxes, int posX, int posY, int posZ) {
     for (int i = 0; i < boundingBoxes.size(); i++) {
       WrappedAxisAlignedBB boundingBox = boundingBoxes.get(i);
-      if(boundingBox.isOriginBox()) {
+      if (boundingBox.isOriginBox()) {
         boundingBoxes.set(i, boundingBox.offset(posX, posY, posZ));
       }
     }
