@@ -66,17 +66,17 @@ public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristic
     Player player = event.getPlayer();
     User user = userOf(player);
     UserMetaAttackData attackData = user.meta().attackData();
+    UserMetaMovementData movementData = user.meta().movementData();
     WrappedEntity entity = attackData.lastAttackedEntity();
-    if (entity == null) {
+    if (entity == null || !entity.clientSynchronized || movementData.lastTeleport < 5) {
       return;
     }
 
     VentolotlMeta meta = metaOf(player);
-
-    if (meta.didSwing) {
+    if (meta.didSwing && !meta.didAttack) {
       // Raytrace if cursor is upon entity
       boolean cursorUponEntity = cursorUponEntity(player, user, entity);
-      if (cursorUponEntity && !meta.didAttack) {
+      if (cursorUponEntity) {
         long timeToLastFlag = AccessHelper.now() - meta.lastFlag;
         if (timeToLastFlag < 10_000 && timeToLastFlag > 50) {
           int vl = (meta.vl += 200) / 200;
@@ -86,10 +86,10 @@ public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristic
         }
         meta.lastFlag = AccessHelper.now();
       }
-      if (cursorUponEntity && meta.didSwing && meta.vl > 0) {
-        meta.vl--;
-      }
+    }
 
+    if (meta.didSwing && meta.didAttack && meta.vl > 0) {
+      meta.vl--;
     }
 
     meta.expectedAttack = false;
