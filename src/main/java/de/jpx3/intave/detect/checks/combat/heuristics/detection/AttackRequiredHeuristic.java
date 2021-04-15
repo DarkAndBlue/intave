@@ -18,6 +18,7 @@ import de.jpx3.intave.world.raytrace.Raytracer;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
+import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
 import static de.jpx3.intave.world.raytrace.Raytracer.distanceOf;
 
 public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristics, AttackRequiredHeuristic.VentolotlMeta> {
@@ -65,10 +66,14 @@ public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristic
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
+    UserMetaClientData clientData = user.meta().clientData();
     UserMetaAttackData attackData = user.meta().attackData();
     UserMetaMovementData movementData = user.meta().movementData();
     WrappedEntity entity = attackData.lastAttackedEntity();
     if (entity == null || !entity.clientSynchronized || movementData.lastTeleport < 5) {
+      return;
+    }
+    if (clientData.protocolVersion() != PROTOCOL_VERSION_BOUNTIFUL_UPDATE) {
       return;
     }
 
@@ -109,7 +114,7 @@ public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristic
     double blockReachDistance = reachDistance(player.getGameMode() == GameMode.CREATIVE);
     float lastRotationYaw = movementData.lastRotationYaw % 360;
     float rotationYaw = movementData.rotationYaw % 360;
-    boolean alternativePositionY = clientData.protocolVersion() == UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
+    boolean alternativePositionY = clientData.protocolVersion() == PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
     boolean hasAlwaysMouseDelayFix = clientData.protocolVersion() >= 314;
     // mouse delay fix
     Raytracer.EntityInteractionRaytrace distanceOfResult = distanceOf(
