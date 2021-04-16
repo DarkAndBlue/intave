@@ -66,7 +66,8 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
     User user = userOf(event.getPlayer());
 //    if(user.meta().clientData().flyingPacketStream()) {
 //    }
-    metaOf(user).timerBalance -= 12.5;
+    double leniency = user.meta().violationLevelData().isInActiveTeleportBundle ? 2 : 12.5;
+    metaOf(user).timerBalance -= leniency;
   }
 
   public void receiveMovement(PacketEvent event, boolean teleportConf) {
@@ -144,8 +145,6 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
       if (violationContext.shouldCounterThreat()) {
         UserMetaMovementData movementData = user.meta().movementData();
         plugin.eventService().emulationEngine().emulationSetBack(player, new Vector(movementData.physicsMotionX, movementData.physicsMotionY, movementData.physicsMotionZ), 12);
-        // packet removed
-//        timerData.timerBalance -= 5.0;
       }
       timerData.lastTimerFlag = AccessHelper.now();
       // leniency
