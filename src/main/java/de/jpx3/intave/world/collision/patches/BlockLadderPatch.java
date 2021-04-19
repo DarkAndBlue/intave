@@ -27,7 +27,7 @@ public final class BlockLadderPatch extends BoundingBoxPatch {
     User user = UserRepository.userOf(player);
     BoundingBoxBuilder builder = BoundingBoxBuilder.create();
     WrappedEnumDirection direction = WrappedEnumDirection.getFront(blockState);
-    if (user.meta().clientData().applyNewEntityCollisions()) {
+    if (user.meta().clientData().combatUpdate()) {
       emulateNew(builder, direction);
     } else {
       emulateLegacy(builder, direction);
