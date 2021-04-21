@@ -148,7 +148,7 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
     }
 
     if (!isLegit && (meta.lastSwing <= 5 || meta.lastAttack <= 5) && meta.rotationPacketCounter > 5) {
-      String description = "rotation hop ("
+      String description = "rotation snap ("
         + "val:" + getArrayAsString(meta, yawMotion)
         + " swing:" + Math.min(meta.lastSwing, 99)
         + "/" + Math.min(meta.lastAttack, 99);
