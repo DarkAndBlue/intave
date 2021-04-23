@@ -137,7 +137,6 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
 
     if (entityUseAction == EnumWrappers.EntityUseAction.ATTACK) {
       meta.lastAttack = 0;
-      meta.perfectRotations = new double[meta.perfectRotations.length];
     }
   }
 
