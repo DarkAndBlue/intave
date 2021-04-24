@@ -202,6 +202,7 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
 
     if (!isLegit && (meta.lastSwing <= 5 || meta.lastAttack <= 5) && meta.rotationPacketCounter > 10) {
       int addedViolation = 1;
+      Confidence confidence = Confidence.MAYBE;
       String description = "rotation snap ("
         + getArrayAsString(meta.rotationMotions, yawMotion, meta.index)
         + " s:" + Math.min(meta.lastSwing, 99)
@@ -210,6 +211,7 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
       double valueOfSnap = meta.rotationMotions[getHopIndex(meta)];
       if(valueOfSnap > 90) {
         if(meta.lastAttack <= 5) {
+          confidence = Confidence.PROBABLE;
           addedViolation = 3;
         } else {
           addedViolation = 2;
@@ -225,6 +227,7 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
           double maxValue = Math.max(values[0], values[1]);
           if(minValue < 10 && maxValue > 65) {
             addedViolation = 6;
+            confidence = Confidence.LIKELY;
             description += " pYaw:" + MathHelper.formatDouble(meta.perfectRotations[Math.floorMod(meta.index - 2, meta.perfectRotations.length)], 2)
               + "/" + MathHelper.formatDouble(meta.perfectRotations[Math.floorMod(meta.index - 1, meta.perfectRotations.length)], 2);
           }
@@ -234,7 +237,7 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
       description += ") vl:" + meta.violationLevel;
 
       int options = Anomaly.AnomalyOption.DELAY_128s;
-      Anomaly anomaly = Anomaly.anomalyOf("102", addedViolation > 2 ? Confidence.LIKELY : Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
+      Anomaly anomaly = Anomaly.anomalyOf("102", confidence, Anomaly.Type.KILLAURA, description, options);
       parentCheck().saveAnomaly(player, anomaly);
     }
 
