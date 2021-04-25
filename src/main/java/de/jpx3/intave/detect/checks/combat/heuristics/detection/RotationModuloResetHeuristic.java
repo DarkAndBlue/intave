@@ -219,7 +219,7 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
           double minValue = Math.min(values[0], values[1]);
           double maxValue = Math.max(values[0], values[1]);
 
-          if(minValue < 10 && maxValue > 65) {
+          if(minValue < 10 && maxValue > 50) {
             if(valueOfSnap > 360) {
               confidence = Confidence.LIKELY;
             } else if(valueOfSnap > 80) {
