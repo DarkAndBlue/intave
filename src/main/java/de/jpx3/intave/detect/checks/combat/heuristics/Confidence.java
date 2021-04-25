@@ -8,6 +8,7 @@ public enum Confidence {
   LIKELY("?!", 40),
   PROBABLE("?", 20),
   MAYBE("??", 10),
+  COULDBE("???", 5),
   NONE("-", 0),
 
   ;
