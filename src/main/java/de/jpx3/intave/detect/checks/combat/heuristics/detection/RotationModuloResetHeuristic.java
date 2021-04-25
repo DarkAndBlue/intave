@@ -14,18 +14,12 @@ import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.punishment.AttackCancelType;
 import de.jpx3.intave.event.service.entity.WrappedEntity;
-import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.client.RotationHelper;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.raytrace.Raytracer;
 import org.bukkit.entity.Player;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.locks.Condition;
 
 public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heuristics, RotationModuloResetHeuristic.RotationModuloResetHeuristicMeta> {
   private final IntavePlugin plugin;
@@ -221,9 +215,9 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
 
       UserMetaAttackData attackData = user.meta().attackData();
       if(attackData.lastAttackedEntity() != null) {
-        double values[] = new double[] { meta.perfectRotations[Math.floorMod(meta.index - 2, meta.perfectRotations.length)],
+        double[] values = new double[] { meta.perfectRotations[Math.floorMod(meta.index - 2, meta.perfectRotations.length)],
           meta.perfectRotations[Math.floorMod(meta.index - 1, meta.perfectRotations.length)]};
-        if(values[0] != Double.NaN && values[1] != Double.NaN) {
+        if(!Double.isNaN(values[0]) && !Double.isNaN(values[1])) {
           double minValue = Math.min(values[0], values[1]);
           double maxValue = Math.max(values[0], values[1]);
           if(minValue < 10 && maxValue > 65) {
