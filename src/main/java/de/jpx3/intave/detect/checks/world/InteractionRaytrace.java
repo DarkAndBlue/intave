@@ -640,7 +640,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
         if (raycastLocationBlock.getType() == targetLocationBlock.getType()) {
           blockName = "a different " + blockName;
         }
-        append = "looking at " + blockName + " block";
+        append = "but looking at " + blockName + " block";
         vl = longBreakDuration ? 20 : 5;
       } else if (interaction.targetDirection != raycastResult.sideHit.getIndex()) {
         append = "invalid block face";

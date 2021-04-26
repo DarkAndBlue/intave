@@ -66,8 +66,7 @@ public final class BreakSpeedStartCheck extends IntaveMetaCheckPart<BreakSpeedLi
             String details = ticksBetween + " " + (ticksBetween == 1 ? "tick" : "ticks") + " between";
             ViolationProcessor violationProcessor = IntavePlugin.singletonInstance().violationProcessor();
             Violation violation = Violation.fromType(BreakSpeedLimiter.class)
-              .withPlayer(player).withMessage(message).withDetails(details)
-              .withVL(5)
+              .withPlayer(player).withMessage(message).withDetails(details).withVL(5)
               .build();
             ViolationContext violationContext = violationProcessor.processViolation(violation);
             if (violationContext.shouldCounterThreat()) {

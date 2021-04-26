@@ -196,8 +196,8 @@ public final class IntavePlugin extends JavaPlugin {
           bytes[7 - i] = value;
         }
 
-        long longOne = ThreadLocalRandom.current().nextLong(0x4000000000000000L, Long.MAX_VALUE);
-        long longTwo = ThreadLocalRandom.current().nextLong(0x4000000000000000L, Long.MAX_VALUE);
+        long longOne = ThreadLocalRandom.current().nextLong(0x4000000000000000L, Long.MAX_VALUE), originalLongOne = longOne;
+        long longTwo = ThreadLocalRandom.current().nextLong(0x4000000000000000L, Long.MAX_VALUE), originalLongTwo = longTwo;
         String requestedId = String.valueOf(new UUID(longOne, longTwo));
 
         String idKey = identificationKey > 0 ? new String(bytes) : "aaaaaaaa", response = "";
@@ -228,7 +228,7 @@ public final class IntavePlugin extends JavaPlugin {
             response += "_";
           }
         } catch (IOException exception) {
-          exception.printStackTrace();
+//          exception.printStackTrace();
           response = "timeout";
         }
 
@@ -326,21 +326,20 @@ public final class IntavePlugin extends JavaPlugin {
 
           // verify the server integrity
           boolean validResponse = false;
-          UUID expectedResponse = UUID.randomUUID();
+          long receivedMSB = 0;
+          long receivedLSB = 0;
           if(keyResponse != null) {
             UUID receivedResponse = UUID.fromString(keyResponse);
             for (int i = 0; i < 64; i++) {
               longOne |= (longTwo & (1L << i));
               longTwo |= (longOne & (1L << i * 2));
             }
-            longTwo &= longOne << 4;
-            longTwo &= longOne << 2;
-            longTwo &= longOne;
-            expectedResponse = new UUID(longOne, longTwo);
-            validResponse = receivedResponse.getMostSignificantBits() == longOne && receivedResponse.getLeastSignificantBits() == longTwo;
+            receivedMSB = receivedResponse.getMostSignificantBits();
+            receivedLSB = receivedResponse.getLeastSignificantBits();
+            validResponse = receivedMSB == longOne && receivedLSB == longTwo;
           }
           if(!validResponse) {
-            logger.error("Unable to boot: Authentication response not trustworthy (" + keyResponse + ", expected "+expectedResponse+")");
+            logger.error("Unable to boot: Authentication response not trustworthy");
             contextStatusResource.write(new ByteArrayInputStream(("failure-"+response).getBytes(StandardCharsets.UTF_8)));
             boolFailure();
             performShutdown();

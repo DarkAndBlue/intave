@@ -70,10 +70,18 @@ public final class CachedResource {
     return lines;
   }
 
+  public boolean available() {
+    try {
+      return read().available() > 0;
+    } catch (IOException exception) {
+      return false;
+    }
+  }
+
   @Native
   public InputStream read() {
     if(!fileStore().exists()) {
-      throw new IllegalStateException();
+      return new ByteArrayInputStream(new byte[0]);
     }
 //    fileStore().setLastModified(AccessHelper.now());
     try {
@@ -108,25 +116,18 @@ public final class CachedResource {
   @Native
   private boolean refreshFile() {
     File file = fileStore();
-    if(file.exists()) {
-      file.delete();
-    }
-    try {
-      file.createNewFile();
-    } catch (IOException e) {
-      throw new IllegalStateException(e);
-//      return false;
-    }
+
     // try download
     try {
       URL remoteFileAddress = new URL(uri);
-      URLConnection urlConnection = remoteFileAddress.openConnection();
-      urlConnection.addRequestProperty("User-Agent", "Intave/" + IntavePlugin.version());
-      urlConnection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
-      urlConnection.addRequestProperty("Pragma", "no-cache");
-      urlConnection.setConnectTimeout(3000);
-      urlConnection.setReadTimeout(3000);
-      InputStream inputStream = urlConnection.getInputStream();
+      URLConnection connection = remoteFileAddress.openConnection();
+      connection.addRequestProperty("User-Agent", "Intave/" + IntavePlugin.version());
+      connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
+      connection.addRequestProperty("Pragma", "no-cache");
+      connection.setConnectTimeout(3000);
+      connection.setReadTimeout(3000);
+      InputStream inputStream = connection.getInputStream();
+      // connection was successful
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       byte[] buf = new byte[4096];
       int i;
@@ -151,12 +152,22 @@ public final class CachedResource {
       byteBuffer.put(iv);
       byteBuffer.put(encryptedData);
       ReadableByteChannel byteChannel = Channels.newChannel(new ByteArrayInputStream(byteBuffer.array()));
+
+      if(file.exists()) {
+        file.delete();
+      }
+      try {
+        file.createNewFile();
+      } catch (IOException e) {
+        throw new IllegalStateException(e);
+      }
+
       FileOutputStream outputStream = new FileOutputStream(fileStore());
       outputStream.getChannel().transferFrom(byteChannel, 0, Long.MAX_VALUE);
       file.setLastModified(AccessHelper.now());
       outputStream.close();
     } catch (Exception exception) {
-      exception.printStackTrace();
+//      exception.printStackTrace();
       return false;
     }
     return file.exists();

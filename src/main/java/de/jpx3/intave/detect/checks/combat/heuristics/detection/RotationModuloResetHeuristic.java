@@ -201,7 +201,7 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
 
       double valueOfSnap = meta.rotationMotions[getHopIndex(meta)];
       if(valueOfSnap > 90 && meta.lastAttack <= 3) {
-        confidence = Confidence.COULDBE;
+        confidence = Confidence.LOW;
       }
 
       UserMetaAttackData attackData = user.meta().attackData();
