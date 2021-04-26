@@ -54,6 +54,7 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
     if (meta.ventosFreundlicherBoolean) {
       meta.clientTicksBetweenBlockingToggle++;
     }
+    meta.heldItemOperations = 0;
   }
 
   @PacketSubscription(
@@ -130,11 +131,28 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
     }
   }
 
+  @PacketSubscription(
+    packets = {
+      @PacketDescriptor(sender = Sender.CLIENT, packetName = "HELD_ITEM_SLOT")
+    }
+  )
+  public void receiveHeldItemSlot(PacketEvent event) {
+    Player player = event.getPlayer();
+    User user = userOf(player);
+    BlockingMeta blockingMeta = metaOf(player);
+    if (user.meta().clientData().flyingPacketStream() && blockingMeta.heldItemOperations++ >= 1) {
+      String description = "sent too many item operations (operations: " + blockingMeta.heldItemOperations + ")";
+      Anomaly anomaly = Anomaly.anomalyOf("144", Confidence.NONE, Anomaly.Type.KILLAURA, description, 0);
+      parentCheck().saveAnomaly(player, anomaly);
+    }
+  }
+
   public final static class BlockingMeta extends UserCustomCheckMeta {
     public boolean releasedItemAfterClientTick;
     public int ticksBetweenBlockAndUnblock, clientTicksBetweenBlockingToggle;
     public boolean ventosFreundlicherBoolean;
 
     public int acaBlockingVL;
+    public int heldItemOperations;
   }
 }
