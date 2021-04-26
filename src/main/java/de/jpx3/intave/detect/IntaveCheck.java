@@ -15,6 +15,7 @@ public abstract class IntaveCheck implements EventProcessor {
   private final String configurationKey;
   private final CheckStatistics statistics;
   private final CheckConfiguration checkConfiguration;
+  private final boolean enabled;
 
   public final List<IntaveCheckPart<?>> checkParts = new ArrayList<>();
 
@@ -24,8 +25,8 @@ public abstract class IntaveCheck implements EventProcessor {
     this.configurationKey = configurationKey;
     this.statistics = new CheckStatistics();
     this.checkConfiguration = new CheckConfiguration(this);
-
     plugin.checkService().enterConfiguration(checkConfiguration);
+    this.enabled = checkConfiguration.settings().boolBy("enabled");
   }
 
   protected User userOf(Player player) {
@@ -65,6 +66,6 @@ public abstract class IntaveCheck implements EventProcessor {
   }
 
   public boolean enabled() {
-    return true;
+    return enabled;
   }
 }

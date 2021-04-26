@@ -64,7 +64,6 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
       appendCheckPart(new AttackRequiredHeuristic(this));
       appendCheckPart(new AttackReduceIgnoreHeuristic(this));
       appendCheckPart(new RotationStandardDeviationHeuristic(this));
-
     }
 
     appendCheckPart(new ReshapedJumpHeuristic(this));
@@ -181,15 +180,19 @@ public final class Heuristics extends IntaveMetaCheck<Heuristics.HeuristicMeta> 
   private String define(Confidence confidence) {
     switch (confidence) {
       case CERTAIN:
-        return "certain (!!)";
+        return "certain (!!!!)";
       case VERY_LIKELY:
-        return "very likely (!)";
+        return "very likely (!!!)";
       case LIKELY:
-        return "likely (?!)";
+        return "likely (!!)";
+      case LESS_LIKELY:
+        return "less likely (?!)";
       case PROBABLE:
         return "probable (?)";
       case MAYBE:
         return "maybe (??)";
+      case LOW:
+        return "low (???)";
       default:
         return "none";
     }

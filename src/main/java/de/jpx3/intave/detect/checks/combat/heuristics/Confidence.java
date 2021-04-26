@@ -3,12 +3,14 @@ package de.jpx3.intave.detect.checks.combat.heuristics;
 import java.util.Arrays;
 
 public enum Confidence {
-  CERTAIN("!!", 10000),
-  VERY_LIKELY("!", 80),
-  LIKELY("?!", 40),
+  VERMEINTLICH("XD", Integer.MAX_VALUE),
+  CERTAIN("!!!!", 10000),
+  VERY_LIKELY("!!!", 80),
+  LIKELY("!!", 40),
+  LESS_LIKELY("?!", 30),
   PROBABLE("?", 20),
   MAYBE("??", 10),
-  COULDBE("???", 5),
+  LOW("???", 5),
   NONE("-", 0),
 
   ;

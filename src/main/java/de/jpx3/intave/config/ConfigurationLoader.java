@@ -196,7 +196,7 @@ public final class ConfigurationLoader {
       }
       return YamlConfiguration.loadConfiguration(new InputStreamReader(inputStream));
     } catch (Exception exception) {
-      exception.printStackTrace();
+//      exception.printStackTrace();
       return null;
     }
   }
