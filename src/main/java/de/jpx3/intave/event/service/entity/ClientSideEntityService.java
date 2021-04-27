@@ -136,27 +136,32 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   private void processEntitySpawn(Player player, PacketEvent event) {
     User user = UserRepository.userOf(player);
     UserMetaAttackData attackData = user.meta().attackData();
+    PacketType packetType = event.getPacketType();
     PacketContainer packet = event.getPacket();
     String entityName;
     HitBoxBoundaries hitBoxBoundaries;
     boolean livingEntity;
-    if (event.getPacketType() == PacketType.Play.Server.SPAWN_ENTITY) {
+    if (packetType == PacketType.Play.Server.SPAWN_ENTITY) {
       // dead entities
       hitBoxBoundaries = HitBoxBoundaries.of(0, 0);
       entityName = "DeadEntity";
       livingEntity = false;
+    } else if (packetType == PacketType.Play.Server.SPAWN_ENTITY_LIVING) {
+      // entities
+      Object entity = entityOfDataWatcher(packet.getDataWatcherModifier().read(0));
+      hitBoxBoundaries = ReflectiveEntityHitBoxAccess.boundariesOf(entity);
+      entityName = entityNameOf(entity);
+      livingEntity = true;
     } else {
       // player
       Integer entityID = packet.getIntegers().read(0);
       FakePlayer fakePlayer = attackData.fakePlayer();
       if (fakePlayer != null && fakePlayer.fakePlayerEntityId() == entityID) {
         entityName = "Intave-Bot";
-        hitBoxBoundaries = HitBoxBoundaries.of(0.6f, 1.8f);
       } else {
-        Object entity = entityOfDataWatcher(packet.getDataWatcherModifier().read(0));
-        hitBoxBoundaries = ReflectiveEntityHitBoxAccess.boundariesOf(entity);
-        entityName = entityNameOf(entity);
+        entityName = "Player";
       }
+      hitBoxBoundaries = HitBoxBoundaries.of(0.6f, 1.8f);
       livingEntity = true;
     }
     processPacketSpawnMob(user, event.getPacketType(), entityName, packet, livingEntity, hitBoxBoundaries);
@@ -320,7 +325,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
       boundaries
     );
 
-    if(bukkitEntity instanceof  LivingEntity) {
+    if (bukkitEntity instanceof LivingEntity) {
       LivingEntity livingEntity = (LivingEntity) bukkitEntity;
       entity.health = (float) livingEntity.getHealth();
     }
@@ -489,12 +494,12 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     for (WrappedWatchableObject watchableObject : watchableObjects) {
       int index = watchableObject.getIndex();
 
-      if(HEALTH_PROCESSING_1_10) {
+      if (HEALTH_PROCESSING_1_10) {
         if (index == 7) {
           Object rawValue = watchableObject.getRawValue();
           return ((Number) rawValue).floatValue();
         }
-      }else {
+      } else {
         if (index == 6) {
           return (Float) watchableObject.getRawValue();
         }
