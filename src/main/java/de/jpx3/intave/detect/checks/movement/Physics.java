@@ -372,7 +372,7 @@ public final class Physics extends IntaveCheck {
 
         user.boundingBoxAccess().identityInvalidate();
 
-        Violation violation = Violation.fromType(Physics.class)
+        Violation violation = Violation.builderFor(Physics.class)
           .withPlayer(player).withMessage(message).withDetails(details)
           .withVL(0)
           .build();
@@ -410,7 +410,7 @@ public final class Physics extends IntaveCheck {
           String message = "moved into " + shortenTypeName(block.getType()) + " block whilst moving in another block";
           boolean multipleBoxes = intersectionBoundingBoxesCurrent.size() > 1;
           String details = (multipleBoxes ? intersectionBoundingBoxesCurrent.size() : "one") + " box" + (multipleBoxes ? "es" : "");
-          Violation violation = Violation.fromType(Physics.class)
+          Violation violation = Violation.builderFor(Physics.class)
             .withPlayer(player).withMessage(message).withDetails(details)
             .withVL(0)
             .build();
@@ -457,7 +457,7 @@ public final class Physics extends IntaveCheck {
 
       user.boundingBoxAccess().identityInvalidate();
 
-      Violation violation = Violation.fromType(Physics.class)
+      Violation violation = Violation.builderFor(Physics.class)
         .withPlayer(player).withMessage(message).withDetails(details)
         .withVL(violationLevelIncrease / 10d).build();
       ViolationContext violationContext = plugin.violationProcessor().processViolation(violation);
