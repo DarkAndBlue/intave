@@ -124,8 +124,8 @@ public final class CachedResource {
       connection.addRequestProperty("User-Agent", "Intave/" + IntavePlugin.version());
       connection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");
       connection.addRequestProperty("Pragma", "no-cache");
-      connection.setConnectTimeout(3000);
-      connection.setReadTimeout(3000);
+      connection.setConnectTimeout(2000);
+      connection.setReadTimeout(1000);
       InputStream inputStream = connection.getInputStream();
       // connection was successful
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

@@ -226,9 +226,9 @@ public final class IntavePlugin extends JavaPlugin {
           connection.addRequestProperty("D", configurationKey);
           connection.addRequestProperty("E", LicenseVerification.rawLicense());
           connection.addRequestProperty("F", requestedId);
+          connection.setConnectTimeout(2000);
+          connection.setReadTimeout(2000);
           connection.connect();
-          connection.setConnectTimeout(4000);
-          connection.setReadTimeout(4000);
           Scanner scanner2 = new Scanner(connection.getInputStream(), "UTF-8");
           StringBuilder raw2 = new StringBuilder();
           while (scanner2.hasNext())
