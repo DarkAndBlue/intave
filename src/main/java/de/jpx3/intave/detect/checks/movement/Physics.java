@@ -30,10 +30,7 @@ import de.jpx3.intave.world.collider.result.ComplexColliderSimulationResult;
 import de.jpx3.intave.world.collider.result.QuickColliderSimulationResult;
 import de.jpx3.intave.world.collision.Collision;
 import de.jpx3.intave.world.waterflow.Waterflow;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -69,14 +66,25 @@ public final class Physics extends IntaveCheck {
 
   private void searchFallDamageApplier() {
     Class<?> entityLivingClass = ReflectiveAccess.lookupServerClass("EntityLiving");
+    // Search method name
     String methodName = "e";
     if (ProtocolLibAdapter.VILLAGE_UPDATE.atOrAbove()) {
+      // >= 1.14
       methodName = "b";
     } else if (ProtocolLibAdapter.AQUATIC_UPDATE.atOrAbove()) {
+      // 1.13
       methodName = "c";
     }
+    // Search method descriptor
+    MethodType methodType;
+    if (ProtocolLibAdapter.BEE_UPDATE.atOrAbove()) {
+      // >= 1.15
+      methodType = MethodType.methodType(Boolean.TYPE, Float.TYPE, Float.TYPE);
+    } else {
+      methodType = MethodType.methodType(Void.TYPE, Float.TYPE, Float.TYPE);
+    }
     try {
-      fallDamageInvokeMethod = MethodHandles.publicLookup().findVirtual(entityLivingClass, methodName, MethodType.methodType(Void.TYPE, Float.TYPE, Float.TYPE));
+      fallDamageInvokeMethod = MethodHandles.publicLookup().findVirtual(entityLivingClass, methodName, methodType);
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new IllegalStateException(e);
     }
