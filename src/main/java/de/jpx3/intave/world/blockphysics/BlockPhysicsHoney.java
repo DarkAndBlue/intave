@@ -20,19 +20,19 @@ public final class BlockPhysicsHoney implements BlockPhysic {
 
   @Override
   public Vector entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
-    if (doBlockPhysics(user, location)) {
+    if (doBlockPhysics(user, location, motionY)) {
       return updateMovement(user, motionX, motionY, motionZ);
     }
     return null;
   }
 
-  private boolean doBlockPhysics(User user, Location blockPos) {
+  private boolean doBlockPhysics(User user, Location blockPos, double motionY) {
     UserMetaMovementData movementData = user.meta().movementData();
     if (movementData.onGround) {
       return false;
     } else if (movementData.positionY > blockPos.getY() + 0.9375D - 1.0E-7D) {
       return false;
-    } else if (movementData.physicsMotionY >= -0.08D) {
+    } else if (motionY >= -0.08D) {
       return false;
     } else {
       double d0 = Math.abs(blockPos.getX() + 0.5D - movementData.positionX);
