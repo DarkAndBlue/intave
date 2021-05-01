@@ -8,6 +8,7 @@ import de.jpx3.intave.adapter.ViaVersionAdapter;
 import de.jpx3.intave.agent.IntaveAgentAccessor;
 import de.jpx3.intave.command.CommandProcessor;
 import de.jpx3.intave.config.ConfigurationService;
+import de.jpx3.intave.connect.customclient.CustomClientSupportService;
 import de.jpx3.intave.connect.proxy.ProxyMessenger;
 import de.jpx3.intave.connect.shadow.LabymodShadowIntegration;
 import de.jpx3.intave.connect.sibyl.SibylIntegrationService;
@@ -50,6 +51,7 @@ import de.jpx3.intave.world.collision.patches.BoundingBoxPatcher;
 import de.jpx3.intave.world.permission.WorldPermission;
 import de.jpx3.intave.world.raytrace.Raytracer;
 import de.jpx3.intave.world.waterflow.Waterflow;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -95,6 +97,7 @@ public final class IntavePlugin extends JavaPlugin {
   private VersionList versionList;
   private LabymodShadowIntegration shadowIntegration;
   private ClientWarningService clientWarningService;
+  private CustomClientSupportService customClientSupportService;
   private IntaveAccessService accessService;
   private IntaveAccess access;
   private Metrics metrics;
@@ -457,6 +460,8 @@ public final class IntavePlugin extends JavaPlugin {
       InventoryUseItemHelper.setup();
       BoundingBoxPatcher.setup();
 
+      Bukkit.getServer().getMessenger().registerOutgoingPluginChannel(this, "minecraft:intave");
+
       versionList = new VersionList();
       versionList.setup();
 
@@ -480,6 +485,9 @@ public final class IntavePlugin extends JavaPlugin {
 
       clientWarningService = new ClientWarningService(this);
       clientWarningService.setup();
+
+      customClientSupportService = new CustomClientSupportService(this);
+      customClientSupportService.setup();
 
       customEventService = new CustomEventService(this);
       checkService = new CheckService(this);
