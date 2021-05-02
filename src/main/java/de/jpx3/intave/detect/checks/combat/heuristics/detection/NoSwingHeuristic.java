@@ -2,13 +2,10 @@ package de.jpx3.intave.detect.checks.combat.heuristics.detection;
 
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.detect.IntaveMetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
-import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
@@ -18,13 +15,7 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
 import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerAnimationEvent;
 
 public final class NoSwingHeuristic extends IntaveMetaCheckPart<Heuristics, NoSwingHeuristic.NoSwingMeta> {
 
