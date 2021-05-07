@@ -457,7 +457,7 @@ public final class Physics extends IntaveCheck {
       violationLevelIncrease = Math.max(1, violationLevelIncrease);
       violationLevelData.physicsVL += violationLevelIncrease;
       violationLevelData.physicsInvalidMovementsInRow++;
-      user.blockShapeAccess().invalidate();
+      user.blockShapeAccess().identityInvalidate();
       statistics().increaseFails();
     } else {
       violationLevelData.physicsInvalidMovementsInRow = 0;
@@ -476,8 +476,6 @@ public final class Physics extends IntaveCheck {
         details += ", velocity";
       }
 
-      user.blockShapeAccess().identityInvalidate();
-
       Violation violation = Violation.builderFor(Physics.class)
         .withPlayer(player).withMessage(message).withDetails(details)
         .withVL(violationLevelIncrease / 50d).build();
@@ -492,7 +490,6 @@ public final class Physics extends IntaveCheck {
         } else {
           setbackTicks = violationLevelData.physicsVL > 50 ? 3 : 2;
         }
-
         plugin.eventService().emulationEngine().emulationSetBack(player, emulationMotion, setbackTicks);
         movementData.invalidMovement = true;
       }

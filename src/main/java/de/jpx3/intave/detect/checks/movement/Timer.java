@@ -142,8 +142,8 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
 
       if (violationContext.shouldCounterThreat()) {
         UserMetaMovementData movementData = user.meta().movementData();
-        plugin.eventService().emulationEngine().emulationSetBack(player, new Vector(movementData.physicsMotionX, movementData.physicsMotionY, movementData.physicsMotionZ), 12);
         movementData.invalidMovement = true;
+        plugin.eventService().emulationEngine().emulationSetBack(player, new Vector(movementData.physicsMotionX, movementData.physicsMotionY, movementData.physicsMotionZ), 12);
       }
       timerData.lastTimerFlag = AccessHelper.now();
       // leniency

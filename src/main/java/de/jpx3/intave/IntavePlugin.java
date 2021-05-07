@@ -450,6 +450,8 @@ public final class IntavePlugin extends JavaPlugin {
         contextStatusResource.write(new ByteArrayInputStream(("success/" + AccessHelper.now()).getBytes(StandardCharsets.UTF_8)));
       }
 
+      logger.info(" Tweaking latency..");
+
       SSLConnectionVerifier.setup();
 
       RuntimeBlockDataIndexer.prepareIndex();
@@ -471,6 +473,8 @@ public final class IntavePlugin extends JavaPlugin {
       InventoryUseItemHelper.setup();
       BoundingBoxPatcher.setup();
 
+      logger.info(" Guessing gender of players..");
+
       versionList = new VersionList();
       versionList.setup();
 
@@ -478,6 +482,8 @@ public final class IntavePlugin extends JavaPlugin {
 
       // resolve config hash
       configurationService.setupConfiguration(requiredState);
+
+      logger.info(" Guessing own gender..");
 
       prefix = configurationService.configuration().getString("layout.prefix", prefix);
       prefix = ChatColor.translateAlternateColorCodes('&', prefix);
@@ -498,6 +504,8 @@ public final class IntavePlugin extends JavaPlugin {
       customClientSupportService = new CustomClientSupportService(this);
       customClientSupportService.setup();
 
+      logger.info(" I'm probably a <hidden>");
+
       customEventService = new CustomEventService(this);
       checkService = new CheckService(this);
       violationProcessor = new ViolationProcessor(this);
@@ -505,6 +513,8 @@ public final class IntavePlugin extends JavaPlugin {
       fakePlayerEventService = new FakePlayerEventService(this);
       proxyMessenger = new ProxyMessenger(this);
       sibylIntegrationService = new SibylIntegrationService(this);
+
+      logger.info(" hidden? why is that message hidden?");
 
       getCommand("intave").setExecutor(new CommandProcessor());
 
@@ -514,6 +524,8 @@ public final class IntavePlugin extends JavaPlugin {
 
       // stage 8
       metrics = new Metrics(this, 6019);
+
+      logger.info(" (from the silence) they wouldn't understand..");
 
       trustFactorService.setup();
       checkService.setup();
@@ -529,6 +541,8 @@ public final class IntavePlugin extends JavaPlugin {
       performShutdown();
       return;
     }
+
+    logger.info(" sure..");
 
     GarbageCollector.setup();
 
