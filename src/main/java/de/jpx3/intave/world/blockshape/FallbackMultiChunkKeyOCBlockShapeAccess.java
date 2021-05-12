@@ -5,6 +5,7 @@ import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockshape.resolver.BoundingBoxResolvePipeline;
+import de.jpx3.intave.world.blockshape.resolver.pipeline.patcher.BoundingBoxPatcher;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -18,7 +19,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static de.jpx3.intave.IntaveControl.DISABLE_BLOCK_CACHING_ENTIRELY;
 
-public final class MultiChunkKeyOCBlockShapeAccess implements OCBlockShapeAccess {
+public final class FallbackMultiChunkKeyOCBlockShapeAccess implements OCBlockShapeAccess {
+  private final static BlockShape SERVER_LOOKUP_REQUIRED = new BlockShape(Collections.emptyList(), Material.AIR, 0);
+  private final static Map<World, Map<Long, BlockShape>> globalFallbackCache = new ConcurrentHashMap<>(4096 * 8);
+
   private final Player player;
   private final BoundingBoxResolvePipeline resolver;
   private final Map<Long, BlockShape> blockCache = new ConcurrentHashMap<>(4096);
@@ -29,7 +33,7 @@ public final class MultiChunkKeyOCBlockShapeAccess implements OCBlockShapeAccess
   private int chunkX;
   private int chunkZ;
 
-  public MultiChunkKeyOCBlockShapeAccess(Player player, BoundingBoxResolvePipeline resolver) {
+  public FallbackMultiChunkKeyOCBlockShapeAccess(Player player, BoundingBoxResolvePipeline resolver) {
     this.player = player;
     this.resolver = resolver;
   }
@@ -65,7 +69,7 @@ public final class MultiChunkKeyOCBlockShapeAccess implements OCBlockShapeAccess
     if (blockShape == null) {
       World world = player.getWorld();
       Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
-      blockShape = lookup(world, block, posX, posY, posZ);
+      blockShape = cachedLookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
         blockCache.put(key, blockShape);
       }
@@ -104,7 +108,7 @@ public final class MultiChunkKeyOCBlockShapeAccess implements OCBlockShapeAccess
     if (blockShape == null) {
       World world = player.getWorld();
       Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
-      blockShape = lookup(world, block, posX, posY, posZ);
+      blockShape = cachedLookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
         blockCache.put(key, blockShape);
       }
@@ -143,7 +147,7 @@ public final class MultiChunkKeyOCBlockShapeAccess implements OCBlockShapeAccess
     if (blockShape == null) {
       World world = player.getWorld();
       Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
-      blockShape = lookup(world, block, posX, posY, posZ);
+      blockShape = cachedLookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
         blockCache.put(key, blockShape);
       }
@@ -151,18 +155,58 @@ public final class MultiChunkKeyOCBlockShapeAccess implements OCBlockShapeAccess
     return blockShape.data();
   }
 
+  private BlockShape resolveOriginalShape(int chunkX, int chunkZ, int posX, int posY, int posZ) {
+    if (posY < 0 || 255 < posY) {
+      return EMPTY_CACHE_ENTRY;
+    }
+    BoundingBoxAccessFlowStudy.requests++;
+    if ((chunkX != this.chunkX || chunkZ != this.chunkZ)) {
+      this.chunkX = chunkX;
+      this.chunkZ = chunkZ;
+      purgeOverrides();
+    }
+    long key = bigKey(posX, posY, posZ);
+    BlockShape blockShape = blockCache.get(key);
+    if (blockShape == null) {
+      World world = player.getWorld();
+      Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
+      blockShape = lookup(world, block, posX, posY, posZ);
+      if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
+        blockCache.put(key, blockShape);
+      }
+    }
+    return blockShape;
+  }
+
   private final static BlockShape EMPTY_CACHE_ENTRY = new BlockShape(Collections.emptyList(), Material.AIR, 0);
 
-  private BlockShape lookup(World world, Block block, int posX, int posY, int posZ) {
+  private BlockShape cachedLookup(World world, Block block, int posX, int posY, int posZ) {
     Material type = block.getType();
     if(type == Material.AIR) {
       return EMPTY_CACHE_ENTRY;
     } else {
-      BoundingBoxAccessFlowStudy.increaseLookups();
-      int data = BlockDataAccess.dataIndexOf(block);
-      List<WrappedAxisAlignedBB> boundingBoxes = resolver.customResolve(world, player, type, data, posX, posY, posZ);
-      return new BlockShape(boundingBoxes, type, data);
+      if(!BoundingBoxPatcher.requiresPatch(type) && block.getY() >= 0) {
+        Map<Long, BlockShape> worldFallbackCache = globalFallbackCache.computeIfAbsent(world, x -> new ConcurrentHashMap<>());
+        long key = bigKey(posX, posY, posZ);
+        BlockShape resolve;
+        if((resolve = worldFallbackCache.get(key)) == null) {
+          resolve = lookup(world, block, posX, posY, posZ);
+        }
+        if(resolve == SERVER_LOOKUP_REQUIRED) {
+          resolve = lookup(world, block, posX, posY, posZ);
+        }
+        return resolve;
+      }
+      return lookup(world, block, posX, posY, posZ);
     }
+  }
+
+  private BlockShape lookup(World world, Block block, int posX, int posY, int posZ) {
+    Material type = block.getType();
+    int data = BlockDataAccess.dataIndexOf(block);
+    BoundingBoxAccessFlowStudy.increaseLookups();
+    List<WrappedAxisAlignedBB> boundingBoxes = resolver.customResolve(world, player, type, data, posX, posY, posZ);
+    return new BlockShape(boundingBoxes, type, data);
   }
 
   @Override
@@ -179,29 +223,29 @@ public final class MultiChunkKeyOCBlockShapeAccess implements OCBlockShapeAccess
 
   @Override
   public void invalidate0(int posX, int posY, int posZ) {
-//    int chunkX = this.originChunkX;
-//    int chunkZ = this.originChunkZ;
-//    if (posX < chunkX || posZ < chunkZ || chunkX + 16 <= posX || chunkZ + 16 <= posZ) {
-//      return;
-//    }
     blockCache.remove(bigKey(posX, posY, posZ));
   }
 
   @Override
   public void override(World world, int posX, int posY, int posZ, Material type, int blockState) {
     invalidateOverride(posX, posY, posZ);
-    BlockShape BlockShape;
+    BlockShape blockShape;
     if(type == Material.AIR) {
-      BlockShape = EMPTY_CACHE_ENTRY;
+      blockShape = EMPTY_CACHE_ENTRY;
     } else {
-      BlockShape = new BlockShape(
+      blockShape = new BlockShape(
         constructBlock(world, posX, posY, posZ, type, blockState),
         type, blockState
       );
     }
+    BlockShape originalShape = resolveOriginalShape(posX >> 4, posZ >> 4, posX, posY, posZ);
+    boolean shapeRemains = (blockShape.boundingBoxes().equals(originalShape.boundingBoxes()));
     long key = bigKey(posX, posY, posZ);
-    indexedReplacements.put(key, BlockShape);
-    locatedReplacements.put(new Location(world, posX, posY, posZ), BlockShape);
+    if(!shapeRemains) {
+      globalFallbackCache.computeIfAbsent(world, x -> new ConcurrentHashMap<>()).put(key, SERVER_LOOKUP_REQUIRED);
+    }
+    indexedReplacements.put(key, blockShape);
+    locatedReplacements.put(new Location(world, posX, posY, posZ), blockShape);
   }
 
   @Override

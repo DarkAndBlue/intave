@@ -21,14 +21,9 @@ import de.jpx3.intave.reflect.caller.PluginInvocation;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.DurationTranslator;
 import de.jpx3.intave.tools.GarbageCollector;
-import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.update.Version;
-import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.UserRepositoryEventListener;
-import de.jpx3.intave.world.blockshape.GlobalStaticOCBlockShapeAccess;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -106,20 +101,6 @@ public final class EventService implements BukkitEventSubscriber {
       String pluginClass = pluginInvocation == null ? "no other plugin" : pluginInvocation.className();
       teleport.getPlayer().sendMessage("Teleport " + teleport.getCause() + " " + teleport.getTo() + " by " + pluginClass);
     }
-  }
-
-  @Native
-  public void disableGlobalStaticBlockAccess() {
-    User.USE_GLOBAL_STATIC_BLOCK_SHAPE_ACCESS = false;
-    for (Player player : Bukkit.getOnlinePlayers()) {
-      User user = UserRepository.userOf(player);
-      user.useMultiChunkBlockShapeAccess();
-      if(plugin.sibylIntegrationService().isAuthenticated(player)) {
-        player.sendMessage(ChatColor.DARK_PURPLE + "[Intave] Switched to dynamic chunk access");
-      }
-    }
-    GlobalStaticOCBlockShapeAccess.globalBlockCache.clear();
-    System.gc();
   }
 
   @BukkitEventSubscription
