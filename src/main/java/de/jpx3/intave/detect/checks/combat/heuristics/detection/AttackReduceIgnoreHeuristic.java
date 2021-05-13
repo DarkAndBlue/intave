@@ -12,11 +12,10 @@ import de.jpx3.intave.event.packet.PacketDescriptor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.event.punishment.AttackNerfStrategy;
-import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaMovementData;
-import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.*;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public final class AttackReduceIgnoreHeuristic extends IntaveMetaCheckPart<Heuristics, AttackReduceIgnoreHeuristic.AttackReduceMeta> {
   private final IntavePlugin plugin;
@@ -37,6 +36,7 @@ public final class AttackReduceIgnoreHeuristic extends IntaveMetaCheckPart<Heuri
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     UserMetaMovementData movementData = user.meta().movementData();
+    UserMetaInventoryData inventoryData = user.meta().inventoryData();
     AttackReduceMeta heuristicMeta = metaOf(user);
 
     if (AttackDispatcher.REDUCING_DISABLED) {
@@ -44,6 +44,12 @@ public final class AttackReduceIgnoreHeuristic extends IntaveMetaCheckPart<Heuri
     }
 
     if (movementData.recentlyEncounteredFlyingPacket(1)) {
+      return;
+    }
+
+    ItemStack itemStack = inventoryData.heldItem();
+    boolean knockbackEnchantment = itemStack != null && itemStack.containsEnchantment(Enchantment.KNOCKBACK);
+    if (knockbackEnchantment) {
       return;
     }
 

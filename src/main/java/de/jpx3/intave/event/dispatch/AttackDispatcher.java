@@ -17,10 +17,7 @@ import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.fakeplayer.FakePlayerAttackSubscriber;
 import de.jpx3.intave.tools.sync.Synchronizer;
-import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaAttackData;
-import de.jpx3.intave.user.UserMetaMovementData;
-import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
@@ -69,11 +66,18 @@ public final class AttackDispatcher implements EventProcessor {
     PacketContainer packet = event.getPacket();
     Integer entityId = packet.getIntegers().read(0);
     EnumWrappers.EntityUseAction action = packet.getEntityUseActions().read(0);
+    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    ItemStack itemStack = inventoryData.heldItem();
+    boolean knockbackEnchantment = itemStack != null && itemStack.containsEnchantment(Enchantment.KNOCKBACK);
 
     if (action == EnumWrappers.EntityUseAction.ATTACK) {
       attackData.setLastAttackedEntityID(entityId);
       if (playerAttack(entityId)) {
         movementData.pastPlayerAttackPhysics = 0;
+        if (knockbackEnchantment) {
+          movementData.physicsMotionX *= 0.6;
+          movementData.physicsMotionZ *= 0.6;
+        }
       }
 
       FakePlayer fakePlayer = attackData.fakePlayer();

@@ -94,7 +94,7 @@ public final class PerfectAttackHeuristic extends IntaveMetaCheckPart<Heuristics
       double yawSpeedAverage = RotationMathHelper.averageOf(heuristicMeta.yawSpeedList);
       double failRate = (heuristicMeta.swings / heuristicMeta.attacks) * 100.0;
 
-      if (failRate < 10 && (yawSpeedAverage > 10 || distanceAverage > 10)) {
+      if (failRate < 5 && (yawSpeedAverage > 10 || distanceAverage > 10)) {
         heuristicMeta.vl++;
         String description = "maintains high attack accuracy whilst aiming at hitbox corners " +
           "(fail:" + MathHelper.formatDouble(failRate, 2)
@@ -104,8 +104,8 @@ public final class PerfectAttackHeuristic extends IntaveMetaCheckPart<Heuristics
         int options = Anomaly.AnomalyOption.LIMIT_4 | Anomaly.AnomalyOption.SUGGEST_MINING | Anomaly.AnomalyOption.DELAY_16s;
         Anomaly anomaly = Anomaly.anomalyOf("51", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
         parentCheck().saveAnomaly(player, anomaly);
-        user.applyAttackNerfer(AttackNerfStrategy.HT_MEDIUM);
         if (heuristicMeta.vl >= 2) {
+          user.applyAttackNerfer(AttackNerfStrategy.HT_MEDIUM);
           user.applyAttackNerfer(AttackNerfStrategy.CANCEL_FIRST_HIT);
         }
       } else if (heuristicMeta.vl > 0) {
