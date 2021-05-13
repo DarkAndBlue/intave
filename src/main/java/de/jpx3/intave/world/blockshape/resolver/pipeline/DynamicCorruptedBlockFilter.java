@@ -1,6 +1,7 @@
 package de.jpx3.intave.world.blockshape.resolver.pipeline;
 
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
+import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockshape.resolver.BoundingBoxBuilder;
 import de.jpx3.intave.world.blockshape.resolver.BoundingBoxResolvePipeline;
 import org.bukkit.Material;
@@ -29,7 +30,7 @@ public final class DynamicCorruptedBlockFilter implements BoundingBoxResolvePipe
   }
 
   public List<WrappedAxisAlignedBB> resolveCorrupted(Material type, int data) {
-    if(type == Material.SKULL) {
+    if(type == BlockTypeAccess.SKULL) {
       BoundingBoxBuilder builder = BoundingBoxBuilder.create();
       switch (data & 7) {
         case 1:
