@@ -46,7 +46,9 @@ public final class InventoryClickOnMoveCheck extends IntaveCheckPart<InventoryCl
       return;
     }
 
-    if (keyForward != 0 || keyStrafe != 0) {
+    double distanceMoved = Math.hypot(movementData.motionX(), movementData.motionZ());
+
+    if ((keyForward != 0 || keyStrafe != 0) && distanceMoved > 0.1) {
       String message = "performed inventory-click whilst walking";
       Violation violation = Violation.builderFor(InventoryClickAnalysis.class)
         .withPlayer(player)
