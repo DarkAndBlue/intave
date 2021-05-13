@@ -45,12 +45,20 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
   }
 
   public <T> void clientSynchronize(Player player, T target, TFCallback<T> callback, int options) {
-    if(TransactionOptions.matches(ENFORCE_SYNCHRONIZATION, options) && !Bukkit.isPrimaryThread()) {
-      Synchronizer.synchronize(() -> clientSynchronize(player, target, callback, options));
+    if(!Bukkit.isPrimaryThread()) {
+      if(TransactionOptions.matches(ENFORCE_SYNCHRONIZATION, options) ) {
+        Synchronizer.synchronize(() -> clientSynchronize(player, target, callback, options));
+      } else {
+        IntaveLogger.logger().error("Can't perform tick-validation off main thread.");
+        IntaveLogger.logger().error("Please check if you sent a packet / performed a bukkit player action asynchronously in the following trace:");
+        Thread.dumpStack();
+        callback.success(player, target);
+      }
       return;
     }
     if(TransactionOptions.matches(OPTIONAL, options)) {
       if(pendingTransactions(userOf(player)) > OPTIONAL_LIMIT) {
+        callback.success(player, target);
         return;
       }
     }
@@ -92,13 +100,6 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
   }
 
   private void sendTransactionPacket(Player receiver, short id) {
-    if(!Bukkit.isPrimaryThread()) {
-      IntaveLogger.logger().error("Can't perform tick-validation off main thread.");
-      IntaveLogger.logger().error("Please check if you sent a packet / performed a bukkit player action asynchronously in the following trace:");
-      Thread.dumpStack();
-      Synchronizer.synchronize(() -> sendTransactionPacket(receiver, id));
-      return;
-    }
     PacketContainer transactionPacket = protocolManager.createPacket(PacketType.Play.Server.TRANSACTION);
     transactionPacket.getIntegers().write(0, 0);
     transactionPacket.getShorts().write(0, id);

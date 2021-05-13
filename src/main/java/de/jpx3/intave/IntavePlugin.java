@@ -704,7 +704,6 @@ public final class IntavePlugin extends JavaPlugin {
     if(!workDirectory.exists()) {
       return;
     }
-
     try {
       Files.walk(workDirectory.toPath())
         .filter(Files::isRegularFile)

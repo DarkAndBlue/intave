@@ -117,26 +117,42 @@ public final class AttackDispatcher implements EventProcessor {
     }
   )
   public void filterSharpness(PacketEvent event) {
-    if (!REDUCING_DISABLED) {
-      return;
-    }
     PacketContainer packet = event.getPacket();
     ItemStack item = packet.getItemModifier().read(0).clone();
-    if (item.containsEnchantment(Enchantment.DAMAGE_ALL)) {
-      int level = item.getEnchantmentLevel(Enchantment.DAMAGE_ALL);
-      item.removeEnchantment(Enchantment.DAMAGE_ALL);
-      ItemMeta itemMeta = item.getItemMeta().clone();
-      if (!itemMeta.hasItemFlag(ItemFlag.HIDE_ENCHANTS)) {
-        List<String> lore = itemMeta.getLore() == null ? new ArrayList<>() : new ArrayList<>(itemMeta.getLore());
-        lore.add(ChatColor.GRAY + "Sharpness " + toRoman(level));
-        itemMeta.setLore(lore);
+    if (REDUCING_DISABLED) {
+      if (item.containsEnchantment(Enchantment.DAMAGE_ALL)) {
+        int level = item.getEnchantmentLevel(Enchantment.DAMAGE_ALL);
+        item.removeEnchantment(Enchantment.DAMAGE_ALL);
+        ItemMeta itemMeta = item.getItemMeta().clone();
+        if (!itemMeta.hasItemFlag(ItemFlag.HIDE_ENCHANTS)) {
+          List<String> lore = itemMeta.getLore() == null ? new ArrayList<>() : new ArrayList<>(itemMeta.getLore());
+          lore.add(ChatColor.GRAY + "Sharpness " + toRoman(level));
+          itemMeta.setLore(lore);
+        }
+        if (!itemMeta.hasEnchants()) {
+          itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+          itemMeta.addEnchant(Enchantment.DURABILITY, 0,true);
+        }
+        item.setItemMeta(itemMeta);
       }
-      if (!itemMeta.hasEnchants()) {
-        itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        itemMeta.addEnchant(Enchantment.DURABILITY, 0,true);
-      }
-      item.setItemMeta(itemMeta);
     }
+//    if(IntaveControl.GOMME_MODE) {
+//      if (item.containsEnchantment(Enchantment.KNOCKBACK)) {
+//        int level = item.getEnchantmentLevel(Enchantment.KNOCKBACK);
+//        item.removeEnchantment(Enchantment.KNOCKBACK);
+//        ItemMeta itemMeta = item.getItemMeta().clone();
+//        if (!itemMeta.hasItemFlag(ItemFlag.HIDE_ENCHANTS)) {
+//          List<String> lore = itemMeta.getLore() == null ? new ArrayList<>() : new ArrayList<>(itemMeta.getLore());
+//          lore.add(ChatColor.GRAY + "Knockback " + toRoman(level));
+//          itemMeta.setLore(lore);
+//        }
+//        if (!itemMeta.hasEnchants()) {
+//          itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+//          itemMeta.addEnchant(Enchantment.DURABILITY, 0,true);
+//        }
+//        item.setItemMeta(itemMeta);
+//      }
+//    }
     packet.getItemModifier().write(0, item);
   }
 

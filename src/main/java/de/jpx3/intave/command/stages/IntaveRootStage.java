@@ -1,6 +1,7 @@
 package de.jpx3.intave.command.stages;
 
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.command.CommandStage;
 import de.jpx3.intave.command.Optional;
 import de.jpx3.intave.command.SubCommand;
@@ -325,6 +326,36 @@ public final class IntaveRootStage extends CommandStage {
       }
     }
     return sortedMap;
+  }
+
+  @SubCommand(
+    selectors = "settrust",
+    usage = "<trustfactor> [<target>]",
+    description = "",
+    permission = "sibyl"
+  )
+  @Native
+  public void setTrustFactor(User user, TrustFactor trustFactor, @Optional Player target) {
+    if(target == null) {
+      target = user.player();
+    }
+    UserRepository.userOf(target).setTrustFactor(trustFactor);
+    user.player().sendMessage(ChatColor.GRAY + "Applied "+trustFactor.chatColor() + trustFactor.name() + ChatColor.GRAY+" trustfactor to " +ChatColor.RED + target.getName());
+  }
+
+  @SubCommand(
+    selectors = "trust",
+    usage = "[<target>]",
+    description = "",
+    permission = "sibyl"
+  )
+  @Native
+  public void lookupTrust(User user, @Optional Player target) {
+    if(target == null) {
+      target = user.player();
+    }
+    TrustFactor trustFactor = UserRepository.userOf(target).trustFactor();
+    user.player().sendMessage(ChatColor.RED + target.getName() + ChatColor.GRAY + " has a "+trustFactor.chatColor() + trustFactor.name() + ChatColor.GRAY+" trustfactor");
   }
 
   public static IntaveRootStage singletonInstance() {

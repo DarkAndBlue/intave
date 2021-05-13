@@ -5,12 +5,16 @@ import de.jpx3.intave.connect.sibyl.auth.SibylAuthentication;
 import de.jpx3.intave.connect.sibyl.data.SibylPacketTransmitter;
 import de.jpx3.intave.connect.sibyl.data.packet.SibylPacket;
 import de.jpx3.intave.connect.sibyl.data.packet.SibylPacketOutAttackCancel;
+import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
+import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.tools.annotate.Native;
+import de.jpx3.intave.tools.sync.Synchronizer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerJoinEvent;
 
-public final class SibylIntegrationService {
+public final class SibylIntegrationService implements BukkitEventSubscriber {
   private final IntavePlugin plugin;
   private final SibylAuthentication authentication;
   private final SibylPacketTransmitter packetTransmitter;
@@ -19,6 +23,7 @@ public final class SibylIntegrationService {
     this.plugin = plugin;
     this.authentication = new SibylAuthentication(plugin);
     this.packetTransmitter = new SibylPacketTransmitter(authentication);
+    this.plugin.eventLinker().registerEventsIn(this);
     broadcastRestart();
   }
 
@@ -26,6 +31,18 @@ public final class SibylIntegrationService {
   private void broadcastRestart() {
     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
       authentication.sendMessageToClient(onlinePlayer, "MC|Brand", "INTAVE", null);
+    }
+  }
+
+  @BukkitEventSubscription
+  public void on(PlayerJoinEvent join) {
+    Synchronizer.synchronizeDelayed(() -> k(join.getPlayer()), 20);
+  }
+
+  @Native
+  public void k(Player player) {
+    if(!authentication.isAuthenticated(player)) {
+      authentication.sendMessageToClient(player, "MC|Brand", "INTAVE", null);
     }
   }
 

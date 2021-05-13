@@ -3,6 +3,7 @@ package de.jpx3.intave.detect.checks.movement;
 import com.google.common.collect.ImmutableList;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.detect.CheckStatistics;
 import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
@@ -291,7 +292,7 @@ public final class Physics extends IntaveCheck {
     int keyForward = movementData.keyForward;
     int keyStrafe = movementData.keyStrafe;
 
-    boolean flying = abilityData.flying();
+    boolean flying = abilityData.flying() || abilityData.allowFlying();
     String key = resolveKeysFromInput(keyForward, keyStrafe);
 
     double receivedMotionX = movementData.motionX();
@@ -484,6 +485,12 @@ public final class Physics extends IntaveCheck {
 
       boolean overrideSetbackSuggestion = violationLevelData.physicsVL > trustFactorSetting("pa-override-threshold", player);
       boolean setback = violationContext.shouldCounterThreat() || overrideSetbackSuggestion;
+
+      // to limit the worst
+      if(distance > 1 && !user.trustFactor().atLeast(TrustFactor.BYPASS)) {
+        setback = true;
+      }
+
       if (setback) {
         int setbackTicks;
         if (movementData.pastExternalVelocity <= 8) {

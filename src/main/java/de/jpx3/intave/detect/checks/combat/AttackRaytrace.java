@@ -164,6 +164,9 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
   }
 
   private boolean validReach(Player player, WrappedEntity entity) {
+    if(entity == null) {
+      return false;
+    }
     User user = UserRepository.userOf(player);
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
