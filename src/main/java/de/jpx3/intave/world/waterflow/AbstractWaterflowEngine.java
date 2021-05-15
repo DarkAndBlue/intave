@@ -76,18 +76,15 @@ public abstract class AbstractWaterflowEngine {
   public boolean areEyesInFluid(User user, double positionX, double positionY, double positionZ) {
     UserMetaMovementData movementData = user.meta().movementData();
     double eyeHeight = movementData.eyeHeight();
-    positionY -= 1;
-    double playerViewPositionY = positionY + eyeHeight;
+    double playerViewPositionY = positionY + eyeHeight - 0.2f;
     int blockPlayerViewPositionY = WrappedMathHelper.floor(playerViewPositionY);
     int blockX = WrappedMathHelper.floor(positionX);
-    int blockY = WrappedMathHelper.floor(positionY);
     int blockZ = WrappedMathHelper.floor(positionZ);
     Object blockPosition = blockPositionOf(blockX, blockPlayerViewPositionY, blockZ);
     Object fluidState = fluidState(user, blockPosition);
-    return fluidTaggedWithWater(fluidState)
-//      && blockPlayerViewPositionY < blockY + fluidHeight(fluidState) + 0.11111111F
-      ;
+    return fluidTaggedWithWater(fluidState);
   }
+
   protected abstract boolean fluidTaggedWithWater(Object fluidState);
   protected abstract Object blockPositionOf(int x, int y, int z);
   protected abstract Object fluidState(User user, Object blockPosition);
