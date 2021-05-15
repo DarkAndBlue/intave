@@ -9,6 +9,7 @@ import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.event.packet.*;
 import de.jpx3.intave.fakeplayer.FakePlayer;
+import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.reflect.hitbox.HitBoxBoundaries;
 import de.jpx3.intave.reflect.hitbox.typeaccess.EntityTypeData;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
@@ -398,12 +399,12 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     PacketContainer packet = event.getPacket();
-    Integer entityID = packet.getIntegers().read(0);
-    if (player.getEntityId() == entityID) {
+    Integer entityId = packet.getIntegers().read(0);
+    if (player.getEntityId() == entityId) {
       synchronizePlayerHealth(player, packet);
       return;
     }
-    WrappedEntity entity = entityByIdentifier(user, entityID);
+    WrappedEntity entity = entityByIdentifier(user, entityId);
     if (entity == null) {
       return;
     }
@@ -412,8 +413,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     }
 
     List<WrappedWatchableObject> watchableObjects = packet.getWatchableCollectionModifier().read(0);
-
-    Boolean isChild = isChildByWatchableObjects(watchableObjects);
+    Boolean isChild = isChildByWatchableObjects(watchableObjects, entity, player);
     if (isChild != null) {
       EntityTypeData entityTypeData = entityTypeResolver.entityTypeDataOfEntityMetaData(event, isChild, entity.entityTypeData.entityTypeId());
       entity.entityTypeData = entityTypeData;
@@ -454,47 +454,49 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     return null;
   }
 
-  private Boolean isChildByWatchableObjects(List<WrappedWatchableObject> watchableObjects) {
+  private Boolean isChildByWatchableObjects(List<WrappedWatchableObject> watchableObjects, WrappedEntity entity, Player player) {
+    final int correctIndex;
+    if (NEW_POSITION_PROCESSING_1_9) {
+      if (HEALTH_PROCESSING_1_10) {
+        if(HEALTH_PROCESSING_1_14) {
+          if(AGE_PROCESSING_1_15) {
+            // 1.15+
+            correctIndex = 15;
+          } else {
+            // 1.14+
+            correctIndex = 14;
+          }
+        } else {
+          // 1.10+
+          correctIndex = 12;
+        }
+      } else {
+        // 1.9
+        correctIndex = 11;
+      }
+    } else {
+      // 1.8
+      correctIndex = 12;
+    }
+
     for (WrappedWatchableObject watchableObject : watchableObjects) {
       int index = watchableObject.getIndex();
       Object object = watchableObject.getRawValue();
-//      Bukkit.broadcastMessage("" + index + " " + object);
 
-      if (NEW_POSITION_PROCESSING_1_9) {
-        if (HEALTH_PROCESSING_1_10) {
-          if(HEALTH_PROCESSING_1_14) {
-            if(AGE_PROCESSING_1_15) {
-              // 1.15+
-              if (index == 15) {
-                Boolean isChild = (Boolean) object;
-                return isChild;
-              }
-            } else {
-              // 1.14+
-              if (index == 14) {
-                Boolean isChild = (Boolean) object;
-                return isChild;
-              }
-            }
-          } else {
-            // 1.10+
-            if (index == 12) {
-              Boolean isChild = (Boolean) object;
-              return isChild;
-            }
-          }
-        } else {
-          // 1.9
-          if (index == 11) {
-            Boolean isChild = (Boolean) object;
-            return isChild;
-          }
-        }
-      } else {
-        // 1.8
-        if (index == 12) {
+      if(index == correctIndex) {
+        Entity serverEntity = serverEntityByIdentifier(player, entity.entityId());
+        if(serverEntity != null)
+          player.teleport(serverEntity);
+
+        if(object instanceof Integer) {
+          Boolean isChild = (Boolean) object;
+          return isChild;
+        } else if(object instanceof Byte) {
           byte isChild = (byte) object;
           return isChild < 0;
+        } else {
+          IntaveLogger.logger().info("Failed to read EntityMetaData packet");
+          return null;
         }
       }
     }
