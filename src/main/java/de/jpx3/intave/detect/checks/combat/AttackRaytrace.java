@@ -201,14 +201,15 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     UserMetaMovementData movementData = user.meta().movementData();
     Player player = user.player();
     double blockReachDistance = Raytracer.reachDistance(player.getGameMode() == GameMode.CREATIVE);
+    float rotationYaw = movementData.rotationYaw % 360;
 
     // mouse delay fix
     Raytracer.EntityInteractionRaytrace distanceOfResult = Raytracer.distanceOfCombo(
       player,
       entity, true,
       movementData.positionX, movementData.positionY, movementData.positionZ,
-      movementData.rotationYaw,
-      movementData.rotationYaw, movementData.rotationPitch,
+      rotationYaw,
+      rotationYaw, movementData.rotationPitch,
       0.1f,
       false
     );
@@ -231,14 +232,16 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     double blockReachDistance = Raytracer.reachDistance(player.getGameMode() == GameMode.CREATIVE);
     boolean alternativePositionY = clientData.protocolVersion() == UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
     boolean hasAlwaysMouseDelayFix = clientData.protocolVersion() >= 314;
+    float rotationYaw = movementData.rotationYaw % 360f;
+    float lastRotationYaw = movementData.lastRotationYaw % 360f;
 
     // mouse delay fix
     Raytracer.EntityInteractionRaytrace distanceOfResult = Raytracer.distanceOfCombo(
       player,
       entity, alternativePositionY,
       movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ,
-      movementData.lastRotationYaw,
-      movementData.rotationYaw, movementData.rotationPitch,
+      lastRotationYaw,
+      rotationYaw, movementData.rotationPitch,
       expandHitbox,
       !hasAlwaysMouseDelayFix
     );
@@ -389,9 +392,8 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     UserMetaClientData clientData = meta.clientData();
     boolean alternativePositionY = clientData.protocolVersion() == UserMetaClientData.PROTOCOL_VERSION_BOUNTIFUL_UPDATE;
     UserMetaMovementData movementData = meta.movementData();
-    float rotationYaw = movementData.rotationYaw;
-    float lastRotationYaw = movementData.lastRotationYaw;
-    float rotationPitch = movementData.rotationPitch;
+    float rotationYaw = movementData.rotationYaw % 360;
+    float lastRotationYaw = movementData.lastRotationYaw % 360;
     double blockReachDistance = Raytracer.reachDistance(player.getGameMode() == GameMode.CREATIVE);
 
     double minReach = 10;
@@ -405,7 +407,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
         alternativePositionY,
         movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ,
         lastRotationYaw,
-        rotationYaw, rotationPitch,
+        rotationYaw, movementData.rotationPitch,
         0.13f,
         !hasAlwaysMouseDelayFix
       );
@@ -422,7 +424,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
           alternativePositionY,
           movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ,
           lastRotationYaw,
-          rotationYaw, rotationPitch,
+          rotationYaw, movementData.rotationPitch,
           0.13f,
           !hasAlwaysMouseDelayFix
         );
