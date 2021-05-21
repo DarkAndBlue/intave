@@ -102,7 +102,7 @@ public class Timing implements Cloneable, Comparable<Timing> {
     return (totalDurationMillis()) / (double) Math.max(1, recordedCalls());
   }
 
-  public double getDurationComparedToTick() {
+  public double durationInTicks() {
     return averageCallDurationInMillis() / 50;
   }
 
