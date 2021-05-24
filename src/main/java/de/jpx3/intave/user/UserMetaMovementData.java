@@ -344,7 +344,7 @@ public final class UserMetaMovementData {
       return true;
     }
     int trustFactorSetting = user.trustFactorSetting("physics.joap-limit");
-    return pastVelocity == 0 && lastVelocityApplicableForJumpDenial() && physicsJumpedOverrideVL >= trustFactorSetting;
+    return pastVelocity == 0 && sprinting && lastVelocityApplicableForJumpDenial() && physicsJumpedOverrideVL >= trustFactorSetting;
   }
 
   public boolean lastVelocityApplicableForJumpDenial() {
