@@ -125,7 +125,7 @@ public class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics, SameR
     // Guckt ob die rotation die ein Spieler hat schon mal zuvor gesendet wurde wärend der Spieler sich schnell gedreht hat
     boolean containedPitch = meta.pitchRotations.contains(meta.lastTick.pitch);
 
-    if(containedPitch) {
+    if(containedPitch && Math.abs(meta.lastTick.pitch) != 90) {
       String description = "same Rotation (Pitch:" + meta.lastTick.pitch + ", PitchMotion:" + MathHelper.formatDouble(meta.lastTick.pitchMotion, 2) + ")";
       Anomaly anomaly = Anomaly.anomalyOf("181", Confidence.NONE, Anomaly.Type.KILLAURA, description, getOptions(true));
       parentCheck().saveAnomaly(player, anomaly);
