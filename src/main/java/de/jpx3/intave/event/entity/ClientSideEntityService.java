@@ -366,7 +366,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     EntityTypeData entityTypeData
   ) {
     WrappedEntity entity;
-    if (entityTypeData.entityName().equals("Firework")) {
+    if (entityTypeData.entityName() != null && entityTypeData.entityName().equals("Firework")) {
       entity = new WrappedEntityFirework(user, entityId, entityTypeData);
     } else {
       entity = new WrappedEntity(entityId, entityTypeData, isEntityLiving);
