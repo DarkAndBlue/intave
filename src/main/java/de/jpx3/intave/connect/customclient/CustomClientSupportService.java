@@ -16,7 +16,10 @@ import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.Sender;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserMetaConnectionData;
 import de.jpx3.intave.user.UserRepository;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -73,11 +76,16 @@ public final class CustomClientSupportService implements EventProcessor {
       bytes.markReaderIndex();
       String messageKey = LabyModChannelHelper.readString(bytes, 100);
       if (messageKey.equalsIgnoreCase("clientconfig")) {
-        IntaveLogger.logger().pushPrintln("[Intave] " + player.getName() + " has sent a custom client configuration (client has special Intave support)");
+        User user = UserRepository.userOf(player);
+        UserMetaConnectionData connectionData = user.meta().connectionData();
+        if (AccessHelper.now() - connectionData.lastCCCInfoMessageSent > 4000) {
+          IntaveLogger.logger().pushPrintln("[Intave] " + player.getName() + " has sent a custom client configuration (client has special Intave support)");
+          connectionData.lastCCCInfoMessageSent = AccessHelper.now();
+        }
         String messageContent = LabyModChannelHelper.readString(bytes, 32767);
         JsonElement jsonElement = jsonParser.parse(messageContent);
         CustomClientSupport customClientSupport = CustomClientSupport.createFrom(jsonElement);
-        UserRepository.userOf(player).setCustomClientSupport(customClientSupport);
+        user.setCustomClientSupport(customClientSupport);
         sendCustomDataPacket(player, "clientconfig","received");
       }
     } catch (RuntimeException exception) {

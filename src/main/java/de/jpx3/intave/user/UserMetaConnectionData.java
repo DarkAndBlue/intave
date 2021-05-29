@@ -17,7 +17,7 @@ public final class UserMetaConnectionData {
   private final Map<Integer, WrappedEntity> synchronizedEntityMap = Maps.newConcurrentMap();
   private final Map<Long, Long> remainingPingPacketTimestamps = Maps.newConcurrentMap();
   private final List<Long> latencyDifferenceBalance = Lists.newCopyOnWriteArrayList();
-
+  public long lastCCCInfoMessageSent = 0;
   public boolean sendAsyncMessage = false;
 
   // Client Synchronization

@@ -37,7 +37,7 @@ public final class UserMetaClientData {
     if (protocolVersion < 0)
       return "1.0";
     if (protocolVersion <= 47)
-      return "1.8";
+      return "1.8.8";
     if (protocolVersion <= 107)
       return "1.9";
     if (protocolVersion <= 108)
