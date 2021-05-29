@@ -24,11 +24,14 @@ import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.update.Version;
 import de.jpx3.intave.user.UserRepositoryEventListener;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 
 public final class EventService implements BukkitEventSubscriber {
   private final static boolean DISABLE_ENTITY_COLLISIONS = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
@@ -100,6 +103,13 @@ public final class EventService implements BukkitEventSubscriber {
       String pluginClass = pluginInvocation == null ? "no other plugin" : pluginInvocation.className();
       teleport.getPlayer().sendMessage("Teleport " + teleport.getCause() + " " + teleport.getTo() + " by " + pluginClass);
     }
+  }
+
+  @BukkitEventSubscription
+  public void on(WorldUnloadEvent unloadEvent) {
+    World world = unloadEvent.getWorld();
+    GarbageCollector.clearIf(o -> o.equals(world));
+    GarbageCollector.clearIf(o -> o instanceof Location && ((Location) o).getWorld().equals(world));
   }
 
   @BukkitEventSubscription

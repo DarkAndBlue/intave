@@ -2,10 +2,7 @@ package de.jpx3.intave.detect.checks.world;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.IntaveCheck;
-import de.jpx3.intave.detect.checks.world.placementanalysis.PlacementFacingAnalyzer;
-import de.jpx3.intave.detect.checks.world.placementanalysis.PlacementPacketOrderAnalyzer;
-import de.jpx3.intave.detect.checks.world.placementanalysis.PlacementRotationSpeedAnalyzer;
-import de.jpx3.intave.detect.checks.world.placementanalysis.PlacementSpeedAnalyzer;
+import de.jpx3.intave.detect.checks.world.placementanalysis.*;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.user.User;
@@ -28,6 +25,7 @@ public final class PlacementAnalysis extends IntaveCheck {
     if (enterprise || partner) {
       appendCheckPart(new PlacementSpeedAnalyzer(this));
       appendCheckPart(new PlacementRotationSpeedAnalyzer(this));
+      appendCheckPart(new PlacementSneakAnalyzer(this));
     }
     appendCheckPart(new PlacementPacketOrderAnalyzer(this));
     appendCheckPart(new PlacementFacingAnalyzer(this));
