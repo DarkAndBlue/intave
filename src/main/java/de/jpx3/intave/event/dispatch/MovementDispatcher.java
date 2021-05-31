@@ -204,6 +204,7 @@ public final class MovementDispatcher implements EventProcessor {
     UserMetaAttackData attackData = meta.attackData();
     UserMetaInventoryData inventoryData = meta.inventoryData();
     UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
+    UserMetaConnectionData connectionData = meta.connectionData();
 
     PacketType packetType = event.getPacketType();
     boolean vehicleMove = packetType == PacketType.Play.Client.VEHICLE_MOVE;
@@ -211,6 +212,7 @@ public final class MovementDispatcher implements EventProcessor {
     boolean hasMovement = vehicleMove || packet.getBooleans().read(1);
     boolean hasRotation = vehicleMove || packet.getBooleans().read(2);
 
+    connectionData.receiveMovement();
     movementData.updateMovement(packet, hasMovement, hasRotation);
     teleportApplyEnforcer.receiveMovement(event);
 

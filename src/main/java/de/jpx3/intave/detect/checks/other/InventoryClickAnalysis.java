@@ -6,6 +6,7 @@ import de.jpx3.intave.detect.IntaveCheck;
 import de.jpx3.intave.detect.checks.other.inventoryclickanalysis.InventoryClickDelayAnalyzer;
 import de.jpx3.intave.detect.checks.other.inventoryclickanalysis.InventoryClickNotOpenCheck;
 import de.jpx3.intave.detect.checks.other.inventoryclickanalysis.InventoryClickOnMoveCheck;
+import de.jpx3.intave.detect.checks.other.inventoryclickanalysis.InventoryClickPacketDelayAnalyzer;
 
 public final class InventoryClickAnalysis extends IntaveCheck {
   public final static double MAX_VL_DECREMENT_PER_SECOND = 1;
@@ -23,6 +24,7 @@ public final class InventoryClickAnalysis extends IntaveCheck {
     appendCheckPart(new InventoryClickOnMoveCheck(this));
     appendCheckPart(new InventoryClickNotOpenCheck(this));
     appendCheckPart(new InventoryClickDelayAnalyzer(this));
+    appendCheckPart(new InventoryClickPacketDelayAnalyzer(this));
   }
 
   public CheckViolationLevelDecrementer decrementer() {
