@@ -4,8 +4,8 @@ import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
-import de.jpx3.intave.world.blockphysics.BlockClimbableRepository;
-import de.jpx3.intave.world.blockphysics.BlockSlipperinessRepository;
+import de.jpx3.intave.world.blockphysics.BlockSlipperiness;
+import de.jpx3.intave.world.blockphysics.ClimbableBlocks;
 import de.jpx3.intave.world.collision.Collision;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,7 +20,7 @@ import org.bukkit.material.Openable;
 
 import java.util.List;
 
-public final class MovementContextHelper {
+public final class MovementContext {
   public static double jumpMotionFor(Player player, float jumpUpwardsMotion) {
     User user = UserRepository.userOf(player);
     UserMetaPotionData potionData = user.meta().potionData();
@@ -42,7 +42,7 @@ public final class MovementContextHelper {
         WrappedMathHelper.floor(positionY - movementData.frictionPosSubtraction()),
         WrappedMathHelper.floor(positionZ)
       );
-      float slipperiness = resolveSlipperiness(user, location);
+      float slipperiness = currentSlipperiness(user, location);
       float var4 = 0.16277136f / (slipperiness * slipperiness * slipperiness);
       speed = movementData.aiMoveSpeed() * var4;
     } else {
@@ -51,9 +51,9 @@ public final class MovementContextHelper {
     return speed;
   }
 
-  public static float resolveSlipperiness(User user, Location location) {
+  public static float currentSlipperiness(User user, Location location) {
     Material type = BukkitBlockAccess.cacheAppliedTypeAccess(user, location);
-    return BlockSlipperinessRepository.resolveSlipperinessOf(type) * 0.91f;
+    return BlockSlipperiness.ofType(type) * 0.91f;
   }
 
   public static boolean isOffsetPositionInLiquid(
@@ -80,7 +80,7 @@ public final class MovementContextHelper {
       for (int y = minY; y <= maxY; ++y) {
         for (int z = minZ; z <= maxZ; ++z) {
           Material material = BukkitBlockAccess.blockAccess(world, x, y, z).getType();
-          if (MaterialLogic.isLiquid(material)) {
+          if (SpecialMaterials.isLiquid(material)) {
             return true;
           }
         }
@@ -100,7 +100,7 @@ public final class MovementContextHelper {
       for (int y = minY; y <= maxY; ++y) {
         for (int z = minZ; z <= maxZ; ++z) {
           Material material = BukkitBlockAccess.blockAccess(world, x, y, z).getType();
-          if (!MaterialLogic.isLiquid(material)) {
+          if (!SpecialMaterials.isLiquid(material)) {
             return false;
           }
         }
@@ -119,7 +119,7 @@ public final class MovementContextHelper {
     for (int x = minX; x < maxX; ++x) {
       for (int y = minY; y < maxY; ++y) {
         for (int z = minZ; z < maxZ; ++z) {
-          if (MaterialLogic.isLava(BukkitBlockAccess.blockAccess(world, x, y, z).getType())) {
+          if (SpecialMaterials.isLava(BukkitBlockAccess.blockAccess(world, x, y, z).getType())) {
             return true;
           }
         }
@@ -141,7 +141,7 @@ public final class MovementContextHelper {
     if (clientData.combatUpdate() && type.name().contains("TRAP_DOOR") && canGoThroughTrapDoorOnLadder(block)) {
       return true;
     }
-    return BlockClimbableRepository.isClimbable(type);
+    return ClimbableBlocks.canBeClimbed(type);
   }
 
   private static boolean canGoThroughTrapDoorOnLadder(Block block) {

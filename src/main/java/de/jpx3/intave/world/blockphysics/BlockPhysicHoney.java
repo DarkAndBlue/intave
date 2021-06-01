@@ -10,7 +10,7 @@ import org.bukkit.util.Vector;
 
 import java.util.List;
 
-public final class BlockPhysicHoney implements BlockPhysic {
+final class BlockPhysicHoney implements BlockPhysic {
   private Material honeyBlock;
 
   @Override

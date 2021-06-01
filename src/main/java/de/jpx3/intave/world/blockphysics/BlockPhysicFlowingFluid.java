@@ -6,8 +6,8 @@ import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaClientData;
 import de.jpx3.intave.user.UserMetaMovementData;
-import de.jpx3.intave.world.fluid.Fluid;
 import de.jpx3.intave.world.fluid.FluidTag;
+import de.jpx3.intave.world.fluid.Fluids;
 import de.jpx3.intave.world.fluid.WrappedFluid;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,7 +16,7 @@ import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class BlockPhysicFlowingFluid implements BlockPhysic {
+final class BlockPhysicFlowingFluid implements BlockPhysic {
   private List<Material> materials;
 
   @Override
@@ -35,7 +35,7 @@ public final class BlockPhysicFlowingFluid implements BlockPhysic {
     UserMetaClientData clientData = user.meta().clientData();
     if (clientData.waterUpdate()) {
       UserMetaMovementData movementData = user.meta().movementData();
-      WrappedFluid fluid = Fluid.fluidAt(user, location.getX(), location.getY(), location.getZ());
+      WrappedFluid fluid = Fluids.fluidAt(user, location);
       if (fluid.isIn(FluidTag.LAVA)) {
         float f = (float) location.getY() + fluid.height();
         WrappedAxisAlignedBB boundingBox = movementData.boundingBox();

@@ -5,7 +5,7 @@ import org.bukkit.Material;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class BlockSlipperinessRepository {
+public final class BlockSlipperiness {
   private static final Map<Material, Float> registry = new HashMap<>();
 
   public static void setup() {
@@ -18,7 +18,7 @@ public final class BlockSlipperinessRepository {
     tryRegister("FROSTED_ICE", 0.98F);
   }
 
-  public static float resolveSlipperinessOf(Material material) {
+  public static float ofType(Material material) {
     Float slipperiness = registry.get(material);
     return slipperiness == null ? 0.6f : slipperiness;
   }

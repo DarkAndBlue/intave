@@ -1,12 +1,13 @@
 package de.jpx3.intave.world.fluid.resolver;
 
-import de.jpx3.intave.tools.client.MaterialLogic;
+import de.jpx3.intave.tools.client.SpecialMaterials;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedBlockPosition;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.fluid.FluidEngine;
 import de.jpx3.intave.world.fluid.FluidTag;
@@ -21,12 +22,12 @@ public final class v12FluidResolver extends FluidEngine {
   @Override
   protected WrappedFluid fluidAt(User user, int x, int y, int z) {
     Block block = BukkitBlockAccess.blockAccess(user.player().getWorld(), x, y, z);
-    float height = LegacyWaterflow.resolveLiquidHeightPercentage(block.getData());
+    float height = LegacyWaterflow.resolveLiquidHeightPercentage(BlockDataAccess.dataIndexOf(block));
     Material type = block.getType();
     FluidTag fluidTag = FluidTag.EMPTY;
-    if (MaterialLogic.isWater(type)) {
+    if (SpecialMaterials.isWater(type)) {
       fluidTag = FluidTag.WATER;
-    } else if (MaterialLogic.isLava(type)) {
+    } else if (SpecialMaterials.isLava(type)) {
       fluidTag = FluidTag.LAVA;
     }
     return WrappedFluid.construct(fluidTag, height);
@@ -61,8 +62,8 @@ public final class v12FluidResolver extends FluidEngine {
         for (int z = minZ; z < maxZ; ++z) {
           Block block = BukkitBlockAccess.blockAccess(world, x, y, z);
           Material clientSideBlock = BukkitBlockAccess.cacheAppliedTypeAccess(user, world, x, y, z);
-          boolean waterServerSide = MaterialLogic.isWater(block.getType());
-          boolean waterClientSide = MaterialLogic.isWater(clientSideBlock);
+          boolean waterServerSide = SpecialMaterials.isWater(block.getType());
+          boolean waterClientSide = SpecialMaterials.isWater(clientSideBlock);
           if (waterServerSide) {
             double height = 1 - LegacyWaterflow.resolveLiquidHeightPercentage(block.getData());
             double d1 = (float) y + height;

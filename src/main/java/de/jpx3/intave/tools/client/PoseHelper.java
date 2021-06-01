@@ -13,6 +13,7 @@ import static de.jpx3.intave.user.UserMetaClientData.PROTOCOL_VERSION_AQUATIC_UP
 public final class PoseHelper {
   private final static boolean ELYTRA_ENABLED = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
 
+  @Deprecated
   public static boolean flyingWithElytra(Player player) {
     return ELYTRA_ENABLED && player.isGliding(); // TODO: 05/23/21 isGliding is not properly synchronized
   }

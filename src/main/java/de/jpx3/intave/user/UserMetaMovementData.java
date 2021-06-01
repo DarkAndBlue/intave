@@ -193,7 +193,7 @@ public final class UserMetaMovementData {
       setupDefaults();
     }
 
-    jumpMotion = MovementContextHelper.jumpMotionFor(player, jumpUpwardsMotion());
+    jumpMotion = MovementContext.jumpMotionFor(player, jumpUpwardsMotion());
     lastPositionX = positionX;
     lastPositionY = positionY;
     lastPositionZ = positionZ;
@@ -209,7 +209,7 @@ public final class UserMetaMovementData {
       motionZ = positionZ - verifiedPositionZ;
 
       swimming = PoseHelper.isSwimming(player);
-      elytraFlying = PoseHelper.flyingWithElytra(player);
+//      elytraFlying = PoseHelper.flyingWithElytra(player);
       boolean falling = motionY() <= 0.0D;
       if (falling && EffectLogic.isPotionSlowFallingActive(player)) {
         artificialFallDistance = 0f;
@@ -231,6 +231,10 @@ public final class UserMetaMovementData {
       lookVector = RotationHelper.vectorForRotation(rotationPitch, rotationYaw);
       yawSine = SinusCache.sin(rotationYaw * (float) Math.PI / 180.0F, false);
       yawCosine = SinusCache.cos(rotationYaw * (float) Math.PI / 180.0F, false);
+    }
+    // I could not find a better solution :(
+    if(elytraFlying && onGround) {
+      elytraFlying = false;
     }
     updateEntityMovement();
   }
@@ -308,7 +312,7 @@ public final class UserMetaMovementData {
     if (abilityData.flying()) {
       this.jumpMovementFactor = abilityData.flySpeed() * (float) (lastSprinting ? 2 : 1);
     }
-    friction = MovementContextHelper.resolveFriction(user, verifiedPositionX, verifiedPositionY, verifiedPositionZ);
+    friction = MovementContext.resolveFriction(user, verifiedPositionX, verifiedPositionY, verifiedPositionZ);
   }
 
   private void updateEntityActionStates() {
@@ -344,7 +348,7 @@ public final class UserMetaMovementData {
         -0.4000000059604645D,
         -0.1f
       );
-      return MovementContextHelper.isLavaInBB(player.getWorld(), lavaBoundingBox);
+      return MovementContext.isLavaInBB(player.getWorld(), lavaBoundingBox);
     }
   }
 
@@ -448,12 +452,12 @@ public final class UserMetaMovementData {
   // Override on vehicle movement
   public void setJumpMovementFactor(float jumpMovementFactor) {
     this.jumpMovementFactor = jumpMovementFactor;
-    friction = MovementContextHelper.resolveFriction(user, verifiedPositionX, verifiedPositionY, verifiedPositionZ);
+    friction = MovementContext.resolveFriction(user, verifiedPositionX, verifiedPositionY, verifiedPositionZ);
   }
 
   public void setAiMoveSpeed(float aiMoveSpeed) {
     this.aiMoveSpeed = aiMoveSpeed;
-    friction = MovementContextHelper.resolveFriction(user, verifiedPositionX, verifiedPositionY, verifiedPositionZ);
+    friction = MovementContext.resolveFriction(user, verifiedPositionX, verifiedPositionY, verifiedPositionZ);
   }
 
   public int pastFlyingPacketAccurate() {

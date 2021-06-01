@@ -3,9 +3,8 @@ package de.jpx3.intave.detect.checks.movement.physics.simulators;
 import de.jpx3.intave.detect.checks.movement.physics.MotionVector;
 import de.jpx3.intave.detect.checks.movement.physics.PoseSimulator;
 import de.jpx3.intave.tools.client.EffectLogic;
-import de.jpx3.intave.tools.client.MaterialLogic;
-import de.jpx3.intave.tools.client.MovementContextHelper;
-import de.jpx3.intave.tools.client.PoseHelper;
+import de.jpx3.intave.tools.client.MovementContext;
+import de.jpx3.intave.tools.client.SpecialMaterials;
 import de.jpx3.intave.tools.items.PlayerEnchantmentHelper;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
@@ -18,7 +17,7 @@ import de.jpx3.intave.world.blockphysics.BlockPhysics;
 import de.jpx3.intave.world.collider.Collider;
 import de.jpx3.intave.world.collider.result.ComplexColliderSimulationResult;
 import de.jpx3.intave.world.collider.result.QuickColliderSimulationResult;
-import de.jpx3.intave.world.fluid.Fluid;
+import de.jpx3.intave.world.fluid.Fluids;
 import de.jpx3.intave.world.fluid.LegacyWaterflow;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -77,7 +76,7 @@ public class DefaultPoseSimulator extends PoseSimulator {
         float heightPercentage = LegacyWaterflow.resolveLiquidHeightPercentage(blockData);
         if (movementData.onGround) {
           heightPercentage += movementData.positionY % 1;
-          allowJumpInWater = !MaterialLogic.isWater(material) || heightPercentage > 0.5;
+          allowJumpInWater = !SpecialMaterials.isWater(material) || heightPercentage > 0.5;
         }
       }
       if (inWater && !allowJumpInWater) {
@@ -96,7 +95,7 @@ public class DefaultPoseSimulator extends PoseSimulator {
     if (waterUpdate && swimming) {
       double d3 = movementData.lookVector.getY();
       double d4 = d3 < -0.2D ? 0.085D : 0.06D;
-      boolean fluidStateEmpty = Fluid.fluidStateEmpty(user, positionX, positionY + 1.0 - 0.1, positionZ);
+      boolean fluidStateEmpty = Fluids.fluidStateEmpty(user, positionX, positionY + 1.0 - 0.1, positionZ);
       if (d3 <= 0.0D || jumped || !fluidStateEmpty) {
         context.motionY += (d3 - context.motionY) * d4;
       }
@@ -169,7 +168,7 @@ public class DefaultPoseSimulator extends PoseSimulator {
   ) {
     UserMetaMovementData movementData = user.meta().movementData();
     performRelativeMoveSimulationOfState(context, movementData.friction(), yawSine, yawCosine, moveForward, moveStrafe);
-    if (MovementContextHelper.isOnLadder(user, movementData.verifiedPositionX, movementData.verifiedPositionY, movementData.verifiedPositionZ)) {
+    if (MovementContext.isOnLadder(user, movementData.verifiedPositionX, movementData.verifiedPositionY, movementData.verifiedPositionZ)) {
       float f6 = 0.15F;
       context.motionX = WrappedMathHelper.clamp_double(context.motionX, -f6, f6);
       context.motionZ = WrappedMathHelper.clamp_double(context.motionZ, -f6, f6);
@@ -208,7 +207,7 @@ public class DefaultPoseSimulator extends PoseSimulator {
 
     boolean onGround;
     Location location = new Location(player.getWorld(), positionX, positionY, positionZ);
-    double slipperiness = movementData.lastOnGround ? MovementContextHelper.resolveSlipperiness(user, location) : 0.91f;
+    double slipperiness = movementData.lastOnGround ? MovementContext.currentSlipperiness(user, location) : 0.91f;
     double resetMotion = movementData.resetMotion();
     double jumpUpwardsMotion = movementData.jumpMotion();
 
@@ -323,7 +322,7 @@ public class DefaultPoseSimulator extends PoseSimulator {
     MotionVector motionVector = movementData.motionVector;
     motionVector.reset(motionX, motionY, motionZ);
 
-    boolean elytraFlying = PoseHelper.flyingWithElytra(player);
+    boolean elytraFlying = movementData.elytraFlying;//PoseHelper.flyingWithElytra(player);
     boolean inWater = movementData.inWater;
     boolean inLava = movementData.inLava();
     boolean collidedHorizontally = movementData.collidedHorizontally;
@@ -334,7 +333,7 @@ public class DefaultPoseSimulator extends PoseSimulator {
       double blockPositionY = WrappedMathHelper.floor(movementData.verifiedPositionY - movementData.frictionPosSubtraction());
       double blockPositionZ = WrappedMathHelper.floor(movementData.verifiedPositionZ);
       Location blockBelow = new Location(world, blockPositionX, blockPositionY, blockPositionZ);
-      slipperiness = MovementContextHelper.resolveSlipperiness(user, blockBelow);
+      slipperiness = MovementContext.currentSlipperiness(user, blockBelow);
     } else {
       slipperiness = 0.91f;
     }
@@ -549,7 +548,7 @@ public class DefaultPoseSimulator extends PoseSimulator {
     context.motionY *= 0.5D;
     context.motionZ *= 0.5D;
     context.motionY -= 0.02D;
-    boolean offsetPositionInLiquid = MovementContextHelper.isOffsetPositionInLiquid(
+    boolean offsetPositionInLiquid = MovementContext.isOffsetPositionInLiquid(
       player, boundingBox,
       context.motionX,
       context.motionY + 0.6f - positionY + movementData.verifiedPositionY,

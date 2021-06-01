@@ -2,7 +2,7 @@ package de.jpx3.intave.world.collision;
 
 import de.jpx3.intave.tools.annotate.DoNotFlowObfuscate;
 import de.jpx3.intave.tools.annotate.Relocate;
-import de.jpx3.intave.tools.client.MaterialLogic;
+import de.jpx3.intave.tools.client.SpecialMaterials;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
@@ -225,7 +225,7 @@ public final class Collision {
         for (int z = minZ; z <= maxZ; z++) {
           Block block = BukkitBlockAccess.blockAccess(world, x, y, z);
           Material type = block.getType();
-          if (!MaterialLogic.isLiquid(type) && block.getType() != Material.AIR) {
+          if (!SpecialMaterials.isLiquid(type) && block.getType() != Material.AIR) {
             return true;
           }
         }

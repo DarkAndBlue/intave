@@ -4,8 +4,8 @@ import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaClientData;
 import de.jpx3.intave.user.UserMetaMovementData;
-import de.jpx3.intave.world.fluid.Fluid;
 import de.jpx3.intave.world.fluid.FluidTag;
+import de.jpx3.intave.world.fluid.Fluids;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -14,7 +14,7 @@ import org.bukkit.util.Vector;
 import java.util.Collections;
 import java.util.List;
 
-public final class BlockPhysicBubbleColumn implements BlockPhysic {
+final class BlockPhysicBubbleColumn implements BlockPhysic {
   private Material bubbleColumnBlock;
 
   @Override
@@ -31,7 +31,7 @@ public final class BlockPhysicBubbleColumn implements BlockPhysic {
   public Vector entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
     UserMetaClientData clientData = user.meta().clientData();
     if (clientData.waterUpdate()) {
-      boolean water = Fluid.fluidAt(user, location.getX(), location.getY() + 1, location.getZ()).isIn(FluidTag.WATER);
+      boolean water = Fluids.fluidAt(user, location.clone().add(0,1,0)).isIn(FluidTag.WATER);
       Block block = location.getBlock();
       boolean downwards = block.toString().contains("drag=true");
       if (water) {

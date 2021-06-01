@@ -111,7 +111,6 @@ public final class BlockDataAccess {
     } catch (NoSuchMethodException exception) {
       throw new IntaveInternalException(exception);
     }
-
     for (Material material : Material.values()) {
       try {
         if ((boolean) isLegacy.invoke(material)) {
@@ -120,7 +119,6 @@ public final class BlockDataAccess {
       } catch (Exception exception) {
         exception.printStackTrace();
       }
-
       try {
         if (material.isBlock() && (boolean) isInteractable.invoke(material)) {
           clickableMaterials.add(material);

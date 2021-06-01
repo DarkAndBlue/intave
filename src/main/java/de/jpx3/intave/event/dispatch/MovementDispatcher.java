@@ -18,7 +18,7 @@ import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.Relocate;
-import de.jpx3.intave.tools.client.PoseHelper;
+import de.jpx3.intave.tools.client.EffectLogic;
 import de.jpx3.intave.tools.packet.PlayerAction;
 import de.jpx3.intave.tools.packet.PlayerActionResolver;
 import de.jpx3.intave.tools.sync.Synchronizer;
@@ -26,6 +26,7 @@ import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.collision.Collision;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
@@ -33,6 +34,7 @@ import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.POSITION;
@@ -261,6 +263,7 @@ public final class MovementDispatcher implements EventProcessor {
     if (!movementData.isTeleportConfirmationPacket) {
       interactionRaytraceCheck.receiveMovement(event);
 
+
       if (hasMovement) {
         physicsCheck.receiveMovement(user);
       } else {
@@ -349,7 +352,7 @@ public final class MovementDispatcher implements EventProcessor {
     movementData.suspiciousMovement = false;
     movementData.isTeleportConfirmationPacket = false;
 
-    boolean flyingWithElytra = PoseHelper.flyingWithElytra(player);
+    boolean flyingWithElytra = movementData.elytraFlying;//PoseHelper.flyingWithElytra(player);
     if (flyingWithElytra) {
       movementData.pastElytraFlying = 0;
     } else {
@@ -571,6 +574,19 @@ public final class MovementDispatcher implements EventProcessor {
       case STOP_SNEAKING:
         movementData.sneaking = false;
         break;
+      case START_FALL_FLYING:
+        boolean canUseElytra = !movementData.onGround && !movementData.elytraFlying && !movementData.inWater && !EffectLogic.isPotionLevitationActive(player);
+        ItemStack chestplate = player.getInventory().getChestplate();
+
+        if(canUseElytra) {
+          if(chestplate != null && chestplate.getType() == Material.ELYTRA) {
+            movementData.elytraFlying = true;
+            player.sendMessage("Elytra enabled");
+          }
+        } else {
+          movementData.elytraFlying = false;
+          player.sendMessage("Elytra disabled");
+        }
     }
   }
 

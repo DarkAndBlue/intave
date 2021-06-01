@@ -11,7 +11,7 @@ import de.jpx3.intave.reflect.caller.CallerResolver;
 import de.jpx3.intave.reflect.caller.PluginInvocation;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.client.EffectLogic;
-import de.jpx3.intave.tools.client.MovementContextHelper;
+import de.jpx3.intave.tools.client.MovementContext;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedBlockPosition;
@@ -376,7 +376,7 @@ public final class MovementEmulationEngine {
     Player player = user.player();
     World world = player.getWorld();
     UserMetaMovementData movementData = user.meta().movementData();
-    movementData.inWater = MovementContextHelper.isAnyLiquid(world, movementData.boundingBox());
+    movementData.inWater = MovementContext.isAnyLiquid(world, movementData.boundingBox());
   }
 
   private synchronized void rotationlessTeleport(Player player, Location to, float nativeYaw, float nativePitch) {

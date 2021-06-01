@@ -1,6 +1,6 @@
 package de.jpx3.intave.world.fluid;
 
-import de.jpx3.intave.tools.client.MaterialLogic;
+import de.jpx3.intave.tools.client.SpecialMaterials;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
@@ -47,7 +47,7 @@ public abstract class FluidEngine {
               waterFlowTotal = waterFlowTotal.add(flowVector);
               ++countedWaterCollisions;
             }
-          } else if (MaterialLogic.isWater(blockClientSide)) {
+          } else if (SpecialMaterials.isWater(blockClientSide)) {
             inWater = true;
           }
         }

@@ -23,7 +23,7 @@ import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.tools.annotate.DispatchCrossCall;
-import de.jpx3.intave.tools.client.MaterialLogic;
+import de.jpx3.intave.tools.client.SpecialMaterials;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.*;
@@ -442,7 +442,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     switch (itemTypeInHand) {
       case BUCKET: {
         // remove liquid on location if exists
-        if (MaterialLogic.isLiquid(placementType)) {
+        if (SpecialMaterials.isLiquid(placementType)) {
           // emulate
           if (WorldPermission.bukkitActionPermission(player, BucketAction.FILL_BUCKET, clickedBlock, BlockFace.SELF, itemTypeInHand, null)) {
             blockShapeAccess.override(world, placementLocation.getBlockX(), placementLocation.getBlockY(), placementLocation.getBlockZ(), Material.AIR, 0);
@@ -551,8 +551,6 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
       // add to future bounding boxes
       OCBlockShapeAccess blockShapeAccess = userOf(player).blockShapeAccess();
       blockShapeAccess.override(world, blockX, blockY, blockZ, Material.AIR, (byte) 0);
-
-//      player.sendMessage("Cleared " + blockX + " " + blockY + " " + blockZ + " with AIR");
     }
     return access;
   }

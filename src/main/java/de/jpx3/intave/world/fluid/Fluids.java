@@ -7,8 +7,9 @@ import de.jpx3.intave.patchy.PatchyLoadingInjector;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
+import org.bukkit.Location;
 
-public final class Fluid {
+public final class Fluids {
   private static FluidEngine engine;
 
   public static void setup() {
@@ -40,6 +41,10 @@ public final class Fluid {
 
   public static WrappedFluid fluidAt(User user, int x, int y, int z) {
     return engine.fluidAt(user, x, y, z);
+  }
+
+  public static WrappedFluid fluidAt(User user, Location location) {
+    return fluidAt(user, location.getX(), location.getY(), location.getZ());
   }
 
   public static WrappedFluid fluidAt(User user, double x, double y, double z) {

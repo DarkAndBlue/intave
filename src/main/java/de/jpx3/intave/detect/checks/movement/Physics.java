@@ -19,8 +19,7 @@ import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.DispatchCrossCall;
 import de.jpx3.intave.tools.annotate.Relocate;
-import de.jpx3.intave.tools.client.MovementContextHelper;
-import de.jpx3.intave.tools.client.PoseHelper;
+import de.jpx3.intave.tools.client.MovementContext;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
@@ -31,7 +30,7 @@ import de.jpx3.intave.world.collider.Collider;
 import de.jpx3.intave.world.collider.result.ComplexColliderSimulationResult;
 import de.jpx3.intave.world.collider.result.QuickColliderSimulationResult;
 import de.jpx3.intave.world.collision.Collision;
-import de.jpx3.intave.world.fluid.Fluid;
+import de.jpx3.intave.world.fluid.Fluids;
 import de.jpx3.intave.world.fluid.LegacyWaterflow;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -170,7 +169,7 @@ public final class Physics extends IntaveCheck {
       UserMetaMovementData movementData = user.meta().movementData();
       boolean inLava = movementData.inLava();
       boolean inWater = movementData.inWater;
-      if (PoseHelper.flyingWithElytra(player) && !inWater && !inLava) {
+      if (/*PoseHelper.flyingWithElytra(player)*/movementData.elytraFlying && !inWater && !inLava) {
         return Pose.ELYTRA;
       }
     }
@@ -262,7 +261,7 @@ public final class Physics extends IntaveCheck {
 
   private void updateEyesInWater(User user) {
     UserMetaMovementData movementData = user.meta().movementData();
-    movementData.eyesInWater = Fluid.areEyesInFluid(user, movementData.positionX, movementData.positionY, movementData.positionZ);
+    movementData.eyesInWater = Fluids.areEyesInFluid(user, movementData.positionX, movementData.positionY, movementData.positionZ);
   }
 
   private void updateInWater(User user) {
@@ -270,7 +269,7 @@ public final class Physics extends IntaveCheck {
     UserMetaClientData clientData = meta.clientData();
     UserMetaMovementData movementData = meta.movementData();
     if (clientData.protocolVersion() >= PROTOCOL_VERSION_AQUATIC_UPDATE) {
-      movementData.inWater = Fluid.handleFluidAcceleration(user, movementData.boundingBox());
+      movementData.inWater = Fluids.handleFluidAcceleration(user, movementData.boundingBox());
     } else {
       WrappedAxisAlignedBB entityBoundingBox = movementData.boundingBox();
       WrappedAxisAlignedBB checkableBoundingBox = entityBoundingBox
@@ -319,7 +318,7 @@ public final class Physics extends IntaveCheck {
     double differenceZ = predictedZ - receivedMotionZ;
     double distance = MathHelper.hypot3d(differenceX, differenceY, differenceZ);
 
-    boolean onLadderCurrent = MovementContextHelper.isOnLadder(user, positionX, positionY, positionZ);
+    boolean onLadderCurrent = MovementContext.isOnLadder(user, positionX, positionY, positionZ);
     boolean onLadder = onLadderCurrent | movementData.onLadderLast;
     movementData.onLadderLast = onLadderCurrent;
 
@@ -551,11 +550,12 @@ public final class Physics extends IntaveCheck {
       debug += "(" + key + ")";
       debug += " " + violationLevelInfo;
 
-      debug += " (sneak " + movementData.sneaking + "/"+movementData.actualSneaking()+")";
+//      debug += " (sneak " + movementData.sneaking + "/"+movementData.actualSneaking()+")";
 //      debug += " (size:" + movementData.width + "," + movementData.height + ")";
 //      debug += "handActive=" + inventoryData.handActive();
 //      debug += inventoryData.heldItem().getType().name();
 //      debug += " flying:" + movementData.pastFlyingPacketAccurate;
+      debug += " gliding:" + movementData.elytraFlying;
 
       List<String> tags = new ArrayList<>();
 
@@ -720,7 +720,7 @@ public final class Physics extends IntaveCheck {
       } else {
         liquidPositionY = receivedMotionY + 0.3f;
       }
-      boolean offsetPositionInLiquid = MovementContextHelper.isOffsetPositionInLiquid(
+      boolean offsetPositionInLiquid = MovementContext.isOffsetPositionInLiquid(
         player, movementData.boundingBox(), receivedMotionX, liquidPositionY, receivedMotionZ
       );
       boolean maybeCollidedHorizontally = Collision.nearBySolidBlock(player.getWorld(), movementData.boundingBox().grow(0.2));
