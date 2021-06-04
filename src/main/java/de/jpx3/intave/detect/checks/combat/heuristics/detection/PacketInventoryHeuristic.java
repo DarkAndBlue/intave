@@ -59,11 +59,10 @@ public final class PacketInventoryHeuristic extends IntaveMetaCheckPart<Heuristi
       return;
     }
 
-    if (clientData.flyingPacketStream() && meta.inventoryTicks <= 1 && meta.performedInventoryOpenOperation) {
+    if (clientData.flyingPacketStream() && meta.inventoryTicks == 0 && meta.performedInventoryOpenOperation) {
       int options = SUGGEST_MINING | DELAY_128s | LIMIT_2;
-      Confidence confidence = meta.inventoryTicks == 0 ? Confidence.LIKELY : Confidence.PROBABLE;
-      String details = "closed inventory too quickly (" + meta.inventoryTicks + ") | confidence:" + confidence.level();
-      Anomaly anomaly = Anomaly.anomalyOf("131", confidence, Anomaly.Type.KILLAURA, details, options);
+      String details = "closed inventory too quickly (" + meta.inventoryTicks + ")";
+      Anomaly anomaly = Anomaly.anomalyOf("131", Confidence.LIKELY, Anomaly.Type.KILLAURA, details, options);
       parentCheck().saveAnomaly(player, anomaly);
       //dmc9
 //      user.applyAttackNerfer(AttackNerfStrategy.HT_MEDIUM, "9");
