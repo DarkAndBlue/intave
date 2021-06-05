@@ -93,32 +93,26 @@ public final class InventoryClickDelayAnalyzer extends IntaveMetaCheckPart<Inven
   }
 
   private void checkWindowClick(Player player, ClickDelayMeta meta, int slot) {
-    User user = userOf(player);
-    double distance = distanceBetween(slot, meta.lastClickedSlot);
     double time = (System.nanoTime() - meta.lastClickedTimeStamp) / 1000000000d;
-    double speedAttr = distance / time;
 
     if (time < 2) {
       meta.clickDelayList.add(time);
     }
 
     if (meta.clickDelayList.size() > 10) {
-      double std = RotationMathHelper.calculateStandardDeviation(meta.clickDelayList) * 100;
-//      player.sendMessage("sdt " + MathHelper.formatDouble(std,4));
-
-//      Bukkit.broadcastMessage("" + Math.abs(averageMovementPacketTimestamp - 50) < 10);
-      double averageMovementPacketTimestamp = user.meta().connectionData().averageMovementPacketTimestamp();
-      if (std < 2 && averageMovementPacketTimestamp < 50) {
-        Violation violation = Violation.builderFor(InventoryClickAnalysis.class)
-          .forPlayer(player).withDefaultThreshold()
-          .withMessage("is clicking suspiciously on items")
-          .withDetails("standard deviation: " + MathHelper.formatDouble(std,2))
-          .withVL(5).build();
-//
-        plugin.violationProcessor().processViolation(violation);
+      boolean isPartner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
+      if(isPartner) {
+        processStandardDeviationCheck(player, meta);
       }
       meta.clickDelayList.clear();
     }
+
+    processClickDelayAnalyzerCheck(player, meta, slot, time);
+  }
+
+  private void processClickDelayAnalyzerCheck(Player player, ClickDelayMeta meta, int slot, double time) {
+    double distance = distanceBetween(slot, meta.lastClickedSlot);
+    double speedAttr = distance / time;
 
     boolean flag = speedAttr > 30;
     boolean flag2 = speedAttr > 100;
@@ -141,6 +135,22 @@ public final class InventoryClickDelayAnalyzer extends IntaveMetaCheckPart<Inven
 
     if (flag) {
       meta.lastFlagTimeStamp = AccessHelper.now();
+    }
+  }
+
+  private void processStandardDeviationCheck(Player player, ClickDelayMeta meta) {
+    User user = userOf(player);
+    double std = RotationMathHelper.calculateStandardDeviation(meta.clickDelayList) * 100;
+
+    double averageMovementPacketTimestamp = user.meta().connectionData().averageMovementPacketTimestamp();
+    if (std < 2 && averageMovementPacketTimestamp < 50) {
+      Violation violation = Violation.builderFor(InventoryClickAnalysis.class)
+        .forPlayer(player).withDefaultThreshold()
+        .withMessage("is clicking suspiciously on items")
+        .withDetails("time details: " + MathHelper.formatDouble(std, 2))
+        .withVL(5).build();
+//
+      plugin.violationProcessor().processViolation(violation);
     }
   }
 
