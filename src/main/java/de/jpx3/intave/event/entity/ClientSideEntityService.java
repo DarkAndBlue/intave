@@ -4,12 +4,14 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketEventSubscriber;
 import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.event.transaction.TFCallback;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.reflect.hitbox.HitBoxBoundaries;
@@ -24,7 +26,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.POSITION;
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
@@ -60,6 +65,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   private final static int REQUIRED_DISTANCE = 16;
   private final static int MAX_TRACED_ENTITIES = 4;
+  private final static int MAX_DOUBLE_TRACED_ENTITIES = 1;
 
   private void reevaluteTracingEntitiesFor(Player player) {
     User user = UserRepository.userOf(player);
@@ -78,6 +84,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
         if (distance <= REQUIRED_DISTANCE) {
           validEntities.add(entity);
           entity.distanceToPlayerCache = distance;
+          entity.doubleVerification = false;
           firstSurvive = true;
         }
       }
@@ -86,9 +93,78 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     validEntities.sort(Comparator.comparingDouble(entity -> entity.distanceToPlayerCache));
     int count = 0;
     for (WrappedEntity entity : validEntities) {
-      entity.setResponseTracingEnabled(count++ < MAX_TRACED_ENTITIES);
+      entity.doubleVerification = count < MAX_DOUBLE_TRACED_ENTITIES;
+      entity.setResponseTracingEnabled(count < MAX_TRACED_ENTITIES);
+      count++;
     }
   }
+
+  @PacketSubscription(
+    packetsOut = {
+      MOUNT
+    }
+  )
+  public void sendMountEntityPacket(PacketEvent event) {
+    //1.9+ servers
+    PacketContainer packet = event.getPacket();
+    Player player = event.getPlayer();
+
+    int[] entityIDs = event.getPacket().getIntegerArrays().read(0);
+    int mountedOnEntityID = packet.getIntegers().read(0);
+
+    for (int entityID : entityIDs) {
+      processAttachEntity(player, entityID, mountedOnEntityID);
+    }
+  }
+
+  @PacketSubscription(
+    packetsOut = {
+      ATTACH_ENTITY
+    }
+  )
+  public void sendAttachEntityPacket(PacketEvent event) {
+    if(!NEW_POSITION_PROCESSING_1_9) {
+      // 1.8
+      Player player = event.getPlayer();
+      PacketContainer packet = event.getPacket();
+      int type = packet.getIntegers().read(0);
+      if (type == 0) {
+        int entityID = packet.getIntegers().read(1);
+        int mountedOnEntityID = packet.getIntegers().read(2);
+
+        processAttachEntity(player, entityID, mountedOnEntityID);
+      }
+    }
+  }
+
+  private void processAttachEntity(Player player, int entityID, int mountedOnEntityID) {
+    User user = UserRepository.userOf(player);
+    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    Map<Integer, WrappedEntity> synchronizedEntityMap = synchronizeData.synchronizedEntityMap();
+    WrappedEntity sittingEntity = synchronizedEntityMap.get(entityID);
+
+    if (sittingEntity != null) {
+      if (mountedOnEntityID == -1) {
+        // when a entity dismounts
+        sittingEntity.unmountFromEntity();
+      } else {
+        // mounts on entity
+        WrappedEntity sittingOnEntity = synchronizedEntityMap.get(mountedOnEntityID);
+        if (sittingOnEntity != null) {
+          sittingEntity.mountToEntity(sittingOnEntity);
+        } else {
+          if(IntaveControl.DISABLE_LICENSE_CHECK) {
+            IntaveLogger.logger().error("mounted On Entity could not be found");
+          }
+        }
+      }
+    } else {
+      if (IntaveControl.DISABLE_LICENSE_CHECK) {
+        IntaveLogger.logger().error("sittingEntity could not be found");
+      }
+    }
+  }
+
 
   @PacketSubscription(
     packetsOut = {
@@ -131,7 +207,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
       HitBoxBoundaries hitBoxBoundaries = HitBoxBoundaries.player();
       livingEntity = true;
-      entityTypeData = new EntityTypeData(entityName, hitBoxBoundaries, 105);
+      entityTypeData = new EntityTypeData(entityName, hitBoxBoundaries, 105, true);
     }
     processPacketSpawnMob(user, event.getPacketType(), entityTypeData, packet, livingEntity, entityId);
   }
@@ -157,12 +233,8 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     for (int entityID : entityIDs) {
       WrappedEntity wrappedEntity = synchronizedEntityMap.get(entityID);
       if(wrappedEntity instanceof WrappedEntityFirework) {
-        plugin.eventService().feedback().clientSynchronize(
-          player,
-          entityID,
-          this::processEntityDestroy,
-          OPTIONAL
-        );
+        TFCallback<Integer> task = this::processEntityDestroy;
+        plugin.eventService().feedback().singleSynchronize(player, entityID, task, OPTIONAL);
       } else {
         processEntityDestroy(player, entityID);
       }
@@ -177,6 +249,15 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     synchronizedEntityMap.remove(entityId);
     if (attackData.lastAttackedEntity() != null && attackData.lastAttackedEntityID() == entityId) {
       attackData.nullifyLastAttackedEntity();
+    }
+    if(NEW_POSITION_PROCESSING_1_9) {
+      for (WrappedEntity wrappedEntity : synchronizedEntityMap.values()) {
+        if(wrappedEntity.mountedEntity() != null) {
+          if(wrappedEntity.mountedEntity().entityId() == entityId) {
+            wrappedEntity.unmountFromEntity();
+          }
+        }
+      }
     }
   }
 
@@ -214,21 +295,30 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     int entityId = packet.getIntegers().read(0);
     WrappedEntity entity = entityByIdentifier(user, entityId);
     if (entity == null) {
-      entity = createEntityByMovePacket(event);
-    }
-    if (entity == null) {
+      Entity bukkitEntity = serverEntityByIdentifier(player, entityId);
+      if (bukkitEntity != null) {
+        entity = spawnMobByBukkitEntity(user, bukkitEntity);
+      } else {
 //      IntaveLogger.logger().info("Unable to create entity (id " + entityId + ")");
 //        throw new NullPointerException("entity could not be created");
-      return;
+        return;
+      }
     }
     if (entity.isEntityLiving && entity.tracingEnabled()) {
       WrappedEntity finalEntity = entity;
-      plugin.eventService().feedback().clientSynchronize(player, event, (player1, event1) -> {
+      TFCallback<PacketEvent> task = (player1, event1) -> {
+        finalEntity.verifiedPosition = false;
         processEntityMovement(event1, finalEntity);
         if (event1.getPacketType() == PacketType.Play.Server.ENTITY_TELEPORT) {
           finalEntity.clientSynchronized = true;
         }
-      });
+      };
+      if (entity.doubleVerification) {
+        TFCallback<PacketEvent> verificationTask = (x, theEvent) -> finalEntity.verifiedPosition = true;
+        plugin.eventService().feedback().doubleSynchronize(player, event, event, task, verificationTask);
+      } else {
+        plugin.eventService().feedback().singleSynchronize(player, event, task);
+      }
     } else {
       processEntityMovement(event, entity);
       entity.clientSynchronized = false;
@@ -241,17 +331,6 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     } else {
       entity.handleEntityMovement(event.getPacket());
     }
-  }
-
-  private WrappedEntity createEntityByMovePacket(PacketEvent event) {
-    Player player = event.getPlayer();
-    User user = UserRepository.userOf(player);
-    int entityId = event.getPacket().getIntegers().read(0);
-    Entity serverEntity = serverEntityByIdentifier(player, entityId);
-    if (serverEntity != null) {
-      return spawnMobByBukkitEntity(user, serverEntity);
-    }
-    return null;
   }
 
   private WrappedEntity spawnMobByBukkitEntity(User user, Entity bukkitEntity) {
@@ -400,7 +479,8 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     }
     boolean synchronize = entity.clientSynchronized && entity.tracingEnabled();
     if (synchronize) {
-      plugin.eventService().feedback().clientSynchronize(player, entity, (p, e) -> updateDeadState(e));
+      TFCallback<WrappedEntity> task = (p, e) -> updateDeadState(e);
+      plugin.eventService().feedback().singleSynchronize(player, entity, task);
     } else {
       updateDeadState(entity);
     }
@@ -448,7 +528,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
       if (health != null) {
         boolean synchronize = entity.clientSynchronized && entity.tracingEnabled();
         if (synchronize) {
-          plugin.eventService().feedback().clientSynchronize(player, entity, (p, e) -> updateHealthState(e, health));
+          plugin.eventService().feedback().singleSynchronize(player, entity, (p, e) -> updateHealthState(e, health));
         } else {
           updateHealthState(entity, health);
         }
@@ -459,7 +539,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   private void synchronizePlayerHealth(Player player, PacketContainer packet) {
     Float health = readHealthOf(packet.getWatchableCollectionModifier().read(0));
     if (health != null) {
-      plugin.eventService().feedback().clientSynchronize(player, health, (p, retrievedHealth) -> {
+      plugin.eventService().feedback().singleSynchronize(player, health, (p, retrievedHealth) -> {
         UserMetaAbilityData abilityData = UserRepository.userOf(p).meta().abilityData();
         abilityData.health = retrievedHealth;
         abilityData.ticksToLastHealthUpdate = 0;

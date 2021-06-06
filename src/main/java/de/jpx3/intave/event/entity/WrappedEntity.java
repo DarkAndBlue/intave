@@ -26,6 +26,11 @@ public class WrappedEntity implements Cloneable {
   public volatile boolean clientSynchronized = true;
 
   /**
+   * Indicates that the entity should endure double-verification
+   */
+  public volatile boolean doubleVerification = false;
+
+  /**
    * This value is used to interpolate the positions of the Entity
    */
   public long serverPosX, serverPosY, serverPosZ;
@@ -35,10 +40,11 @@ public class WrappedEntity implements Cloneable {
   public EntityPositionContext alternativePosition;
   public List<EntityPositionContext> positionHistory = new CopyOnWriteArrayList<>();
   public boolean dead, fakeDead;
+  public boolean verifiedPosition;
   public float health;
   public int ticksAlive;
   private int deathTime;
-
+  private WrappedEntity mountedOnEntity;
   private WrappedAxisAlignedBB boundingBox;
   private boolean enabledResponseTracing;
 
@@ -293,6 +299,18 @@ public class WrappedEntity implements Cloneable {
   public boolean moving(double distance) {
     EntityPositionContext positions = this.position;
     return Math.hypot(positions.newPosX - positions.posX, positions.newPosZ - positions.posZ) >= distance;
+  }
+
+  public void mountToEntity(WrappedEntity mountedOnEntity) {
+    this.mountedOnEntity = mountedOnEntity;
+  }
+
+  public void unmountFromEntity() {
+    mountedOnEntity = null;
+  }
+
+  public WrappedEntity mountedEntity() {
+    return mountedOnEntity;
   }
 
   public boolean tracingEnabled() {
