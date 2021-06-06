@@ -6,7 +6,6 @@ package de.jpx3.intave.access.check;
  */
 
 public enum Check {
-  ABILITY_SPEED_LIMITER("abilitySpeedLimiter"),
   ATTACK_RAYTRACE("attackRaytrace"),
   BREAK_SPEED_LIMITER("breakSpeedLimiter"),
   CLICK_SPEED_LIMITER("clickSpeedLimiter"),
