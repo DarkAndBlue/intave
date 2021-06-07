@@ -56,7 +56,7 @@ public class SameRotationHeuristic extends IntaveMetaCheckPart<Heuristics, SameR
     boolean isPartner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
 //    boolean isEnterprise = (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
 
-    if (movementData.lastTeleport > 5 && isPartner && meta.rotationsSinceTeleport > 5) {
+    if (movementData.lastTeleport > 5 && isPartner && meta.rotationsSinceTeleport > 6) {
       if (meta.lastLastTick.yawMotion < 10 && meta.lastTick.yawMotion > 45 && currentTick.yawMotion < 10) {
         checkSameRotationYaw(meta, player);
         checkExactRotationMotionYaw(meta, player);
