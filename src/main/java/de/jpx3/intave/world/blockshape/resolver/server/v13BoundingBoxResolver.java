@@ -24,7 +24,7 @@ public final class v13BoundingBoxResolver implements BoundingBoxResolvePipeline 
   public List<WrappedAxisAlignedBB> nativeResolve(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
     Location location = new Location(world, posX, posY, posZ);
     org.bukkit.block.Block block = BukkitBlockAccess.blockAccess(location);
-    return customResolve(world, player, type, BlockDataAccess.dataIndexOf(block), posX, posY, posZ);
+    return customResolve(world, player, type, BlockDataAccess.dataAccess(block), posX, posY, posZ);
   }
 
   @Override
@@ -33,6 +33,7 @@ public final class v13BoundingBoxResolver implements BoundingBoxResolvePipeline 
     WorldServer handle = ((CraftWorld) world).getHandle();
     BlockPosition blockPosition = new BlockPosition(posX, posY, posZ);
     IBlockData blockData = CraftMagicNumbers.getBlock(type, (byte) blockState);
+
     if (blockData == null) {
       return Collections.emptyList();
     }

@@ -1,7 +1,15 @@
 package de.jpx3.intave.world.blockaccess;
 
+import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.access.IntaveInternalException;
+import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+
+import java.util.Map;
 
 public final class BlockTypeAccess {
   public static final Material WEB = resolveFrom("WEB", "COBWEB");
@@ -21,5 +29,35 @@ public final class BlockTypeAccess {
     } else {
       throw new IntaveInternalException("Unable to find block " + name + " or " + alternativeName);
     }
+  }
+
+  private static final TypeTranslator translator;
+  static {
+    translator = TypeTranslator.fromStream(BlockTypeAccess.class.getResourceAsStream("/mappings/block-backwards-mappings"));
+  }
+
+  public static void setupTranslationsFor(User user) {
+    MinecraftVersion serverVersion = new MinecraftVersion(ProtocolLibraryAdapter.serverVersion().getVersion());
+    MinecraftVersion clientVersion = new MinecraftVersion(user.meta().clientData().versionString());
+    Map<Material, Material> translations = translator.translationsFor(serverVersion, clientVersion);
+    user.clearTypeTranslations();
+    translations.forEach(user::applyTypeTranslation);
+  }
+
+  public static Material typeAccess(Block block) {
+    return block.getType();
+  }
+
+  public static Material typeAccess(Block block, Player player) {
+    return translate(UserRepository.userOf(player), block.getType());
+  }
+
+  public static boolean hasTranslation(User user, Material origin) {
+    return user.typeTranslations().get(origin) != null;
+  }
+
+  private static Material translate(User user, Material origin) {
+    Material alternative = user.typeTranslations().get(origin);
+    return alternative == null ? origin : alternative;
   }
 }

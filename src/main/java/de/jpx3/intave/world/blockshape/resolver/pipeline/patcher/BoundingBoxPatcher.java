@@ -2,6 +2,7 @@ package de.jpx3.intave.world.blockshape.resolver.pipeline.patcher;
 
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
+import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -37,7 +38,7 @@ public final class BoundingBoxPatcher {
   }
 
   public static List<WrappedAxisAlignedBB> patch(World world, Player player, Block block, List<WrappedAxisAlignedBB> bbs) {
-    BoundingBoxPatch patch = patches.get(block.getType());
+    BoundingBoxPatch patch = patches.get(BlockTypeAccess.typeAccess(block, player));
     return patch == null ? bbs : transpose(patch.patch(world, player, block, reposeIfRequired(patch, bbs, block.getX(), block.getY(), block.getZ())), block.getX(), block.getY(), block.getZ());
   }
 

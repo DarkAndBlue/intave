@@ -9,6 +9,7 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
+import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
 import de.jpx3.intave.world.blockshape.resolver.BoundingBoxResolvePipeline;
@@ -125,8 +126,8 @@ public final class Collision {
             for (int z = zstart; z < zend; ++z) {
               for (int y = ystart; y < maxY; ++y) {
                 Block block = BukkitBlockAccess.blockAccess(world, x, y, z);
-                Material type = block.getType();
-                int data = BlockDataAccess.dataIndexOf(block);
+                Material type = BlockTypeAccess.typeAccess(block);
+                int data = BlockDataAccess.dataAccess(block);
                 List<WrappedAxisAlignedBB> resolve = boundingBoxResolver.customResolve(world, null, type, data, x, y, z);
                 boolean blockIsOutsideBorder = !blockInsideBorder(world, x, z);
                 if (blockIsOutsideBorder) {
@@ -224,8 +225,8 @@ public final class Collision {
       for (int y = minY; y <= maxY; y++) {
         for (int z = minZ; z <= maxZ; z++) {
           Block block = BukkitBlockAccess.blockAccess(world, x, y, z);
-          Material type = block.getType();
-          if (!SpecialMaterials.isLiquid(type) && block.getType() != Material.AIR) {
+          Material type = BlockTypeAccess.typeAccess(block);
+          if (!SpecialMaterials.isLiquid(type) && BlockTypeAccess.typeAccess(block) != Material.AIR) {
             return true;
           }
         }
@@ -257,7 +258,7 @@ public final class Collision {
       for (int y = minY; y <= maxY; y++) {
         for (int z = minZ; z <= maxZ; z++) {
           Block block = BukkitBlockAccess.blockAccess(world, x, y, z);
-          if (blockTypeApplier.apply(block.getType())) {
+          if (blockTypeApplier.apply(BlockTypeAccess.typeAccess(block))) {
             return true;
           }
         }

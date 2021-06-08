@@ -24,6 +24,7 @@ import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.*;
+import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
 import de.jpx3.intave.world.collider.Collider;
@@ -399,7 +400,7 @@ public final class Physics extends IntaveCheck {
         if (!Collision.blockInsideBorder(player.getWorld(), blockPositionX, blockPositionZ)) {
           colliderName = "world border";
         } else {
-          colliderName = (currentlyInOverride ? "emulated " : "") + shortenTypeName(currentlyInOverride ? BukkitBlockAccess.cacheAppliedTypeAccess(user, block.getLocation()) : block.getType()) + " block";
+          colliderName = (currentlyInOverride ? "emulated " : "") + shortenTypeName(currentlyInOverride ? BukkitBlockAccess.cacheAppliedTypeAccess(user, block.getLocation()) : BlockTypeAccess.typeAccess(block, player)) + " block";
         }
         String message = "moved into " + colliderName;
         boolean multipleBoxes = intersectionBoundingBoxesCurrent.size() > 1;
@@ -444,7 +445,7 @@ public final class Physics extends IntaveCheck {
           double blockPositionZ = (boundingBox.minZ + boundingBox.maxZ) / 2.0;
           Block block = BukkitBlockAccess.blockAccess(player.getWorld(), blockPositionX, blockPositionY, blockPositionZ);
 
-          String message = "moved into " + shortenTypeName(block.getType()) + " block whilst moving in another block";
+          String message = "moved into " + shortenTypeName(BlockTypeAccess.typeAccess(block, player)) + " block whilst moving in another block";
           boolean multipleBoxes = intersectionBoundingBoxesCurrent.size() > 1;
           String details = (multipleBoxes ? intersectionBoundingBoxesCurrent.size() : "one") + " box" + (multipleBoxes ? "es" : "");
           Violation violation = Violation.builderFor(Physics.class)

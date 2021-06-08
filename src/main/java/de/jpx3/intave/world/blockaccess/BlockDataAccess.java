@@ -23,8 +23,10 @@ import java.util.*;
 public final class BlockDataAccess {
   private static BlockAccessor blockAccessor;
   private static MethodHandle nativeBlockDataAccess;
+  private static MethodHandle nativeBlockDataExtractionAccess;
 
-  private final static boolean ALL_BLOCKS_LEGACY = !MinecraftVersions.VER1_14_0.atOrAbove();
+  private final static boolean NEW_MATERIAL_PROCESSING = MinecraftVersions.VER1_14_0.atOrAbove();
+  private final static boolean NEW_BLOCK_ACCESS = MinecraftVersions.VER1_13_0.atOrAbove();
 
   private final static Set<Material> clickableMaterials = new HashSet<>();
   private final static Set<Material> legacyMaterials = new HashSet<>();
@@ -43,17 +45,23 @@ public final class BlockDataAccess {
     ClassLoader classLoader = IntavePlugin.class.getClassLoader();
     PatchyLoadingInjector.loadUnloadedClassPatched(classLoader, resolverName);
     blockAccessor = instanceOf(resolverName);
-
-    if (MinecraftVersions.VER1_14_0.atOrAbove()) {
-      try {
+    try {
+      if (NEW_BLOCK_ACCESS) {
         Class<?> blockDataClass = ReflectiveAccess.lookupServerClass("IBlockData");
         Class<?> craftBukkitClass = ReflectiveAccess.lookupCraftBukkitClass("block.CraftBlock");
         nativeBlockDataAccess = MethodHandles.lookup().findVirtual(craftBukkitClass, "getNMS", MethodType.methodType(blockDataClass));
-      } catch (NoSuchMethodException | IllegalAccessException exception) {
-        throw new IntaveInternalException("Failed to load data access method", exception);
+      } else {
+        Class<?> blockClass = ReflectiveAccess.lookupServerClass("Block");
+        Class<?> blockDataClass = ReflectiveAccess.lookupServerClass("IBlockData");
+        Class<?> craftBukkitClass = ReflectiveAccess.lookupCraftBukkitClass("block.CraftBlock");
+        Method getNMSBlockMethod = craftBukkitClass.getDeclaredMethod("getNMSBlock");
+        getNMSBlockMethod.setAccessible(true);
+        nativeBlockDataAccess = MethodHandles.lookup().unreflect(getNMSBlockMethod);
+        nativeBlockDataExtractionAccess = MethodHandles.lookup().findVirtual(blockClass, "fromLegacyData", MethodType.methodType(blockDataClass, Integer.TYPE));
       }
+    } catch (NoSuchMethodException | IllegalAccessException exception) {
+      throw new IntaveInternalException("Failed to load data accessor", exception);
     }
-
     loadMaterials();
   }
 
@@ -66,21 +74,37 @@ public final class BlockDataAccess {
     }
   }
 
-  public static int dataIndexOf(Block block) {
-    Material type = block.getType();
+  public static int dataAccess(Block block) {
+    Material type = BlockTypeAccess.typeAccess(block);
     if (isLegacy(type)) {
       return block.getData();
     } else {
-      try {
-        return RuntimeBlockDataIndexer.indexOfModernState(type, nativeBlockDataAccess.invoke(block));
-      } catch (Throwable throwable) {
-        throw new IntaveInternalException("Failed to access data of " + block, throwable);
+      return RuntimeBlockDataIndexer.indexOfModernState(type, nativeBlockDataOf(block));
+    }
+  }
+
+  public static Object nativeBlockDataOf(Block bukkitBlock) {
+    try {
+      if (NEW_BLOCK_ACCESS) {
+        return nativeBlockDataAccess.invoke(bukkitBlock);
+      } else {
+        return blockDataFromNativeBlock(bukkitBlock, nativeBlockDataAccess.invoke(bukkitBlock));
       }
+    } catch (Throwable throwable) {
+      throw new IntaveInternalException("Failed to access block data of " + bukkitBlock, throwable);
+    }
+  }
+
+  public static Object blockDataFromNativeBlock(Block block, Object nativeBlock) {
+    try {
+      return nativeBlockDataExtractionAccess.invoke(nativeBlock, block.getData());
+    } catch (Throwable throwable) {
+      throw new IntaveInternalException("Failed to access block data of " + nativeBlock, throwable);
     }
   }
 
   public static boolean isLegacy(Material type) {
-    return ALL_BLOCKS_LEGACY || legacyMaterials.contains(type);
+    return !NEW_MATERIAL_PROCESSING || legacyMaterials.contains(type);
   }
 
   public static boolean isClickable(Material type) {
@@ -96,7 +120,7 @@ public final class BlockDataAccess {
   }
 
   private static void loadMaterials() {
-    if (MinecraftVersions.VER1_14_0.atOrAbove()) {
+    if (NEW_MATERIAL_PROCESSING) {
       modernMaterialLoad();
     } else {
       legacyMaterialLoad();

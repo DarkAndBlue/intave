@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.access.InvalidDependencyException;
+import de.jpx3.intave.logging.IntaveLogger;
 
 import java.util.Arrays;
 
@@ -34,6 +35,10 @@ public final class ProtocolLibraryAdapter {
       if (!methodExists("com.comphenix.protocol.events.PacketContainer", "getMovingBlockPositions")) {
         throw new InvalidDependencyException("Your version of ProtocolLib is outdated (missing moving-object-position packet access)");
       }
+    }
+
+    if (!temporaryPlayer) {
+      IntaveLogger.logger().info("Consider updating ProtocolLib");
     }
   }
 

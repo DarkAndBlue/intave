@@ -49,6 +49,8 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
       }
     } catch (RuntimeException exception) {
       processException(event.getPacketType(), exception);
+    } catch (Error error) {
+      processError(event.getPacketType(), error);
     } finally {
       timing.stop();
       Timings.EXE_NETTY.stop();
@@ -69,6 +71,8 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
     } catch (RuntimeException exception) {
       exception.getStackTrace();
       processException(event.getPacketType(), exception);
+    } catch (Error error) {
+      processError(event.getPacketType(), error);
     }
   }
 
@@ -91,13 +95,22 @@ public final class LocalPacketAdapter extends IntavePacketAdapter implements Com
 
   private void processException(PacketType packetType, RuntimeException exception) {
     String simpleName = exception.getClass().getSimpleName();
-    IntaveLogger.logger().pushPrintln("[Intave] " + resolveIndefArticle(simpleName) + " " + simpleName + " occurred while processing a "+packetType+" packet ("+subscriber.getClass().getSimpleName()+"."+methodName+")");
+    IntaveLogger.logger().pushPrintln("[Intave] " + resolveIndefArticle(simpleName) + " " + simpleName + " occurred while processing a "+packetType.name()+" packet ("+subscriber.getClass().getSimpleName()+"."+methodName+")");
     exception.printStackTrace();
+  }
+
+  private void processError(PacketType packetType, Error error) {
+    String simpleName = error.getClass().getSimpleName();
+    IntaveLogger.logger().pushPrintln("[Intave] " + resolveIndefArticle(simpleName) + " " + simpleName + " occurred while processing a "+packetType.name()+" packet ("+subscriber.getClass().getSimpleName()+"."+methodName+")");
+    error.printStackTrace();
   }
 
   private final static char[] vocals = "AEIOU".toCharArray();
 
   private String resolveIndefArticle(String exceptionName) {
+    if (exceptionName.isEmpty()) {
+      return "";
+    }
     char c = exceptionName.toUpperCase(Locale.ROOT).toCharArray()[0];
     boolean isVocal = false;
     for (char vocal : vocals) {

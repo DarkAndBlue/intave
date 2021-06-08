@@ -21,6 +21,7 @@ import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaAttackData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -285,7 +286,7 @@ public final class FakePlayer implements TickTaskScheduler {
   private String resolveSoundName() {
     Location location = movement.location;
     Block block = BukkitBlockAccess.blockAccess(location.clone().add(0.0, -1.0, 0.0));
-    switch (block.getType()) {
+    switch (BlockTypeAccess.typeAccess(block)) {
       case GRASS: {
         return "step.grass";
       }

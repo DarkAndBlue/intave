@@ -3,6 +3,7 @@ package de.jpx3.intave.tools.client;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.*;
+import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockphysics.BlockSlipperiness;
 import de.jpx3.intave.world.blockphysics.ClimbableBlocks;
@@ -79,7 +80,7 @@ public final class MovementContext {
     for (int x = minX; x <= maxX; ++x) {
       for (int y = minY; y <= maxY; ++y) {
         for (int z = minZ; z <= maxZ; ++z) {
-          Material material = BukkitBlockAccess.blockAccess(world, x, y, z).getType();
+          Material material = BlockTypeAccess.typeAccess(BukkitBlockAccess.blockAccess(world, x, y, z));
           if (SpecialMaterials.isLiquid(material)) {
             return true;
           }
@@ -137,7 +138,7 @@ public final class MovementContext {
       WrappedMathHelper.floor(positionY),
       WrappedMathHelper.floor(positionZ)
     );
-    Material type = block.getType();
+    Material type = BlockTypeAccess.typeAccess(block, player);
     if (clientData.combatUpdate() && type.name().contains("TRAP_DOOR") && canGoThroughTrapDoorOnLadder(block)) {
       return true;
     }

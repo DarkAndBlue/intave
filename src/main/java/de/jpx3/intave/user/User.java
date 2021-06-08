@@ -17,12 +17,14 @@ import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.annotate.Relocate;
 import de.jpx3.intave.tools.placeholder.PlayerContext;
 import de.jpx3.intave.tools.sync.Synchronizer;
+import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockshape.BlankUserOCBlockShapeAccess;
 import de.jpx3.intave.world.blockshape.MultiChunkKeyOCBlockShapeAccess;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
 import de.jpx3.intave.world.blockshape.resolver.BoundingBoxResolverFactory;
 import de.jpx3.intave.world.collider.Collider;
 import de.jpx3.intave.world.collider.processor.ComplexColliderProcessor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import java.lang.ref.WeakReference;
@@ -46,6 +48,7 @@ public final class User {
   private final boolean hasPlayer;
   private final List<UserMessageChannel> receivingUserChannels = new ArrayList<>();
   private final Map<UserMessageChannel, Predicate<Player>> receiveWhitelist = Maps.newEnumMap(UserMessageChannel.class);
+  private final Map<Material, Material> typeTranslations = Maps.newHashMap();
   private OCBlockShapeAccess blockShapeAccess;
   private boolean ignoreNextPacket;
   private boolean ignoreNextOutboundPacket;
@@ -73,6 +76,25 @@ public final class User {
     if (hasPlayer) {
       Synchronizer.synchronize(this::setDefaultMessagingChannel);
     }
+  }
+
+  public void delayedRefresh() {
+    Player player = player();
+    UserMetaClientData clientData = meta().clientData();
+    clientData.refresh(player);
+    outputVersionJoinInfo();
+    BlockTypeAccess.setupTranslationsFor(this);
+  }
+
+  private void outputVersionJoinInfo() {
+    Player player = player();
+    UserMetaClientData clientData = meta().clientData();
+    String string = player.getName() + " joined with version " + clientData.versionString() + " ";
+    string += "(" + clientData.protocolVersion() + ")";
+    if (clientData.clientVersionBehindServerVersion()) {
+      string += " (behind server)";
+    }
+    IntaveLogger.logger().pushPrintln(string);
   }
 
   public UserMeta meta() {
@@ -208,6 +230,9 @@ public final class User {
   }
 
   public boolean receives(UserMessageChannel channel) {
+    if (!hasPlayer) {
+      return false;
+    }
     if (!BukkitPermissionCheck.permissionCheck(player(), channel.permission())) {
       receivingUserChannels.remove(channel);
       return false;
@@ -216,6 +241,9 @@ public final class User {
   }
 
   public void toggleReceive(UserMessageChannel channel) {
+    if (!hasPlayer) {
+      return;
+    }
     if (receives(channel)) {
       receivingUserChannels.remove(channel);
     } else {
@@ -258,6 +286,19 @@ public final class User {
 
   public PlayerContext userPlaceholderContext() {
     return playerPlaceholderContext;
+  }
+
+  public void clearTypeTranslations() {
+    typeTranslations.clear();
+    blockShapeAccess.identityInvalidate();
+  }
+
+  public void applyTypeTranslation(Material from, Material to) {
+    typeTranslations.put(from, to);
+  }
+
+  public Map<Material, Material> typeTranslations() {
+    return typeTranslations;
   }
 
   public void synchronizedDisconnect(String reason) {
