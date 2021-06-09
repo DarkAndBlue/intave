@@ -27,6 +27,7 @@ import de.jpx3.intave.lib.asm.Frame;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.metrics.Metrics;
 import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.hitbox.typeaccess.DualEntityTypeAccess;
 import de.jpx3.intave.security.*;
 import de.jpx3.intave.tools.*;
 import de.jpx3.intave.tools.annotate.Native;
@@ -149,17 +150,19 @@ public final class IntavePlugin extends JavaPlugin {
     InterceptorDetection.setup();
 
     try {
+      // We need to put this here before setting up the Synchronizer
+      componentLoader = new ComponentLoader(this);
+      componentLoader.loadComponents();
+
       SinusCache.setup();
       TpsResolver.setup();
       Synchronizer.setup();
       ContextSecrets.setup();
+      DualEntityTypeAccess.setup();
 
       trustFactorService = new TrustFactorService(this);
       // version mambo jumbo
-
       // stage 5
-      componentLoader = new ComponentLoader(this);
-      componentLoader.loadComponents();
 
       // we need to put this here
       BackgroundExecutor.start();

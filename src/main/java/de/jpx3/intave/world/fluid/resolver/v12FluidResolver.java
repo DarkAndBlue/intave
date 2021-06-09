@@ -8,6 +8,7 @@ import de.jpx3.intave.tools.wrapper.WrappedVector;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
+import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.fluid.FluidEngine;
 import de.jpx3.intave.world.fluid.FluidTag;
@@ -21,9 +22,10 @@ import org.bukkit.entity.Player;
 public final class v12FluidResolver extends FluidEngine {
   @Override
   protected WrappedFluid fluidAt(User user, int x, int y, int z) {
+    Player player = user.player();
     Block block = BukkitBlockAccess.blockAccess(user.player().getWorld(), x, y, z);
-    float height = LegacyWaterflow.resolveLiquidHeightPercentage(BlockDataAccess.dataIndexOf(block));
-    Material type = block.getType();
+    float height = LegacyWaterflow.resolveLiquidHeightPercentage(BlockDataAccess.dataAccess(block));
+    Material type = BlockTypeAccess.typeAccess(block, player);
     FluidTag fluidTag = FluidTag.EMPTY;
     if (SpecialMaterials.isWater(type)) {
       fluidTag = FluidTag.WATER;
@@ -62,7 +64,7 @@ public final class v12FluidResolver extends FluidEngine {
         for (int z = minZ; z < maxZ; ++z) {
           Block block = BukkitBlockAccess.blockAccess(world, x, y, z);
           Material clientSideBlock = BukkitBlockAccess.cacheAppliedTypeAccess(user, world, x, y, z);
-          boolean waterServerSide = SpecialMaterials.isWater(block.getType());
+          boolean waterServerSide = SpecialMaterials.isWater(BlockTypeAccess.typeAccess(block, player));
           boolean waterClientSide = SpecialMaterials.isWater(clientSideBlock);
           if (waterServerSide) {
             double height = 1 - LegacyWaterflow.resolveLiquidHeightPercentage(block.getData());

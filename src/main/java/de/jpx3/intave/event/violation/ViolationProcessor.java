@@ -1,6 +1,5 @@
 package de.jpx3.intave.event.violation;
 
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.check.event.IntaveCommandExecutionEvent;
 import de.jpx3.intave.access.check.event.IntaveViolationEvent;
@@ -89,9 +88,15 @@ public final class ViolationProcessor {
     double violationLevelAfterViolation = MathHelper.minmax(0, violationLevelBeforeViolation + violationLevelAdded, 1000);
     double preventionActivation = resolvePreventionActivationThreshold(checkName, player);
 
-    violationContext.setViolationLevelAfter(violationLevelAfterViolation);
-    violationContext.setViolationLevelBefore(violationLevelBeforeViolation);
-    violationContext.setPreventionActivation(preventionActivation);
+    violationContext.setViolationLevelAfter(reducePrecision(violationLevelAfterViolation));
+    violationContext.setViolationLevelBefore(reducePrecision(violationLevelBeforeViolation));
+    violationContext.setPreventionActivation(reducePrecision(preventionActivation));
+  }
+
+  private final static double REDUCE_APPLIER = 1000d;
+
+  private double reducePrecision(double input) {
+    return Math.round(input * REDUCE_APPLIER) / REDUCE_APPLIER;
   }
 
   private void processViolationEvent(
@@ -237,14 +242,22 @@ public final class ViolationProcessor {
     if (violationContext.completed() || violationContext.commands().isEmpty()) {
       return;
     }
-    Player player = violationContext.violation().findPlayer().orElseThrow(IllegalStateException::new);
+    Violation violation = violationContext.violation();
+    Player player = violation.findPlayer().orElseThrow(IllegalStateException::new);
+
+    String checkName = violation.check().name().toLowerCase(Locale.ROOT);
+    String message = violation.message();
+    String details = violation.details();
+
+    double afterVL = violationContext.violationLevelAfter();
+
     List<String> newCommands = new ArrayList<>();
     for (String command : violationContext.commands()) {
       ViolationPlaceholderContext placeholderContext = violationContext.placeholderContextOf(DetailScope.FULL /* automaticallly striped when not enterprise */);
       String executedCommand = MessageFormatter.resolveCommandReplacements(player, command, placeholderContext);
       IntaveCommandExecutionEvent commandTriggerEvent = plugin.customEventService().invokeEvent(
         IntaveCommandExecutionEvent.class,
-        event -> event.copy(player, executedCommand, false)
+        event -> event.copy(player, executedCommand, checkName, message, details, afterVL, false)
       );
       if (!commandTriggerEvent.isCancelled()) {
         newCommands.add(commandTriggerEvent.command());
@@ -281,11 +294,6 @@ public final class ViolationProcessor {
       plugin.logger().commandExecution(command);
       Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
     });
-  }
-
-  @Deprecated
-  public boolean processViolation(Player detectedPlayer, double vl, String checkName, String message) {
-    return false;
   }
 
   private final static UserMessageChannel NOTIFY_MESSAGE_CHANNEL = UserMessageChannel.NOTIFY;
@@ -327,10 +335,10 @@ public final class ViolationProcessor {
   }
 
   private void synchronizedMessage(Player player, String message) {
-    if (IntaveControl.GOMME_MODE) {
-      Synchronizer.synchronize(() -> player.sendMessage(message));
-    } else {
+    if (Bukkit.isPrimaryThread()) {
       player.sendMessage(message);
+    } else {
+      Synchronizer.synchronize(() -> player.sendMessage(message));
     }
   }
 

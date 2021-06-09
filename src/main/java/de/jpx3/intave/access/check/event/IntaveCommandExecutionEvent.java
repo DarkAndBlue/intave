@@ -8,15 +8,34 @@ import org.bukkit.event.Cancellable;
 public final class IntaveCommandExecutionEvent extends IntaveEvent implements Cancellable {
   private Player punished;
   private String command;
+
+  private String check;
+  private String violationMessage;
+  private String violationDetails;
+  private double activationVL;
+
   private boolean delayedExecution;
   private boolean cancelled;
 
   private IntaveCommandExecutionEvent() {
   }
 
-  public void copy(Player punished, String command, boolean delayedExecute) {
+  public void copy(
+    Player punished,
+    String command,
+    String check,
+    String violationMessage,
+    String violationDetails,
+    double activationVL,
+    boolean delayedExecute
+  ) {
     this.punished = punished;
     this.command = command;
+    this.check = check;
+    this.violationMessage = violationMessage;
+    this.violationDetails = violationDetails;
+    this.violationDetails = violationDetails;
+    this.activationVL = activationVL;
     this.delayedExecution = delayedExecute;
     this.setCancelled(false);
   }
@@ -33,6 +52,22 @@ public final class IntaveCommandExecutionEvent extends IntaveEvent implements Ca
     Preconditions.checkNotNull(command);
 
     this.command = command;
+  }
+
+  public String violationCheck() {
+    return check;
+  }
+
+  public String violationMessage() {
+    return violationMessage;
+  }
+
+  public String violationDetails() {
+    return violationDetails;
+  }
+
+  public double activationVL() {
+    return activationVL;
   }
 
   public boolean delayedExecute() {
@@ -52,6 +87,20 @@ public final class IntaveCommandExecutionEvent extends IntaveEvent implements Ca
   @Override
   public void referenceInvalidate() {
     punished = null;
+  }
+
+  @Override
+  public String toString() {
+    return "IntaveCommandExecutionEvent{" +
+      "punished=" + punished +
+      ", command='" + command + '\'' +
+      ", check='" + check + '\'' +
+      ", violationMessage='" + violationMessage + '\'' +
+      ", violationDetails='" + violationDetails + '\'' +
+      ", activationVL=" + activationVL +
+      ", delayedExecution=" + delayedExecution +
+      ", cancelled=" + cancelled +
+      '}';
   }
 
   public static IntaveCommandExecutionEvent empty() {

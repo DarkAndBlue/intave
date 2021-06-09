@@ -134,7 +134,7 @@ public final class BlockActionDispatcher implements EventProcessor {
     }
   }
 
-  private final static boolean USE_MBP_FOR_BC = MinecraftVersions.VER1_13_0.atOrAbove();
+  private final static boolean USE_MBP_FOR_BC = MinecraftVersions.VER1_14_0.atOrAbove();
 
   private BlockPosition readBlockPositionFrom(PacketContainer container) {
     if (USE_MBP_FOR_BC) {

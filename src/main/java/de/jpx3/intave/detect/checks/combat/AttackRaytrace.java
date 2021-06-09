@@ -4,7 +4,6 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.detect.CheckStatistics;
@@ -64,13 +63,6 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     AttackRaytraceMeta attackRaytraceMeta = metaOf(player);
     UserMetaViolationLevelData violationLevelData = user.meta().violationLevelData();
     EnumWrappers.EntityUseAction useAction = packet.getEntityUseActions().readSafely(0);
-
-    if (IntaveControl.GOMME_MODE) {
-      if (user.meta().connectionData().sendAsyncMessage) {
-        user.meta().connectionData().sendAsyncMessage = false;
-        player.sendMessage("I'm async");
-      }
-    }
 
     if (useAction == EnumWrappers.EntityUseAction.ATTACK) {
       PacketContainer packetClone = packet.deepClone();

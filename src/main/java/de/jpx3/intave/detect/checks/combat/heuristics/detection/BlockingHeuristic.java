@@ -113,12 +113,13 @@ public final class BlockingHeuristic extends IntaveMetaCheckPart<Heuristics, Blo
 
       if (meta.releasedItemAfterClientTick) {
         String description = "sent multiple blocking interactions between client tick";
-        int options = DELAY_128s | SUGGEST_MINING;
-        Anomaly anomaly = Anomaly.anomalyOf("141", Confidence.CERTAIN, Anomaly.Type.KILLAURA, description, options);
+        int options = DELAY_128s | SUGGEST_MINING | LIMIT_8;
+        Anomaly anomaly = Anomaly.anomalyOf("141", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
         parentCheck().saveAnomaly(player, anomaly);
         //dmc7
         user.applyAttackNerfer(AttackNerfStrategy.BLOCKING, "7");
         user.applyAttackNerfer(AttackNerfStrategy.DMG_LIGHT, "7");
+        user.applyAttackNerfer(AttackNerfStrategy.CANCEL_FIRST_HIT, "7");
       }
 
       int clientTicksBetweenBlockingToggle = meta.clientTicksBetweenBlockingToggle;

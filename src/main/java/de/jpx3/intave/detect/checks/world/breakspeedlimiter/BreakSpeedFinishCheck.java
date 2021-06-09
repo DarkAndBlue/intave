@@ -161,7 +161,8 @@ public final class BreakSpeedFinishCheck extends IntaveMetaCheckPart<BreakSpeedL
       return;
     }
     Block block = BukkitBlockAccess.blockAccess(location);
-    WrappedBlockData blockData = WrappedBlockData.createData(block.getType(), BlockDataAccess.dataIndexOf(block));
+    Object handle = BlockDataAccess.nativeBlockDataOf(block);
+    WrappedBlockData blockData = WrappedBlockData.fromHandle(handle);
     BlockPosition position = new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());
     packet.getBlockData().write(0, blockData);
     packet.getBlockPositionModifier().write(0, position);

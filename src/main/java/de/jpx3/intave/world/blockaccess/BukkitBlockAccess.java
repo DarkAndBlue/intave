@@ -50,7 +50,7 @@ public final class BukkitBlockAccess implements BukkitEventSubscriber {
     if (isInLoadedChunk(blockAccess, blockX, blockZ) || Bukkit.isPrimaryThread()) {
       return user.blockShapeAccess().resolveData(blockX >> 4, blockZ >> 4, blockX, blockY, blockZ);
     }
-    return BlockDataAccess.dataIndexOf(fallbackBlock(blockAccess));
+    return 0;
   }
 
   public static int cacheAppliedDataAccess(User user, World blockAccess, double x, double y, double z) {
@@ -60,7 +60,7 @@ public final class BukkitBlockAccess implements BukkitEventSubscriber {
     if (isInLoadedChunk(blockAccess, blockX, blockZ) || Bukkit.isPrimaryThread()) {
       return user.blockShapeAccess().resolveData(blockX >> 4, blockZ >> 4, blockX, blockY, blockZ);
     }
-    return BlockDataAccess.dataIndexOf(fallbackBlock(blockAccess));
+    return BlockDataAccess.dataAccess(fallbackBlock(blockAccess));
   }
 
   private static Block fallbackBlock(World world) {

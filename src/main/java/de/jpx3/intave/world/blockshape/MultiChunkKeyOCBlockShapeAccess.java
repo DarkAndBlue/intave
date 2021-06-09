@@ -3,6 +3,7 @@ package de.jpx3.intave.world.blockshape;
 import de.jpx3.intave.diagnostics.BoundingBoxAccessFlowStudy;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
+import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockshape.resolver.BoundingBoxResolvePipeline;
 import org.bukkit.Location;
@@ -139,12 +140,12 @@ public final class MultiChunkKeyOCBlockShapeAccess implements OCBlockShapeAccess
   private final static BlockShape EMPTY_CACHE_ENTRY = new BlockShape(Collections.emptyList(), Material.AIR, 0);
 
   private BlockShape lookup(World world, Block block, int posX, int posY, int posZ) {
-    Material type = block.getType();
+    Material type = BlockTypeAccess.typeAccess(block, player);
     if (type == Material.AIR) {
       return EMPTY_CACHE_ENTRY;
     } else {
       BoundingBoxAccessFlowStudy.incremLookups();
-      int data = BlockDataAccess.dataIndexOf(block);
+      int data = BlockDataAccess.dataAccess(block);
       List<WrappedAxisAlignedBB> boundingBoxes = boundingBoxResolver.customResolve(world, player, type, data, posX, posY, posZ);
       return new BlockShape(boundingBoxes, type, data);
     }

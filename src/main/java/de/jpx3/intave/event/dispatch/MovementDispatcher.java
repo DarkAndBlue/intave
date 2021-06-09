@@ -275,7 +275,7 @@ public final class MovementDispatcher implements EventProcessor {
 
       timerCheck.receiveMovement(event, movementData.isTeleportConfirmationPacket);
 
-      Boolean clientOnGround = packet.getBooleans().read(0);
+      boolean clientOnGround = vehicleMove ? player.isOnGround() : packet.getBooleans().read(0);
       boolean collidedWithBoat = movementData.collidedWithBoat();
 
       if (!vehicleMove && !collidedWithBoat) {
@@ -611,7 +611,7 @@ public final class MovementDispatcher implements EventProcessor {
       case START_FALL_FLYING:
         ItemStack plate = player.getInventory().getChestplate();
 
-        if (plate.getType() == Material.ELYTRA) {
+        if (plate != null /* kann null sein, bitte null-check nicht wieder entfernen */ && plate.getType() == Material.ELYTRA) {
           movementData.elytraFlying = true;
         }
     }

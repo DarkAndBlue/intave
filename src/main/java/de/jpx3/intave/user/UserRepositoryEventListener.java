@@ -3,7 +3,6 @@ package de.jpx3.intave.user;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -18,26 +17,21 @@ public final class UserRepositoryEventListener implements BukkitEventSubscriber 
   }
 
   private void synchronizePlayers() {
-    Bukkit.getOnlinePlayers()
-      .stream()
-      .filter(player -> UserRepository.userOf(player) == null)
-      .forEach(UserRepository::registerUser);
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      if (UserRepository.userOf(player) == null) {
+        UserRepository.registerUser(player);
+      }
+      User user = UserRepository.userOf(player);
+      user.delayedRefresh();
+    }
   }
 
   @BukkitEventSubscription(priority = EventPriority.LOWEST)
   public void receiveJoin(PlayerJoinEvent event) {
     Player player = event.getPlayer();
     UserRepository.registerUser(player);
-    Synchronizer.synchronizeDelayed(() -> {
-      UserMetaClientData clientData = UserRepository.userOf(player).meta().clientData();
-      clientData.refresh(player);
-      String string = player.getName() + " joined with version " + clientData.versionString() + " ";
-      string += "(" + clientData.protocolVersion() + ")";
-      if (clientData.clientVersionBehindServerVersion()) {
-        string += " (behind server)";
-      }
-      IntaveLogger.logger().pushPrintln(string);
-    }, 10);
+    User user = UserRepository.userOf(player);
+    Synchronizer.synchronizeDelayed(user::delayedRefresh, 10);
   }
 
   @BukkitEventSubscription(priority = EventPriority.HIGHEST)

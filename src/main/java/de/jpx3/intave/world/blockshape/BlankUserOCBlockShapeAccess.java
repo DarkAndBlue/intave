@@ -32,27 +32,22 @@ public final class BlankUserOCBlockShapeAccess implements OCBlockShapeAccess {
 
   @Override
   public void identityInvalidate() {
-
   }
 
   @Override
   public void invalidate() {
-
   }
 
   @Override
   public void invalidate0(int posX, int posY, int posZ) {
-
   }
 
   @Override
   public void override(World world, int posX, int posY, int posZ, Material type, int blockState) {
-
   }
 
   @Override
   public void invalidateOverridesInBounds(int chunkXMinPos, int chunkXMaxPos, int chunkZMinPos, int chunkZMaxPos) {
-
   }
 
   @Override
@@ -67,7 +62,6 @@ public final class BlankUserOCBlockShapeAccess implements OCBlockShapeAccess {
 
   @Override
   public void invalidateOverride(int posX, int posY, int posZ) {
-
   }
 
   @Override
