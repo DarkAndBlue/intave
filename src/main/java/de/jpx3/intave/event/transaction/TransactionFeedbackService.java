@@ -101,19 +101,13 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
     if (user == null || !user.hasOnlinePlayer()) {
       return;
     }
-    UserMetaConnectionData connectionData = user.meta().connectionData();
-    try {
-      connectionData.transactionLock.lock();
-      if (TransactionOptions.matches(OPTIONAL, options)) {
-        if (pendingTransactions(userOf(player)) > OPTIONAL_LIMIT) {
-          appendRequestToContext(player, target, callback);
-          return;
-        }
+    if (TransactionOptions.matches(OPTIONAL, options)) {
+      if (pendingTransactions(userOf(player)) > OPTIONAL_LIMIT) {
+        appendRequestToContext(player, target, callback);
+        return;
       }
-      sendTransactionPacket(player, acquireNewId(player, target, callback));
-    } finally {
-      connectionData.transactionLock.unlock();
     }
+    sendTransactionPacket(player, acquireNewId(player, target, callback));
   }
 
   private final static Object FALLBACK_OBJECT = new Object();

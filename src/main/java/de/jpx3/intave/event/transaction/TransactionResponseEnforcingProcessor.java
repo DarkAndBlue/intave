@@ -59,33 +59,28 @@ public final class TransactionResponseEnforcingProcessor implements PacketEventS
     Map<Short, TFRequest<?>> transactionShortKeyMap = synchronizeData.transactionShortKeyMap();
     Short transactionIdentifier = event.getPacket().getShorts().readSafely(0);
     if (transactionIdentifier <= TRANSACTION_MAX_CODE) {
-      try {
-        synchronizeData.transactionLock.lock();
-        TFRequest<?> transactionResponse = transactionShortKeyMap.remove(transactionIdentifier);
-        if (transactionResponse == null) {
-          return;
-        }
-        transactionGlobalKeyMap.remove(transactionResponse.num());
-        long expected = synchronizeData.lastReceivedTransactionNum + 1;
-        long received = transactionResponse.num();
-        if (received != expected) {
-          IntaveLogger.logger().pushPrintln("[Intave] " + player.getName() + " sent invalid validation response (received " + received + ", but expected " + expected + ")");
-          synchronizeData.noteHardTransactionResponse();
-          long from = Math.min(expected, received);
-          long to = Math.max(expected, received);
-          for (long i = from; i < to; i++) {
-            TFRequest<?> request = transactionGlobalKeyMap.remove(i);
-            if (request == null) continue;
-            transactionShortKeyMap.remove(request.key());
-            receiveRequest(user, request);
-          }
-        } else {
-          receiveRequest(user, transactionResponse);
-        }
-        event.setCancelled(true);
-      } finally {
-        synchronizeData.transactionLock.unlock();
+      TFRequest<?> transactionResponse = transactionShortKeyMap.get(transactionIdentifier);
+      if (transactionResponse == null) {
+        return;
       }
+      long expected = synchronizeData.lastReceivedTransactionNum + 1;
+      long received = transactionResponse.num();
+      if (received != expected) {
+        long from = Math.min(expected, received);
+        long to = Math.max(expected, received);
+        for (long i = from; i < to; i++) {
+          TFRequest<?> request = transactionGlobalKeyMap.remove(i);
+          if (request == null) continue;
+          transactionShortKeyMap.remove(request.key());
+          receiveRequest(user, request);
+        }
+//          IntaveLogger.logger().pushPrintln("[Intave] " + player.getName() + " sent invalid validation response (received " + received + ", but expected " + expected + " -> "+emulations +" emulations)");
+        synchronizeData.noteHardTransactionResponse();
+      }
+      transactionShortKeyMap.remove(transactionIdentifier);
+      transactionGlobalKeyMap.remove(transactionResponse.num());
+      receiveRequest(user, transactionResponse);
+      event.setCancelled(true);
     }
   }
 

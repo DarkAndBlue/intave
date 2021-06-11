@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Relocate
 public final class UserMetaConnectionData {
@@ -26,7 +25,6 @@ public final class UserMetaConnectionData {
   private final Map<Integer, WrappedEntity> synchronizedEntityMap = Maps.newConcurrentMap();
   private final Map<Long, Long> remainingPingPacketTimestamps = Maps.newConcurrentMap();
   private final List<Long> latencyDifferenceBalance = Lists.newCopyOnWriteArrayList();
-  public final ReentrantLock transactionLock = new ReentrantLock(false);
   public long lastCCCInfoMessageSent = 0;
   public boolean sendAsyncMessage = false;
 
