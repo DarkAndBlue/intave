@@ -498,7 +498,7 @@ public final class Physics extends IntaveCheck {
         details += ", strict";
       }
 
-      double vl = violationLevelIncrease / (highToleranceMode ? 75d : 50d);
+      double vl = violationLevelIncrease / (highToleranceMode ? 75 : (violationLevelData.physicsVL >= 100 ? 20 : 50));
 
       Violation violation = Violation.builderFor(Physics.class)
         .forPlayer(player).withMessage(message).withDetails(details).withVL(vl).build();
