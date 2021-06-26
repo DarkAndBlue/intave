@@ -76,7 +76,7 @@ public final class NoSwingHeuristic extends IntaveMetaCheckPart<Heuristics, NoSw
     }
 
     // fix?
-    if (user.meta().clientData().clientVersionBehindServerVersion()) {
+    if (user.meta().clientData().clientVersionOlderThanServerVersion()) {
       return;
     }
 

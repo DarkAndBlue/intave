@@ -196,6 +196,7 @@ public final class Physics extends IntaveCheck {
     }
   }
 
+  @DispatchCrossCall
   public void updateOnGroundIfFlying(User user) {
     UserMetaMovementData movementData = user.meta().movementData();
     double physicsMotionX = movementData.physicsMotionX;

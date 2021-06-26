@@ -96,7 +96,7 @@ public final class User {
     UserMetaClientData clientData = meta().clientData();
     String string = player.getName() + " joined with version " + clientData.versionString() + " ";
     string += "(" + clientData.protocolVersion() + ")";
-    if (clientData.clientVersionBehindServerVersion()) {
+    if (clientData.clientVersionOlderThanServerVersion()) {
       string += " (behind server)";
     }
     IntaveLogger.logger().pushPrintln(string);

@@ -45,10 +45,10 @@ public final class v8BoundingBoxResolver implements BoundingBoxResolvePipeline {
   public List<WrappedAxisAlignedBB> customResolve(World world, Player player, org.bukkit.Material type, int blockState, int posX, int posY, int posZ) {
     BlockPosition blockposition = new BlockPosition(posX, posY, posZ);
     IBlockData blockData = Block.getByCombinedId(type.getId() | (blockState & 0xF) << 12);
-    List<AxisAlignedBB> bbs = new ArrayList<>();
     if (blockData == null) {
       return Collections.emptyList();
     }
+    List<AxisAlignedBB> bbs = new ArrayList<>();
     blockData.getBlock().a(
       ((CraftWorld) world).getHandle(),
       blockposition,

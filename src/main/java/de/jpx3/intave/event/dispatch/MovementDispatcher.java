@@ -229,7 +229,7 @@ public final class MovementDispatcher implements EventProcessor {
 
     // garbage fix
     if (
-      clientData.cavesAndCliffsUpdate()
+      clientData.cavesAndCliffsUpdate() && !movementData.awaitTeleport && !movementData.awaitOutgoingTeleport
     ) {
       StructureModifier<Double> modifier = packet.getDoubles();
       double positionX = round(modifier.read(0));

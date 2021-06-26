@@ -13,6 +13,7 @@ import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
+import de.jpx3.intave.tools.annotate.DispatchCrossCall;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserCustomCheckMeta;
@@ -74,6 +75,7 @@ public final class Timer extends IntaveMetaCheck<Timer.TimerData> {
     timerData.lastFlyingPacket = AccessHelper.now();
   }
 
+  @DispatchCrossCall
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     if (player == null) {

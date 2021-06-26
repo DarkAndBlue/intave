@@ -76,7 +76,7 @@ public final class IntavePlugin extends JavaPlugin {
   private static IntavePlugin singletonInstance;
   private static String version = "UNKNOWN";
   private static String prefix = ChatColor.translateAlternateColorCodes('&', "&8[&c&lIntave&8]&7 ");
-  private static String defaultColor = "";
+  private static String defaultColor = ChatColor.getLastColors(prefix);;
   private static boolean offlineMode = false;
 
   static {
@@ -559,7 +559,7 @@ public final class IntavePlugin extends JavaPlugin {
   }
 
   @Native
-  private static int javaVersion() {
+  public static int javaVersion() {
     String version = System.getProperty("java.version");
     if (version.startsWith("1.")) {
       version = version.substring(2, 3);

@@ -123,7 +123,7 @@ public final class UserMetaClientData {
   }
 
   public boolean flyingPacketStream() {
-    return protocolVersion <= VER_1_8 && !clientVersionBehindServerVersion();
+    return protocolVersion <= VER_1_8 && !clientVersionOlderThanServerVersion();
   }
 
   public boolean inventoryAchievementPacket() {
@@ -193,7 +193,7 @@ public final class UserMetaClientData {
 
   private Boolean behind;
 
-  public boolean clientVersionBehindServerVersion() {
+  public boolean clientVersionOlderThanServerVersion() {
     if (behind == null || refreshes < 2) {
       MinecraftVersion server = MinecraftVersion.getCurrentVersion();
       MinecraftVersion client = new MinecraftVersion(versionAsString());

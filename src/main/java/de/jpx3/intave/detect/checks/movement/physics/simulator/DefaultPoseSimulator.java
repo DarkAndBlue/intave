@@ -1,4 +1,4 @@
-package de.jpx3.intave.detect.checks.movement.physics.simulators;
+package de.jpx3.intave.detect.checks.movement.physics.simulator;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.detect.checks.movement.physics.MotionVector;

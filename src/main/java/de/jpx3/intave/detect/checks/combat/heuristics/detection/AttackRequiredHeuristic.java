@@ -93,7 +93,7 @@ public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristic
     if (entity == null || !entity.clientSynchronized || movementData.lastTeleport < 5) {
       return;
     }
-    if (clientData.protocolVersion() != VER_1_8 || clientData.clientVersionBehindServerVersion()) {
+    if (clientData.protocolVersion() != VER_1_8 || clientData.clientVersionOlderThanServerVersion()) {
       return;
     }
 

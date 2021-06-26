@@ -21,7 +21,7 @@ public final class IntaveLogger {
 
   public static boolean FILE_OUTPUT = true;
   public static final boolean VIOLATION_CONSOLE_OUTPUT = IntaveControl.GOMME_MODE;
-  public static final boolean DISABLE_COLOR_OUTPUT = IntaveControl.GOMME_MODE;
+  public static final boolean DISABLE_COLOR_OUTPUT = IntaveControl.GOMME_MODE || IntavePlugin.javaVersion() > 8;
 
   private final static String LOG_PATH = "plugins" + File.separator + "Intave" + File.separator + "logs";
   private final IntavePlugin plugin;
