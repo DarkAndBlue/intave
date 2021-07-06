@@ -10,7 +10,7 @@ import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.user.*;
-import de.jpx3.intave.world.raytrace.Raytracer;
+import de.jpx3.intave.world.raytrace.Raytracing;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.LOOK;
@@ -83,7 +83,7 @@ public final class RotationModuloResetHeuristic extends IntaveMetaCheckPart<Heur
     UserMetaMovementData movementData = meta.movementData();
     UserMetaClientData clientData = meta.clientData();
     boolean alternativePositionY = clientData.protocolVersion() == UserMetaClientData.VER_1_8;
-    Raytracer.EntityInteractionRaytrace rayTraceResult = Raytracer.distanceOfIgnoringBlocks(
+    Raytracing.EntityInteractionRaytrace rayTraceResult = Raytracing.distanceOfIgnoringBlocks(
       user.player(),
       attackData.lastAttackedEntity(),
       alternativePositionY,

@@ -22,7 +22,7 @@ import de.jpx3.intave.user.UserMetaClientData;
 import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
-import de.jpx3.intave.world.raytrace.Raytracer;
+import de.jpx3.intave.world.raytrace.Raytracing;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -154,7 +154,7 @@ public final class AirClickLimitHeuristic extends IntaveMetaCheckPart<Heuristics
       boolean error = false;
       WrappedMovingObjectPosition raycastResult;
       try {
-        raycastResult = Raytracer.blockRayTrace(player, playerLocation);
+        raycastResult = Raytracing.blockRayTrace(player, playerLocation);
       } catch (Exception exception) {
 //        exception.printStackTrace();
         raycastResult = null;

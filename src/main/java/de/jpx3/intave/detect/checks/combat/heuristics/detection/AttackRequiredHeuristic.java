@@ -14,14 +14,14 @@ import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.user.*;
-import de.jpx3.intave.world.raytrace.Raytracer;
+import de.jpx3.intave.world.raytrace.Raytracing;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
 import static de.jpx3.intave.user.UserMetaClientData.VER_1_8;
-import static de.jpx3.intave.world.raytrace.Raytracer.distanceOf;
+import static de.jpx3.intave.world.raytrace.Raytracing.distanceOf;
 
 public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristics, AttackRequiredHeuristic.AttackRequiredMeta> {
   private final IntavePlugin plugin;
@@ -153,7 +153,7 @@ public final class AttackRequiredHeuristic extends IntaveMetaCheckPart<Heuristic
     boolean alternativePositionY = clientData.protocolVersion() == VER_1_8;
     boolean hasAlwaysMouseDelayFix = clientData.protocolVersion() >= 314;
     // mouse delay fix
-    Raytracer.EntityInteractionRaytrace distanceOfResult = distanceOf(
+    Raytracing.EntityInteractionRaytrace distanceOfResult = distanceOf(
       player,
       entity, alternativePositionY,
       movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ,

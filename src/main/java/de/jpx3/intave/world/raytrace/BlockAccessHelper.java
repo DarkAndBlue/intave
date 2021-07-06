@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 
 import static de.jpx3.intave.reflect.ReflectiveAccess.lookupServerClass;
 
+@Deprecated
 public final class BlockAccessHelper {
   private static boolean MINECRAFT_AUSRUTSCHER = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0) && !ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_13_0);
 

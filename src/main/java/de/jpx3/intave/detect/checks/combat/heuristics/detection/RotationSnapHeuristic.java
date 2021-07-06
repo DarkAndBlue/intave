@@ -19,7 +19,7 @@ import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
-import de.jpx3.intave.world.raytrace.Raytracer;
+import de.jpx3.intave.world.raytrace.Raytracing;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
-import static de.jpx3.intave.world.raytrace.Raytracer.distanceOf;
+import static de.jpx3.intave.world.raytrace.Raytracing.distanceOf;
 
 public final class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics, RotationSnapHeuristic.RotationSnapHeuristicMeta> {
 
@@ -212,7 +212,7 @@ public final class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics,
 
         if (lastEntityPosition != null && tick != null) {
           WrappedAxisAlignedBB lastBoundingBox = WrappedEntity.entityBoundingBoxFrom(lastEntityPosition, wrappedEntity);
-          Raytracer.EntityInteractionRaytrace last = distanceOf(
+          Raytracing.EntityInteractionRaytrace last = distanceOf(
             player,
             lastBoundingBox,
             0,
@@ -222,7 +222,7 @@ public final class RotationSnapHeuristic extends IntaveMetaCheckPart<Heuristics,
             false
           );
 
-          Raytracer.EntityInteractionRaytrace now = distanceOf(
+          Raytracing.EntityInteractionRaytrace now = distanceOf(
             player,
             wrappedEntity.entityBoundingBox(),
             0,

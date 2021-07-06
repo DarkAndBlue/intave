@@ -21,7 +21,7 @@ import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
 import de.jpx3.intave.user.*;
-import de.jpx3.intave.world.raytrace.Raytracer;
+import de.jpx3.intave.world.raytrace.Raytracing;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -212,7 +212,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
   private boolean validReachStanding(User user, WrappedEntity entity) {
     Player player = user.player();
     double minReach = findLowestPossibleReachIterative(user, entity, false, true);
-    double blockReachDistance = Raytracer.reachDistance(player);
+    double blockReachDistance = Raytracing.reachDistance(player);
 
     return minReach > blockReachDistance;
   }
@@ -220,11 +220,11 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
   private boolean validReachWalking(User user, WrappedEntity entity) {
     UserMetaMovementData movementData = user.meta().movementData();
     Player player = user.player();
-    double blockReachDistance = Raytracer.reachDistance(player);
+    double blockReachDistance = Raytracing.reachDistance(player);
     float rotationYaw = movementData.rotationYaw % 360;
 
     // mouse delay fix
-    Raytracer.EntityInteractionRaytrace distanceOfResult = Raytracer.distanceOfCombo(
+    Raytracing.EntityInteractionRaytrace distanceOfResult = Raytracing.distanceOfCombo(
       player,
       entity, true,
       movementData.positionX, movementData.positionY, movementData.positionZ,
@@ -249,14 +249,14 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     UserMetaClientData clientData = meta.clientData();
     UserMetaPunishmentData punishmentData = meta.punishmentData();
 
-    double blockReachDistance = Raytracer.reachDistance(meta);
+    double blockReachDistance = Raytracing.reachDistance(meta);
     boolean alternativePositionY = clientData.protocolVersion() == UserMetaClientData.VER_1_8;
     boolean hasAlwaysMouseDelayFix = clientData.protocolVersion() >= 314;
     float rotationYaw = movementData.rotationYaw % 360f;
     float lastRotationYaw = movementData.lastRotationYaw % 360f;
 
     // mouse delay fix
-    Raytracer.EntityInteractionRaytrace distanceOfResult = Raytracer.distanceOfCombo(
+    Raytracing.EntityInteractionRaytrace distanceOfResult = Raytracing.distanceOfCombo(
       player,
       entity, alternativePositionY,
       movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ,
@@ -335,7 +335,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
 
   private int applicableViolationPoints(
     AttackRaytraceResult attackRaytraceResult,
-    Raytracer.EntityInteractionRaytrace distanceOfResult,
+    Raytracing.EntityInteractionRaytrace distanceOfResult,
     WrappedEntity entity,
     User user, double expandHitbox
   ) {
@@ -374,7 +374,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     UserMetaMovementData movementData = meta.movementData();
     UserMetaClientData clientData = user.meta().clientData();
 
-    double blockReachDistance = Raytracer.reachDistance(meta);
+    double blockReachDistance = Raytracing.reachDistance(meta);
     boolean hasAlwaysMouseDelayFix = clientData.protocolVersion() >= 314;
     double minReach = findLowestPossibleReachIterative(user, attackedEntity, hasAlwaysMouseDelayFix, false);
     // TODO: 01/07/21 clear after last possible position
@@ -421,13 +421,13 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     UserMetaMovementData movementData = meta.movementData();
     float rotationYaw = movementData.rotationYaw % 360;
     float lastRotationYaw = movementData.lastRotationYaw % 360;
-    double blockReachDistance = Raytracer.reachDistance(meta);
+    double blockReachDistance = Raytracing.reachDistance(meta);
 
     double minReach = 10;
     for (WrappedEntity.EntityPositionContext possiblePosition : clonedEntity.positionHistory) {
       clonedEntity.position = possiblePosition.clone();
       // mouse delay fix
-      Raytracer.EntityInteractionRaytrace resultWithoutIncrement = Raytracer.distanceOfCombo(
+      Raytracing.EntityInteractionRaytrace resultWithoutIncrement = Raytracing.distanceOfCombo(
         player,
         clonedEntity,
         alternativePositionY,
@@ -444,7 +444,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
       while (clonedEntity.position.newPosRotationIncrements > 0) {
         clonedEntity.onUpdate();
         // mouse delay fix
-        Raytracer.EntityInteractionRaytrace result = Raytracer.distanceOfCombo(
+        Raytracing.EntityInteractionRaytrace result = Raytracing.distanceOfCombo(
           player,
           clonedEntity,
           alternativePositionY,
@@ -469,7 +469,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
         // TODO: 01/07/21 add general packet based length tolerance
         clonedEntity.position = possiblePosition.clone();
         // mouse delay fix
-        Raytracer.EntityInteractionRaytrace resultWithoutIncrement = Raytracer.distanceOfCombo(
+        Raytracing.EntityInteractionRaytrace resultWithoutIncrement = Raytracing.distanceOfCombo(
           player,
           clonedEntity,
           false,
@@ -487,7 +487,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
         while (clonedEntity.position.newPosRotationIncrements > 0) {
           clonedEntity.onUpdate();
           // mouse delay fix
-          Raytracer.EntityInteractionRaytrace result = Raytracer.distanceOfCombo(
+          Raytracing.EntityInteractionRaytrace result = Raytracing.distanceOfCombo(
             player,
             clonedEntity,
             false,

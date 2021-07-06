@@ -36,7 +36,7 @@ import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
 import de.jpx3.intave.world.collision.Collision;
 import de.jpx3.intave.world.permission.WorldPermission;
-import de.jpx3.intave.world.raytrace.Raytracer;
+import de.jpx3.intave.world.raytrace.Raytracing;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -239,8 +239,8 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     WrappedMovingObjectPosition raycastResult;
     WrappedMovingObjectPosition raycastResultmdf;
     try {
-      raycastResult = Raytracer.blockRayTrace(player, playerLocation);
-      raycastResultmdf = Raytracer.blockRayTrace(player, playerLocationmdf);
+      raycastResult = Raytracing.blockRayTrace(player, playerLocation);
+      raycastResultmdf = Raytracing.blockRayTrace(player, playerLocationmdf);
     } catch (Exception exception) {
       exception.printStackTrace();
       if (interaction.targetBlock.toLocation(world).distance(player.getLocation()) < 6) {
@@ -288,7 +288,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
         targetLocation.getBlockZ() + 1
       ).grow(0.1);
       Location location = estimateMouseDelayFix ? playerLocationmdf : playerLocation;
-      WrappedVector origin = Raytracer.resolvePositionEyes(location, location, user.meta().movementData().eyeHeight(), 1f);
+      WrappedVector origin = Raytracing.resolvePositionEyes(location, location, user.meta().movementData().eyeHeight(), 1f);
       WrappedVector directionVector = hitVec.subtract(origin).normalize().scale(0.2);
       WrappedVector itrVector = origin.scale(1);
       if (targetBlockBox.isVecInside(hitVec)) {
@@ -338,8 +338,8 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
     WrappedMovingObjectPosition raycastResult;
     WrappedMovingObjectPosition raycastResultmdf;
     try {
-      raycastResult = Raytracer.blockRayTrace(player, playerLocation);
-      raycastResultmdf = Raytracer.blockRayTrace(player, playerLocationmdf);
+      raycastResult = Raytracing.blockRayTrace(player, playerLocation);
+      raycastResultmdf = Raytracing.blockRayTrace(player, playerLocationmdf);
     } catch (Exception exception) {
       exception.printStackTrace();
       return interaction.targetBlock.toLocation(world).distance(player.getLocation()) < 6;

@@ -51,7 +51,7 @@ import de.jpx3.intave.world.blockshape.resolver.pipeline.patcher.BoundingBoxPatc
 import de.jpx3.intave.world.collider.Collider;
 import de.jpx3.intave.world.fluid.Fluids;
 import de.jpx3.intave.world.permission.WorldPermission;
-import de.jpx3.intave.world.raytrace.Raytracer;
+import de.jpx3.intave.world.raytrace.Raytracing;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.PluginLogger;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -488,7 +488,7 @@ public final class IntavePlugin extends JavaPlugin {
       ReflectiveAccess.setup();
       UserRepository.setup();
       WrapperLinkage.setup();
-      Raytracer.setup();
+      Raytracing.setup();
       Collider.setup();
       Fluids.setup();
       BukkitBlockAccess.setup();
