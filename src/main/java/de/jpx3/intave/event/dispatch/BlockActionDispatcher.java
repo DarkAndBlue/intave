@@ -25,7 +25,6 @@ import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.*;
@@ -192,9 +191,8 @@ public final class BlockActionDispatcher implements EventProcessor {
         }
       }
     } else {
-      BlockPosition position = packet.getBlockPositionModifier().readSafely(0);
-      blockPositions = Lists.newArrayList(position);
-      blockDataList = Collections.singletonList(packet.getBlockData().read(0));
+      blockPositions = Lists.newArrayList(packet.getBlockPositionModifier().readSafely(0));
+      blockDataList = Lists.newArrayList(packet.getBlockData().read(0));
     }
 
     boolean transactionSynchronize = false;

@@ -8,6 +8,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.event.packet.PacketEventSubscriber;
 import de.jpx3.intave.logging.IntaveLogger;
+import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserMetaConnectionData;
@@ -28,7 +29,8 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
   public final static long TRANSACTION_TIMEOUT_KICK = 20000;
   public final static short TRANSACTION_MIN_CODE = -32768;
   public final static short TRANSACTION_MAX_CODE = -16370;
-  public final static long OPTIONAL_LIMIT = 20;
+  public final static long OPTIONAL_PENDING_LIMIT = 20;
+  public final static long OPTIONAL_SENT_LIMIT = 100;
 
   private final static ProtocolManager protocolManager = ProtocolLibrary.getProtocolManager();
   private final TransactionResponseEnforcingProcessor responseLocker;
@@ -102,11 +104,14 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
       return;
     }
     if (TransactionOptions.matches(OPTIONAL, options)) {
-      if (pendingTransactions(userOf(player)) > OPTIONAL_LIMIT) {
+      boolean tooManyPending = pendingTransactions(userOf(player)) > OPTIONAL_PENDING_LIMIT;
+      boolean sentTooManyRecently = user.meta().connectionData().transactionPacketCounter > OPTIONAL_SENT_LIMIT;
+      if (tooManyPending || sentTooManyRecently) {
         appendRequestToContext(player, target, callback);
         return;
       }
     }
+    countTransactionPacket(player);
     sendTransactionPacket(player, acquireNewId(player, target, callback));
   }
 
@@ -157,6 +162,17 @@ public final class TransactionFeedbackService implements PacketEventSubscriber {
     short counter = TRANSACTION_MIN_CODE;
     while (transactionFeedBackMap.containsKey(counter)) counter++;
     return counter;
+  }
+
+  private void countTransactionPacket(Player receiver) {
+    User user = userOf(receiver);
+    UserMetaConnectionData connectionData = user.meta().connectionData();
+    connectionData.transactionPacketCounter++;
+
+    if (AccessHelper.now() - connectionData.transactionPacketCounterReset > 3000) {
+      connectionData.transactionPacketCounter = 0;
+      connectionData.transactionPacketCounterReset = AccessHelper.now();
+    }
   }
 
   private void sendTransactionPacket(Player receiver, short id) {
