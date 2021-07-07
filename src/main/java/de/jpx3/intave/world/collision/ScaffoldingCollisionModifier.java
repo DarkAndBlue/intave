@@ -2,6 +2,7 @@ package de.jpx3.intave.world.collision;
 
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserMetaMovementData;
 import org.bukkit.Material;
 
 import java.util.Collections;
@@ -10,14 +11,21 @@ import java.util.List;
 public final class ScaffoldingCollisionModifier extends CollisionModifier {
   @Override
   public List<WrappedAxisAlignedBB> modify(User user, WrappedAxisAlignedBB userBox, int posX, int posY, int posZ, List<WrappedAxisAlignedBB> boxes) {
-//    boxes = new ArrayList<>(boxes);
-//    this.c > (double)var1.getY() + var0.c(EnumAxis.Y) - 9.999999747378752E-6D
-    boolean disableHitbox = userBox.minY <= posY + 1 - 0.000009999999747378752;
-    if (disableHitbox) {
+    if (useCustomCollision(user, posY)) {
+      double yStart = 14.0 / 16.0;
+      double yEnd = 1.0;
+      return Collections.singletonList(WrappedAxisAlignedBB.fromBounds(
+        posX, posY + yStart, posZ,
+        posX + 1, posY + yEnd, posZ + 1
+      ));
+    } else {
       return Collections.emptyList();
     }
-//    boxes.removeIf(axisAlignedBB -> );
-    return boxes;
+  }
+
+  private boolean useCustomCollision(User user, int blockY) {
+    UserMetaMovementData movementData = user.meta().movementData();
+    return movementData.positionY >= blockY + 1 - (double) 0.00001f;
   }
 
   @Override
