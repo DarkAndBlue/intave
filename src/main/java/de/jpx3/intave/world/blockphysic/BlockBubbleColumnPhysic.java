@@ -6,6 +6,8 @@ import de.jpx3.intave.user.UserMetaClientData;
 import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.world.fluid.FluidTag;
 import de.jpx3.intave.world.fluid.Fluids;
+import de.jpx3.intave.world.state.BlockState;
+import de.jpx3.intave.world.state.BlockStateBoolean;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -16,6 +18,11 @@ import java.util.List;
 
 final class BlockBubbleColumnPhysic implements BlockPhysic {
   private Material bubbleColumnBlock;
+  private final BlockStateBoolean blockDragState = BlockStateBoolean.of("drag");
+
+  private final BlockState blockState = BlockState.builder()
+    .with(blockDragState)
+    .build();
 
   @Override
   public void setup(MinecraftVersion serverVersion) {
@@ -33,7 +40,7 @@ final class BlockBubbleColumnPhysic implements BlockPhysic {
     if (clientData.waterUpdate()) {
       boolean water = Fluids.fluidAt(user, location.clone().add(0,1,0)).isIn(FluidTag.WATER);
       Block block = location.getBlock();
-      boolean downwards = block.toString().contains("drag=true");
+      boolean downwards = blockState.valueOf(block, blockDragState);
       if (water) {
         return enterBubbleColumn(user, downwards, motionX, motionY, motionZ);
       } else {
