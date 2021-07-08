@@ -328,7 +328,6 @@ public final class SimulationProcessor {
         if (attackReduce && (movementData.pastPlayerAttackPhysics >= 1 || AttackDispatcher.REDUCING_DISABLED)) {
           continue;
         }
-
         for (boolean jumped : estimatedJump ? BOOLEAN_STATES_TF : BOOLEAN_STATES_FT) {
           // Jumps are only allowed on the ground :(
           if (jumped && !lastOnGround && !inLava && !inWater) {

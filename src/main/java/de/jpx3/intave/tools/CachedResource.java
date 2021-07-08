@@ -91,7 +91,7 @@ public final class CachedResource {
       return new ByteArrayInputStream(new byte[0]);
     }
     try {
-      FileChannel fileInputChannel = acquireFile();
+      FileChannel fileInputChannel = acquireInputFileChannel();
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       fileInputChannel.transferTo(0, Long.MAX_VALUE, Channels.newChannel(byteArrayOutputStream));
       removeFileLock(fileInputChannel);
@@ -118,7 +118,31 @@ public final class CachedResource {
   }
 
   @Native
-  private FileChannel acquireFile() {
+  private FileChannel acquireInputFileChannel() {
+    acquireFileChannel();
+    FileOutputStream in;
+    try {
+      in = new FileOutputStream(fileStore());
+      return in.getChannel();
+    } catch (FileNotFoundException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  @Native
+  private FileChannel acquireOutputFileChannel() {
+    acquireFileChannel();
+    FileOutputStream in;
+    try {
+      in = new FileOutputStream(fileStore());
+      return in.getChannel();
+    } catch (FileNotFoundException e) {
+      throw new IllegalStateException(e);
+    }
+  }
+
+  @Native
+  private void acquireFileChannel() {
     File file = fileStore();
     File lockFile = new File(file + ".sig");
     try {
@@ -128,8 +152,6 @@ public final class CachedResource {
       String hash = HashAccess.hashOf(file);
       lockChannel.write(ByteBuffer.wrap(hash.getBytes(StandardCharsets.UTF_8)));
       lock = lockChannel.lock();
-      FileInputStream in = new FileInputStream(file);
-      return in.getChannel();
     } catch (IOException e) {
       throw new IllegalStateException(e);
     }
@@ -194,7 +216,7 @@ public final class CachedResource {
       } catch (IOException e) {
         throw new IllegalStateException(e);
       }
-      FileChannel outputChannel = acquireFile();//new FileOutputStream(fileStore());
+      FileChannel outputChannel = acquireOutputFileChannel();//new FileOutputStream(fileStore());
       outputChannel.transferFrom(byteChannel, 0, Long.MAX_VALUE);
       file.setLastModified(AccessHelper.now());
       removeFileLock(outputChannel);

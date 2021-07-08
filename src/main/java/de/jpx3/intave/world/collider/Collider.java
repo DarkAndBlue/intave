@@ -15,26 +15,26 @@ import de.jpx3.intave.world.collider.simple.UniversalSimpleColliderProcessor;
 import org.bukkit.entity.Player;
 
 public final class Collider {
-  private static ComplexColliderProcessor legacyCollisionResolver;
-  private static ComplexColliderProcessor modernCollisionResolver;
-  private static SimpleColliderProcessor simpleColliderProcessor;
+  private static ComplexColliderProcessor legacyComplexCollisionResolver;
+  private static ComplexColliderProcessor modernComplexCollisionResolver;
+  private static SimpleColliderProcessor universalSimpleColliderProcessor;
 
   private Collider() {
   }
 
   public static void setup() {
-    legacyCollisionResolver = new LegacyComplexColliderProcessor();
-    modernCollisionResolver = new ModernComplexColliderProcessor();
-    simpleColliderProcessor = new UniversalSimpleColliderProcessor();
+    legacyComplexCollisionResolver = new LegacyComplexColliderProcessor();
+    modernComplexCollisionResolver = new ModernComplexColliderProcessor();
+    universalSimpleColliderProcessor = new UniversalSimpleColliderProcessor();
   }
 
   public static ComplexColliderProcessor suitableComplexColliderProcessorFor(User user) {
     UserMetaClientData clientData = user.meta().clientData();
-    return clientData.applyModernCollider() ? modernCollisionResolver : legacyCollisionResolver;
+    return clientData.applyModernCollider() ? modernComplexCollisionResolver : legacyComplexCollisionResolver;
   }
 
   public static SimpleColliderProcessor suitableSimpleColliderProcessorFor(User user) {
-    return simpleColliderProcessor;
+    return universalSimpleColliderProcessor;
   }
 
   public static ComplexColliderSimulationResult simulateComplexCollision(

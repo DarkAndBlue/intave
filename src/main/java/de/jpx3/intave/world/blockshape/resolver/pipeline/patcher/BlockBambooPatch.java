@@ -1,5 +1,6 @@
 package de.jpx3.intave.world.blockshape.resolver.pipeline.patcher;
 
+import com.google.common.collect.Lists;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
@@ -38,6 +39,7 @@ public final class BlockBambooPatch extends BoundingBoxPatch {
   @Override
   public boolean appliesTo(Material material) {
     String name = material.name();
+    Lists.newArrayList(new String[0]);
     return name.contains("BAMBOO");
   }
 }

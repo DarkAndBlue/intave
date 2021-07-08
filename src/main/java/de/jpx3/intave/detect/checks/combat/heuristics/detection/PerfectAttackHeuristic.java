@@ -24,6 +24,7 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
+import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
 
 public final class PerfectAttackHeuristic extends IntaveMetaCheckPart<Heuristics, PerfectAttackHeuristic.PerfectAttackMeta> {
@@ -99,7 +100,7 @@ public final class PerfectAttackHeuristic extends IntaveMetaCheckPart<Heuristics
           + "%, r:" + MathHelper.formatDouble(yawSpeedAverage, 2)
           + ", d:" + MathHelper.formatDouble(distanceAverage, 2)
           + ") vl:" + MathHelper.formatDouble(heuristicMeta.vl, 2);
-        int options = Anomaly.AnomalyOption.LIMIT_4 | Anomaly.AnomalyOption.SUGGEST_MINING | Anomaly.AnomalyOption.DELAY_16s;
+        int options = LIMIT_1 | LIMIT_4 | SUGGEST_MINING | DELAY_16s;
         Anomaly anomaly = Anomaly.anomalyOf("51", Confidence.PROBABLE, Anomaly.Type.KILLAURA, description, options);
         parentCheck().saveAnomaly(player, anomaly);
         if (heuristicMeta.vl >= 2) {
