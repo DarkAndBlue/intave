@@ -79,7 +79,7 @@ public final class PacketPlayerActionToggleHeuristic extends IntaveMetaCheckPart
       if (checkable) {
         String description = sprint
           ? "sent too many sprint toggles per tick (" + heuristicMeta.sprintTogglesInTick + ")"
-          : "sent too many sneak toggles per tick (" + heuristicMeta.sneakTogglesInTick + ")" ;
+          : "sent too many sneak toggles per tick (" + heuristicMeta.sneakTogglesInTick + ")";
         if (!flyingPacketStream) {
           description += " (last flying: " + movementData.pastFlyingPacketAccurate() + ")";
         }
@@ -90,14 +90,20 @@ public final class PacketPlayerActionToggleHeuristic extends IntaveMetaCheckPart
           Anomaly anomaly = Anomaly.anomalyOf("41", confidence, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);
         }
-        if (sprint) {
-          //dmc12
-          user.applyAttackNerfer(AttackNerfStrategy.CANCEL, "12");
-        } else {
-          punishmentData.timeLastSneakToggleCancel = AccessHelper.now();
-          Synchronizer.synchronize(() -> ReflectiveDataWatcherAccess.setDataWatcherFlag(player, DATA_WATCHER_SNEAK_ID, false));
+
+        boolean cancel = flyingPacketStream || heuristicMeta.threshold++ > 2 && Math.hypot(movementData.motionX(), movementData.motionZ()) > 0.2;
+        if (cancel) {
+          if (sprint) {
+            //dmc12
+            user.applyAttackNerfer(AttackNerfStrategy.CANCEL, "12");
+          } else {
+            punishmentData.timeLastSneakToggleCancel = AccessHelper.now();
+            Synchronizer.synchronize(() -> ReflectiveDataWatcherAccess.setDataWatcherFlag(player, DATA_WATCHER_SNEAK_ID, false));
+          }
         }
       }
+    } else if (heuristicMeta.threshold > 0) {
+      heuristicMeta.threshold -= 0.025;
     }
   }
 
@@ -110,6 +116,7 @@ public final class PacketPlayerActionToggleHeuristic extends IntaveMetaCheckPart
   public static final class PacketSprintToggleHeuristicMeta extends UserCustomCheckMeta {
     public int sprintTogglesInTick;
     public int sneakTogglesInTick;
+    public double threshold;
 
     public void reset() {
       sprintTogglesInTick = 0;
