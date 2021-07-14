@@ -225,7 +225,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     float rotationYaw = movementData.rotationYaw % 360;
 
     // mouse delay fix
-    Raytracing.EntityInteractionRaytrace distanceOfResult = Raytracing.distanceOfCombo(
+    Raytracing.EntityInteractionRaytrace distanceOfResult = Raytracing.complexDoubleEntityRaytrace(
       player,
       entity, true,
       movementData.positionX, movementData.positionY, movementData.positionZ,
@@ -257,7 +257,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     float lastRotationYaw = movementData.lastRotationYaw % 360f;
 
     // mouse delay fix
-    Raytracing.EntityInteractionRaytrace distanceOfResult = Raytracing.distanceOfCombo(
+    Raytracing.EntityInteractionRaytrace distanceOfResult = Raytracing.complexDoubleEntityRaytrace(
       player,
       entity, alternativePositionY,
       movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ,
@@ -275,7 +275,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
 
     switch (attackRaytraceResult) {
       case MISS: {
-        message = "attacked " + resolveIndefArticle(entityName) + " " + entityName.toLowerCase() + " out of sight";
+        message = "attacked " + resolveArticle(entityName) + " " + entityName.toLowerCase() + " out of sight";
         details = "";
         thresholdKey = "applicable-thresholds.hitbox";
         special = ChatColor.RED + "[R] " + player.getName() + " missed hit on " + entityName.toLowerCase();
@@ -283,7 +283,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
       }
       case REACH: {
         String displayReach = MathHelper.formatDouble(distanceOfResult.reach, 4);
-        message = "attacked " + resolveIndefArticle(entityName) + " " + entityName.toLowerCase() + " from too far away";
+        message = "attacked " + resolveArticle(entityName) + " " + entityName.toLowerCase() + " from too far away";
         details = displayReach + " blocks";
         thresholdKey = "applicable-thresholds.reach";
         special = ChatColor.RED + "[R] " + player.getName() + " attacked " + entityName.toLowerCase() + " from " + displayReach;
@@ -381,7 +381,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     // TODO: 01/07/21 clear after last possible position
     if (minReach > blockReachDistance) {
       String entityName = attackedEntity.entityName();
-      String targetDescriptor = resolveIndefArticle(entityName) + " " + entityName.toLowerCase();
+      String targetDescriptor = resolveArticle(entityName) + " " + entityName.toLowerCase();
       String thresholdKey = "";
       String message, details;
       if (minReach == 10) {
@@ -428,7 +428,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     for (WrappedEntity.EntityPositionContext possiblePosition : clonedEntity.positionHistory) {
       clonedEntity.position = possiblePosition.clone();
       // mouse delay fix
-      Raytracing.EntityInteractionRaytrace resultWithoutIncrement = Raytracing.distanceOfCombo(
+      Raytracing.EntityInteractionRaytrace resultWithoutIncrement = Raytracing.complexDoubleEntityRaytrace(
         player,
         clonedEntity,
         alternativePositionY,
@@ -445,7 +445,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
       while (clonedEntity.position.newPosRotationIncrements > 0) {
         clonedEntity.onUpdate();
         // mouse delay fix
-        Raytracing.EntityInteractionRaytrace result = Raytracing.distanceOfCombo(
+        Raytracing.EntityInteractionRaytrace result = Raytracing.complexDoubleEntityRaytrace(
           player,
           clonedEntity,
           alternativePositionY,
@@ -470,7 +470,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
         // TODO: 01/07/21 add general packet based length tolerance
         clonedEntity.position = possiblePosition.clone();
         // mouse delay fix
-        Raytracing.EntityInteractionRaytrace resultWithoutIncrement = Raytracing.distanceOfCombo(
+        Raytracing.EntityInteractionRaytrace resultWithoutIncrement = Raytracing.complexDoubleEntityRaytrace(
           player,
           clonedEntity,
           false,
@@ -488,7 +488,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
         while (clonedEntity.position.newPosRotationIncrements > 0) {
           clonedEntity.onUpdate();
           // mouse delay fix
-          Raytracing.EntityInteractionRaytrace result = Raytracing.distanceOfCombo(
+          Raytracing.EntityInteractionRaytrace result = Raytracing.complexDoubleEntityRaytrace(
             player,
             clonedEntity,
             false,
@@ -512,8 +512,8 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
 
   private final static char[] vocals = "aeiou".toCharArray();
 
-  private String resolveIndefArticle(String exceptionName) {
-    char c = exceptionName.trim().toLowerCase(Locale.ROOT).toCharArray()[0];
+  private String resolveArticle(String entityName) {
+    char c = entityName.trim().toLowerCase(Locale.ROOT).toCharArray()[0];
     boolean isVocal = false;
     for (char vocal : vocals) {
       if (vocal == c) {
@@ -532,7 +532,7 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
   }
 
   public static class Attack {
-    private boolean shouldResend;
+    private final boolean shouldResend;
     private final PacketContainer packet;
     private final int entityId;
 

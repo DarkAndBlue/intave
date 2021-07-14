@@ -4,6 +4,10 @@ import de.jpx3.intave.detect.checks.movement.physics.MotionVector;
 import de.jpx3.intave.tools.MathHelper;
 
 public class ComplexColliderSimulationResult {
+  private final static ComplexColliderSimulationResult INVALID_SIMULATION = new ComplexColliderSimulationResult(
+    new MotionVector(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE), false, false, false, false, false, false
+  );
+
   private final MotionVector context;
   private final boolean onGround, collidedHorizontally, collidedVertically;
   private final boolean resetMotionX, resetMotionZ;
@@ -56,5 +60,9 @@ public class ComplexColliderSimulationResult {
 
   public boolean resetMotionZ() {
     return resetMotionZ;
+  }
+
+  public static ComplexColliderSimulationResult invalid() {
+    return INVALID_SIMULATION;
   }
 }

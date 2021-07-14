@@ -427,7 +427,7 @@ public final class Physics extends IntaveCheck {
         boolean multipleBoxes = intersectionBoundingBoxesCurrent.size() > 1;
         String details = (multipleBoxes ? intersectionBoundingBoxesCurrent.size() : "one") + " box" + (multipleBoxes ? "es" : "");
 
-        if (!IntaveControl.IGNORE_CACHE_REFRESH_ON_DETECTION) {
+        if (!IntaveControl.IGNORE_CACHE_REFRESH_ON_SIMULATION_FAULT) {
           blockShapeAccess.identityInvalidate();
         }
 
@@ -456,7 +456,7 @@ public final class Physics extends IntaveCheck {
 
         if (!startBoundingBoxInList) {
           movementData.invalidMovement = true;
-          if (!IntaveControl.IGNORE_CACHE_REFRESH_ON_DETECTION) {
+          if (!IntaveControl.IGNORE_CACHE_REFRESH_ON_SIMULATION_FAULT) {
             blockShapeAccess.identityInvalidate();
           }
 
@@ -494,7 +494,7 @@ public final class Physics extends IntaveCheck {
       violationLevelIncrease = Math.max(1, violationLevelIncrease);
       violationLevelData.physicsVL = MathHelper.minmax(0, violationLevelData.physicsVL + violationLevelIncrease, 200);
       violationLevelData.physicsInvalidMovementsInRow++;
-      if (!IntaveControl.IGNORE_CACHE_REFRESH_ON_DETECTION) {
+      if (!IntaveControl.IGNORE_CACHE_REFRESH_ON_SIMULATION_FAULT) {
         blockShapeAccess.identityInvalidate();
       }
       statisticApply(user, CheckStatistics::increaseFails);
@@ -523,6 +523,8 @@ public final class Physics extends IntaveCheck {
       boolean highPitchViolationOverflow = violationLevelData.physicsVL > trustFactorSetting("pa-override-threshold", player);
 
       boolean setback = deepPitchViolationOverflow || (!highToleranceMode && highPitchViolationOverflow);
+
+      // Apply manual setback override when the deviation is greater than 0.75 blocks
       if (distance > 0.75 && !user.trustFactor().atLeast(TrustFactor.BYPASS)) {
         setback = true;
       }

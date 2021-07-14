@@ -47,7 +47,7 @@ public final class BlockShape {
   }
 
   public boolean expired() {
-    return !IntaveControl.IGNORE_CACHE_REFRESH_ON_DETECTION && AccessHelper.now() - creation > 10000;
+    return !IntaveControl.IGNORE_CACHE_REFRESH_ON_SIMULATION_FAULT && AccessHelper.now() - creation > 10000;
   }
 
   @Override

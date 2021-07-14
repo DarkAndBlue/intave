@@ -215,7 +215,7 @@ public class DefaultPoseSimulator extends PoseSimulator {
     double resetMotion = movementData.resetMotion();
     double jumpUpwardsMotion = movementData.jumpMotion();
 
-    double interpolations = 0;
+    int interpolations = 0;
     double interpolateX = context.motionX;
     double interpolateY = context.motionY;
     double interpolateZ = context.motionZ;
