@@ -32,15 +32,6 @@ public interface BlockPhysic {
     return null;
   }
 
-  default float speedFactor(User user) {
-    return 1.0f;
-  }
-
-  // Since 1.15
-  default float jumpFactor(User user) {
-    return 1.0f;
-  }
-
   default void fallenUpon(User user) {
   }
 

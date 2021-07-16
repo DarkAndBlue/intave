@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public final class PlayerEnchantmentHelper {
-  private final static Enchantment ENCHANTMENT_SOUL_SPEED = Enchantment.getByName("soul_speed");
+  private final static Enchantment ENCHANTMENT_SOUL_SPEED = Enchantment.getByName("SOUL_SPEED");
   private final static Enchantment ENCHANTMENT_DEPTH_STRIDER = Enchantment.getByName("DEPTH_STRIDER");
   public final static Enchantment ENCHANTMENT_RIPTIDE = Enchantment.getByName("RIPTIDE");
 
@@ -21,10 +21,11 @@ public final class PlayerEnchantmentHelper {
   }
 
   public static int resolveSoulSpeedModifier(Player player) {
-    if (ENCHANTMENT_SOUL_SPEED == null) {
+    ItemStack boots = player.getInventory().getBoots();
+    if (ENCHANTMENT_SOUL_SPEED == null || boots == null) {
       return 0;
     }
-    return resolveEnchantmentLevel(ENCHANTMENT_SOUL_SPEED, player.getInventory().getArmorContents());
+    return resolveEnchantmentLevel(ENCHANTMENT_SOUL_SPEED, boots);
   }
 
   public static int resolveRiptideModifier(ItemStack stack) {

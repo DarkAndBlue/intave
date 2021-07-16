@@ -4,6 +4,8 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.comphenix.protocol.wrappers.WrappedAttribute;
+import com.comphenix.protocol.wrappers.WrappedAttributeModifier;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
@@ -13,6 +15,7 @@ import de.jpx3.intave.detect.checks.movement.Timer;
 import de.jpx3.intave.detect.checks.world.InteractionRaytrace;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.event.entity.WrappedEntity;
+import de.jpx3.intave.event.feedback.Callback;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.packet.PacketSubscriptionLinker;
@@ -32,14 +35,12 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.util.List;
+import java.util.UUID;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.POSITION;
 import static de.jpx3.intave.event.packet.PacketId.Client.VEHICLE_MOVE;
@@ -139,6 +140,47 @@ public final class MovementDispatcher implements EventProcessor {
     movementData.lastRotationPitch = movementData.rotationPitch;
     movementData.rotationYaw = location.getYaw();
     movementData.rotationPitch = location.getPitch();
+  }
+
+  private final static UUID ATTRIBUTE_UUID = UUID.fromString("87f46a96-686f-4796-b035-22e16ee9e038");
+
+  @PacketSubscription(
+    priority = ListenerPriority.HIGH,
+    packetsOut = {
+      UPDATE_ATTRIBUTES
+    }
+  )
+  public void sentAttributes(PacketEvent event) {
+    Player player = event.getPlayer();
+    User user = UserRepository.userOf(player);
+    UserMetaMovementData movementData = user.meta().movementData();
+    WrappedAttribute attribute = genericMovementSpeedAttributeOf(event.getPacket());
+    if (attribute == null) {
+      return;
+    }
+    boolean found = false;
+    for (WrappedAttributeModifier modifier : attribute.getModifiers()) {
+      UUID uuid = modifier.getUUID();
+      if (uuid.equals(ATTRIBUTE_UUID)) {
+        Callback<Object> callback = (player1, target) -> movementData.genericMovementSpeedAttribute = (float) modifier.getAmount();
+        plugin.eventService().feedback().singleSynchronize(player, new Object(), callback);
+        found = true;
+      }
+    }
+    if (!found) {
+      Callback<Object> callback = (player1, target) -> movementData.genericMovementSpeedAttribute = 0;
+      plugin.eventService().feedback().singleSynchronize(player, new Object(), callback);
+    }
+  }
+
+  private WrappedAttribute genericMovementSpeedAttributeOf(PacketContainer packet) {
+    List<WrappedAttribute> attributes = packet.getAttributeCollectionModifier().read(0);
+    for (WrappedAttribute attribute : attributes) {
+      if (attribute.getAttributeKey().equals("generic.movement_speed")) {
+        return attribute;
+      }
+    }
+    return null;
   }
 
   @PacketSubscription(
