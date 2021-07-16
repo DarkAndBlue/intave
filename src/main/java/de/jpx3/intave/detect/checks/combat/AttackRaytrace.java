@@ -128,12 +128,12 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
       WrappedEntity entity = entityByIdentifier(user, remainingAttack.entityId());
       Boolean cancelHit = null;
       UserMetaAbilityData abilityData = user.meta().abilityData();
-      float unsynchroniszedHealth = abilityData.unsynchronizedHealth;
+      float unsynchronizedHealth = abilityData.unsynchronizedHealth;
 
       // bypass when the entity is null or on entities which are riding and players which are mounted on entities
       if (entity != null) {
         // stops raytrace if the entity is null or the player is in the death screen
-        if (unsynchroniszedHealth > 0 && !(entity instanceof DeadWrappedEntity)) {
+        if (unsynchronizedHealth > 0 && !(entity instanceof DeadWrappedEntity)) {
           if (entity.mountedEntity() == null && !player.isInsideVehicle() && entity.isEntityLiving && !abilityData.ignoringMovementPackets()) {
             if (clientData.protocolVersion() >= VER_1_9) {
               // >= 1.9.x
