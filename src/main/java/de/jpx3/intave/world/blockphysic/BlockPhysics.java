@@ -1,7 +1,6 @@
 package de.jpx3.intave.world.blockphysic;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
-import com.google.common.collect.Lists;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.tools.annotate.Nullable;
 import de.jpx3.intave.user.User;
@@ -10,12 +9,10 @@ import org.bukkit.Material;
 import org.bukkit.util.Vector;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public final class BlockPhysics {
   private final static MinecraftVersion MINECRAFT_VERSION = ProtocolLibraryAdapter.serverVersion();
-  private final static List<BlockPhysic> blocks = Lists.newArrayList();
   private final static Map<Material, BlockPhysic> blockAccessCache = new HashMap<>();
 
   public static void setup() {
@@ -39,7 +36,6 @@ public final class BlockPhysics {
           blockAccessCache.put(material, block);
         }
       }
-      blocks.add(block);
     } catch (InstantiationException | IllegalAccessException exception) {
       exception.printStackTrace();
     }
@@ -74,16 +70,6 @@ public final class BlockPhysics {
   ) {
     BlockPhysic collision = findCustomPhysicsEntry(material);
     return collision != null ? collision.landed(user, motionX, motionY, motionZ) : null;
-  }
-
-  public static float speedFactor(User user, Material material) {
-    BlockPhysic collision = findCustomPhysicsEntry(material);
-    return collision != null ? collision.speedFactor(user) : 1.0f;
-  }
-
-  public static float jumpFactor(User user, Material material) {
-    BlockPhysic collision = findCustomPhysicsEntry(material);
-    return collision != null ? collision.jumpFactor(user) : 1.0f;
   }
 
   public static void fallenUpon(User user, Material material) {

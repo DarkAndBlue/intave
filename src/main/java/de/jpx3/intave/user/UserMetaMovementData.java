@@ -9,11 +9,13 @@ import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import de.jpx3.intave.tools.annotate.Nullable;
 import de.jpx3.intave.tools.client.*;
+import de.jpx3.intave.tools.items.PlayerEnchantmentHelper;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
-import de.jpx3.intave.world.blockphysic.BlockPhysics;
+import de.jpx3.intave.world.blockphysic.BlockProperties;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
@@ -57,13 +59,14 @@ public final class UserMetaMovementData {
   public float lastRotationYaw, lastRotationPitch;
   private Pose movementPoseType = Pose.PLAYER;
   private final SimulationProcessor.IterativeSimulationContext iterativeSimulation = new SimulationProcessor.IterativeSimulationContext();
+  private Material blockOnPosition = Material.AIR;
 
   // Timestamps
   public long lastSneakingTimestamps, lastJumpTimestamps;
 
   private volatile WrappedAxisAlignedBB boundingBox;
   public Vector emulationVelocity;
-  public Vector setbackOverrideVelocity = new Vector(0,0,0);
+  public Vector setbackOverrideVelocity = new Vector(0, 0, 0);
   public Vector lastVelocity = new Vector();
   @Nullable
   private Vector motionMultiplier = null;
@@ -71,6 +74,7 @@ public final class UserMetaMovementData {
   private double jumpMotion;
   private int pastClientFlyingPacket, pastFlyingPacketAccurate;
   private float aiMoveSpeed, jumpMovementFactor;
+  public float genericMovementSpeedAttribute;
   public boolean inWater, eyesInWater;
   public boolean inWeb;
   public int pastPushedByWaterFlow = 100;
@@ -216,6 +220,7 @@ public final class UserMetaMovementData {
       positionX = round(modifier.read(0));
       positionY = round(modifier.read(1));
       positionZ = round(modifier.read(2));
+      blockOnPosition = BukkitBlockAccess.cacheAppliedTypeAccess(user, player.getWorld(), positionX, positionY - frictionPosSubtraction, positionZ);
 
       motionX = positionX - verifiedPositionX;
       motionY = positionY - verifiedPositionY;
@@ -269,9 +274,13 @@ public final class UserMetaMovementData {
 
   private float jumpFactor() {
     World world = player.getWorld();
-    float f = BlockPhysics.jumpFactor(user, BukkitBlockAccess.cacheAppliedTypeAccess(user, world, positionX, positionY, positionZ));
-    float f1 = BlockPhysics.jumpFactor(user, BukkitBlockAccess.cacheAppliedTypeAccess(user, world, positionX, positionY - frictionPosSubtraction, positionZ));
+    float f = jumpFactorOf(BukkitBlockAccess.cacheAppliedTypeAccess(user, world, positionX, positionY, positionZ));
+    float f1 = jumpFactorOf(blockOnPosition());
     return (double) f == 1.0D ? f1 : f;
+  }
+
+  private float jumpFactorOf(Material material) {
+    return BlockProperties.ofType(material).jumpFactor();
   }
 
   public boolean collidedWithBoat() {
@@ -312,6 +321,7 @@ public final class UserMetaMovementData {
     float speedAmplifier = potionData.potionEffectSpeedAmplifier();
     aiMoveSpeed *= 1f + (-0.15f * slowdownAmplifier);
     aiMoveSpeed *= 1f + (0.2f * speedAmplifier);
+    aiMoveSpeed += genericMovementSpeedAttribute;
     if (sprintingAllowed) {
       aiMoveSpeed *= 1.3f;
     }
@@ -322,6 +332,10 @@ public final class UserMetaMovementData {
       this.jumpMovementFactor = abilityData.flySpeed() * (float) (lastSprinting ? 2 : 1);
     }
     friction = MovementContext.resolveFriction(user, verifiedPositionX, verifiedPositionY, verifiedPositionZ);
+  }
+
+  public boolean blockOnPositionSoulSpeedAffected() {
+    return BlockProperties.ofType(blockOnPosition()).soulSpeedAffected();
   }
 
   private void updateEntityActionStates() {
@@ -410,6 +424,10 @@ public final class UserMetaMovementData {
   public void increaseFlyingPacket() {
     pastFlyingPacketAccurate++;
     pastClientFlyingPacket++;
+  }
+
+  private Material blockOnPosition() {
+    return blockOnPosition;
   }
 
   public boolean hasRidingEntity() {

@@ -22,19 +22,13 @@ final class BlockSoulSandPhysic implements BlockPhysic {
 
   @Override
   public Vector entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
-    boolean requiresSpeedFactor = requiresSpeedFactor(user);
-    return !requiresSpeedFactor ? new Vector(motionX * 0.4, motionY, motionZ * 0.4) : null;
+    boolean useBlockCollision = useBlockCollision(user);
+    return useBlockCollision ? new Vector(motionX * 0.4, motionY, motionZ * 0.4) : null;
   }
 
-  @Override
-  public float speedFactor(User user) {
-    boolean requiresSpeedFactor = requiresSpeedFactor(user);
-    return requiresSpeedFactor ? 0.4f : 1.0f;
-  }
-
-  private boolean requiresSpeedFactor(User user) {
+  private boolean useBlockCollision(User user) {
     UserMetaClientData clientData = user.meta().clientData();
-    return clientData.protocolVersion() >= VER_1_15;
+    return clientData.protocolVersion() < VER_1_15;
   }
 
   @Override

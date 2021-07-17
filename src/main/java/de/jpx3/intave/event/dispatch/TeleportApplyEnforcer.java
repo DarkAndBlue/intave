@@ -70,12 +70,12 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     UserMetaMovementData movementData = user.meta().movementData();
     if (movementData.awaitTeleport) {
       if (TELEPORTATION_DEBUG) {
-        IntaveLogger.logger().pushPrintln("[Intave] Cancel packet (Awaiting teleportation accept)");
+        IntaveLogger.logger().pushPrintln("[Intave] Cancel packet of " + player.getName() + "(Awaiting teleport accept)");
       }
 //      event.setCancelled(true);
       if (movementData.teleportResendCountdown-- < 0) {
         if (TELEPORTATION_DEBUG) {
-          IntaveLogger.logger().pushPrintln("[Intave] UPDATE POSITION BECAUSE OLD IS OUTDATED");
+          IntaveLogger.logger().pushPrintln("[Intave] Resend teleport to " + player.getName());
         }
         Synchronizer.synchronize(() -> {
           Location location = movementData.teleportLocation;
@@ -98,7 +98,8 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     );
     if (TELEPORTATION_DEBUG) {
       Synchronizer.synchronize(() -> {
-        Bukkit.broadcastMessage("[Intave] Checking potential legacy teleportation accept of " + player.getName() + ": " + MathHelper.formatPosition(positionX, positionY, positionZ));
+        String position = MathHelper.formatPosition(positionX, positionY, positionZ);
+        Bukkit.broadcastMessage("[Intave] Checking potential legacy teleport accept of " + player.getName() + " on " + position);
       });
     }
     boolean validPosition = positionDeviation < 0.00001;
@@ -108,7 +109,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
       applyPositionConfirmationUpdate(player, positionX, positionY, positionZ);
       if (TELEPORTATION_DEBUG) {
         Synchronizer.synchronize(() -> {
-          Bukkit.broadcastMessage("[Intave] " + player.getName() + " accepted teleportation request");
+          Bukkit.broadcastMessage("[Intave] " + player.getName() + " accepted teleport request (release lock)");
         });
       }
 
@@ -123,7 +124,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     } else {
       if (TELEPORTATION_DEBUG) {
         Synchronizer.synchronize(() -> {
-          Bukkit.broadcastMessage("[Intave] Potential teleportation requested of " + player.getName() + "was evaluated as invalid");
+          Bukkit.broadcastMessage("[Intave] " + player.getName() + " did not accept the teleport request");
         });
       }
     }

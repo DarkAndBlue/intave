@@ -54,16 +54,6 @@ final class BlockHoneyPhysic implements BlockPhysic {
   }
 
   @Override
-  public float speedFactor(User user) {
-    return 0.4f;
-  }
-
-  @Override
-  public float jumpFactor(User user) {
-    return 0.5f;
-  }
-
-  @Override
   public boolean supportedOnServerVersion() {
     return honeyBlock != null;
   }

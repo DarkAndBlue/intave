@@ -4,8 +4,7 @@ import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
-import de.jpx3.intave.world.blockphysic.Climbables;
-import de.jpx3.intave.world.blockphysic.Slipperiness;
+import de.jpx3.intave.world.blockphysic.BlockProperties;
 import de.jpx3.intave.world.collision.Collision;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -53,7 +52,7 @@ public final class MovementContext {
 
   public static float currentSlipperiness(User user, Location location) {
     Material type = BukkitBlockAccess.cacheAppliedTypeAccess(user, location);
-    return Slipperiness.ofType(type) * 0.91f;
+    return BlockProperties.ofType(type).slipperiness() * 0.91f;
   }
 
   public static boolean isOffsetPositionInLiquid(
@@ -146,7 +145,7 @@ public final class MovementContext {
     if (clientData.combatUpdate() && type.name().contains("TRAP_DOOR") && canGoThroughTrapDoorOnLadder(block)) {
       return true;
     }
-    return Climbables.canBeClimbed(type);
+    return BlockProperties.ofType(type).climbable();
   }
 
   private static boolean canGoThroughTrapDoorOnLadder(Block block) {

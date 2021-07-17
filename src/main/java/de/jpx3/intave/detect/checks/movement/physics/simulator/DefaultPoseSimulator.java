@@ -16,6 +16,7 @@ import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserMetaViolationLevelData;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockphysic.BlockPhysics;
+import de.jpx3.intave.world.blockphysic.BlockProperties;
 import de.jpx3.intave.world.collider.Collider;
 import de.jpx3.intave.world.collider.complex.ComplexColliderSimulationResult;
 import de.jpx3.intave.world.collider.simple.SimpleColliderSimulationResult;
@@ -493,10 +494,9 @@ public class DefaultPoseSimulator extends PoseSimulator {
 
     if (clientData.protocolVersion() >= VER_1_14) {
       int soulSandModifier = PlayerEnchantmentHelper.resolveSoulSpeedModifier(player);
-      if (soulSandModifier == 0) {
+      if (soulSandModifier == 0 || !movementData.blockOnPositionSoulSpeedAffected()) {
         Block blockAccess = BukkitBlockAccess.blockAccess(world, positionX, positionY - 0.5000001, positionZ);
-        Material material = blockAccess.getType();
-        float speedFactor = BlockPhysics.speedFactor(user, material);
+        float speedFactor = BlockProperties.ofType(blockAccess.getType()).speedFactor();
         context.motionX *= speedFactor;
         context.motionZ *= speedFactor;
       }
