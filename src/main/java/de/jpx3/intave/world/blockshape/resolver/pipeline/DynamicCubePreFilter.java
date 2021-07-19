@@ -19,6 +19,16 @@ public final class DynamicCubePreFilter implements BoundingBoxResolvePipeline {
 
   public DynamicCubePreFilter(BoundingBoxResolvePipeline forward) {
     this.forward = forward;
+    this.preloadBlocks();
+  }
+
+  public void preloadBlocks() {
+    for (Material type : Material.values()) {
+      String typeName = type.name();
+      if (typeName.contains("SLAB") /* can be doubled */) {
+        otherMaterials.add(type);
+      }
+    }
   }
 
   @Override
@@ -47,9 +57,20 @@ public final class DynamicCubePreFilter implements BoundingBoxResolvePipeline {
     }
     List<WrappedAxisAlignedBB> resolve = forward.customResolve(world, player, type, blockState, posX, posY, posZ);
     if (isInLoadedChunk(world, posX, posZ)) {
-      (isSolid(resolve, posX, posY, posZ) ? solidMaterials : otherMaterials).add(type);
+      boolean solid = isSolid(resolve, posX, posY, posZ);
+      if (solid) {
+        flushTypeCache(type); // flush downstream type save
+      }
+      (solid ? solidMaterials : otherMaterials).add(type);
     }
     return resolve;
+  }
+
+  @Override
+  public void flushTypeCache(Material type) {
+    solidMaterials.remove(type);
+    otherMaterials.remove(type);
+    forward.flushTypeCache(type);
   }
 
   public static boolean isInLoadedChunk(World world, int x, int z) {
