@@ -58,7 +58,7 @@ public final class IntaveBotStage extends CommandStage {
         MiningStrategy.EMULATION_HEAVY.apply(target);
         break;
     }
-    commandSender.sendMessage(IntavePlugin.prefix() + ChatColor.GRAY + "Summoned bots for " + ChatColor.RED + target.player().getName());
+    commandSender.sendMessage(IntavePlugin.prefix() + ChatColor.GRAY + "Summoned bot to " + ChatColor.RED + target.player().getName());
   }
 
   private String firstToUppercase(String string) {
