@@ -4,7 +4,7 @@ import de.jpx3.intave.detect.checks.movement.Physics;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.world.collider.complex.ComplexColliderSimulationResult;
 
-public abstract class PoseSimulator {
+public abstract class SimulationEngine {
   private Physics physics;
 
   public final void checkLinkage(Physics physics) {

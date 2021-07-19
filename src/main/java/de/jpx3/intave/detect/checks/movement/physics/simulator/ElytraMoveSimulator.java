@@ -8,7 +8,7 @@ import de.jpx3.intave.world.collider.Collider;
 import de.jpx3.intave.world.collider.complex.ComplexColliderSimulationResult;
 import org.bukkit.util.Vector;
 
-public final class ElytraPoseSimulator extends DefaultPoseSimulator {
+public final class ElytraMoveSimulator extends DefaultMoveSimulator {
   @Override
   public ComplexColliderSimulationResult performSimulation(
     User user, MotionVector context,

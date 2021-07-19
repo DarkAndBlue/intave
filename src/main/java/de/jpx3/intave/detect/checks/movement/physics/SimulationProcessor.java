@@ -25,7 +25,7 @@ public final class SimulationProcessor {
   private final static double REQUIRED_PREDICTION_ACCURACY_FOR_PRED_BIAS_PROCEED = 0.1;
 
   public ComplexColliderSimulationResult simulate(User user, SimulationService simulationService) {
-    PoseSimulator simulator = simulationService.simulator();
+    SimulationEngine simulator = simulationService.simulator();
     boolean keyDependent = simulator.affectedByMovementKeys();
     return keyDependent ? performKeySimulation(user) : simulateMovementWithoutKeyPress(user);
   }
@@ -147,7 +147,7 @@ public final class SimulationProcessor {
     UserMetaMovementData movementData = user.meta().movementData();
     UserMetaInventoryData inventoryData = user.meta().inventoryData();
     SimulationService movementSimulationServiceType = movementData.simulationService();
-    PoseSimulator simulator = movementSimulationServiceType.simulator();
+    SimulationEngine simulator = movementSimulationServiceType.simulator();
     MotionVector motionVector = movementData.motionProcessorContext;
     double lastMotionX = movementData.physicsMotionX;
     double lastMotionZ = movementData.physicsMotionZ;
@@ -210,7 +210,7 @@ public final class SimulationProcessor {
     UserMetaMovementData movementData = user.meta().movementData();
     UserMetaInventoryData inventoryData = user.meta().inventoryData();
     SimulationService movementSimulationServiceType = movementData.simulationService();
-    PoseSimulator simulator = movementSimulationServiceType.simulator();
+    SimulationEngine simulator = movementSimulationServiceType.simulator();
     MotionVector motionVector = movementData.motionProcessorContext;
 
     int keyForward = movementData.lastKeyForward;
@@ -308,7 +308,7 @@ public final class SimulationProcessor {
     UserMetaMovementData movementData = meta.movementData();
     UserMetaClientData clientData = meta.clientData();
     SimulationService movementSimulationServiceType = movementData.simulationService();
-    PoseSimulator simulator = movementSimulationServiceType.simulator();
+    SimulationEngine simulator = movementSimulationServiceType.simulator();
     IterativeSimulationContext iterativeSimulation = movementData.iterativeSimulation();
     iterativeSimulation.restore();
     boolean inLava = movementData.inLava();
@@ -408,7 +408,7 @@ public final class SimulationProcessor {
     UserMetaMovementData movementData,
     UserMetaInventoryData inventoryData,
     IterativeSimulationContext result,
-    PoseSimulator simulator,
+    SimulationEngine simulator,
     int keyForward,
     int keyStrafe,
     boolean attackReduce,

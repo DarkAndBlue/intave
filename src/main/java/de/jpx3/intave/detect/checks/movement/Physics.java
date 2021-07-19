@@ -196,7 +196,7 @@ public final class Physics extends IntaveCheck {
     double motionZ = movementData.motionZ();
     if (hasMovement) {
       SimulationService movementSimulationServiceType = movementData.simulationService();
-      PoseSimulator simulator = movementSimulationServiceType.simulator();
+      SimulationEngine simulator = movementSimulationServiceType.simulator();
       if (movementData.pastVelocity == 0) {
         if (movementData.physicsJumped && movementData.lastVelocityApplicableForJumpDenial()) {
           movementData.physicsJumpedOverrideVL++;
