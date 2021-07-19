@@ -4,7 +4,7 @@ import de.jpx3.intave.detect.checks.movement.physics.simulator.DefaultMoveSimula
 import de.jpx3.intave.detect.checks.movement.physics.simulator.ElytraMoveSimulator;
 import de.jpx3.intave.detect.checks.movement.physics.simulator.HorseMoveSimulator;
 
-public enum SimulationService {
+public enum SimulationEngines {
   PLAYER(new DefaultMoveSimulator(), ""),
   ELYTRA(new ElytraMoveSimulator(), "ELYTRA"),
   HORSE(new HorseMoveSimulator(), "HORSE");
@@ -12,7 +12,7 @@ public enum SimulationService {
   private final SimulationEngine calculationPart;
   private final String debug;
 
-  SimulationService(SimulationEngine calculationPart, String debug) {
+  SimulationEngines(SimulationEngine calculationPart, String debug) {
     this.calculationPart = calculationPart;
     this.debug = debug;
   }

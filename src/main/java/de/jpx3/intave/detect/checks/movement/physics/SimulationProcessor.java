@@ -24,8 +24,8 @@ public final class SimulationProcessor {
   private final static double REQUIRED_ACCURACY_FOR_QUICK_PROC_EXIT = 0.001;
   private final static double REQUIRED_PREDICTION_ACCURACY_FOR_PRED_BIAS_PROCEED = 0.1;
 
-  public ComplexColliderSimulationResult simulate(User user, SimulationService simulationService) {
-    SimulationEngine simulator = simulationService.simulator();
+  public ComplexColliderSimulationResult simulate(User user, SimulationEngines simulationEngines) {
+    SimulationEngine simulator = simulationEngines.simulator();
     boolean keyDependent = simulator.affectedByMovementKeys();
     return keyDependent ? performKeySimulation(user) : simulateMovementWithoutKeyPress(user);
   }
@@ -131,10 +131,10 @@ public final class SimulationProcessor {
   ) {
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
-    SimulationService movementSimulationServiceType = movementData.simulationService();
+    SimulationEngines movementSimulationEnginesType = movementData.simulationService();
     MotionVector motionVector = MotionVector.from(movementData.motionProcessorContext);
     motionVector.resetTo(movementData);
-    return movementSimulationServiceType.simulator().performSimulation(
+    return movementSimulationEnginesType.simulator().performSimulation(
       user, motionVector,
       forward, strafe, false, jumped,
       meta.inventoryData().handActive()
@@ -146,8 +146,8 @@ public final class SimulationProcessor {
     Timings.CHECK_PHYSICS_PROC_PRED_BIA.start();
     UserMetaMovementData movementData = user.meta().movementData();
     UserMetaInventoryData inventoryData = user.meta().inventoryData();
-    SimulationService movementSimulationServiceType = movementData.simulationService();
-    SimulationEngine simulator = movementSimulationServiceType.simulator();
+    SimulationEngines movementSimulationEnginesType = movementData.simulationService();
+    SimulationEngine simulator = movementSimulationEnginesType.simulator();
     MotionVector motionVector = movementData.motionProcessorContext;
     double lastMotionX = movementData.physicsMotionX;
     double lastMotionZ = movementData.physicsMotionZ;
@@ -209,8 +209,8 @@ public final class SimulationProcessor {
     Timings.CHECK_PHYSICS_PROC_LK_BIA.start();
     UserMetaMovementData movementData = user.meta().movementData();
     UserMetaInventoryData inventoryData = user.meta().inventoryData();
-    SimulationService movementSimulationServiceType = movementData.simulationService();
-    SimulationEngine simulator = movementSimulationServiceType.simulator();
+    SimulationEngines movementSimulationEnginesType = movementData.simulationService();
+    SimulationEngine simulator = movementSimulationEnginesType.simulator();
     MotionVector motionVector = movementData.motionProcessorContext;
 
     int keyForward = movementData.lastKeyForward;
@@ -307,8 +307,8 @@ public final class SimulationProcessor {
     UserMetaInventoryData inventoryData = meta.inventoryData();
     UserMetaMovementData movementData = meta.movementData();
     UserMetaClientData clientData = meta.clientData();
-    SimulationService movementSimulationServiceType = movementData.simulationService();
-    SimulationEngine simulator = movementSimulationServiceType.simulator();
+    SimulationEngines movementSimulationEnginesType = movementData.simulationService();
+    SimulationEngine simulator = movementSimulationEnginesType.simulator();
     IterativeSimulationContext iterativeSimulation = movementData.iterativeSimulation();
     iterativeSimulation.restore();
     boolean inLava = movementData.inLava();
