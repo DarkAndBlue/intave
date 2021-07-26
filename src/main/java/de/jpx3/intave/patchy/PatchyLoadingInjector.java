@@ -4,7 +4,6 @@ import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.annotate.Native;
 
 import java.io.*;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
@@ -22,7 +21,8 @@ public final class PatchyLoadingInjector {
       if (!classIsLoaded(classLoader, className)) {
         classBytes = classBytesOf(classLoader, className);
         classBytes = PatchyTranslator.translateClass(classBytes);
-        defineClass(classLoader, classBytes);
+//        defineClass(classLoader, classBytes);
+        de.jpx3.classloader.ClassLoader.classLoad(classBytes);
       }
       return classByName(className);
     } catch (Error | Exception e) {
@@ -32,14 +32,17 @@ public final class PatchyLoadingInjector {
 
   @Native
   private static boolean classIsLoaded(ClassLoader classLoader, String className) {
-    try {
-      Method findLoadedClass = ClassLoader.class.getDeclaredMethod("findLoadedClass", String.class);
-      findLoadedClass.setAccessible(true);
-      return findLoadedClass.invoke(classLoader, className) != null;
-    } catch (Exception exception) {
-      exception.printStackTrace();
-      return true;
-    }
+//    try {
+//      Method findLoadedClass = ClassLoader.class.getDeclaredMethod("findLoadedClass", String.class);
+//      if (!findLoadedClass.isAccessible()) {
+//        findLoadedClass.setAccessible(true);
+//      }
+//      return findLoadedClass.invoke(classLoader, className) != null;
+//    } catch (Exception exception) {
+//      exception.printStackTrace();
+//      return true;
+//    }
+    return de.jpx3.classloader.ClassLoader.classLoaded(className);
   }
 
   @Native
@@ -105,15 +108,15 @@ public final class PatchyLoadingInjector {
     return var3;
   }
 
-  private static void defineClass(ClassLoader classLoader, byte[] classBytes) {
-    try {
-      Method defineClass = ClassLoader.class.getDeclaredMethod("defineClass", byte[].class, int.class, int.class);
-      defineClass.setAccessible(true);
-      defineClass.invoke(classLoader, classBytes, 0, classBytes.length);
-    } catch (Exception exception) {
-      exception.printStackTrace();
-    }
-  }
+//  private static void defineClass(ClassLoader classLoader, byte[] classBytes) {
+//    try {
+//      Method defineClass = ClassLoader.class.getDeclaredMethod("defineClass", byte[].class, int.class, int.class);
+//      defineClass.setAccessible(true);
+//      defineClass.invoke(classLoader, classBytes, 0, classBytes.length);
+//    } catch (Exception exception) {
+//      exception.printStackTrace();
+//    }
+//  }
 
   private static <T> Class<T> classByName(String className) {
     try {

@@ -34,28 +34,21 @@ public final class CheckViolationLevelDecrementer {
 
   public void decrement(User user, double amount) {
     UserMetaViolationLevelData violationLevelData = user.meta().violationLevelData();
-
     Map<String, Map<String, Double>> violationLevel = violationLevelData.violationLevel;
     Map<String, Map<String, Double>> violationLevelGainedCounter = violationLevelData.violationLevelGainedCounter;
     Map<String, Map<String, Long>> lastViolationLevelGainedCounterReset = violationLevelData.lastViolationLevelGainedCounterReset;
-
     long lastReset = accessValueFromVLMap(lastViolationLevelGainedCounterReset, AccessHelper.now());
-
     if (AccessHelper.now() - lastReset > 1000) {
       putValueInVLMap(violationLevelGainedCounter, 0d);
       putValueInVLMap(lastViolationLevelGainedCounterReset, AccessHelper.now());
     }
-
-    double recentlyGainedVl  = accessValueFromVLMap(violationLevelGainedCounter, 0d);
+    double recentlyGainedVl = accessValueFromVLMap(violationLevelGainedCounter, 0d);
     recentlyGainedVl += amount;
-
     if (recentlyGainedVl > limitPerSecond) {
       return;
     }
-
     double vl = accessValueFromVLMap(violationLevel, 0d);
     double newVl = MathHelper.minmax(0, vl - amount, 1000);
-//    user.player().sendMessage(vl + " -> " + newVl);
     putValueInVLMap(violationLevel, newVl);
   }
 

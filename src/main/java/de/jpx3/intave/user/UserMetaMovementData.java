@@ -24,6 +24,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +33,7 @@ import static de.jpx3.intave.user.UserMetaClientData.VER_1_15;
 public final class UserMetaMovementData {
   private final Player player;
   private final User user;
-  private volatile Object nmsWorld;
+  private volatile WeakReference<Object> nmsWorld;
 
   private boolean hasJumpFactor;
 
@@ -199,10 +200,10 @@ public final class UserMetaMovementData {
 
   public void updateWorld() {
     if (player == null) {
-      nmsWorld = ReflectiveHandleAccess.handleOf(Bukkit.getWorlds().get(0));
+      nmsWorld = new WeakReference<>(ReflectiveHandleAccess.handleOf(Bukkit.getWorlds().get(0)));
       return;
     }
-    nmsWorld = ReflectiveHandleAccess.handleOf(player.getWorld());
+    nmsWorld = new WeakReference<>(ReflectiveHandleAccess.handleOf(player.getWorld()));
   }
 
   public void updateMovement(
@@ -527,7 +528,7 @@ public final class UserMetaMovementData {
   }
 
   public Object nmsWorld() {
-    return nmsWorld;
+    return nmsWorld.get();
   }
 
   public Location verifiedLocation() {

@@ -31,11 +31,11 @@ public final class ViolationProcessor {
   }
 
   public ViolationContext processViolation(Violation violation) {
-    ViolationContext violationContext = ViolationContext.newOf(violation);
+    ViolationContext violationContext = ViolationContext.of(violation);
 
     Optional<Player> playerSearch = violation.findPlayer();
     if (!playerSearch.isPresent()) {
-      return violationContext.counterThreatBecause("Player is not reachable").complete();
+      return violationContext.counterThreatBecause("Player is not present").complete();
     }
 
     Player player = playerSearch.get();
@@ -51,7 +51,7 @@ public final class ViolationProcessor {
     }
 
     if (user.justJoined() || !user.hasOnlinePlayer()) {
-      return violationContext.counterThreatBecause("Player is not reachable").complete();
+      return violationContext.counterThreatBecause("Player just joined or is not reachable").complete();
     }
 
     fillInVLContext(violationContext);

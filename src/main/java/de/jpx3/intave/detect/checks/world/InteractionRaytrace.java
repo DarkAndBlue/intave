@@ -35,7 +35,10 @@ import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
 import de.jpx3.intave.world.collision.Collision;
 import de.jpx3.intave.world.raytrace.Raytracing;
-import org.bukkit.*;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -271,6 +274,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
       }
       return;
     }
+
     boolean estimateMouseDelayFix = interactionMeta.estimateMouseDelayFix;
 
     // first raytrace check
@@ -296,8 +300,7 @@ public final class InteractionRaytrace extends IntaveMetaCheck<InteractionRaytra
       interactionMeta.estimateMouseDelayFix = raytraceFailed == interactionMeta.estimateMouseDelayFix;
     }
 
-    boolean flag;
-    boolean flagEnforce;
+    boolean flag, flagEnforce;
 
     if (!raytraceFailed) {
       decrementer.decrement(user, 0.25);

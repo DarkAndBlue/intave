@@ -1,7 +1,7 @@
 package de.jpx3.intave.trustfactor;
 
+import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.access.player.trust.TrustFactor;
-import de.jpx3.intave.logging.IntaveLogger;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.*;
@@ -26,7 +26,8 @@ public final class YamlTrustFactorConfiguration implements TrustFactorConfigurat
 
   private void apply(String key, List<Integer> values) {
     TrustFactor[] trustFactors = TrustFactor.values();
-    EnumMap<TrustFactor, Integer> enumMap = IntStream.range(0, trustFactors.length)
+    EnumMap<TrustFactor, Integer> enumMap =
+      IntStream.range(0, trustFactors.length)
       .boxed()
       .collect(Collectors.toMap(j -> trustFactors[j], values::get, (a, b) -> b, () -> new EnumMap<>(TrustFactor.class)));
     settingsMap.put(key, enumMap);
@@ -41,8 +42,7 @@ public final class YamlTrustFactorConfiguration implements TrustFactorConfigurat
     try {
       return trustFactorIntegerEnumMap.get(trustFactor);
     } catch (NullPointerException exception) {
-      IntaveLogger.logger().pushPrintln(key + " " + settingsMap);
-      throw exception;
+      throw new IntaveInternalException("Unable to fetch trustfactor setting " + key + " for trustfactor " + trustFactor.name(), exception);
     }
   }
 }

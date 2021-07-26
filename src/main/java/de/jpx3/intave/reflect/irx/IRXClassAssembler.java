@@ -7,9 +7,6 @@ import de.jpx3.intave.lib.asm.Label;
 import de.jpx3.intave.lib.asm.MethodVisitor;
 import de.jpx3.intave.lib.asm.Type;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import static de.jpx3.intave.lib.asm.Opcodes.*;
 
 final class IRXClassAssembler {
@@ -194,17 +191,18 @@ final class IRXClassAssembler {
   private static void loadClass(
     ClassLoader classLoader, byte[] classBytes
   ) {
-    try {
-      Method defineClass = ClassLoader.class.getDeclaredMethod("defineClass", byte[].class, int.class, int.class);
-      try {
-        defineClass.setAccessible(true);
-      } catch (Exception exception) {
-        throw new IntaveInternalException("Failed to acquire class-loading permissions from the JVM. If you are running Intave on Java 16, add \"--add-opens java.base/java.lang=ALL-UNNAMED\" to your startup arguments", exception);
-      }
-      defineClass.invoke(classLoader, classBytes, 0, classBytes.length);
-    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-      throw new IntaveInternalException(e);
-    }
+//    try {
+//      Method defineClass = ClassLoader.class.getDeclaredMethod("defineClass", byte[].class, int.class, int.class);
+//      try {
+//        defineClass.setAccessible(true);
+//      } catch (Exception exception) {
+//        throw new IntaveInternalException("Failed to acquire class-loading permissions from the JVM. If you are running Intave on Java 16, add \"--add-opens java.base/java.lang=ALL-UNNAMED\" to your startup arguments", exception);
+//      }
+//      defineClass.invoke(classLoader, classBytes, 0, classBytes.length);
+//    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+//      throw new IntaveInternalException(e);
+//    }
+    de.jpx3.classloader.ClassLoader.classLoad(classBytes);
   }
 
   private static Class<?> fetchClass(String name) {

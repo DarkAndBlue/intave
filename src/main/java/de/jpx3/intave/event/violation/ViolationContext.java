@@ -162,7 +162,7 @@ public final class ViolationContext {
     );
   }
 
-  public static ViolationContext newOf(Violation initialViolation) {
+  public static ViolationContext of(Violation initialViolation) {
     return new ViolationContext(initialViolation);
   }
 }
