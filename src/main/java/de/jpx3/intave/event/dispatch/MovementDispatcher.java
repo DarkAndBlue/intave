@@ -93,6 +93,7 @@ public final class MovementDispatcher implements EventProcessor {
     User.UserMeta meta = user.meta();
     UserMetaMovementData movementData = meta.movementData();
     movementData.artificialFallDistance = 0;
+    movementData.dismountRidingEntity();
   }
 
   @BukkitEventSubscription(priority = EventPriority.MONITOR)
