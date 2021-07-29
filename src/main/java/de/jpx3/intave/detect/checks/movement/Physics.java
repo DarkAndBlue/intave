@@ -542,11 +542,11 @@ public final class Physics extends IntaveCheck {
           manualOverrideDistance = 0.75;
           break;
         case CAREFUL:
-          setback = deepPitchViolationOverflow && highPitchAggressiveViolationOverflow && violationLevelAfter > 30;
+          setback = deepPitchViolationOverflow && highPitchAggressiveViolationOverflow && (violationLevelAfter > 30 || user.justJoined());
           manualOverrideDistance = 0.75;
           break;
         case LENIENT:
-          setback = (distanceMoved > (violationLevelAfter > 30 ? 0.4 : 0.6) || violationLevelAfter > 200) && deepPitchViolationOverflow && highPitchAggressiveViolationOverflow;
+          setback = (distanceMoved > (violationLevelAfter > 30 ? 0.4 : 0.6) || violationLevelAfter > 200 || user.justJoined()) && deepPitchViolationOverflow && highPitchAggressiveViolationOverflow;
           manualOverrideDistance = 0.9;
           break;
         case SILENT:

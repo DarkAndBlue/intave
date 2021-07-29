@@ -18,12 +18,9 @@ import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.MathHelper;
-import de.jpx3.intave.tools.annotate.Native;
-import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
 import de.jpx3.intave.user.*;
 import de.jpx3.intave.world.raytrace.Raytracing;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -172,19 +169,19 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
         if (IntaveControl.DISABLE_LICENSE_CHECK) {
           IntaveLogger.logger().error(player.getName() + " attacked a null entity");
         }
-        Synchronizer.synchronize(new Runnable() {
-          @Native
-          @Override
-          public void run() {
-            for (Player authenticatedPlayer : Bukkit.getOnlinePlayers()) {
-              if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
-                String message;
-                message = ChatColor.RED + "[R] " + player.getName() + " attacked a null entity";
-                authenticatedPlayer.sendMessage(message);
-              }
-            }
-          }
-        });
+//        Synchronizer.synchronize(new Runnable() {
+//          @Native
+//          @Override
+//          public void run() {
+//            for (Player authenticatedPlayer : Bukkit.getOnlinePlayers()) {
+//              if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
+//                String message;
+//                message = ChatColor.RED + "[R] " + player.getName() + " attacked a null entity";
+//                authenticatedPlayer.sendMessage(message);
+//              }
+//            }
+//          }
+//        });
       }
       if (cancelHit == null || !cancelHit) {
         if (!violationLevelData.isInActiveTeleportBundle && remainingAttack.shouldResend) {
@@ -303,17 +300,17 @@ public final class AttackRaytrace extends IntaveMetaCheck<AttackRaytrace.AttackR
     }
 
     // still required?!
-    Synchronizer.synchronize(new Runnable() {
-      @Native
-      @Override
-      public void run() {
-        for (Player authenticatedPlayer : UserMessageSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
-          if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
-            authenticatedPlayer.sendMessage(special);
-          }
-        }
-      }
-    });
+//    Synchronizer.synchronize(new Runnable() {
+//      @Native
+//      @Override
+//      public void run() {
+//        for (Player authenticatedPlayer : UserMessageSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
+//          if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
+//            authenticatedPlayer.sendMessage(special);
+//          }
+//        }
+//      }
+//    });
 
     attackRaytraceMeta.lastHitVec = distanceOfResult.hitVec;
 //    if (movementData.inVehicle()) {
