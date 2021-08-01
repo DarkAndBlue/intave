@@ -32,16 +32,16 @@ public final class EmulationLight extends MiningStrategyExecutor {
         .attackSubscribe(x -> saveAnomalyWithID(1))
         .build();
 
-      fakePlayer.create(locationBehind(user(), ThreadLocalRandom.current().nextInt(1, 2)));
+      fakePlayer.create(locationBehind(user()));
     });
   }
 
-  public static Location locationBehind(User user, double distance) {
+  public static Location locationBehind(User user) {
     UserMetaMovementData movementData = user.meta().movementData();
     float rotationYaw = movementData.rotationYaw;
     Location location = movementData.verifiedLocation().clone();
     location.setYaw(rotationYaw);
-    location = PositionRotationLookup.lookup(location, 0.0f);
+    location = PositionRotationLookup.lookup(location, ThreadLocalRandom.current().nextDouble(6.0, 8.0));
     location.add(0.0, 2.0, 0.0);
     return location;
   }

@@ -32,7 +32,7 @@ public final class EmulationHeavy extends MiningStrategyExecutor {
         .equipHeldItem()
         .attackSubscribe(x -> saveAnomalyWithID(3))
         .build();
-      fakePlayer.create(locationBehind(user(), ThreadLocalRandom.current().nextInt(1, 2)));
+      fakePlayer.create(locationBehind(user()));
     });
   }
 

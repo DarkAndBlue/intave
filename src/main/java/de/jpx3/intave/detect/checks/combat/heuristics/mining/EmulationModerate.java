@@ -30,7 +30,7 @@ public final class EmulationModerate extends MiningStrategyExecutor{
         .acceptAttributes(ARMORED | IN_TABLIST | ITEM_IN_HAND)
         .attackSubscribe(x -> saveAnomalyWithID(2))
         .build();
-      fakePlayer.create(locationBehind(user(), ThreadLocalRandom.current().nextInt(1, 2)));
+      fakePlayer.create(locationBehind(user()));
     });
   }
 
