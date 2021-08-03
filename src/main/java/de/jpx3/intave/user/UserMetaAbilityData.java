@@ -87,7 +87,6 @@ public final class UserMetaAbilityData {
     key = keyTranslation(key);
     for (Map.Entry<WrappedAttribute, List<WrappedAttributeModifier>> wrappedAttributeListEntry : attributeModifiers.entrySet()) {
       WrappedAttribute attribute = wrappedAttributeListEntry.getKey();
-      System.out.println(attribute.getAttributeKey());
       if (attribute.getAttributeKey().equals(key)) {
         List<WrappedAttributeModifier> modifiers = wrappedAttributeListEntry.getValue();
         if (!modifiers.isEmpty()) {
