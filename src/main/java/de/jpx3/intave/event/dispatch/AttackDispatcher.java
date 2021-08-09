@@ -16,7 +16,9 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.tools.sync.Synchronizer;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.enchantments.Enchantment;
@@ -65,10 +67,10 @@ public final class AttackDispatcher implements EventProcessor {
       return;
     }
     User user = UserRepository.userOf(player);
-    UserMeta meta = user.meta();
-    UserMetaAttackData attackData = meta.attackData();
-    UserMetaConnectionData connectionData = meta.connectionData();
-    UserMetaMovementData movementData = meta.movementData();
+    MetadataBundle meta = user.meta();
+    AttackMetadata attackData = meta.attackData();
+    ConnectionMetadata connectionData = meta.connectionData();
+    MovementMetadata movementData = meta.movementData();
 
     PacketContainer packet = event.getPacket();
     Integer entityId = packet.getIntegers().read(0);
@@ -77,7 +79,7 @@ public final class AttackDispatcher implements EventProcessor {
       action = packet.getEnumEntityUseActions().read(0).getAction();
     }
 
-    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventoryData();
     ItemStack itemStack = inventoryData.heldItem();
     boolean knockbackEnchantment = itemStack != null && itemStack.containsEnchantment(Enchantment.KNOCKBACK);
 

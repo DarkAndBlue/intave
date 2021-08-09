@@ -2,7 +2,7 @@ package de.jpx3.intave.world.collision;
 
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.state.BlockState;
 import de.jpx3.intave.world.state.BlockStateBoolean;
@@ -51,7 +51,7 @@ public final class ScaffoldingCollisionModifier extends CollisionModifier {
   }
 
   private boolean useCustomCollision(User user, double blockY) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     return movementData.positionY >= blockY + 1 - (double) 0.00001f;
   }
 

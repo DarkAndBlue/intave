@@ -1,4 +1,4 @@
-package de.jpx3.intave.user;
+package de.jpx3.intave.user.meta;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Queue;
 
 @Relocate
-public final class UserMetaConnectionData {
+public final class ConnectionMetadata {
   private final Player player;
   private final Map<Short, Request<?>> transactionShortMap = Maps.newConcurrentMap();
   private final Map<Long, Request<?>> transactionGlobalKeyMap = Maps.newConcurrentMap();
@@ -44,7 +44,7 @@ public final class UserMetaConnectionData {
   private long lastMovementTimestamps;
   private final List<Long> movementLagSpikeHistory = new ArrayList<>();
   
-  public UserMetaConnectionData(Player player) {
+  public ConnectionMetadata(Player player) {
     this.player = player;
   }
 

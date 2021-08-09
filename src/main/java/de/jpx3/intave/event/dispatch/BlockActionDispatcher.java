@@ -13,8 +13,8 @@ import de.jpx3.intave.event.packet.Engine;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
 import org.bukkit.Location;
@@ -124,7 +124,7 @@ public final class BlockActionDispatcher implements EventProcessor {
       Vector targetBlock = blockPosition.toVector();
 
       User user = UserRepository.userOf(player);
-      UserMetaMovementData movementData = user.meta().movementData();
+      MovementMetadata movementData = user.meta().movementData();
       Vector playerLocation = new Vector(movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ);
 
       if (playerLocation.distance(targetBlock) > 16) {

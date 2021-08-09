@@ -9,8 +9,8 @@ import de.jpx3.intave.detect.EventProcessor;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaAbilityData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.AbilityMetadata;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -43,7 +43,7 @@ public final class AttributeDispatcher implements EventProcessor {
   }
 
   private void receivedAttribute(User user, WrappedAttribute attribute) {
-    UserMetaAbilityData abilityData = user.meta().abilityData();
+    AbilityMetadata abilityData = user.meta().abilityData();
     List<WrappedAttributeModifier> modifiers = abilityData.modifiersOf(attribute);
     modifiers.clear();
     modifiers.addAll(attribute.getModifiers());

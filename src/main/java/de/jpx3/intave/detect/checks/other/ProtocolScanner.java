@@ -11,9 +11,9 @@ import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaClientData;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.MainHand;
 
@@ -82,7 +82,7 @@ public final class ProtocolScanner extends MetaCheck<ProtocolScanner.ProtocolSca
     Player player = event.getPlayer();
     User user = userOf(player);
     PacketContainer packet = event.getPacket();
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     if (HAS_OFF_HAND && clientData.combatUpdate()) {
       if (enumMainHandClass == null) {
         enumMainHandClass = ReflectiveAccess.lookupServerClass("EnumMainHand");
@@ -92,7 +92,7 @@ public final class ProtocolScanner extends MetaCheck<ProtocolScanner.ProtocolSca
         return;
       }
     }
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     int keyForward = movementData.keyForward;
     int keyStrafe = movementData.keyStrafe;
     double distanceMoved = Math.hypot(movementData.motionX(), movementData.motionZ());
@@ -116,7 +116,7 @@ public final class ProtocolScanner extends MetaCheck<ProtocolScanner.ProtocolSca
       || bukkitHand == MainHand.RIGHT && hand == HandSlot.RIGHT;
   }
 
-  public static class ProtocolScannerMeta extends UserCustomCheckMeta {
+  public static class ProtocolScannerMeta extends CheckCustomMetadata {
     private int lastSlot = 0;
     private int slotPacketsSent = 0;
   }

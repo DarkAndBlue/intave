@@ -1,7 +1,7 @@
 package de.jpx3.intave.detect.checks.movement.physics;
 
 import de.jpx3.intave.tools.MathHelper;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.util.Vector;
 
 public final class MotionVector {
@@ -25,7 +25,7 @@ public final class MotionVector {
     this.motionZ = z;
   }
 
-  public void resetTo(UserMetaMovementData data) {
+  public void resetTo(MovementMetadata data) {
     reset(data.physicsMotionX, data.physicsMotionY, data.physicsMotionZ);
   }
 

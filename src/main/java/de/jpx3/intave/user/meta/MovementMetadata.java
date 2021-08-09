@@ -1,4 +1,4 @@
-package de.jpx3.intave.user;
+package de.jpx3.intave.user.meta;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
@@ -11,6 +11,7 @@ import de.jpx3.intave.tools.annotate.Nullable;
 import de.jpx3.intave.tools.client.*;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
+import de.jpx3.intave.user.User;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockphysic.BlockProperties;
 import de.jpx3.intave.world.collision.Collision;
@@ -29,9 +30,9 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.Map;
 
-import static de.jpx3.intave.user.UserMetaClientData.VER_1_15;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_15;
 
-public final class UserMetaMovementData {
+public final class MovementMetadata {
   private final Player player;
   private final User user;
   private volatile WeakReference<Object> nmsWorld;
@@ -150,7 +151,7 @@ public final class UserMetaMovementData {
   public int clientStrafeKey = 0;
   public boolean clientPressedJump = false;
 
-  public UserMetaMovementData(Player player, User user) {
+  public MovementMetadata(Player player, User user) {
     this.player = player;
     this.user = user;
     if (player != null) {
@@ -165,7 +166,7 @@ public final class UserMetaMovementData {
   }
 
   private void setupDefaults() {
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     int version = clientData.protocolVersion();
     this.resetMotion = version <= 47 ? 0.005 : 0.003;
     this.frictionMultiplier = version <= VER_1_15 ? 0.16277136f : 0.16277137F;
@@ -215,7 +216,7 @@ public final class UserMetaMovementData {
     PacketContainer packet,
     boolean hasMovement, boolean hasRotation
   ) {
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     if (!boundingBoxSetup) {
       setupDefaults();
     }
@@ -280,8 +281,8 @@ public final class UserMetaMovementData {
   }
 
   private void updateEntityMovement() {
-    UserMetaConnectionData userMetaConnectionData = user.meta().connectionData();
-    Map<Integer, WrappedEntity> entityMap = userMetaConnectionData.synchronizedEntityMap();
+    ConnectionMetadata connectionMetadata = user.meta().connectionData();
+    Map<Integer, WrappedEntity> entityMap = connectionMetadata.synchronizedEntityMap();
     for (Map.Entry<Integer, WrappedEntity> entry : entityMap.entrySet()) {
       WrappedEntity entity = entry.getValue();
       entity.entityPlayerMoveUpdate();
@@ -390,7 +391,7 @@ public final class UserMetaMovementData {
       case SLEEPING:
         return 0.2f;
       case CROUCHING:
-        return 1.62f - user.meta().clientData().cameraSneakOffset();
+        return 1.62f - user.meta().protocolData().cameraSneakOffset();
       default:
         return 1.62f;
     }
@@ -402,8 +403,8 @@ public final class UserMetaMovementData {
   }
 
   private void updateMovementMetaData() {
-    UserMeta meta = user.meta();
-    UserMetaAbilityData abilityData = meta.abilityData();
+    MetadataBundle meta = user.meta();
+    AbilityMetadata abilityData = meta.abilityData();
 //    UserMetaPotionData potionData = meta.potionData();
 
 //    aiMoveSpeed = abilityData.walkSpeed();
@@ -413,7 +414,7 @@ public final class UserMetaMovementData {
 //    aiMoveSpeed *= 1f + (-0.15f * slowdownAmplifier);
 //    aiMoveSpeed *= 1f + (0.2f * speedAmplifier);
 //    aiMoveSpeed += genericMovementSpeedAttribute;
-    aiMoveSpeed = (float) abilityData.attributeValue("generic.movementSpeed", UserMetaAbilityData.EXCLUDE_SPRINT_MODIFIER);
+    aiMoveSpeed = (float) abilityData.attributeValue("generic.movementSpeed", AbilityMetadata.EXCLUDE_SPRINT_MODIFIER);
     // handle sprinting externally
     if (sprintingAllowed) {
       aiMoveSpeed *= 1.3f;
@@ -433,8 +434,8 @@ public final class UserMetaMovementData {
   }
 
   private void updateEntityActionStates() {
-    UserMetaClientData clientData = user.meta().clientData();
-    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    ProtocolMetadata clientData = user.meta().protocolData();
+    InventoryMetadata inventoryData = user.meta().inventoryData();
     sprintingAllowed = sprinting;
     if (sneaking && !clientData.sprintWhenSneaking()) {
       sprintingAllowed = false;
@@ -448,7 +449,7 @@ public final class UserMetaMovementData {
   }
 
   public boolean inLava() {
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     if (clientData.waterUpdate()) {
       return aquaticUpdateInLava;
     } else {
@@ -462,7 +463,7 @@ public final class UserMetaMovementData {
   }
 
   public boolean recentlyEncounteredFlyingPacket(int ticks) {
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     if (clientData.flyingPacketStream()) {
       return pastClientFlyingPacket <= ticks && pastFlyingPacketAccurate <= ticks;
     } else {
@@ -471,7 +472,7 @@ public final class UserMetaMovementData {
   }
 
   public boolean denyJump() {
-    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventoryData();
     if (inventoryData.inventoryOpen()) {
       return true;
     }
@@ -484,7 +485,7 @@ public final class UserMetaMovementData {
   }
 
   public double baseMoveSpeed() {
-    UserMetaPotionData potionData = user.meta().potionData();
+    EffectMetadata potionData = user.meta().potionData();
     int speedAmplifier = potionData.potionEffectSpeedAmplifier();
     double baseSpeed = 0.271;
     if (speedAmplifier != 0) {
@@ -497,7 +498,7 @@ public final class UserMetaMovementData {
   }
 
   public void sprintReset() {
-    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventoryData();
     // really required
     if (player.getFoodLevel() >= 6 && !inventoryData.inventoryOpen()) {
       ReflectiveDataWatcherAccess.setDataWatcherFlag(player, ReflectiveDataWatcherAccess.WATCHER_SPRINT_ID, false);

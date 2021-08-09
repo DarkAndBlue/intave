@@ -10,14 +10,18 @@ import de.jpx3.intave.event.dispatch.AttackDispatcher;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.InventoryMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.POSITION;
 import static de.jpx3.intave.event.packet.PacketId.Client.POSITION_LOOK;
-import static de.jpx3.intave.user.UserMetaClientData.VER_1_17;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_17;
 
 public final class AttackReduceIgnoreHeuristic extends MetaCheckPart<Heuristics, AttackReduceIgnoreHeuristic.AttackReduceMeta> {
   private final IntavePlugin plugin;
@@ -36,10 +40,10 @@ public final class AttackReduceIgnoreHeuristic extends MetaCheckPart<Heuristics,
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
-    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    MovementMetadata movementData = user.meta().movementData();
+    InventoryMetadata inventoryData = user.meta().inventoryData();
     AttackReduceMeta heuristicMeta = metaOf(user);
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
 
     if (clientData.protocolVersion() >= VER_1_17 || AttackDispatcher.REDUCING_DISABLED) {
       return;
@@ -72,7 +76,7 @@ public final class AttackReduceIgnoreHeuristic extends MetaCheckPart<Heuristics,
     }
   }
 
-  public static final class AttackReduceMeta extends UserCustomCheckMeta {
+  public static final class AttackReduceMeta extends CheckCustomMetadata {
     private int vl;
   }
 }

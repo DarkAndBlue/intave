@@ -8,9 +8,9 @@ import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.sync.Synchronizer;
+import de.jpx3.intave.user.MessageChannelSubscriptions;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMessageSubscriptions;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -41,7 +41,7 @@ public final class InventoryClickPacketDelayAnalyzer extends MetaCheckPart<Inven
   @Native
   private void processSibylDebug(String message) {
     IntavePlugin plugin = IntavePlugin.singletonInstance();
-    for (Player onlinePlayer : UserMessageSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
+    for (Player onlinePlayer : MessageChannelSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
       if (plugin.sibylIntegrationService().isAuthenticated(onlinePlayer)) {
         onlinePlayer.sendMessage(message);
       }
@@ -56,7 +56,7 @@ public final class InventoryClickPacketDelayAnalyzer extends MetaCheckPart<Inven
     metaOf(player).lastMovementTimestamps = AccessHelper.now();
   }
 
-  public static final class TimingData extends UserCustomCheckMeta {
+  public static final class TimingData extends CheckCustomMetadata {
     public int threshold;
     public long lastMovementTimestamps;
   }

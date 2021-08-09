@@ -18,8 +18,8 @@ import de.jpx3.intave.tools.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -57,7 +57,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
   void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     checkPacketFlow(event);
     if (!NEW_TELEPORTATION && movementData.awaitTeleport) {
       checkPotentialLegacyTeleportAccept(player);
@@ -67,7 +67,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
   private void checkPacketFlow(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     if (movementData.awaitTeleport) {
       if (TELEPORTATION_DEBUG) {
         IntaveLogger.logger().pushPrintln("[Intave] Cancel packet of " + player.getName() + "(Awaiting teleport accept)");
@@ -87,7 +87,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
 
   private void checkPotentialLegacyTeleportAccept(Player player) {
     User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     double positionX = movementData.positionX;
     double positionY = movementData.positionY;
     double positionZ = movementData.positionZ;
@@ -135,7 +135,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     PacketContainer packet
   ) {
     User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
 
     StructureModifier<Double> doubles = packet.getDoubles();
     Double positionX = doubles.read(0);
@@ -168,7 +168,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
   public void receiveTeleportAccept(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
 
     PacketContainer packet = event.getPacket();
     Integer teleportId = packet.getIntegers().read(0);
@@ -189,7 +189,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
   ) {
     User user = UserRepository.userOf(player);
 
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     Set<TeleportPositionFlagsHelper.PlayerTeleportFlag> flagsModifier = TeleportPositionFlagsHelper.flagsModifier(packet).read(0);
 
     StructureModifier<Double> doubles = packet.getDoubles();
@@ -222,7 +222,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
 
   private void awaitTeleport(Player player) {
     User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     movementData.awaitTeleport = true;
     movementData.awaitOutgoingTeleport = false;
     movementData.teleportResendCountdown = 20;
@@ -231,7 +231,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
 
   private void releaseAwaitTeleportLock(Player player) {
     User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     movementData.awaitTeleport = false;
     movementData.isTeleportConfirmationPacket = true;
   }
@@ -241,7 +241,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     double positionX, double positionY, double positionZ
   ) {
     User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     movementData.positionX = positionX;
     movementData.positionY = positionY;
     movementData.positionZ = positionZ;

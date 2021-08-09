@@ -4,8 +4,8 @@ import com.comphenix.protocol.utility.MinecraftVersion;
 import com.google.common.collect.ImmutableList;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaClientData;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.world.fluid.FluidTag;
 import de.jpx3.intave.world.fluid.Fluids;
 import de.jpx3.intave.world.fluid.WrappedFluid;
@@ -32,9 +32,9 @@ final class FlowingFluidPhysic implements BlockPhysic {
 
   @Override
   public Vector entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     if (clientData.waterUpdate()) {
-      UserMetaMovementData movementData = user.meta().movementData();
+      MovementMetadata movementData = user.meta().movementData();
       WrappedFluid fluid = Fluids.fluidAt(user, location);
       if (fluid.isIn(FluidTag.LAVA)) {
         float f = (float) location.getY() + fluid.height();

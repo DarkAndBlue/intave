@@ -10,7 +10,11 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.client.SinusCache;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.AttackMetadata;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.InventoryMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -36,9 +40,9 @@ public final class ReshapedJumpHeuristic extends MetaCheckPart<Heuristics, Resha
     Player player = event.getPlayer();
     User user = userOf(player);
     ReshapedJumpHeuristicMeta heuristicMeta = metaOf(user);
-    UserMetaMovementData movementData = user.meta().movementData();
-    UserMetaAttackData attackData = user.meta().attackData();
-    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    MovementMetadata movementData = user.meta().movementData();
+    AttackMetadata attackData = user.meta().attackData();
+    InventoryMetadata inventoryData = user.meta().inventoryData();
 
     boolean recentlyAttacked = attackData.recentlyAttacked(1000);
     boolean jump = Math.abs(movementData.jumpMotion() - movementData.motionY()) < 1e-5;
@@ -78,7 +82,7 @@ public final class ReshapedJumpHeuristic extends MetaCheckPart<Heuristics, Resha
             description += " | attacked";
           }
           description += " | pre-dist:" + preDistance + ", alt-dist:" + alternativeDistance;
-          description += " | " + user.meta().clientData().versionString();
+          description += " | " + user.meta().protocolData().versionString();
           int options = Anomaly.AnomalyOption.LIMIT_8 | Anomaly.AnomalyOption.SUGGEST_MINING;
           Anomaly anomaly = Anomaly.anomalyOf("61", Confidence.NONE, Anomaly.Type.KILLAURA, description, options);
           parentCheck().saveAnomaly(player, anomaly);
@@ -112,7 +116,7 @@ public final class ReshapedJumpHeuristic extends MetaCheckPart<Heuristics, Resha
     }
   }
 
-  public static final class ReshapedJumpHeuristicMeta extends UserCustomCheckMeta {
+  public static final class ReshapedJumpHeuristicMeta extends CheckCustomMetadata {
     private double balance;
   }
 }

@@ -5,8 +5,8 @@ import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaPunishmentData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.PunishmentMetadata;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
@@ -20,7 +20,7 @@ public final class EntityNoDamageTickChanger {
     }
 
     User user = UserRepository.userOf(player);
-    UserMetaPunishmentData punishmentData = user.meta().punishmentData();
+    PunishmentMetadata punishmentData = user.meta().punishmentData();
 
     // Already changed
     if (punishmentData.damageTicksBefore != -1) {
@@ -41,7 +41,7 @@ public final class EntityNoDamageTickChanger {
 
   public static void removeNoDamageTickChangeOf(User user) {
     Player player = user.player();
-    UserMetaPunishmentData punishmentData = user.meta().punishmentData();
+    PunishmentMetadata punishmentData = user.meta().punishmentData();
     if (punishmentData.appliedDamageTicks != resolveNoDamageTicksOf(player)) {
       // The server has changed the noDamageTicks field, do not override
       punishmentData.damageTicksBefore = -1;

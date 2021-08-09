@@ -12,8 +12,8 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaClientData;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
@@ -45,7 +45,7 @@ public final class PacketOrderSwingHeuristic extends MetaCheckPart<Heuristics, P
   public void receiveUseEntity(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     PacketOrderSwingHeuristicMeta heuristicMeta = metaOf(player);
     PacketContainer packet = event.getPacket();
     EnumWrappers.EntityUseAction action = packet.getEntityUseActions().readSafely(0);
@@ -56,7 +56,7 @@ public final class PacketOrderSwingHeuristic extends MetaCheckPart<Heuristics, P
       return;
     }
     if (clientData.flyingPacketStream() && action == EnumWrappers.EntityUseAction.ATTACK && !heuristicMeta.swingTick) {
-      String description = "swing not correlated with attack ("+user.meta().clientData().versionString()+")";
+      String description = "swing not correlated with attack ("+user.meta().protocolData().versionString()+")";
       Anomaly anomaly = Anomaly.anomalyOf("31", Confidence.CERTAIN, Anomaly.Type.KILLAURA, description, Anomaly.AnomalyOption.DELAY_128s);
       parentCheck().saveAnomaly(player, anomaly);
       //dmc11
@@ -64,7 +64,7 @@ public final class PacketOrderSwingHeuristic extends MetaCheckPart<Heuristics, P
     }
   }
 
-  public final static class PacketOrderSwingHeuristicMeta extends UserCustomCheckMeta {
+  public final static class PacketOrderSwingHeuristicMeta extends CheckCustomMetadata {
     private boolean swingTick;
   }
 }

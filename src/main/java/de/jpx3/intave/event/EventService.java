@@ -22,7 +22,7 @@ import de.jpx3.intave.tools.DurationTranslator;
 import de.jpx3.intave.tools.GarbageCollector;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.update.Version;
-import de.jpx3.intave.user.UserRepositoryEventListener;
+import de.jpx3.intave.user.UserLifetimeService;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -52,7 +52,7 @@ public final class EventService implements BukkitEventSubscriber {
     this.emulationEngine = new MovementEmulationEngine(plugin);
     this.combatMitigator = new CombatMitigator(plugin);
     this.reconDelayLimiter = new ReconDelayLimiter(plugin);
-    new UserRepositoryEventListener(plugin);
+    new UserLifetimeService(plugin);
     new AttackDispatcher(plugin);
     new AttributeDispatcher(plugin);
     new BlockActionDispatcher(plugin);

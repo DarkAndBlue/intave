@@ -12,9 +12,9 @@ import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaClientData;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public final class ClickSpeedLimiter extends MetaCheck<ClickSpeedLimiter.ClickSp
     }
 
     if (action == EnumWrappers.EntityUseAction.ATTACK) {
-      if (user.meta().clientData().protocolVersion() <= UserMetaClientData.VER_1_8) {
+      if (user.meta().protocolData().protocolVersion() <= ProtocolMetadata.VER_1_8) {
         meta.attackCountArray[meta.attackArrayIndex]++;
       } else {
         meta.attacksDuringFlyingPackets.add(System.currentTimeMillis());
@@ -76,12 +76,12 @@ public final class ClickSpeedLimiter extends MetaCheck<ClickSpeedLimiter.ClickSp
     ClickSpeedLimiterMeta meta = metaOf(user);
     PacketType pt = event.getPacketType();
 
-    if (user.meta().clientData().protocolVersion() <= UserMetaClientData.VER_1_8) {
+    if (user.meta().protocolData().protocolVersion() <= ProtocolMetadata.VER_1_8) {
       // 1.8
       meta.countAccuratePositionPackets = 20;
     } else {
       // 1.9+
-      UserMetaMovementData movementData = user.meta().movementData();
+      MovementMetadata movementData = user.meta().movementData();
 
       if (movementData.recentlyEncounteredFlyingPacket(0)
         || meta.lastMovePacketType == PacketType.Play.Client.FLYING || meta.lastMovePacketType == PacketType.Play.Client.LOOK
@@ -173,7 +173,7 @@ public final class ClickSpeedLimiter extends MetaCheck<ClickSpeedLimiter.ClickSp
     meta.lastTickTimeStamp = System.currentTimeMillis();
   }
 
-  public static final class ClickSpeedLimiterMeta extends UserCustomCheckMeta {
+  public static final class ClickSpeedLimiterMeta extends CheckCustomMetadata {
     private long lastFlag;
     PacketType lastMovePacketType;
     List<Long> attacksDuringFlyingPackets = new ArrayList<>();

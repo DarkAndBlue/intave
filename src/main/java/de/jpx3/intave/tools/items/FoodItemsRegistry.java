@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import de.jpx3.intave.event.dispatch.PlayerAbilityEvaluator;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaAbilityData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.AbilityMetadata;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -77,7 +77,7 @@ public final class FoodItemsRegistry {
 
   public boolean foodConsumable(Player player, Material type) {
     User user = UserRepository.userOf(player);
-    UserMetaAbilityData abilityData = user.meta().abilityData();
+    AbilityMetadata abilityData = user.meta().abilityData();
     boolean creative = abilityData.inGameMode(PlayerAbilityEvaluator.GameMode.CREATIVE);
     if (creative) {
       return false;

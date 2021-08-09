@@ -11,8 +11,8 @@ import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -42,7 +42,7 @@ public final class RotationSpeedAnalyzer extends MetaCheckPart<PlacementAnalysis
   public void on(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     RotationSpeedMeta meta = metaOf(user);
     float rotationMovement = Math.min(MathHelper.distanceInDegrees(movementData.rotationYaw, movementData.lastRotationYaw), 360);
 
@@ -98,7 +98,7 @@ public final class RotationSpeedAnalyzer extends MetaCheckPart<PlacementAnalysis
     return false;
   }
 
-  public static class RotationSpeedMeta extends UserCustomCheckMeta {
+  public static class RotationSpeedMeta extends CheckCustomMetadata {
     private final List<Float> rotationHistory = new ArrayList<>();
     private final List<Vector> lastBlocksPlaced = new ArrayList<>();
     private long lastBlockPlacement;

@@ -13,14 +13,15 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.AccessHelper;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.*;
 import de.jpx3.intave.world.raytrace.Raytracing;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
-import static de.jpx3.intave.user.UserMetaClientData.VER_1_8;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_8;
 
 public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, AttackRequiredHeuristic.AttackRequiredMeta> {
   private final IntavePlugin plugin;
@@ -88,9 +89,9 @@ public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, Att
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMetaClientData clientData = user.meta().clientData();
-    UserMetaAttackData attackData = user.meta().attackData();
-    UserMetaMovementData movementData = user.meta().movementData();
+    ProtocolMetadata clientData = user.meta().protocolData();
+    AttackMetadata attackData = user.meta().attackData();
+    MovementMetadata movementData = user.meta().movementData();
     WrappedEntity entity = attackData.lastAttackedEntity();
     if (entity == null || !entity.clientSynchronized || movementData.lastTeleport < 5) {
       return;
@@ -145,9 +146,9 @@ public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, Att
     User user,
     WrappedEntity entity
   ) {
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaClientData clientData = meta.clientData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    ProtocolMetadata clientData = meta.protocolData();
     float expandHitbox = 0.05f;
     double blockReachDistance = reachDistance(player.getGameMode() == GameMode.CREATIVE);
     float lastRotationYaw = movementData.lastRotationYaw % 360;
@@ -182,7 +183,7 @@ public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, Att
     return (creative ? 5.0F : 3.0F) - 0.005f;
   }
 
-  public final static class AttackRequiredMeta extends UserCustomCheckMeta {
+  public final static class AttackRequiredMeta extends CheckCustomMetadata {
     public boolean expectedAttack;
     public boolean didAttack, didSwing;
     public long lastFlag;

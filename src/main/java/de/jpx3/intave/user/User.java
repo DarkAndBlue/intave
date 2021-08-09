@@ -9,6 +9,8 @@ import de.jpx3.intave.permission.BukkitPermissionCache;
 import de.jpx3.intave.reflect.hitbox.HitBoxBoundaries;
 import de.jpx3.intave.tools.placeholder.PlayerContext;
 import de.jpx3.intave.tools.placeholder.PlayerIdentificationContext;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
 import de.jpx3.intave.world.collider.complex.ComplexColliderProcessor;
 import de.jpx3.intave.world.collider.simple.SimpleColliderProcessor;
@@ -30,7 +32,7 @@ public interface User {
 
   Player player();
 
-  UserMeta meta();
+  MetadataBundle meta();
 
   void delayedSetup();
 
@@ -38,7 +40,7 @@ public interface User {
 
   boolean hasPlayer();
 
-  UserCustomCheckMeta customMeta(Class<? extends UserCustomCheckMeta> classTarget);
+  CheckCustomMetadata checkMetadata(Class<? extends CheckCustomMetadata> classTarget);
 
   CustomClientSupport customClientSupport();
 
@@ -46,17 +48,17 @@ public interface User {
 
   void setCustomClientSupport(CustomClientSupport customClientSupport);
 
-  boolean shouldIgnoreNextPacket();
+  boolean shouldIgnoreNextInboundPacket();
 
   boolean shouldIgnoreNextOutboundPacket();
 
-  void ignoreNextPacket();
+  void ignoreNextInboundPacket();
 
   void ignoreNextOutboundPacket();
 
-  void receiveNextPacket();
+  void receiveNextInboundPacketAgain();
 
-  void receiveNextOutboundPacket();
+  void receiveNextOutboundPacketAgain();
 
   boolean hasShadow();
 
@@ -84,19 +86,19 @@ public interface User {
 
   void setDefaultMessagingChannel();
 
-  boolean receives(UserMessageChannel channel);
+  boolean receives(MessageChannel channel);
 
-  void toggleReceive(UserMessageChannel channel);
+  void toggleReceive(MessageChannel channel);
 
-  void setChannelConstraint(UserMessageChannel channel, Predicate<Player> constraint);
+  void setChannelConstraint(MessageChannel channel, Predicate<Player> constraint);
 
-  boolean hasChannelConstraint(UserMessageChannel channel);
+  boolean hasChannelConstraint(MessageChannel channel);
 
-  Predicate<Player> channelPlayerConstraint(UserMessageChannel channel);
+  Predicate<Player> channelPlayerConstraint(MessageChannel channel);
 
   void applyAttackNerfer(AttackNerfStrategy strategy, String checkId);
 
-  void removeChannelConstraint(UserMessageChannel channel);
+  void removeChannelConstraint(MessageChannel channel);
 
   int latency();
 

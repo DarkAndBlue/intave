@@ -17,9 +17,9 @@ import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.Rotation;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaAttackData;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.AttackMetadata;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -43,7 +43,7 @@ public final class PerfectAttackHeuristic extends MetaCheckPart<Heuristics, Perf
   public void evaluateFightAccuracy(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMetaAttackData attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attackData();
     PerfectAttackMeta heuristicMeta = metaOf(user);
     PacketType packetType = event.getPacketType();
     PacketContainer packet = event.getPacket();
@@ -79,8 +79,8 @@ public final class PerfectAttackHeuristic extends MetaCheckPart<Heuristics, Perf
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMetaAttackData attackData = user.meta().attackData();
-    UserMetaMovementData movementData = user.meta().movementData();
+    AttackMetadata attackData = user.meta().attackData();
+    MovementMetadata movementData = user.meta().movementData();
     PerfectAttackMeta heuristicMeta = metaOf(user);
 
     if (!attackData.recentlyAttacked(1000) || attackData.recentlySwitchedEntity(500) || attackData.lastReach() < 1.0) {
@@ -127,7 +127,7 @@ public final class PerfectAttackHeuristic extends MetaCheckPart<Heuristics, Perf
     }
   }
 
-  public final static class PerfectAttackMeta extends UserCustomCheckMeta {
+  public final static class PerfectAttackMeta extends CheckCustomMetadata {
     public double vl;
     public double attacks;
     public double swings;

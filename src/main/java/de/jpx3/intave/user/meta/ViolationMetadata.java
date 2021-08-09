@@ -1,4 +1,4 @@
-package de.jpx3.intave.user;
+package de.jpx3.intave.user.meta;
 
 import com.google.common.collect.Maps;
 import de.jpx3.intave.tools.annotate.Relocate;
@@ -6,7 +6,7 @@ import de.jpx3.intave.tools.annotate.Relocate;
 import java.util.Map;
 
 @Relocate
-public final class UserMetaViolationLevelData {
+public final class ViolationMetadata {
   public double physicsVL;
   public double physicsVelocityVL;
   public double physicsInvalidMovementsInRow;

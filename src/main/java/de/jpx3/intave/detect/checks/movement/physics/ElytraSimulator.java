@@ -2,7 +2,7 @@ package de.jpx3.intave.detect.checks.movement.physics;
 
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.world.collider.Collider;
 import de.jpx3.intave.world.collider.complex.ComplexColliderSimulationResult;
 import org.bukkit.util.Vector;
@@ -14,7 +14,7 @@ public final class ElytraSimulator extends DefaultSimulator {
     float forward, float strafe,
     boolean attackReduce, boolean jumped, boolean handActive
   ) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     float rotationPitch = movementData.rotationPitch;
     Vector lookVector = movementData.lookVector;
 

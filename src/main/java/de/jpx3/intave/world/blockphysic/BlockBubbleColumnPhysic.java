@@ -2,8 +2,8 @@ package de.jpx3.intave.world.blockphysic;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaClientData;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.world.fluid.FluidTag;
 import de.jpx3.intave.world.fluid.Fluids;
 import de.jpx3.intave.world.state.BlockState;
@@ -36,7 +36,7 @@ final class BlockBubbleColumnPhysic implements BlockPhysic {
 
   @Override
   public Vector entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     if (clientData.waterUpdate()) {
       boolean water = Fluids.fluidAt(user, location.clone().add(0,1,0)).isIn(FluidTag.WATER);
       Block block = location.getBlock();
@@ -51,7 +51,7 @@ final class BlockBubbleColumnPhysic implements BlockPhysic {
   }
 
   private Vector enterBubbleColumn(User user, boolean downwards, double motionX, double motionY, double motionZ) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     if (downwards) {
       motionY = Math.max(-0.3D, motionY - 0.03D);
     } else {

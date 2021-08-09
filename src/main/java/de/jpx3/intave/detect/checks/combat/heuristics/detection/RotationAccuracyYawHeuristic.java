@@ -12,7 +12,11 @@ import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.AttackMetadata;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MetadataBundle;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
@@ -36,9 +40,9 @@ public final class RotationAccuracyYawHeuristic extends MetaCheckPart<Heuristics
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaAttackData attackData = meta.attackData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    AttackMetadata attackData = meta.attackData();
     RotationAccuracyHeuristicMeta heuristicMeta = metaOf(player);
     WrappedEntity entity = attackData.lastAttackedEntity();
     float rotationYaw = movementData.rotationYaw;
@@ -152,7 +156,7 @@ public final class RotationAccuracyYawHeuristic extends MetaCheckPart<Heuristics
     heuristicMeta.prevDistanceToPerfectYaw = distanceToPerfectYaw;
   }
 
-  public final static class RotationAccuracyHeuristicMeta extends UserCustomCheckMeta {
+  public final static class RotationAccuracyHeuristicMeta extends CheckCustomMetadata {
     private double balanceYawAccuracy;
     private double balanceYawAccuracyOther;
     private double rotationAccuracyVL;

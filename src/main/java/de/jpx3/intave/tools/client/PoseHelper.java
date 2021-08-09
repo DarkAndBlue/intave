@@ -3,7 +3,12 @@ package de.jpx3.intave.tools.client;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.detect.checks.movement.physics.Pose;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.InventoryMetadata;
+import de.jpx3.intave.user.meta.MetadataBundle;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.entity.Player;
 
 public final class PoseHelper {
@@ -18,15 +23,15 @@ public final class PoseHelper {
       return true;
     }
     User user = UserRepository.userOf(player);
-    UserMeta meta = user.meta();
-    UserMetaClientData clientData = meta.clientData();
+    MetadataBundle meta = user.meta();
+    ProtocolMetadata clientData = meta.protocolData();
     return clientData.canUseElytra();
   }
 
   public static boolean isSwimming(User user) {
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaClientData clientData = meta.clientData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    ProtocolMetadata clientData = meta.protocolData();
     if (!clientData.swimmingMechanics()) {
       return false;
     }
@@ -40,10 +45,10 @@ public final class PoseHelper {
   }
 
   public static boolean poseSneaking(User user) {
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaClientData clientData = meta.clientData();
-    UserMetaInventoryData inventoryData = meta.inventoryData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    ProtocolMetadata clientData = meta.protocolData();
+    InventoryMetadata inventoryData = meta.inventoryData();
     boolean sneakingAllowed = movementData.sneaking && !inventoryData.inventoryOpen();
     boolean actualSneaking;
     if (clientData.delayedSneak()) {

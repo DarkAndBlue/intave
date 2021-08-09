@@ -18,9 +18,9 @@ import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedMovingObjectPosition;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaClientData;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.raytrace.Raytracing;
@@ -149,7 +149,7 @@ public final class AirClickLimitHeuristic extends MetaCheckPart<Heuristics, AirC
          Gibt auch ein Minecraft Bug bei dem man nach dem man ein Block abgebaut hat für 5 Ticks noch Swing-packets sendet.
       **/
       World world = event.getPlayer().getWorld();
-      UserMetaMovementData movementData = user.meta().movementData();
+      MovementMetadata movementData = user.meta().movementData();
 
       Location playerLocation = new Location(world, movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ);
       playerLocation.setYaw(movementData.rotationYaw);
@@ -191,7 +191,7 @@ public final class AirClickLimitHeuristic extends MetaCheckPart<Heuristics, AirC
 //      player.sendMessage("cps: " + sum);
     }
 
-    if (sum > 13 && user.meta().clientData().protocolVersion() <= UserMetaClientData.VER_1_8) {
+    if (sum > 13 && user.meta().protocolData().protocolVersion() <= ProtocolMetadata.VER_1_8) {
       meta.flaggCounter++;
       double timeDiffrenceInSeconds = (System.currentTimeMillis() - meta.lastFlagTimeStamp) / 1000d;
 
@@ -287,7 +287,7 @@ public final class AirClickLimitHeuristic extends MetaCheckPart<Heuristics, AirC
 //    }
   }
 
-  public static class AirClickLimitHeuristicMeta extends UserCustomCheckMeta {
+  public static class AirClickLimitHeuristicMeta extends CheckCustomMetadata {
     private int maxCPS;
     private long lastFlagTimeStamp;
     private int flaggCounter;

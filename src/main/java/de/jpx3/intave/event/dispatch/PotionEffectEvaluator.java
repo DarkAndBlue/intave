@@ -8,8 +8,8 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketEventSubscriber;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaPotionData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.EffectMetadata;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -95,7 +95,7 @@ public final class PotionEffectEvaluator implements PacketEventSubscriber {
 
   private void receiveEffectRemoval(Player player, PotionEffectType potionEffectType) {
     User user = UserRepository.userOf(player);
-    UserMetaPotionData potionData = user.meta().potionData();
+    EffectMetadata potionData = user.meta().potionData();
     if (potionEffectType.equals(PotionEffectType.SPEED)) {
       potionData.potionEffectSpeedAmplifier(0);
       potionData.potionEffectSpeedDuration = 0;
@@ -110,7 +110,7 @@ public final class PotionEffectEvaluator implements PacketEventSubscriber {
 
   private void receiveEffect(Player player, PotionEffectOutput effectOutput) {
     User user = UserRepository.userOf(player);
-    UserMetaPotionData potionData = user.meta().potionData();
+    EffectMetadata potionData = user.meta().potionData();
 
     int effectAmplifier = effectOutput.potionEffectAmplifier;
     int effectDuration = effectOutput.potionEffectDuration;

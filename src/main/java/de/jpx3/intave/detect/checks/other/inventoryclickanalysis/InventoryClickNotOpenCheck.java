@@ -5,9 +5,9 @@ import de.jpx3.intave.detect.CheckPart;
 import de.jpx3.intave.detect.checks.other.InventoryClickAnalysis;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMeta;
-import de.jpx3.intave.user.UserMetaClientData;
-import de.jpx3.intave.user.UserMetaInventoryData;
+import de.jpx3.intave.user.meta.InventoryMetadata;
+import de.jpx3.intave.user.meta.MetadataBundle;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -29,9 +29,9 @@ public final class InventoryClickNotOpenCheck extends CheckPart<InventoryClickAn
     }
     Player player = ((Player) whoClicked).getPlayer();
     User user = userOf(player);
-    UserMeta meta = user.meta();
-    UserMetaClientData clientData = meta.clientData();
-    UserMetaInventoryData inventoryData = meta.inventoryData();
+    MetadataBundle meta = user.meta();
+    ProtocolMetadata clientData = meta.protocolData();
+    InventoryMetadata inventoryData = meta.inventoryData();
 
     // This check does only work on 1.8 or below
     if (clientData.combatUpdate() || clientData.clientVersionOlderThanServerVersion()) {

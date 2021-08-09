@@ -5,9 +5,9 @@ import de.jpx3.intave.executor.BackgroundExecutor;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.fakeplayer.movement.PositionRotationLookup;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMeta;
-import de.jpx3.intave.user.UserMetaAttackData;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.AttackMetadata;
+import de.jpx3.intave.user.meta.MetadataBundle;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.Location;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -19,8 +19,8 @@ public final class EmulationLight extends MiningStrategyExecutor {
 
   @Override
   protected void setup() {
-    UserMeta meta = user().meta();
-    UserMetaAttackData attackData = meta.attackData();
+    MetadataBundle meta = user().meta();
+    AttackMetadata attackData = meta.attackData();
     if (attackData.fakePlayer() != null) {
       return;
     }
@@ -38,7 +38,7 @@ public final class EmulationLight extends MiningStrategyExecutor {
   }
 
   public static Location locationBehind(User user) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     float rotationYaw = movementData.rotationYaw;
     Location location = movementData.verifiedLocation().clone();
     location.setYaw(rotationYaw);
@@ -49,7 +49,7 @@ public final class EmulationLight extends MiningStrategyExecutor {
 
   @Override
   protected void stopStrategy() {
-    UserMetaAttackData attackData = user().meta().attackData();
+    AttackMetadata attackData = user().meta().attackData();
     FakePlayer fakePlayer = attackData.fakePlayer();
     if (fakePlayer != null) {
       fakePlayer.remove();

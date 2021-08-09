@@ -9,8 +9,8 @@ import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaConnectionData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.ConnectionMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -55,7 +55,7 @@ public final class FeedbackResponsePull implements PacketEventSubscriber {
     if (user == null) {
       return;
     }
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
     Map<Long, Request<?>> transactionGlobalKeyMap = synchronizeData.transactionGlobalKeyMap();
     Map<Short, Request<?>> transactionShortKeyMap = synchronizeData.transactionShortKeyMap();
     PacketContainer packet = event.getPacket();
@@ -97,7 +97,7 @@ public final class FeedbackResponsePull implements PacketEventSubscriber {
 
   private void receiveRequest(User user, Request<?> transactionResponse) {
     Player player = user.player();
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
     synchronizeData.lastSynchronization = transactionResponse.requested();
     synchronizeData.lastReceivedTransactionNum = transactionResponse.num();
     Map<Long, Queue<Request<?>>> appendixMap = synchronizeData.transactionAppendixMap();
@@ -149,7 +149,7 @@ public final class FeedbackResponsePull implements PacketEventSubscriber {
   }
 
   private static long oldestPendingTransaction(User user) {
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
     Map<Short, Request<?>> transactionFeedBackMap = synchronizeData.transactionShortKeyMap();
     long duration = AccessHelper.now();
     for (Request<?> value : transactionFeedBackMap.values()) {

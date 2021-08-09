@@ -9,7 +9,8 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.*;
 import de.jpx3.intave.world.raytrace.Raytracing;
 import org.bukkit.entity.Player;
 
@@ -32,8 +33,8 @@ public final class RotationModuloResetHeuristic extends MetaCheckPart<Heuristics
   public void receiveMovementPacket(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
-    UserMetaAttackData attackData = user.meta().attackData();
+    MovementMetadata movementData = user.meta().movementData();
+    AttackMetadata attackData = user.meta().attackData();
     RotationModuloResetHeuristicMeta heuristicMeta = metaOf(user);
 
     WrappedEntity attackedEntity = attackData.lastAttackedEntity();
@@ -78,11 +79,11 @@ public final class RotationModuloResetHeuristic extends MetaCheckPart<Heuristics
   }
 
   private boolean entityInLineOfSight(User user) {
-    UserMeta meta = user.meta();
-    UserMetaAttackData attackData = meta.attackData();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaClientData clientData = meta.clientData();
-    boolean alternativePositionY = clientData.protocolVersion() == UserMetaClientData.VER_1_8;
+    MetadataBundle meta = user.meta();
+    AttackMetadata attackData = meta.attackData();
+    MovementMetadata movementData = meta.movementData();
+    ProtocolMetadata clientData = meta.protocolData();
+    boolean alternativePositionY = clientData.protocolVersion() == ProtocolMetadata.VER_1_8;
     Raytracing.EntityInteractionRaytrace rayTraceResult = Raytracing.blockIgnoringEntityRaytrace(
       user.player(),
       attackData.lastAttackedEntity(),
@@ -97,7 +98,7 @@ public final class RotationModuloResetHeuristic extends MetaCheckPart<Heuristics
     return rayTraceResult.reach != 10;
   }
 
-  public static final class RotationModuloResetHeuristicMeta extends UserCustomCheckMeta {
+  public static final class RotationModuloResetHeuristicMeta extends CheckCustomMetadata {
     private boolean roundedRotationLooking;
   }
 }

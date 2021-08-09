@@ -3,7 +3,7 @@ package de.jpx3.intave.world.blockphysic;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import com.google.common.collect.ImmutableList;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.util.Vector;
@@ -27,7 +27,7 @@ final class BlockHoneyPhysic implements BlockPhysic {
   }
 
   private boolean doBlockPhysics(User user, Location blockPos, double motionY) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     if (movementData.onGround) {
       return false;
     } else if (movementData.positionY > blockPos.getY() + 0.9375D - 1.0E-7D) {
@@ -43,7 +43,7 @@ final class BlockHoneyPhysic implements BlockPhysic {
   }
 
   private Vector updateMovement(User user, double motionX, double motionY, double motionZ) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     movementData.artificialFallDistance = 0.0F;
     if (motionY< -0.13D) {
       double d0 = -0.05D / motionY;

@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import de.jpx3.intave.reflect.hitbox.HitBoxBoundaries;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MovementMetadata;
 
 import java.util.Map;
 
@@ -40,7 +40,7 @@ public enum Pose {
     .build();
 
   public WrappedAxisAlignedBB boundingBoxOf(User user) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     return boundingBoxOf(user, movementData.positionX, movementData.positionY, movementData.positionZ);
   }
 

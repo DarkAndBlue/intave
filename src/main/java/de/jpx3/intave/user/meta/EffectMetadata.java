@@ -1,4 +1,4 @@
-package de.jpx3.intave.user;
+package de.jpx3.intave.user.meta;
 
 import de.jpx3.intave.tools.annotate.Relocate;
 import org.bukkit.entity.Player;
@@ -9,7 +9,7 @@ import java.util.Collection;
 import static de.jpx3.intave.event.dispatch.PotionEffectEvaluator.*;
 
 @Relocate
-public final class UserMetaPotionData {
+public final class EffectMetadata {
   private int potionEffectSpeedAmplifier = 0;
   public int potionEffectSpeedDuration = 0;
 
@@ -19,7 +19,7 @@ public final class UserMetaPotionData {
   private int potionEffectJumpAmplifier = 0;
   public int potionEffectJumpDuration = 0;
 
-  public UserMetaPotionData(Player player) {
+  public EffectMetadata(Player player) {
     if (player != null) {
       loadPotionEffectsFrom(player.getActivePotionEffects());
     }

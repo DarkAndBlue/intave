@@ -14,7 +14,12 @@ import de.jpx3.intave.tools.placeholder.TextContext;
 import de.jpx3.intave.tools.placeholder.ViolationPlaceholderContext;
 import de.jpx3.intave.tools.placeholder.ViolationPlaceholderContext.DetailScope;
 import de.jpx3.intave.tools.sync.Synchronizer;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.MessageChannel;
+import de.jpx3.intave.user.MessageChannelSubscriptions;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
+import de.jpx3.intave.user.meta.ViolationMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -139,7 +144,7 @@ public final class ViolationProcessor {
       return;
     }
     User user = UserRepository.userOf(violationContext.violation().findPlayer().orElseThrow(IllegalStateException::new));
-    UserMetaViolationLevelData violationLevelData = user.meta().violationLevelData();
+    ViolationMetadata violationLevelData = user.meta().violationLevelData();
 
     if (AccessHelper.now() - violationLevelData.detectionCounterReset > 10000) {
       violationLevelData.detectionCounter = 0;
@@ -170,8 +175,8 @@ public final class ViolationProcessor {
 
   @Native
   private void processViolationVerbose(ViolationContext violationContext) {
-    boolean enterprise = (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
-    boolean partner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
+    boolean enterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
+    boolean partner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
     if (violationContext.completed()) {
       return;
     }
@@ -296,11 +301,11 @@ public final class ViolationProcessor {
     });
   }
 
-  private final static UserMessageChannel NOTIFY_MESSAGE_CHANNEL = UserMessageChannel.NOTIFY;
+  private final static MessageChannel NOTIFY_MESSAGE_CHANNEL = MessageChannel.NOTIFY;
 
   public void broadcastNotify(String fullMessage) {
     String notifyMessage = MessageFormatter.resolveNotifyReplacements(new TextContext(fullMessage));
-    for (Player allPlayers : UserMessageSubscriptions.receiverOf(NOTIFY_MESSAGE_CHANNEL)/*Bukkit.getOnlinePlayers()*/) {
+    for (Player allPlayers : MessageChannelSubscriptions.receiverOf(NOTIFY_MESSAGE_CHANNEL)/*Bukkit.getOnlinePlayers()*/) {
       User user = UserRepository.userOf(allPlayers);
       if (user.receives(NOTIFY_MESSAGE_CHANNEL)) {
         synchronizedMessage(allPlayers, notifyMessage);
@@ -308,7 +313,7 @@ public final class ViolationProcessor {
     }
   }
 
-  private final static UserMessageChannel VERBOSE_MESSAGE_CHANNEL = UserMessageChannel.VERBOSE;
+  private final static MessageChannel VERBOSE_MESSAGE_CHANNEL = MessageChannel.VERBOSE;
 
   public void broadcastVerbose(Player player, ViolationContext violationContext) {
     String fullMessage = MessageFormatter.resolveVerboseMessage(
@@ -319,10 +324,10 @@ public final class ViolationProcessor {
 
   private void sendConstraintMessageOnChannel(
     Player target,
-    UserMessageChannel channel,
+    MessageChannel channel,
     String message
   ) {
-    for (Player allPlayers : UserMessageSubscriptions.receiverOf(channel)/*Bukkit.getOnlinePlayers()*/) {
+    for (Player allPlayers : MessageChannelSubscriptions.receiverOf(channel)/*Bukkit.getOnlinePlayers()*/) {
       User allUsers = UserRepository.userOf(allPlayers);
       if (!allUsers.receives(channel)) {
         continue;

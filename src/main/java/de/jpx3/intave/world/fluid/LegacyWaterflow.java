@@ -3,7 +3,7 @@ package de.jpx3.intave.world.fluid;
 import de.jpx3.intave.tools.client.Materials;
 import de.jpx3.intave.tools.wrapper.*;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -13,7 +13,7 @@ public final class LegacyWaterflow {
   public static boolean handleMaterialAcceleration(User user, WrappedAxisAlignedBB boundingBox) {
     Player player = user.player();
     World world = player.getWorld();
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     int minX = WrappedMathHelper.floor(boundingBox.minX);
     int minY = WrappedMathHelper.floor(boundingBox.minY);
     int minZ = WrappedMathHelper.floor(boundingBox.minZ);

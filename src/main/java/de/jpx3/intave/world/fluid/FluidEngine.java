@@ -5,7 +5,7 @@ import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -21,7 +21,7 @@ public abstract class FluidEngine {
 
   protected boolean handleFluidAcceleration(User user, WrappedAxisAlignedBB boundingBox) {
     World world = user.player().getWorld();
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     WrappedAxisAlignedBB wrappedAxisAlignedBB = boundingBox.shrink(0.001D);
     int minX = WrappedMathHelper.floor(wrappedAxisAlignedBB.minX);
     int minY = WrappedMathHelper.floor(wrappedAxisAlignedBB.minY);

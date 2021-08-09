@@ -13,8 +13,8 @@ import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.event.violation.ViolationProcessor;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaClientData;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
@@ -47,7 +47,7 @@ public final class RestartCheck extends MetaCheckPart<BreakSpeedLimiter, Restart
     Player player = event.getPlayer();
     User user = userOf(player);
     RestartCheck.BreakSpeedStartMeta meta = metaOf(user);
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
 
     PacketContainer packet = event.getPacket();
     EnumWrappers.PlayerDigType digType = packet.getPlayerDigTypes().read(0);
@@ -99,7 +99,7 @@ public final class RestartCheck extends MetaCheckPart<BreakSpeedLimiter, Restart
     }
   }
 
-  public static final class BreakSpeedStartMeta extends UserCustomCheckMeta {
+  public static final class BreakSpeedStartMeta extends CheckCustomMetadata {
     private int ticks;
     private int blockBreakTick;
     private long blockBreakTimestamp;

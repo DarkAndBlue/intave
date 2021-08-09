@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public final class UserMessageSubscriptions {
+public final class MessageChannelSubscriptions {
   private final static Collection<Player> sibylRepo = GarbageCollector.watch(new CopyOnWriteArrayList<>());
 
   public static Collection<? extends Player> sibylReceiver() {
@@ -26,13 +26,13 @@ public final class UserMessageSubscriptions {
     }
   }
 
-  private final static Map<UserMessageChannel, List<Player>> messageChannelSubscriptions = new ConcurrentHashMap<>();
+  private final static Map<MessageChannel, List<Player>> messageChannelSubscriptions = new ConcurrentHashMap<>();
 
-  public static Collection<? extends Player> receiverOf(UserMessageChannel channel) {
+  public static Collection<? extends Player> receiverOf(MessageChannel channel) {
     return messageChannelSubscriptions.computeIfAbsent(channel, theChannel -> new CopyOnWriteArrayList<>());
   }
 
-  public static void setChannelActivation(Player player, UserMessageChannel channel, boolean status) {
+  public static void setChannelActivation(Player player, MessageChannel channel, boolean status) {
     Collection<Player> players = messageChannelSubscriptions.computeIfAbsent(channel, theChannel -> new CopyOnWriteArrayList<>());
     if (status) {
       if (!players.contains(player)) {

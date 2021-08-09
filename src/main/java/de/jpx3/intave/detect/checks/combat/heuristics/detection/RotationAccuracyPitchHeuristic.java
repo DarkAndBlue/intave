@@ -8,7 +8,11 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.AttackMetadata;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MetadataBundle;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.DELAY_128s;
@@ -30,9 +34,9 @@ public final class RotationAccuracyPitchHeuristic extends MetaCheckPart<Heuristi
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaAttackData attackData = meta.attackData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    AttackMetadata attackData = meta.attackData();
     WrappedEntity attackedEntity = attackData.lastAttackedEntity();
     RotationAccuracyHeuristicMeta heuristicMeta = metaOf(user);
 
@@ -63,7 +67,7 @@ public final class RotationAccuracyPitchHeuristic extends MetaCheckPart<Heuristi
     }
   }
 
-  public final static class RotationAccuracyHeuristicMeta extends UserCustomCheckMeta {
+  public final static class RotationAccuracyHeuristicMeta extends CheckCustomMetadata {
     public int threshold;
   }
 }

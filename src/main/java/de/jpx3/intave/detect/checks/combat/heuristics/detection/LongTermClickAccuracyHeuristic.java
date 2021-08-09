@@ -12,7 +12,7 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.ARM_ANIMATION;
@@ -70,7 +70,7 @@ public final class LongTermClickAccuracyHeuristic extends MetaCheckPart<Heuristi
     }
   }
 
-  public static class ClickAccuracyMeta extends UserCustomCheckMeta {
+  public static class ClickAccuracyMeta extends CheckCustomMetadata {
     public double attacks;
     public double swings;
   }

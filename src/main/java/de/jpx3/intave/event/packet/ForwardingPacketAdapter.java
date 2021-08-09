@@ -46,7 +46,7 @@ public final class ForwardingPacketAdapter extends IntavePacketAdapter {
       return;
     }
     if (user.shouldIgnoreNextOutboundPacket()) {
-      user.receiveNextOutboundPacket();
+      user.receiveNextOutboundPacketAgain();
       return;
     }
     for (LocalPacketAdapter localPacketAdapter : targetList) {
@@ -67,8 +67,8 @@ public final class ForwardingPacketAdapter extends IntavePacketAdapter {
     if (user == null) {
       return;
     }
-    if (user.shouldIgnoreNextPacket()) {
-      user.receiveNextPacket();
+    if (user.shouldIgnoreNextInboundPacket()) {
+      user.receiveNextInboundPacketAgain();
       return;
     }
     for (LocalPacketAdapter localPacketAdapter : targetList) {

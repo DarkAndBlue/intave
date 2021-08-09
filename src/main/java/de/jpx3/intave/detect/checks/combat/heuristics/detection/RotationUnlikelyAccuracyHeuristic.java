@@ -10,7 +10,11 @@ import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.tools.MathHelper;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.AttackMetadata;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MetadataBundle;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -34,9 +38,9 @@ public final class RotationUnlikelyAccuracyHeuristic extends MetaCheckPart<Heuri
     Player player = event.getPlayer();
     User user = userOf(player);
     ULMeta heuristicMeta = metaOf(user);
-    UserMeta meta = user.meta();
-    UserMetaAttackData attackData = meta.attackData();
-    UserMetaMovementData movementData = meta.movementData();
+    MetadataBundle meta = user.meta();
+    AttackMetadata attackData = meta.attackData();
+    MovementMetadata movementData = meta.movementData();
     if (!attackData.recentlyAttacked(1000)) {
       return;
     }
@@ -77,7 +81,7 @@ public final class RotationUnlikelyAccuracyHeuristic extends MetaCheckPart<Heuri
     }
   }
 
-  public final static class ULMeta extends UserCustomCheckMeta {
+  public final static class ULMeta extends CheckCustomMetadata {
     private final List<Double> yawSpeeds = Lists.newArrayList();
     private final List<Double> distancesToPerfectYaw = Lists.newArrayList();
   }

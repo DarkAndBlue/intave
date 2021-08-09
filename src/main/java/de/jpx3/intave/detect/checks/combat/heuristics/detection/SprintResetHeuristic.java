@@ -12,7 +12,8 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.*;
 import de.jpx3.intave.world.collision.Collision;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -112,20 +113,20 @@ public final class SprintResetHeuristic extends MetaCheckPart<Heuristics, Sprint
 
   private void playerUnsprinted(Player player, SprintResetHeuristicMeta meta, PacketType packetType) {
     User user = userOf(player);
-    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventoryData();
     ItemStack heldItem = inventoryData.heldItem();
     boolean useItem = InventoryUseItemHelper.isUseItem(player, heldItem);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
 
     // can false flag if a player collides with a wall some times
 
     boolean attacked = meta.lastAttack <= 1;
-    UserMetaAbilityData abilityData = user.meta().abilityData();
+    AbilityMetadata abilityData = user.meta().abilityData();
 
     boolean sendFlyingPacket = false;
     if(packetType == PacketType.Play.Client.FLYING || packetType == PacketType.Play.Client.LOOK) {
       sendFlyingPacket = true;
-    } else if(user.meta().clientData().protocolVersion() >= UserMetaClientData.VER_1_9) {
+    } else if(user.meta().protocolData().protocolVersion() >= ProtocolMetadata.VER_1_9) {
       if(movementData.recentlyEncounteredFlyingPacket(2) || movementData.pastFlyingPacketAccurate() <= 2) {
         sendFlyingPacket = true;
       }
@@ -151,7 +152,7 @@ public final class SprintResetHeuristic extends MetaCheckPart<Heuristics, Sprint
         collided = canCollideHorizontally(user, movementData);
       }
       if(!collided) {
-        UserMetaClientData clientData = user.meta().clientData();
+        ProtocolMetadata clientData = user.meta().protocolData();
         String details = "unsprinted and pressed W " + clientData.versionString() + " " + meta.lastAttack;
         Anomaly anomaly = Anomaly.anomalyOf("220",
           Confidence.NONE,
@@ -163,13 +164,13 @@ public final class SprintResetHeuristic extends MetaCheckPart<Heuristics, Sprint
     }
   }
 
-  private boolean canCollideHorizontally(User user, UserMetaMovementData movementData) {
+  private boolean canCollideHorizontally(User user, MovementMetadata movementData) {
     WrappedAxisAlignedBB entityBoundingBox = movementData.boundingBox().expand(0.031d, 0, 0.031d);
     List<WrappedAxisAlignedBB> collisionBoxes = Collision.resolve(user.player(), entityBoundingBox);
     return !collisionBoxes.isEmpty();
   }
 
-  public static class SprintResetHeuristicMeta extends UserCustomCheckMeta {
+  public static class SprintResetHeuristicMeta extends CheckCustomMetadata {
     private boolean startSneak;
     private boolean startSprint;
     private boolean stopSprint;

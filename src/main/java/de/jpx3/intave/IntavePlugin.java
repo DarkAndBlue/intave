@@ -72,7 +72,7 @@ import java.util.logging.LogRecord;
 
 import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 import static de.jpx3.intave.security.InterceptorFilterPrintStream.foundInterceptor;
-import static de.jpx3.intave.user.UserMetaClientData.VERSION_DETAILS;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VERSION_DETAILS;
 
 public final class IntavePlugin extends JavaPlugin {
   private static IntavePlugin singletonInstance;

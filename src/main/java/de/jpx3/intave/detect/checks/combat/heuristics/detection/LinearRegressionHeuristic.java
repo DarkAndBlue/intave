@@ -8,7 +8,7 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.executor.IntaveThreadFactory;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import org.bukkit.entity.Player;
 
 import javax.swing.*;
@@ -229,7 +229,7 @@ public final class LinearRegressionHeuristic extends MetaCheckPart<Heuristics, L
     return from / (Math.abs(minFrom) + Math.abs(maxFrom)) * (Math.abs(minTo) + Math.abs(maxTo));
   }
 
-  public static class LinearRegressionHeuristicMeta extends UserCustomCheckMeta {
+  public static class LinearRegressionHeuristicMeta extends CheckCustomMetadata {
     public JPanel panel;
 //    public double b;
 //    public double m;

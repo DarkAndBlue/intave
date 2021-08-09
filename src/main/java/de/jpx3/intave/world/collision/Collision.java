@@ -6,8 +6,8 @@ import de.jpx3.intave.tools.client.Materials;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
@@ -43,7 +43,7 @@ public final class Collision {
 
     List<WrappedAxisAlignedBB> resolvedBoundingBoxes = null;
     User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
 
     boolean outsideBorderLast = movementData.outsideBorder;
     boolean outsideBorderCurrent = playerOutsideBorder(user);
@@ -178,7 +178,7 @@ public final class Collision {
 
   private static boolean playerOutsideBorder(User user) {
     World world = user.player().getWorld();
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     double positionX = movementData.verifiedPositionX;
     double positionZ = movementData.verifiedPositionZ;
     WorldBorder worldBorder = world.getWorldBorder();

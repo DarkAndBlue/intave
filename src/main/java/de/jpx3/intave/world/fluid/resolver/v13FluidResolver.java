@@ -5,7 +5,7 @@ import de.jpx3.intave.patchy.annotate.PatchyTranslateParameters;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
 import de.jpx3.intave.tools.wrapper.link.WrapperLinkage;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.world.fluid.FluidEngine;
 import de.jpx3.intave.world.fluid.FluidTag;
 import de.jpx3.intave.world.fluid.WrappedFluid;
@@ -17,7 +17,7 @@ public final class v13FluidResolver extends FluidEngine {
   @Override
   @PatchyAutoTranslation
   protected WrappedFluid fluidAt(User user, int x, int y, int z) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     World world = (World) movementData.nmsWorld();
     if (!world.isChunkLoaded(x >> 4, z >> 4, false)) {
       return WrappedFluid.empty();
@@ -46,7 +46,7 @@ public final class v13FluidResolver extends FluidEngine {
   @Override
   @PatchyAutoTranslation
   protected WrappedVector flowVectorAt(User user, int x, int y, int z) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     IWorldReader world = (World) movementData.nmsWorld();
     BlockPosition blockPosition = new BlockPosition(x, y, z);
     return WrapperLinkage.vectorOf(world.getFluid(blockPosition).a(world, blockPosition));

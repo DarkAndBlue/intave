@@ -17,7 +17,12 @@ import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.reflect.hitbox.HitBoxBoundaries;
 import de.jpx3.intave.reflect.hitbox.typeaccess.EntityTypeData;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.AbilityMetadata;
+import de.jpx3.intave.user.meta.AttackMetadata;
+import de.jpx3.intave.user.meta.ConnectionMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -76,7 +81,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   private void reevaluteTracingEntitiesFor(Player player) {
     User user = UserRepository.userOf(player);
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
     Vector location = new Vector(0, 0, 0);
     Vector playerLocation = player.getLocation().toVector();
     List<WrappedEntity> validEntities = new ArrayList<>();
@@ -139,8 +144,8 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   private void processAttachEntity(Player player, int entityID, int vehicleEntityID) {
     User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    MovementMetadata movementData = user.meta().movementData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
     Map<Integer, WrappedEntity> synchronizedEntityMap = synchronizeData.synchronizedEntityMap();
     WrappedEntity sittingEntity = synchronizedEntityMap.get(entityID);
 
@@ -202,7 +207,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   private void processEntitySpawn(Player player, PacketEvent event) {
     User user = UserRepository.userOf(player);
-    UserMetaAttackData attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attackData();
     PacketType packetType = event.getPacketType();
     PacketContainer packet = event.getPacket();
     EntityTypeData entityTypeData;
@@ -276,7 +281,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     destroy entity packet gets executed after the spawn packet the entity will be destroyed right after it gets spawned
      */
     User user = UserRepository.userOf(player);
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
     WrappedEntity wrappedEntity = synchronizeData.synchronizedEntityMap().get(entityID);
     if (wrappedEntity instanceof WrappedEntityFirework) {
       plugin.eventService().feedback().singleSynchronize(player, entityID, this::processEntityDestroy, APPEND_ON_OVERFLOW);
@@ -287,10 +292,10 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   private void processEntityDestroy(Player player, int entityId) {
     User user = UserRepository.userOf(player);
-    UserMetaAttackData attackData = user.meta().attackData();
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    AttackMetadata attackData = user.meta().attackData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
     Map<Integer, WrappedEntity> synchronizedEntityMap = synchronizeData.synchronizedEntityMap();
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
 
     WrappedEntity entity = synchronizedEntityMap.get(entityId);
     if (entity != null && movementData.ridingEntity() == entity) {
@@ -321,8 +326,8 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   public void receiveMovement(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
-    UserMetaMovementData movementData = user.meta().movementData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
+    MovementMetadata movementData = user.meta().movementData();
 
     if (movementData.lastTeleport == 0) {
       return;
@@ -507,7 +512,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     double posX, double posY, double posZ,
     boolean player
   ) {
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
     Map<Integer, WrappedEntity> synchronizedEntityMap = synchronizeData.synchronizedEntityMap();
     WrappedEntity entity = createEntityOf(user, entityId, isEntityLiving, entityTypeData, player);
     entity.serverPosX = WrappedMathHelper.getPositionLong(posX);
@@ -523,7 +528,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
     long serverPosX, long serverPosY, long serverPosZ,
     boolean player
   ) {
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
     Map<Integer, WrappedEntity> synchronizedEntityMap = synchronizeData.synchronizedEntityMap();
     double posX = serverPosX / 32d;
     double posY = serverPosY / 32d;
@@ -637,7 +642,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
   private void synchronizePlayerHealth(Player player, PacketContainer packet) {
     Float health = readHealthOf(packet.getWatchableCollectionModifier().read(0));
     if (health != null) {
-      UserMetaAbilityData abilityData = UserRepository.userOf(player).meta().abilityData();
+      AbilityMetadata abilityData = UserRepository.userOf(player).meta().abilityData();
       abilityData.unsynchronizedHealth = health;
       plugin.eventService().feedback().singleSynchronize(player, health, (p, retrievedHealth) -> {
         abilityData.health = retrievedHealth;
@@ -683,7 +688,7 @@ public final class ClientSideEntityService implements PacketEventSubscriber {
 
   @Nullable
   public static WrappedEntity entityByIdentifier(User user, int entityID) {
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
     return synchronizeData.synchronizedEntityMap().getOrDefault(entityID, null);
   }
 }

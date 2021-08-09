@@ -12,8 +12,8 @@ import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaConnectionData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.ConnectionMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -143,7 +143,7 @@ public final class FeedbackService implements PacketEventSubscriber {
     if (user == null || !user.hasPlayer()) {
       return;
     }
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
     Queue<Request<?>> queue = synchronizeData
       .transactionAppendixMap()
       .computeIfAbsent(synchronizeData.transactionNumCounter, aLong -> new LinkedBlockingDeque<>());
@@ -158,7 +158,7 @@ public final class FeedbackService implements PacketEventSubscriber {
     Player player, T obj, Callback<T> callback
   ) {
     User user = UserRepository.userOf(player);
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
     short transactionKey = findAvailableTransactionIdFor(player);
     if (transactionKey >= TRANSACTION_MAX_CODE) {
       synchronizeData.transactionCounter = TRANSACTION_MIN_CODE;
@@ -176,7 +176,7 @@ public final class FeedbackService implements PacketEventSubscriber {
 
   private synchronized short findAvailableTransactionIdFor(Player player) {
     User user = UserRepository.userOf(player);
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
     Map<Short, Request<?>> transactionFeedBackMap = synchronizeData.transactionShortKeyMap();
     short counter = USE_PING_PONG_PACKETS ? 13 : TRANSACTION_MIN_CODE;
     while (transactionFeedBackMap.containsKey(counter)) counter++;
@@ -185,7 +185,7 @@ public final class FeedbackService implements PacketEventSubscriber {
 
   private void countTransactionPacket(Player receiver) {
     User user = userOf(receiver);
-    UserMetaConnectionData connectionData = user.meta().connectionData();
+    ConnectionMetadata connectionData = user.meta().connectionData();
     connectionData.transactionPacketCounter++;
 
     if (AccessHelper.now() - connectionData.transactionPacketCounterReset > 3000) {

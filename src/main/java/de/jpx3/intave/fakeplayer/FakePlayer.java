@@ -13,8 +13,8 @@ import de.jpx3.intave.fakeplayer.movement.WalkingMovement;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaAttackData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.AttackMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -220,7 +220,7 @@ public final class FakePlayer extends FakePlayerBody {
       .feedback()
       .singleSynchronize(observer, to, (player, target) -> {
         User user = UserRepository.userOf(player);
-        UserMetaAttackData attackData = user.meta().attackData();
+        AttackMetadata attackData = user.meta().attackData();
         attackData.fakePlayerLastReportedX = target.getX();
         attackData.fakePlayerLastReportedY = target.getY();
         attackData.fakePlayerLastReportedZ = target.getZ();
@@ -233,7 +233,7 @@ public final class FakePlayer extends FakePlayerBody {
       .eventService().feedback()
       .singleSynchronize(observer, to, (player, target) -> {
         User user = UserRepository.userOf(player);
-        UserMetaAttackData attackData = user.meta().attackData();
+        AttackMetadata attackData = user.meta().attackData();
         attackData.fakePlayerLastReportedX = target.getX();
         attackData.fakePlayerLastReportedY = target.getY();
         attackData.fakePlayerLastReportedZ = target.getZ();

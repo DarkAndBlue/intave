@@ -3,8 +3,8 @@ package de.jpx3.intave.world.collider;
 import de.jpx3.intave.detect.checks.movement.physics.MotionVector;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaClientData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.world.collider.complex.ComplexColliderProcessor;
 import de.jpx3.intave.world.collider.complex.ComplexColliderSimulationResult;
 import de.jpx3.intave.world.collider.complex.LegacyComplexColliderProcessor;
@@ -29,7 +29,7 @@ public final class Collider {
   }
 
   public static ComplexColliderProcessor suitableComplexColliderProcessorFor(User user) {
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     return clientData.applyModernCollider() ? modernComplexCollisionResolver : legacyComplexCollisionResolver;
   }
 

@@ -13,9 +13,9 @@ import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.GarbageCollector;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaMovementData;
-import de.jpx3.intave.user.UserMetaPotionData;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.EffectMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -68,8 +68,8 @@ public final class SpeedAnalyzer extends MetaCheckPart<PlacementAnalysis, SpeedA
     Player player = place.getPlayer();
     User user = userOf(player);
     PlacementSpeedMeta meta = metaOf(user);
-    UserMetaMovementData movementData = user.meta().movementData();
-    UserMetaPotionData potionData = user.meta().potionData();
+    MovementMetadata movementData = user.meta().movementData();
+    EffectMetadata potionData = user.meta().potionData();
 
     Block block = place.getBlockPlaced();
     Block blockAgainst = place.getBlockAgainst();
@@ -171,7 +171,7 @@ public final class SpeedAnalyzer extends MetaCheckPart<PlacementAnalysis, SpeedA
     return lockedOnX || lockedOnZ;
   }
 
-  public static class PlacementSpeedMeta extends UserCustomCheckMeta {
+  public static class PlacementSpeedMeta extends CheckCustomMetadata {
     private final List<Long> placementSpeedHistory = GarbageCollector.watch(new ArrayList<>());
     private final List<Location> placementHistory = GarbageCollector.watch(new ArrayList<>());
     private long lastPlacement;

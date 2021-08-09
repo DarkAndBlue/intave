@@ -13,9 +13,9 @@ import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaAbilityData;
-import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.AbilityMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -46,7 +46,7 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
 
   private void synchronizeCameraUpdate(Player player, int entityID) {
     User user = UserRepository.userOf(player);
-    UserMetaAbilityData abilityData = user.meta().abilityData();
+    AbilityMetadata abilityData = user.meta().abilityData();
     Entity entity = ClientSideEntityService.serverEntityByIdentifier(player, entityID);
     abilityData.hasViewEntity = entity != player;
   }
@@ -62,8 +62,8 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
     User user = UserRepository.userOf(player);
     PacketContainer packet = event.getPacket();
 
-    UserMetaAbilityData abilityData = user.meta().abilityData();
-    UserMetaMovementData movementData = user.meta().movementData();
+    AbilityMetadata abilityData = user.meta().abilityData();
+    MovementMetadata movementData = user.meta().movementData();
 
     boolean flying = requestedFlying(packet);
     if (abilityData.allowFlying()) {
@@ -109,19 +109,19 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
 
   private void retrieveWalkingSpeed(Player player, float walkSpeed) {
     User user = UserRepository.userOf(player);
-    UserMetaAbilityData abilityData = user.meta().abilityData();
+    AbilityMetadata abilityData = user.meta().abilityData();
     abilityData.setWalkSpeed(walkSpeed);
   }
 
   private void retrieveFlyingSpeed(Player player, float flySpeed) {
     User user = UserRepository.userOf(player);
-    UserMetaAbilityData abilityData = user.meta().abilityData();
+    AbilityMetadata abilityData = user.meta().abilityData();
     abilityData.setFlySpeed(flySpeed);
   }
 
   private void retrieveAllowedFlight(Player player, boolean allowedFlight) {
     User user = UserRepository.userOf(player);
-    UserMetaAbilityData abilityData = user.meta().abilityData();
+    AbilityMetadata abilityData = user.meta().abilityData();
     abilityData.setAllowFlying(allowedFlight);
   }
 
@@ -135,7 +135,7 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     PacketContainer packet = event.getPacket();
-    UserMetaAbilityData abilityData = user.meta().abilityData();
+    AbilityMetadata abilityData = user.meta().abilityData();
     if (!gameModeUpdateState(packet)) {
       return;
     }

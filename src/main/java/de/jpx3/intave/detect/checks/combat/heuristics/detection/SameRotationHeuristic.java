@@ -13,7 +13,8 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.Native;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.*;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -39,12 +40,12 @@ public final class SameRotationHeuristic extends MetaCheckPart<Heuristics, SameR
     }
     User user = userOf(player);
     SameRotationHeuristicMeta meta = metaOf(user);
-    UserMeta userMeta = user.meta();
-    UserMetaMovementData movementData = userMeta.movementData();
-    UserMetaViolationLevelData violationLevelData = userMeta.violationLevelData();
-    UserMetaAbilityData userMetaAbilityData = userMeta.abilityData();
+    MetadataBundle metadata = user.meta();
+    MovementMetadata movementData = metadata.movementData();
+    ViolationMetadata violationLevelData = metadata.violationLevelData();
+    AbilityMetadata abilityMetadata = metadata.abilityData();
 
-    if(userMetaAbilityData.health <= 0 || userMetaAbilityData.unsynchronizedHealth <= 0) {
+    if(abilityMetadata.health <= 0 || abilityMetadata.unsynchronizedHealth <= 0) {
       meta.ticksSinceRespawn = 0;
     }
 
@@ -90,7 +91,7 @@ public final class SameRotationHeuristic extends MetaCheckPart<Heuristics, SameR
 
   @Native
   public boolean isPartner() {
-    return (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
+    return (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
   }
 
   private void checkExactRotationYaw(SameRotationHeuristicMeta meta, Player player) {
@@ -232,7 +233,7 @@ public final class SameRotationHeuristic extends MetaCheckPart<Heuristics, SameR
   }
 
 
-  public static final class SameRotationHeuristicMeta extends UserCustomCheckMeta {
+  public static final class SameRotationHeuristicMeta extends CheckCustomMetadata {
     private int violationLevel;
     private final List<Float> yawRotations = new ArrayList<>();
     private final List<Float> pitchRotations = new ArrayList<>();

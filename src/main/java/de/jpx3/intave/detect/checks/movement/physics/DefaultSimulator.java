@@ -8,7 +8,11 @@ import de.jpx3.intave.tools.client.MovementContext;
 import de.jpx3.intave.tools.items.PlayerEnchantmentHelper;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.MetadataBundle;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
+import de.jpx3.intave.user.meta.ViolationMetadata;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockphysic.BlockPhysics;
 import de.jpx3.intave.world.blockphysic.BlockProperties;
@@ -26,7 +30,7 @@ import org.bukkit.util.Vector;
 
 import java.util.Collection;
 
-import static de.jpx3.intave.user.UserMetaClientData.VER_1_14;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_14;
 
 public class DefaultSimulator extends Simulator {
   @Override
@@ -35,9 +39,9 @@ public class DefaultSimulator extends Simulator {
     float forward, float strafe,
     boolean attackReduce, boolean jumped, boolean handActive
   ) {
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaClientData clientData = meta.clientData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    ProtocolMetadata clientData = meta.protocolData();
     Pose pose = movementData.pose();
     float yawSine = movementData.yawSine();
     float yawCosine = movementData.yawCosine();
@@ -136,7 +140,7 @@ public class DefaultSimulator extends Simulator {
     float yawSine, float yawCosine
   ) {
     Player player = user.player();
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     float f2 = 0.02F;
     float f3 = (float) PlayerEnchantmentHelper.resolveDepthStriderModifier(player);
     if (f3 > 3.0F) {
@@ -166,7 +170,7 @@ public class DefaultSimulator extends Simulator {
     float moveForward, float moveStrafe,
     float yawSine, float yawCosine
   ) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     performRelativeMoveSimulationOfState(context, movementData.friction(), yawSine, yawCosine, moveForward, moveStrafe);
     if (MovementContext.isOnLadder(user, movementData.verifiedPositionX, movementData.verifiedPositionY, movementData.verifiedPositionZ)) {
       float f6 = 0.15F;
@@ -199,7 +203,7 @@ public class DefaultSimulator extends Simulator {
 
   private void tryRelinkFlyingPosition(User user, MotionVector context) {
     Player player = user.player();
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
 
     double positionX = movementData.verifiedPositionX;
     double positionY = movementData.verifiedPositionY;
@@ -294,7 +298,7 @@ public class DefaultSimulator extends Simulator {
   }
 
   public void notePossibleFlyingPacket(User user, ComplexColliderSimulationResult collisionResult) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     MotionVector context = collisionResult.context();
     if (flyingPacket(context.motionX, context.motionY, context.motionZ)) {
       movementData.resetFlyingPacketAccurate();
@@ -316,10 +320,10 @@ public class DefaultSimulator extends Simulator {
   ) {
     Player player = user.player();
     World world = player.getWorld();
-    UserMeta meta = user.meta();
-    UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaClientData clientData = meta.clientData();
+    MetadataBundle meta = user.meta();
+    ViolationMetadata violationLevelData = meta.violationLevelData();
+    MovementMetadata movementData = meta.movementData();
+    ProtocolMetadata clientData = meta.protocolData();
     MotionVector motionVector = movementData.motionProcessorContext;
     motionVector.reset(motionX, motionY, motionZ);
     Pose pose = movementData.pose();
@@ -388,7 +392,7 @@ public class DefaultSimulator extends Simulator {
   }
 
   private void updateFallState(User user, double motionY, boolean onGround) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     if (!movementData.inWater) {
       physics().updateAquatics(user);
     }
@@ -406,9 +410,9 @@ public class DefaultSimulator extends Simulator {
   ) {
     Player player = user.player();
     World world = player.getWorld();
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaClientData clientData = meta.clientData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    ProtocolMetadata clientData = meta.protocolData();
 
     double positionX = movementData.positionX;
     double positionY = movementData.positionY;
@@ -504,9 +508,9 @@ public class DefaultSimulator extends Simulator {
     boolean collidedHorizontally, double gravity
   ) {
     Player player = user.player();
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaClientData clientData = meta.clientData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    ProtocolMetadata clientData = meta.protocolData();
     double positionY = movementData.positionY;
     float f1;
     if (clientData.waterUpdate()) {
@@ -547,7 +551,7 @@ public class DefaultSimulator extends Simulator {
     MotionVector context, WrappedAxisAlignedBB boundingBox,
     boolean collidedHorizontally
   ) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     double positionY = movementData.positionY;
     context.motionX *= 0.5D;
     context.motionY *= 0.5D;
@@ -580,7 +584,7 @@ public class DefaultSimulator extends Simulator {
 
   private void performGlobalEntityPush(User user, MotionVector context, WrappedAxisAlignedBB boundingBox) {
     Collection<WrappedEntity> entities = user.meta().connectionData().synchronizedEntityMap().values();
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     movementData.pushedByEntity = false;
     for (WrappedEntity entity : entities) {
       if (!entity.tracingEnabled() || !entity.clientSynchronized) {
@@ -593,7 +597,7 @@ public class DefaultSimulator extends Simulator {
   }
 
   private void applyEntityPush(User user, MotionVector motionVector, WrappedEntity entity) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     double xDistance = movementData.positionX - entity.position.posX;
     double zDistance = movementData.positionZ - entity.position.posZ;
     double biggerDistance = WrappedMathHelper.abs_max(xDistance, zDistance);

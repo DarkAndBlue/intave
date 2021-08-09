@@ -1,12 +1,13 @@
-package de.jpx3.intave.user;
+package de.jpx3.intave.user.meta;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.adapter.ViaVersionAdapter;
 import de.jpx3.intave.tools.annotate.Relocate;
+import de.jpx3.intave.user.User;
 import org.bukkit.entity.Player;
 
 @Relocate
-public final class UserMetaClientData {
+public final class ProtocolMetadata {
   // final has been removed to disguise modified integer VERSION_DETAILS
   public static int VER_1_17 = 755; // 1.17
   public static int VER_1_16 = 735; // 1.16
@@ -25,7 +26,7 @@ public final class UserMetaClientData {
   private final User user;
   private int refreshes;
 
-  public UserMetaClientData(Player player, User user) {
+  public ProtocolMetadata(Player player, User user) {
     this.user = user;
     this.refresh(player);
   }

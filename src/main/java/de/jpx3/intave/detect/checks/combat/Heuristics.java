@@ -21,7 +21,11 @@ import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.annotate.Nullable;
 import de.jpx3.intave.tools.sync.Synchronizer;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.MessageChannelSubscriptions;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.AttackMetadata;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
@@ -54,8 +58,8 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
 
   @Native
   public void setupSubChecks() {
-    boolean enterprise = (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
-    boolean partner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
+    boolean enterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
+    boolean partner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
 
     if (enterprise) {
       appendCheckPart(new AirClickLimitHeuristic(this));
@@ -120,7 +124,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
       IntaveLogger.logger().pushPrintln(message);
     }
 
-    for (Player authenticatedPlayer : UserMessageSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
+    for (Player authenticatedPlayer : MessageChannelSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
       if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
         authenticatedPlayer.sendMessage(message);
       }
@@ -137,15 +141,15 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
   public void evaluate(Player player, boolean enforceDecision) {
     Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
 
-    boolean isPartner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
-    boolean isEnterprise = (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
+    boolean isPartner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
+    boolean isEnterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
 
     if (!IntaveControl.DISABLE_LICENSE_CHECK && !isPartner && !isEnterprise && (onlinePlayers.size() <= 5 || player.isOp())) {
       return;
     }
 
     User user = userOf(player);
-    UserMetaAttackData attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attackData();
 
     // External confidence
     List<Anomaly> anomalies = catchAnomaliesOf(user, true);
@@ -323,7 +327,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
     Player player = (Player) damager;
     User user = userOf(player);
-    UserMetaAttackData attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attackData();
     if (attackData.activeMiningStrategy != null) {
       MiningStrategyExecutor executor = attackData.activeMiningStrategy.executor();
       executor.receiveAttackOfPlayer(event);
@@ -351,7 +355,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMetaAttackData attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attackData();
     MiningStrategyContainer activeMiningStrategy = attackData.activeMiningStrategy;
     if (activeMiningStrategy == null) {
       return;
@@ -464,7 +468,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     return String.valueOf(characterA) + characterB + encode;
   }
 
-  public static class HeuristicMeta extends UserCustomCheckMeta {
+  public static class HeuristicMeta extends CheckCustomMetadata {
     public List<Anomaly> anomalies = Lists.newCopyOnWriteArrayList();
     public int overallAttacks = 0;
     public long firstAttack = Long.MAX_VALUE;

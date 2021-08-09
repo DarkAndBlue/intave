@@ -11,8 +11,8 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
@@ -72,7 +72,7 @@ public final class SprintOnAttackHeuristic extends MetaCheckPart<Heuristics, Spr
     Player player = event.getPlayer();
     User user = userOf(player);
     SprintOnAttackHeuristicMeta meta = metaOf(user);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
 
     if(movementData.lastTeleport == 0) {
       return;
@@ -110,7 +110,7 @@ public final class SprintOnAttackHeuristic extends MetaCheckPart<Heuristics, Spr
     meta.stopSprint = false;
   }
 
-  public static class SprintOnAttackHeuristicMeta extends UserCustomCheckMeta {
+  public static class SprintOnAttackHeuristicMeta extends CheckCustomMetadata {
     private int attacksWithSprintChangeBefore;
     private int attacksWithSprintChangeAfter;
     private int totalAttacks;

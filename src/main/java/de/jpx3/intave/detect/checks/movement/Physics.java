@@ -21,7 +21,8 @@ import de.jpx3.intave.tools.client.MovementContext;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.*;
 import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
@@ -114,7 +115,7 @@ public final class Physics extends Check {
     if (!user.hasPlayer()) {
       return;
     }
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     if (movementData.artificialFallDistance > 3.0F) {
       float fallDistance = movementData.artificialFallDistance;
       Synchronizer.synchronize(() -> {
@@ -146,9 +147,9 @@ public final class Physics extends Check {
 
   @DispatchTarget
   public void receiveMovement(User user) {
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaClientData clientData = meta.clientData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    ProtocolMetadata clientData = meta.protocolData();
 
     movementData.setSimulator(selectSimulator(user));
 
@@ -178,7 +179,7 @@ public final class Physics extends Check {
   }
 
   private Simulator selectSimulator(User user) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     if (movementData.hasRidingEntity()) {
       return Simulators.HORSE;
     } else {
@@ -194,7 +195,7 @@ public final class Physics extends Check {
 
   @DispatchTarget
   public void endMovement(User user, boolean hasMovement) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     double motionX = movementData.motionX();
     double motionY = movementData.motionY();
     double motionZ = movementData.motionZ();
@@ -213,7 +214,7 @@ public final class Physics extends Check {
 
   @DispatchTarget
   public void updateOnGroundIfFlying(User user) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     double physicsMotionX = movementData.physicsMotionX;
     double physicsMotionY = movementData.physicsMotionY;
     double physicsMotionZ = movementData.physicsMotionZ;
@@ -238,7 +239,7 @@ public final class Physics extends Check {
   }
 
   private void predictFlyingPacketBeforeVelocity(User user) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     if (movementData.pastVelocity != 0) {
       return;
     }
@@ -266,20 +267,20 @@ public final class Physics extends Check {
   }
 
   public void updateAquatics(User user) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     updateInWater(user);
     movementData.updateEyesInWater();
   }
 
   private void handleSneakInWater(User user) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     movementData.physicsMotionY -= 0.04F;
   }
 
   private void updateInWater(User user) {
-    UserMeta meta = user.meta();
-    UserMetaClientData clientData = meta.clientData();
-    UserMetaMovementData movementData = meta.movementData();
+    MetadataBundle meta = user.meta();
+    ProtocolMetadata clientData = meta.protocolData();
+    MovementMetadata movementData = meta.movementData();
     if (clientData.waterUpdate()) {
       movementData.inWater = Fluids.handleFluidAcceleration(user, movementData.boundingBox());
     } else {
@@ -297,12 +298,12 @@ public final class Physics extends Check {
 
   private void evaluateBestSimulation(User user, ComplexColliderSimulationResult expectedMovement) {
     Player player = user.player();
-    UserMeta meta = user.meta();
+    MetadataBundle meta = user.meta();
     boolean spectator = player.getGameMode() == GameMode.SPECTATOR;
 
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
-    UserMetaAbilityData abilityData = meta.abilityData();
+    MovementMetadata movementData = meta.movementData();
+    ViolationMetadata violationLevelData = meta.violationLevelData();
+    AbilityMetadata abilityData = meta.abilityData();
     OCBlockShapeAccess blockShapeAccess = user.blockShapeAccess();
     MotionVector context = expectedMovement.context();
 
@@ -690,9 +691,9 @@ public final class Physics extends Check {
     boolean collidedWithBoat
   ) {
     Player player = user.player();
-    UserMeta meta = user.meta();
-    UserMetaClientData clientData = meta.clientData();
-    UserMetaMovementData movementData = meta.movementData();
+    MetadataBundle meta = user.meta();
+    ProtocolMetadata clientData = meta.protocolData();
+    MovementMetadata movementData = meta.movementData();
     double distanceMoved = MathHelper.resolveHorizontalDistance(
       movementData.positionX, movementData.positionZ,
       movementData.verifiedPositionX, movementData.verifiedPositionZ
@@ -836,9 +837,9 @@ public final class Physics extends Check {
     boolean collidedWithBoat
   ) {
     Player player = user.player();
-    UserMeta meta = user.meta();
-    UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
-    UserMetaMovementData movementData = meta.movementData();
+    MetadataBundle meta = user.meta();
+    ViolationMetadata violationLevelData = meta.violationLevelData();
+    MovementMetadata movementData = meta.movementData();
 
     double motionX = movementData.motionX();
     double motionZ = movementData.motionZ();
@@ -970,7 +971,7 @@ public final class Physics extends Check {
   private final static double RIPTIDE_TOLERANCE_2 = 0.05;
   private final static double RIPTIDE_GROUND_TOLERANCE_2 = 2.5;
 
-  private double resolveRiptideDeviation(UserMetaMovementData movementData) {
+  private double resolveRiptideDeviation(MovementMetadata movementData) {
     double riptideTolerance;
     if (movementData.onGround) {
       riptideTolerance = movementData.pastRiptideSpin == 0 ? RIPTIDE_TOLERANCE : RIPTIDE_GROUND_TOLERANCE_2;
@@ -981,7 +982,7 @@ public final class Physics extends Check {
   }
 
   private void simulateMotionClamp(User user) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     double resetMotion = movementData.resetMotion();
     if (Math.abs(movementData.physicsMotionX) < resetMotion) {
       movementData.physicsMotionX = 0.0;

@@ -32,7 +32,7 @@ public final class BlockLadderPatch extends BoundingBoxPatch {
     User user = UserRepository.userOf(player);
     BoundingBoxBuilder builder = BoundingBoxBuilder.create();
     WrappedEnumDirection direction = WrappedEnumDirection.getFront(blockState);
-    if (user.meta().clientData().combatUpdate()) {
+    if (user.meta().protocolData().combatUpdate()) {
       if (EMULATE_NEW_REDUNDANT) {
         return super.patch(world, player, posX, posY, posZ, type, blockState, bbs);
       } else {

@@ -10,8 +10,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public final class UserRepositoryEventListener implements BukkitEventSubscriber {
-  public UserRepositoryEventListener(IntavePlugin plugin) {
+public final class UserLifetimeService implements BukkitEventSubscriber {
+  public UserLifetimeService(IntavePlugin plugin) {
     plugin.eventLinker().registerEventsIn(this);
     synchronizePlayers();
   }

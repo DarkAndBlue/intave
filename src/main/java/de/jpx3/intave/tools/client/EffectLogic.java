@@ -1,13 +1,13 @@
 package de.jpx3.intave.tools.client;
 
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaClientData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import static de.jpx3.intave.user.UserMetaClientData.VER_1_13;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_13;
 
 public final class EffectLogic {
   public final static PotionEffectType EFFECT_LEVITATION = PotionEffectType.getByName("LEVITATION");
@@ -25,7 +25,7 @@ public final class EffectLogic {
 
   public static boolean isPotionLevitationActive(Player player) {
     User user = UserRepository.userOf(player);
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     if (EFFECT_LEVITATION == null || clientData.protocolVersion() < 107) {
       return false;
     }
@@ -34,7 +34,7 @@ public final class EffectLogic {
 
   public static boolean isPotionDolphinActive(Player player) {
     User user = UserRepository.userOf(player);
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     if (EFFECT_DOLPHIN == null || clientData.protocolVersion() < VER_1_13) {
       return false;
     }
@@ -43,7 +43,7 @@ public final class EffectLogic {
 
   public static boolean isPotionSlowFallingActive(Player player) {
     User user = UserRepository.userOf(player);
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     if (EFFECT_SLOW_FALLING == null || clientData.protocolVersion() < 393) {
       return false;
     }

@@ -11,7 +11,7 @@ import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.Rotation;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -92,7 +92,7 @@ public final class PacketOrderAnalyzer extends MetaCheckPart<PlacementAnalysis, 
     return integer != null && integer == 255;
   }
 
-  public static class PlacementOrderMeta extends UserCustomCheckMeta {
+  public static class PlacementOrderMeta extends CheckCustomMetadata {
     public double packetOrderBalance;
     public long lastIncrement;
     public List<Long> placementDifferences = new ArrayList<>();

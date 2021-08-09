@@ -1,4 +1,4 @@
-package de.jpx3.intave.user;
+package de.jpx3.intave.user.meta;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -19,7 +19,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 
 @Relocate
-public final class UserMetaAbilityData {
+public final class AbilityMetadata {
   private static final UUID SPEED_MODIFIER_SPRINTING_UUID = UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D");
   public final static Predicate<WrappedAttributeModifier> EXCLUDE_SPRINT_MODIFIER = modifier -> !modifier.getUUID().equals(SPEED_MODIFIER_SPRINTING_UUID);
 
@@ -40,7 +40,7 @@ public final class UserMetaAbilityData {
   public int ticksToLastHealthUpdate;
   public boolean hasViewEntity;
 
-  public UserMetaAbilityData(Player player) {
+  public AbilityMetadata(Player player) {
     this.player = player;
     boolean hasPlayer = (player != null);
     if (hasPlayer) {

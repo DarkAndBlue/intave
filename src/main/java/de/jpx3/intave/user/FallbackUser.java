@@ -11,6 +11,8 @@ import de.jpx3.intave.permission.BukkitPermissionCache;
 import de.jpx3.intave.reflect.hitbox.HitBoxBoundaries;
 import de.jpx3.intave.tools.placeholder.PlayerContext;
 import de.jpx3.intave.tools.placeholder.PlayerIdentificationContext;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.world.blockshape.BlankUserOCBlockShapeAccess;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
 import de.jpx3.intave.world.collider.Collider;
@@ -27,9 +29,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 public final class FallbackUser implements User {
-  private final Map<Class<? extends UserCustomCheckMeta>, UserCustomCheckMeta> customMetaPool = new ConcurrentHashMap<>();
+  private final Map<Class<? extends CheckCustomMetadata>, CheckCustomMetadata> customMetaPool = new ConcurrentHashMap<>();
 
-  private final UserMeta userMeta;
+  private final MetadataBundle metadata;
   private final BukkitPermissionCache permissionCache;
   private final ComplexColliderProcessor complexColliderProcessor;
   private final SimpleColliderProcessor simpleColliderProcessor;
@@ -40,14 +42,14 @@ public final class FallbackUser implements User {
   private final PlayerIdentificationContext identificationContext;
 
   FallbackUser() {
-    this.userMeta = new UserMeta(null, this);
+    this.metadata = new MetadataBundle(null, this);
     this.permissionCache = new BukkitPermissionCache();
     setBlockShapeAccess(new BlankUserOCBlockShapeAccess());
     this.complexColliderProcessor = Collider.suitableComplexColliderProcessorFor(this);
     this.simpleColliderProcessor = Collider.suitableSimpleColliderProcessorFor(this);
     this.identificationContext = new PlayerIdentificationContext("", new UUID(0,0), InetAddress.getLoopbackAddress());
     this.poseSizes = Pose.AT_LEAST_1_8_POSE;
-    this.userMeta.setup();
+    this.metadata.setup();
   }
 
   @Override
@@ -55,23 +57,23 @@ public final class FallbackUser implements User {
   }
 
   @Override
-  public UserMeta meta() {
-    return this.userMeta;
+  public MetadataBundle meta() {
+    return this.metadata;
   }
 
   @Override
   public Object playerHandle() {
-    throw new UnsupportedFallbackOperationException("Can't locate player here");
+    throw new UnsupportedFallbackOperationException("Can't locate a player here");
   }
 
   @Override
   public Object playerConnection() {
-    throw new UnsupportedFallbackOperationException("Can't locate player here");
+    throw new UnsupportedFallbackOperationException("Can't locate a player here");
   }
 
   @Override
   public Player player() {
-    throw new UnsupportedFallbackOperationException("Can't locate player here");
+    throw new UnsupportedFallbackOperationException("Can't locate a player here");
   }
 
   @Override
@@ -85,16 +87,12 @@ public final class FallbackUser implements User {
   }
 
   @Override
-  public UserCustomCheckMeta customMeta(Class<? extends UserCustomCheckMeta> classTarget) {
-    UserCustomCheckMeta userCustomCheckMeta = customMetaPool.get(classTarget);
-    if (userCustomCheckMeta == null) {
-      try {
-        customMetaPool.put(classTarget, userCustomCheckMeta = classTarget.newInstance());
-      } catch (InstantiationException | IllegalAccessException exception) {
-        exception.printStackTrace();
-      }
+  public CheckCustomMetadata checkMetadata(Class<? extends CheckCustomMetadata> classTarget) {
+    try {
+      return classTarget.newInstance();
+    } catch (InstantiationException | IllegalAccessException exception) {
+      throw new IllegalStateException(exception);
     }
-    return userCustomCheckMeta;
   }
 
   @Override
@@ -113,7 +111,7 @@ public final class FallbackUser implements User {
   }
 
   @Override
-  public boolean shouldIgnoreNextPacket() {
+  public boolean shouldIgnoreNextInboundPacket() {
     return false;
   }
 
@@ -123,7 +121,7 @@ public final class FallbackUser implements User {
   }
 
   @Override
-  public void ignoreNextPacket() {
+  public void ignoreNextInboundPacket() {
   }
 
   @Override
@@ -131,11 +129,11 @@ public final class FallbackUser implements User {
   }
 
   @Override
-  public void receiveNextPacket() {
+  public void receiveNextInboundPacketAgain() {
   }
 
   @Override
-  public void receiveNextOutboundPacket() {
+  public void receiveNextOutboundPacketAgain() {
   }
 
   @Override
@@ -203,25 +201,25 @@ public final class FallbackUser implements User {
   }
 
   @Override
-  public boolean receives(UserMessageChannel channel) {
+  public boolean receives(MessageChannel channel) {
     return false;
   }
 
   @Override
-  public void toggleReceive(UserMessageChannel channel) {
+  public void toggleReceive(MessageChannel channel) {
   }
 
   @Override
-  public void setChannelConstraint(UserMessageChannel channel, Predicate<Player> constraint) {
+  public void setChannelConstraint(MessageChannel channel, Predicate<Player> constraint) {
   }
 
   @Override
-  public boolean hasChannelConstraint(UserMessageChannel channel) {
+  public boolean hasChannelConstraint(MessageChannel channel) {
     return false;
   }
 
   @Override
-  public Predicate<Player> channelPlayerConstraint(UserMessageChannel channel) {
+  public Predicate<Player> channelPlayerConstraint(MessageChannel channel) {
     return player -> false;
   }
 
@@ -230,7 +228,7 @@ public final class FallbackUser implements User {
   }
 
   @Override
-  public void removeChannelConstraint(UserMessageChannel channel) {
+  public void removeChannelConstraint(MessageChannel channel) {
   }
 
   @Override

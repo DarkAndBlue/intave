@@ -4,8 +4,8 @@ import de.jpx3.intave.detect.checks.combat.heuristics.MiningStrategy;
 import de.jpx3.intave.executor.BackgroundExecutor;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMeta;
-import de.jpx3.intave.user.UserMetaAttackData;
+import de.jpx3.intave.user.meta.AttackMetadata;
+import de.jpx3.intave.user.meta.MetadataBundle;
 
 import static de.jpx3.intave.detect.checks.combat.heuristics.mining.EmulationLight.locationBehind;
 import static de.jpx3.intave.fakeplayer.FakePlayerAttribute.*;
@@ -17,8 +17,8 @@ public final class EmulationModerate extends MiningStrategyExecutor{
 
   @Override
   protected void setup() {
-    UserMeta meta = user().meta();
-    UserMetaAttackData attackData = meta.attackData();
+    MetadataBundle meta = user().meta();
+    AttackMetadata attackData = meta.attackData();
     if (attackData.fakePlayer() != null) {
       return;
     }
@@ -35,7 +35,7 @@ public final class EmulationModerate extends MiningStrategyExecutor{
 
   @Override
   protected void stopStrategy() {
-    UserMetaAttackData attackData = user().meta().attackData();
+    AttackMetadata attackData = user().meta().attackData();
     FakePlayer fakePlayer = attackData.fakePlayer();
     if (fakePlayer != null) {
       fakePlayer.remove();

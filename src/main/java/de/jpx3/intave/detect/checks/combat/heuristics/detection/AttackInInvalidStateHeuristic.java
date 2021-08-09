@@ -18,13 +18,15 @@ import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.*;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.USE_ENTITY;
-import static de.jpx3.intave.user.UserMetaClientData.VER_1_8;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_8;
 
 public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristics, AttackInInvalidStateHeuristic.AttackInInvalidStateMeta> {
   public AttackInInvalidStateHeuristic(Heuristics heuristics) {
@@ -41,7 +43,7 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
     Player player = event.getPlayer();
     PacketContainer packet = event.getPacket();
     User user = userOf(player);
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     if (clientData.protocolVersion() <= VER_1_8) {
       checkGUIScreen(player);
     }
@@ -75,7 +77,7 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
         packet.getDirections().write(0, EnumWrappers.Direction.DOWN);
         packet.getPlayerDigTypes().write(0, EnumWrappers.PlayerDigType.RELEASE_USE_ITEM);
 
-        userOf(player).ignoreNextPacket();
+        userOf(player).ignoreNextInboundPacket();
         ProtocolLibrary.getProtocolManager().recieveClientPacket(player, packet);
 
         updatePlayerHandItem(player);
@@ -88,15 +90,15 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
 
   private void updatePlayerHandItem(Player player) {
     User user = UserRepository.userOf(player);
-    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    InventoryMetadata inventoryData = user.meta().inventoryData();
     inventoryData.deactivateHand();
   }
 
   private void checkGUIScreen(Player player) {
     User user = userOf(player);
     AttackInInvalidStateMeta meta = metaOf(user);
-    UserMetaClientData clientData = user.meta().clientData();
-    UserMetaAbilityData abilityData = user.meta().abilityData();
+    ProtocolMetadata clientData = user.meta().protocolData();
+    AbilityMetadata abilityData = user.meta().abilityData();
     float health = abilityData.health;
     if (health <= 0f) {
       long now = AccessHelper.now();
@@ -115,8 +117,8 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
 
   private void checkDeadEntity(Player player, PacketContainer packet) {
     User user = userOf(player);
-    UserMetaAttackData attackData = user.meta().attackData();
-    UserMetaClientData clientData = user.meta().clientData();
+    AttackMetadata attackData = user.meta().attackData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     WrappedEntity entity = attackData.lastAttackedEntity();
     if (entity == null || !entity.clientSynchronized || !entity.isEntityLiving || !entity.entityTypeData.isLivingEntity()) {
       return;
@@ -135,7 +137,7 @@ public final class AttackInInvalidStateHeuristic extends MetaCheckPart<Heuristic
     }
   }
 
-  public static final class AttackInInvalidStateMeta extends UserCustomCheckMeta {
+  public static final class AttackInInvalidStateMeta extends CheckCustomMetadata {
     public long lastGUIAttackTimestamps;
   }
 }

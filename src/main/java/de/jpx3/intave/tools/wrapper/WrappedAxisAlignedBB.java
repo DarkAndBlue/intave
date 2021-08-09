@@ -3,8 +3,8 @@ package de.jpx3.intave.tools.wrapper;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.wrapper.link.WrapperLinkage;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaClientData;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.Location;
 
 public class WrappedAxisAlignedBB {
@@ -433,8 +433,8 @@ public class WrappedAxisAlignedBB {
     User user,
     double positionX, double positionY, double positionZ
   ) {
-    UserMetaMovementData movementData = user.meta().movementData();
-    UserMetaClientData clientData = user.meta().clientData();
+    MovementMetadata movementData = user.meta().movementData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     double width = movementData.widthRounded;
     float height = movementData.height;
 

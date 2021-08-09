@@ -28,7 +28,9 @@ import de.jpx3.intave.tools.packet.PlayerAction;
 import de.jpx3.intave.tools.packet.PlayerActionResolver;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.*;
 import de.jpx3.intave.world.collision.Collision;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -46,8 +48,8 @@ import static de.jpx3.intave.event.packet.PacketId.Client.POSITION;
 import static de.jpx3.intave.event.packet.PacketId.Client.VEHICLE_MOVE;
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
 import static de.jpx3.intave.event.packet.PacketId.Server.*;
-import static de.jpx3.intave.user.UserMetaClientData.VER_1_17;
-import static de.jpx3.intave.user.UserMetaClientData.VER_1_9;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_17;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_9;
 
 @Relocate
 public final class MovementDispatcher implements EventProcessor {
@@ -81,7 +83,7 @@ public final class MovementDispatcher implements EventProcessor {
     if (cause == PlayerTeleportEvent.TeleportCause.NETHER_PORTAL || cause == PlayerTeleportEvent.TeleportCause.UNKNOWN) {
       return;
     }
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     movementData.artificialFallDistance = 0;
   }
 
@@ -89,8 +91,8 @@ public final class MovementDispatcher implements EventProcessor {
   public void worldChange(PlayerChangedWorldEvent worldChange) {
     Player player = worldChange.getPlayer();
     User user = UserRepository.userOf(player);
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
     movementData.dismountRidingEntity();
   }
 
@@ -98,8 +100,8 @@ public final class MovementDispatcher implements EventProcessor {
   public void receiveRespawn(PlayerRespawnEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
     movementData.artificialFallDistance = 0;
     movementData.dismountRidingEntity();
     FakePlayer fakePlayer = meta.attackData().fakePlayer();
@@ -125,7 +127,7 @@ public final class MovementDispatcher implements EventProcessor {
   public void receiveWorldChange(PlayerChangedWorldEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     movementData.updateWorld();
     user.blockShapeAccess().identityInvalidate();
     user.refreshSprintState();
@@ -135,13 +137,13 @@ public final class MovementDispatcher implements EventProcessor {
   public void receiveVehicleMove(PlayerMoveEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
     if (!movementData.hasRidingEntity()) {
       return;
     }
     Location location = event.getTo();
-    UserMetaClientData clientData = meta.clientData();
+    ProtocolMetadata clientData = meta.protocolData();
     if (clientData.protocolVersion() >= VER_1_9) {
       return;
     }
@@ -166,11 +168,11 @@ public final class MovementDispatcher implements EventProcessor {
   public void sentRespawn(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaClientData clientData = meta.clientData();
-    UserMetaAbilityData abilityData = meta.abilityData();
-    UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    ProtocolMetadata clientData = meta.protocolData();
+    AbilityMetadata abilityData = meta.abilityData();
+    ViolationMetadata violationLevelData = meta.violationLevelData();
     violationLevelData.physicsVelocityVL = 0;
     violationLevelData.physicsVL = Math.max(0, violationLevelData.physicsVL - 10);
     // check for gui screen
@@ -206,7 +208,7 @@ public final class MovementDispatcher implements EventProcessor {
     PacketContainer packet = event.getPacket();
     plugin.eventService().feedback().singleSynchronize(player, packet.getFloat(), (player1, floats) -> {
       User user = UserRepository.userOf(player1);
-      UserMetaMovementData movementData = user.meta().movementData();
+      MovementMetadata movementData = user.meta().movementData();
       Float motionX = floats.read(1);
       Float motionY = floats.read(2);
       Float motionZ = floats.read(3);
@@ -230,13 +232,13 @@ public final class MovementDispatcher implements EventProcessor {
     PacketContainer packet = event.getPacket();
     User user = UserRepository.userOf(player);
 
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaAttackData attackData = meta.attackData();
-    UserMetaInventoryData inventoryData = meta.inventoryData();
-    UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
-    UserMetaConnectionData connectionData = meta.connectionData();
-    UserMetaClientData clientData = meta.clientData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    AttackMetadata attackData = meta.attackData();
+    InventoryMetadata inventoryData = meta.inventoryData();
+    ViolationMetadata violationLevelData = meta.violationLevelData();
+    ConnectionMetadata connectionData = meta.connectionData();
+    ProtocolMetadata clientData = meta.protocolData();
 
     PacketType packetType = event.getPacketType();
     boolean vehicleMove = packetType == PacketType.Play.Client.VEHICLE_MOVE;
@@ -370,7 +372,7 @@ public final class MovementDispatcher implements EventProcessor {
   }
 
   private void updatePotionEffects(User user) {
-    UserMetaPotionData potionData = user.meta().potionData();
+    EffectMetadata potionData = user.meta().potionData();
     if (potionData.potionEffectSpeedAmplifier() > 0) {
       if (--potionData.potionEffectSpeedDuration <= 0) {
         potionData.potionEffectSpeedAmplifier(0);
@@ -404,10 +406,10 @@ public final class MovementDispatcher implements EventProcessor {
     PacketContainer packet = event.getPacket();
     User user = UserRepository.userOf(player);
 
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaAbilityData abilityData = meta.abilityData();
-    UserMetaInventoryData inventoryData = meta.inventoryData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    AbilityMetadata abilityData = meta.abilityData();
+    InventoryMetadata inventoryData = meta.inventoryData();
 
     PacketType packetType = event.getPacketType();
     boolean vehicleMove = packetType == PacketType.Play.Client.VEHICLE_MOVE;
@@ -501,8 +503,8 @@ public final class MovementDispatcher implements EventProcessor {
   }
 
   private void updateSize(User user) {
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
     Pose pose = movementData.pose();
     movementData.width = pose.width(user);
     movementData.height = pose.width(user);;
@@ -516,7 +518,7 @@ public final class MovementDispatcher implements EventProcessor {
   public void receiveClientKeys(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     PacketContainer packet = event.getPacket();
     int strafeKey = (int) (packet.getFloat().read(0) / 0.98f);
     int forwardKey = (int) (packet.getFloat().read(1) / 0.98f);
@@ -552,9 +554,9 @@ public final class MovementDispatcher implements EventProcessor {
       return;
     }
     User user = UserRepository.userOf(player);
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    if (!meta.clientData().canUseElytra()) {
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    if (!meta.protocolData().canUseElytra()) {
       return;
     }
     byte data = (byte) watchableObject.getValue();
@@ -572,7 +574,7 @@ public final class MovementDispatcher implements EventProcessor {
       return;
     }
     User user = UserRepository.userOf((Player) event.getEntity());
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     if (event.getCause() == EntityDamageEvent.DamageCause.FALL && !movementData.allowFallDamage) {
       event.setCancelled(true);
     }
@@ -597,8 +599,8 @@ public final class MovementDispatcher implements EventProcessor {
       );
 
       User user = UserRepository.userOf(player);
-      UserMeta meta = user.meta();
-      UserMetaMovementData movementData = meta.movementData();
+      MetadataBundle meta = user.meta();
+      MovementMetadata movementData = meta.movementData();
 
       if (movementData.willReceiveSetbackVelocity && velocity.length() < 0.001) {
         movementData.willReceiveSetbackVelocity = false;
@@ -616,9 +618,9 @@ public final class MovementDispatcher implements EventProcessor {
 
   private void receiveVelocity(Player player, Vector velocity) {
     User user = UserRepository.userOf(player);
-    UserMeta meta = user.meta();
-    UserMetaViolationLevelData violationLevelData = meta.violationLevelData();
-    UserMetaMovementData movementData = meta.movementData();
+    MetadataBundle meta = user.meta();
+    ViolationMetadata violationLevelData = meta.violationLevelData();
+    MovementMetadata movementData = meta.movementData();
     if (!violationLevelData.isInActiveTeleportBundle) {
       movementData.physicsMotionXBeforeVelocity = movementData.physicsMotionX;
       movementData.physicsMotionYBeforeVelocity = movementData.physicsMotionY;
@@ -646,10 +648,10 @@ public final class MovementDispatcher implements EventProcessor {
   public void receiveEntityActionPacket(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaClientData clientData = meta.clientData();
-    UserMetaPunishmentData punishmentData = meta.punishmentData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    ProtocolMetadata clientData = meta.protocolData();
+    PunishmentMetadata punishmentData = meta.punishmentData();
     PacketContainer packet = event.getPacket();
     PlayerAction playerAction = PlayerActionResolver.resolveActionFromPacket(packet);
     switch (playerAction) {
@@ -687,8 +689,8 @@ public final class MovementDispatcher implements EventProcessor {
 
   private boolean allowSprinting(Player player) {
     User user = UserRepository.userOf(player);
-    UserMeta meta = user.meta();
-    UserMetaInventoryData inventoryData = meta.inventoryData();
+    MetadataBundle meta = user.meta();
+    InventoryMetadata inventoryData = meta.inventoryData();
     return !inventoryData.inventoryOpen();
   }
 }

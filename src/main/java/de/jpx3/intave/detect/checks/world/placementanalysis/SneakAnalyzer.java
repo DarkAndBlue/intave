@@ -8,7 +8,11 @@ import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.GarbageCollector;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.EffectMetadata;
+import de.jpx3.intave.user.meta.MetadataBundle;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -36,9 +40,9 @@ public final class SneakAnalyzer extends MetaCheckPart<PlacementAnalysis, SneakA
     Player player = place.getPlayer();
     User user = userOf(player);
     SneakMeta meta = metaOf(user);
-    UserMeta userMeta = user.meta();
-    UserMetaMovementData movementData = userMeta.movementData();
-    UserMetaPotionData potionData = userMeta.potionData();
+    MetadataBundle metadata = user.meta();
+    MovementMetadata movementData = metadata.movementData();
+    EffectMetadata potionData = metadata.potionData();
     Block block = place.getBlockPlaced();
     Block blockAgainst = place.getBlockAgainst();
     if (blockUnderPlayer(block, player) && blockCollisions(block) < 2) {
@@ -121,7 +125,7 @@ public final class SneakAnalyzer extends MetaCheckPart<PlacementAnalysis, SneakA
     return lockedOnX || lockedOnZ;
   }
 
-  public static class SneakMeta extends UserCustomCheckMeta {
+  public static class SneakMeta extends CheckCustomMetadata {
     private final List<Long> placementSpeedHistory = GarbageCollector.watch(new ArrayList<>());
     private final List<Location> placementHistory = GarbageCollector.watch(new ArrayList<>());
     private long lastPlacement;

@@ -16,8 +16,8 @@ import de.jpx3.intave.tools.Rotation;
 import de.jpx3.intave.tools.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaClientData;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -68,7 +68,7 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
 //      player.sendMessage(s);
 //    }
 
-    if (user.meta().clientData().protocolVersion() >= UserMetaClientData.VER_1_12) {
+    if (user.meta().protocolData().protocolVersion() >= ProtocolMetadata.VER_1_12) {
       // TODO: when a player shifts an item in 1.12+ he sends a "null" as itemStack which makes the check imcompatible
       return;
     }
@@ -112,7 +112,7 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
 
   @Native
   public boolean isPartner() {
-    return (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
+    return (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
   }
 
   private void processClickDelayAnalyzerCheck(Player player, ClickDelayMeta meta, int slot, double time) {
@@ -178,7 +178,7 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
     return new int[]{row, rowPosition};
   }
 
-  public static final class ClickDelayMeta extends UserCustomCheckMeta {
+  public static final class ClickDelayMeta extends CheckCustomMetadata {
     List<Double> clickDelayList = new ArrayList<>();
     private int lastClickedSlot;
     private long lastClickedTimeStamp;

@@ -1,16 +1,18 @@
-package de.jpx3.intave.user;
+package de.jpx3.intave.user.meta;
 
 import de.jpx3.intave.tools.annotate.Relocate;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.tools.items.PlayerEnchantmentHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 @Relocate
-public final class UserMetaInventoryData {
+public final class InventoryMetadata {
   private final Player player;
   private ItemStack heldItem;
   private int handSlot;
@@ -25,7 +27,7 @@ public final class UserMetaInventoryData {
   public boolean forceInventoryOnClickOpen = true;
   public volatile int pastSlotSwitch = 100;
 
-  public UserMetaInventoryData(Player player) {
+  public InventoryMetadata(Player player) {
     this.player = player;
     if (player != null) {
       this.handSlot = player.getInventory().getHeldItemSlot();
@@ -60,7 +62,7 @@ public final class UserMetaInventoryData {
 
   public void deactivateHand() {
     User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     ItemStack heldItem = heldItem();
     if (heldItem != null && PlayerEnchantmentHelper.tridentRiptideEnchanted(heldItem)) {
       movementData.pastRiptideSpin = 0;
@@ -114,7 +116,7 @@ public final class UserMetaInventoryData {
 
   public void updateInventoryOpenState(boolean inventoryOpen) {
     User user = UserRepository.userOf(player);
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     if (!inventoryOpen && clientData.inventoryAchievementPacket()) {
       this.forceInventoryOnClickOpen = true;
     }

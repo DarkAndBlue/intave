@@ -1,7 +1,7 @@
 package de.jpx3.intave.detect.checks.movement.physics;
 
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.world.collider.complex.ComplexColliderSimulationResult;
 
 public final class HorseSimulator extends DefaultSimulator {
@@ -13,7 +13,7 @@ public final class HorseSimulator extends DefaultSimulator {
     float forward, float strafe,
     boolean attackReduce, boolean jumped, boolean handActive
   ) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     float horseForward = forward;
     float horseStrafe = strafe * 0.5F;
 

@@ -19,7 +19,11 @@ import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.AttackMetadata;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.raytrace.Raytracing;
@@ -135,7 +139,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
 //    }
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
 
     if (movementData.lastTeleport == 0) {
       return;
@@ -149,7 +153,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
     }
 
     double yawMotion = Math.abs(movementData.lastRotationYaw - movementData.rotationYaw);
-    UserMetaAttackData attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attackData();
 
     if ((yawMotion > 40 && meta.yawMotions[1] < 9) || (yawMotion > 25 && meta.yawMotions[1] == 0)) {
       if (meta.lastKeyStrafe != movementData.keyStrafe || meta.lastKeyForward != movementData.keyForward) {
@@ -278,8 +282,8 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
 
     if (confidence.level() >= 30 && IntaveControl.GOMME_MODE) {
       meta.internalViolation -= confidence.level();
-      if (user.meta().clientData().protocolVersion() > 47) {
-        description += " " + user.meta().clientData().protocolVersion();
+      if (user.meta().protocolData().protocolVersion() > 47) {
+        description += " " + user.meta().protocolData().protocolVersion();
       }
 
       Anomaly anomaly = Anomaly.anomalyOf(key, confidence, Anomaly.Type.KILLAURA, description, anomalyOptions(isPartner()));
@@ -289,11 +293,11 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
 
   @Native
   public boolean isPartner() {
-    return (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
+    return (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
   }
   @Native
   public boolean isEnterprise() {
-    return (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
+    return (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
   }
 
   private int anomalyOptions(boolean isPartner) {
@@ -351,7 +355,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
   }
 
   private void prepareNextTick(RotationSnapHeuristicMeta meta, double yawMotion, User user) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     meta.lastKeyForward = movementData.keyForward;
     meta.lastKeyStrafe = movementData.keyStrafe;
 
@@ -378,7 +382,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
     return !MinecraftVersions.VER1_9_0.atOrAbove() && super.enabled();
   }
 
-  public static final class RotationSnapHeuristicMeta extends UserCustomCheckMeta {
+  public static final class RotationSnapHeuristicMeta extends CheckCustomMetadata {
     double lastLastPosX, lastLastPosY, lastLastPosZ;
     HashMap<Integer, WrappedEntity.EntityPositionContext> entityPositions = new HashMap<>();
     private final Tick[] movementAtTick = new Tick[2];

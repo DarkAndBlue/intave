@@ -3,7 +3,7 @@ package de.jpx3.intave.detect;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaViolationLevelData;
+import de.jpx3.intave.user.meta.ViolationMetadata;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +33,7 @@ public final class CheckViolationLevelDecrementer {
   }
 
   public void decrement(User user, double amount) {
-    UserMetaViolationLevelData violationLevelData = user.meta().violationLevelData();
+    ViolationMetadata violationLevelData = user.meta().violationLevelData();
     Map<String, Map<String, Double>> violationLevel = violationLevelData.violationLevel;
     Map<String, Map<String, Double>> violationLevelGainedCounter = violationLevelData.violationLevelGainedCounter;
     Map<String, Map<String, Long>> lastViolationLevelGainedCounterReset = violationLevelData.lastViolationLevelGainedCounterReset;

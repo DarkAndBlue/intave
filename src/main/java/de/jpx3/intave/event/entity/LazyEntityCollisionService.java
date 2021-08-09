@@ -4,8 +4,8 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -30,7 +30,7 @@ public final class LazyEntityCollisionService implements BukkitEventSubscriber {
   }
 
   private void searchCollisions(User user, List<Entity> entities) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     boolean entityFound = false;
     for (Entity entity : entities) {
       if (!collidableEntity(entity.getType())) {

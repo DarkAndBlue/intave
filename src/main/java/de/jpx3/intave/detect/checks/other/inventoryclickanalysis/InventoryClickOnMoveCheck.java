@@ -8,8 +8,8 @@ import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMeta;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MetadataBundle;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -31,14 +31,14 @@ public final class InventoryClickOnMoveCheck extends CheckPart<InventoryClickAna
     }
     Player player = ((Player) whoClicked).getPlayer();
     User user = userOf(player);
-    UserMeta meta = user.meta();
+    MetadataBundle meta = user.meta();
 
     ClickType click = event.getClick();
     if (click == ClickType.CREATIVE) {
       return;
     }
 
-    UserMetaMovementData movementData = meta.movementData();
+    MovementMetadata movementData = meta.movementData();
     int keyForward = movementData.keyForward;
     int keyStrafe = movementData.keyStrafe;
 

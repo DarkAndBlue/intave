@@ -11,7 +11,8 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.*;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
@@ -52,8 +53,8 @@ public final class PacketInventoryHeuristic extends MetaCheckPart<Heuristics, Pa
     Player player = event.getPlayer();
     User user = userOf(player);
     PacketInventoryMeta meta = metaOf(user);
-    UserMetaClientData clientData = user.meta().clientData();
-    UserMetaAbilityData abilityData = user.meta().abilityData();
+    ProtocolMetadata clientData = user.meta().protocolData();
+    AbilityMetadata abilityData = user.meta().abilityData();
 
     if (abilityData.ignoringMovementPackets()) {
       return;
@@ -83,9 +84,9 @@ public final class PacketInventoryHeuristic extends MetaCheckPart<Heuristics, Pa
     PacketContainer packet = event.getPacket();
     boolean hasRotation = packet.getBooleans().read(2);
 
-    UserMetaInventoryData inventoryData = user.meta().inventoryData();
-    UserMetaMovementData movementData = user.meta().movementData();
-    UserMetaClientData clientData = user.meta().clientData();
+    InventoryMetadata inventoryData = user.meta().inventoryData();
+    MovementMetadata movementData = user.meta().movementData();
+    ProtocolMetadata clientData = user.meta().protocolData();
 
     if (!clientData.flyingPacketStream() || movementData.hasRidingEntity()) {
       return;
@@ -119,7 +120,7 @@ public final class PacketInventoryHeuristic extends MetaCheckPart<Heuristics, Pa
     }
   }
 
-  public final static class PacketInventoryMeta extends UserCustomCheckMeta {
+  public final static class PacketInventoryMeta extends CheckCustomMetadata {
     private int rotationsInInventory;
     private int inventoryTicks;
     private boolean performedInventoryOpenOperation;

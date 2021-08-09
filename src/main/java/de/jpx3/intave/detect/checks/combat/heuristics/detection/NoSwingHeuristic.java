@@ -11,8 +11,8 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
@@ -72,7 +72,7 @@ public final class NoSwingHeuristic extends MetaCheckPart<Heuristics, NoSwingHeu
   public void receiveMovementPacket(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     NoSwingMeta meta = metaOf(user);
 
     if (movementData.lastTeleport == 0) {
@@ -80,7 +80,7 @@ public final class NoSwingHeuristic extends MetaCheckPart<Heuristics, NoSwingHeu
     }
 
     // fix?
-    if (user.meta().clientData().clientVersionOlderThanServerVersion()) {
+    if (user.meta().protocolData().clientVersionOlderThanServerVersion()) {
       return;
     }
 
@@ -102,7 +102,7 @@ public final class NoSwingHeuristic extends MetaCheckPart<Heuristics, NoSwingHeu
     meta.attacksThisTick = 0;
   }
 
-  public static class NoSwingMeta extends UserCustomCheckMeta {
+  public static class NoSwingMeta extends CheckCustomMetadata {
     public int swingsThisTick;
     public int attacksThisTick;
   }

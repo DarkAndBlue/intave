@@ -8,8 +8,8 @@ import de.jpx3.intave.detect.checks.combat.heuristics.MiningStrategy;
 import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaAttackData;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.AttackMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public abstract class MiningStrategyExecutor {
@@ -29,7 +29,7 @@ public abstract class MiningStrategyExecutor {
   }
 
   private void registerExecutor() {
-    UserMetaAttackData attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attackData();
     attackData.activeMiningStrategy = new MiningStrategyContainer(miningStrategy(), this);
   }
 
@@ -48,8 +48,8 @@ public abstract class MiningStrategyExecutor {
   }
 
   public void saveAnomalyWithID(int id) {
-    UserMetaAttackData attackData = user.meta().attackData();
-    UserMetaMovementData movementData = user.meta().movementData();
+    AttackMetadata attackData = user.meta().attackData();
+    MovementMetadata movementData = user.meta().movementData();
     FakePlayer fakePlayer = attackData.fakePlayer();
     if (fakePlayer == null) {
       return;
@@ -79,7 +79,7 @@ public abstract class MiningStrategyExecutor {
 
   public void unregisterStrategy() {
     this.stopStrategy();
-    UserMetaAttackData attackData = user.meta().attackData();
+    AttackMetadata attackData = user.meta().attackData();
     attackData.lastMiningStrategy = miningStrategy();
     attackData.activeMiningStrategy = null;
   }

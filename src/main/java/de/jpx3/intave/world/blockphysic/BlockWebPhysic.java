@@ -2,8 +2,8 @@ package de.jpx3.intave.world.blockphysic;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaClientData;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,7 +12,7 @@ import org.bukkit.util.Vector;
 import java.util.Collections;
 import java.util.List;
 
-import static de.jpx3.intave.user.UserMetaClientData.VER_1_15;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_15;
 
 final class BlockWebPhysic implements BlockPhysic {
   private List<Material> material;
@@ -24,8 +24,8 @@ final class BlockWebPhysic implements BlockPhysic {
 
   @Override
   public Vector entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
-    UserMetaClientData clientData = user.meta().clientData();
-    UserMetaMovementData movementData = user.meta().movementData();
+    ProtocolMetadata clientData = user.meta().protocolData();
+    MovementMetadata movementData = user.meta().movementData();
     movementData.inWeb = true;
     movementData.artificialFallDistance = 0;
     if (clientData.protocolVersion() >= VER_1_15) {

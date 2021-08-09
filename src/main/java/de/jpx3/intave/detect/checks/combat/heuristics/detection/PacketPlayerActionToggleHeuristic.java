@@ -14,7 +14,8 @@ import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.packet.PlayerAction;
 import de.jpx3.intave.tools.packet.PlayerActionResolver;
 import de.jpx3.intave.tools.sync.Synchronizer;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.*;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
@@ -48,11 +49,11 @@ public final class PacketPlayerActionToggleHeuristic extends MetaCheckPart<Heuri
   public void receiveEntityAction(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaAbilityData abilityData = meta.abilityData();
-    UserMetaClientData clientData = meta.clientData();
-    UserMetaPunishmentData punishmentData = user.meta().punishmentData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    AbilityMetadata abilityData = meta.abilityData();
+    ProtocolMetadata clientData = meta.protocolData();
+    PunishmentMetadata punishmentData = user.meta().punishmentData();
     PacketSprintToggleHeuristicMeta heuristicMeta = metaOf(user);
 
     PacketContainer packet = event.getPacket();
@@ -113,7 +114,7 @@ public final class PacketPlayerActionToggleHeuristic extends MetaCheckPart<Heuri
     return true;
   }
 
-  public static final class PacketSprintToggleHeuristicMeta extends UserCustomCheckMeta {
+  public static final class PacketSprintToggleHeuristicMeta extends CheckCustomMetadata {
     public int sprintTogglesInTick;
     public int sneakTogglesInTick;
     public double threshold;

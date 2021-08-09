@@ -16,9 +16,9 @@ import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.DispatchTarget;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaMovementData;
-import de.jpx3.intave.user.UserMetaViolationLevelData;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ViolationMetadata;
 import de.jpx3.intave.world.collider.complex.ComplexColliderSimulationResult;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -123,7 +123,7 @@ public final class Timer extends MetaCheck<Timer.TimerData> {
         .build();
       ViolationContext violationContext = plugin.violationProcessor().processViolation(violation);
       if (violationContext.shouldCounterThreat()) {
-        UserMetaMovementData movementData = user.meta().movementData();
+        MovementMetadata movementData = user.meta().movementData();
         movementData.invalidMovement = true;
         Vector setback = new Vector(movementData.physicsMotionX, movementData.physicsMotionY, movementData.physicsMotionZ);
         plugin.eventService().emulationEngine().emulationSetBack(player, setback, 12, false);
@@ -168,7 +168,7 @@ public final class Timer extends MetaCheck<Timer.TimerData> {
     Timer.TimerData timerData = metaOf(user);
     long lastTimerFlag = timerData.lastTimerFlag;
     long msSinceFlag = AccessHelper.now() - lastTimerFlag;
-    UserMetaViolationLevelData violationLevelData = user.meta().violationLevelData();
+    ViolationMetadata violationLevelData = user.meta().violationLevelData();
     Map<String, Map<String, Double>> violationLevel = violationLevelData.violationLevel;
     String name = name().toLowerCase();
     if (!violationLevel.containsKey(name)) {
@@ -184,7 +184,7 @@ public final class Timer extends MetaCheck<Timer.TimerData> {
   public void checkSetback(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     TimerData timerData = metaOf(user);
     if (timerData.flagTick) {
       ComplexColliderSimulationResult result = this.simulationProcessor.simulateMovementWithoutKeyPress(user);
@@ -199,7 +199,7 @@ public final class Timer extends MetaCheck<Timer.TimerData> {
     return true;
   }
 
-  public static class TimerData extends UserCustomCheckMeta {
+  public static class TimerData extends CheckCustomMetadata {
     public double timerBalance;
     public long lastFlyingPacket;
     public long lastTimerFlag;

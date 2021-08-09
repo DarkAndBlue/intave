@@ -2,7 +2,11 @@ package de.jpx3.intave.tools.client;
 
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.EffectMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import de.jpx3.intave.world.blockphysic.BlockProperties;
 import de.jpx3.intave.world.collision.Collision;
@@ -22,7 +26,7 @@ import java.util.List;
 public final class MovementContext {
   public static double jumpMotionFor(Player player, float jumpUpwardsMotion) {
     User user = UserRepository.userOf(player);
-    UserMetaPotionData potionData = user.meta().potionData();
+    EffectMetadata potionData = user.meta().potionData();
     if (potionData.potionEffectJumpDuration > 0) {
       int jumpAmplifier = potionData.potionEffectJumpAmplifier();
       jumpUpwardsMotion += (float) ((jumpAmplifier + 1) * 0.1);
@@ -31,7 +35,7 @@ public final class MovementContext {
   }
 
   public static float resolveFriction(User user, double positionX, double positionY, double positionZ) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     World world = user.player().getWorld();
     float speed;
     if (movementData.lastOnGround) {
@@ -129,7 +133,7 @@ public final class MovementContext {
 
   public static boolean isOnLadder(User user, double positionX, double positionY, double positionZ) {
     Player player = user.player();
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     Block block = BukkitBlockAccess.blockAccess(
       player.getWorld(),
       WrappedMathHelper.floor(positionX),

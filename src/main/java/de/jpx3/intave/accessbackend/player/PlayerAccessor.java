@@ -48,7 +48,7 @@ public final class PlayerAccessor {
     return new PlayerAccess() {
       @Override
       public int protocolVersion() {
-        return user.meta().clientData().protocolVersion();
+        return user.meta().protocolData().protocolVersion();
       }
 
       @Override

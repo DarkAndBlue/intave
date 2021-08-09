@@ -3,8 +3,8 @@ package de.jpx3.intave.world.collider.complex;
 import de.jpx3.intave.detect.checks.movement.physics.MotionVector;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMeta;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.MetadataBundle;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.world.collision.Collision;
 import org.bukkit.entity.Player;
 
@@ -14,8 +14,8 @@ public final class ModernComplexColliderProcessor implements ComplexColliderProc
   @Override
   public ComplexColliderSimulationResult simulateCollision(User user, MotionVector context, boolean inWeb, double positionX, double positionY, double positionZ) {
     Player player = user.player();
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
     if (inWeb) {
       context.motionX *= 0.25D;
       context.motionY *= 0.05f;
@@ -157,7 +157,7 @@ public final class ModernComplexColliderProcessor implements ComplexColliderProc
 
   private void calculateBackOffFromEdge(User user, double length, MotionVector context) {
     Player player = user.player();
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     WrappedAxisAlignedBB boundingBox = movementData.boundingBox();
     double motionX = context.motionX;
     double motionZ = context.motionZ;

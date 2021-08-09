@@ -9,7 +9,11 @@ import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.Relocate;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.InventoryMetadata;
+import de.jpx3.intave.user.meta.MetadataBundle;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.world.collider.complex.ComplexColliderSimulationResult;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -27,12 +31,12 @@ public final class SimulationProcessor {
   }
 
   private ComplexColliderSimulationResult performKeySimulation(User user) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     return movementData.applyClientKeys ? performKeySimulationFromInput(user) : performKeyComparisonSimulation(user);
   }
 
   private ComplexColliderSimulationResult performKeySimulationFromInput(User user) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     int clientInputKey = movementData.clientInputKey;
     int clientStrafeKey = movementData.clientStrafeKey;
     boolean jump = movementData.clientPressedJump && movementData.lastOnGround;
@@ -44,7 +48,7 @@ public final class SimulationProcessor {
   }
 
   private ComplexColliderSimulationResult performKeyComparisonSimulation(User user) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     ComplexColliderSimulationResult simulation;
     double simulationAccuracy;
     boolean biasedSimulationFailed;
@@ -79,9 +83,9 @@ public final class SimulationProcessor {
   }
 
   private void applyIterativeSimulationTo(User user, IterativeSimulationContext iterativeResult) {
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaInventoryData inventoryData = meta.inventoryData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
+    InventoryMetadata inventoryData = meta.inventoryData();
     if (movementData.pastPlayerAttackPhysics == 0 && movementData.sprinting && !iterativeResult.reduced()) {
       movementData.ignoredAttackReduce = true;
     }
@@ -97,13 +101,13 @@ public final class SimulationProcessor {
   }
 
   private void releaseHandOf(User user) {
-    UserMeta meta = user.meta();
-    UserMetaInventoryData inventoryData = meta.inventoryData();
-    UserMetaMovementData movementData = meta.movementData();
+    MetadataBundle meta = user.meta();
+    InventoryMetadata inventoryData = meta.inventoryData();
+    MovementMetadata movementData = meta.movementData();
     inventoryData.setHandActive(false);
     ItemStack itemStack = inventoryData.heldItem();
     if (itemStack != null && !InventoryUseItemHelper.isSwordItem(user.player(), itemStack)) {
-      boolean hasShield = user.meta().clientData().combatUpdate();
+      boolean hasShield = user.meta().protocolData().combatUpdate();
       int threshold = itemStack.getType() == Material.BOW || hasShield ? 5 : 3;
       if (movementData.physicsEatingSlotSwitchVL++ > threshold) {
         inventoryData.applySlotSwitch();
@@ -125,8 +129,8 @@ public final class SimulationProcessor {
   public ComplexColliderSimulationResult simulateMovementWithKeyPress(
     User user, int forward, int strafe, boolean jumped
   ) {
-    UserMeta meta = user.meta();
-    UserMetaMovementData movementData = meta.movementData();
+    MetadataBundle meta = user.meta();
+    MovementMetadata movementData = meta.movementData();
     MotionVector motionVector = MotionVector.from(movementData.motionProcessorContext);
     motionVector.resetTo(movementData);
     return movementData.simulator().performSimulation(
@@ -139,8 +143,8 @@ public final class SimulationProcessor {
   private ComplexColliderSimulationResult simulateMovementKeyPredictionBiased(User user) {
     Timings.CHECK_PHYSICS_PROC_BIA.start();
     Timings.CHECK_PHYSICS_PROC_PRED_BIA.start();
-    UserMetaMovementData movementData = user.meta().movementData();
-    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    MovementMetadata movementData = user.meta().movementData();
+    InventoryMetadata inventoryData = user.meta().inventoryData();
     Simulator simulator = movementData.simulator();
     MotionVector motionVector = movementData.motionProcessorContext;
     double lastMotionX = movementData.physicsMotionX;
@@ -201,8 +205,8 @@ public final class SimulationProcessor {
   private ComplexColliderSimulationResult simulateMovementLastKeyBiased(User user) {
     Timings.CHECK_PHYSICS_PROC_BIA.start();
     Timings.CHECK_PHYSICS_PROC_LK_BIA.start();
-    UserMetaMovementData movementData = user.meta().movementData();
-    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    MovementMetadata movementData = user.meta().movementData();
+    InventoryMetadata inventoryData = user.meta().inventoryData();
     Simulator simulator = movementData.simulator();
     MotionVector motionVector = movementData.motionProcessorContext;
 
@@ -296,10 +300,10 @@ public final class SimulationProcessor {
 
   private IterativeSimulationContext simulateMovementIterative(User user) {
     Timings.CHECK_PHYSICS_PROC_ITR.start();
-    UserMeta meta = user.meta();
-    UserMetaInventoryData inventoryData = meta.inventoryData();
-    UserMetaMovementData movementData = meta.movementData();
-    UserMetaClientData clientData = meta.clientData();
+    MetadataBundle meta = user.meta();
+    InventoryMetadata inventoryData = meta.inventoryData();
+    MovementMetadata movementData = meta.movementData();
+    ProtocolMetadata clientData = meta.protocolData();
     Simulator simulator = movementData.simulator();
     IterativeSimulationContext iterativeSimulation = movementData.iterativeSimulation();
     iterativeSimulation.restore();
@@ -388,7 +392,7 @@ public final class SimulationProcessor {
   }
 
   private double compareReceivedMotionWithMotion(User user, MotionVector context) {
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     return MathHelper.distanceOf(
       context.motionX, context.motionY, context.motionZ,
       movementData.motionX(), movementData.motionY(), movementData.motionZ()
@@ -397,8 +401,8 @@ public final class SimulationProcessor {
 
   private void simulateIterativeState(
     User user,
-    UserMetaMovementData movementData,
-    UserMetaInventoryData inventoryData,
+    MovementMetadata movementData,
+    InventoryMetadata inventoryData,
     IterativeSimulationContext result,
     Simulator simulator,
     int keyForward,

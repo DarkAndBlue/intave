@@ -1,4 +1,4 @@
-package de.jpx3.intave.user;
+package de.jpx3.intave.user.meta;
 
 import com.google.common.collect.Lists;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Relocate
-public final class UserMetaPunishmentData {
+public final class PunishmentMetadata {
   private final static Function<Double, Double> GARBAGE_HITS_RANDOM_DISTRIBUTION_CURVE = CubicBezierCurve.identityCurve(0,.8,1,.2).functionalMapBake(.005);
 
   public final static long DAMAGE_CANCEL_LIGHT_DURATION = 40_000;
@@ -44,7 +44,7 @@ public final class UserMetaPunishmentData {
   private Map<Integer, Long> lastTimeValidHurttimeAttack = new ConcurrentHashMap<>();
   private long delay = 600;
 
-  public UserMetaPunishmentData(Player player) {
+  public PunishmentMetadata(Player player) {
     this.attackNerfers = Lists.newArrayList(
       new AttackNerfer(
         AttackNerfStrategy.CANCEL, DAMAGE_CANCEL_HEAVY_DURATION,

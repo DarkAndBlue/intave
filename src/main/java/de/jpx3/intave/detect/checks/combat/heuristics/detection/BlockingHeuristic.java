@@ -16,7 +16,11 @@ import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.reflect.ReflectiveDataWatcherAccess;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
+import de.jpx3.intave.user.meta.PunishmentMetadata;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -26,7 +30,7 @@ import java.util.List;
 
 import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
 import static de.jpx3.intave.event.packet.PacketId.Client.*;
-import static de.jpx3.intave.user.UserMetaClientData.VER_1_9;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_9;
 
 public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingHeuristic.BlockingMeta> {
   private final IntavePlugin plugin;
@@ -45,7 +49,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
     Player player = event.getPlayer();
     User user = userOf(player);
     BlockingMeta meta = metaOf(user);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
 
     if (movementData.lastTeleport == 0) {
       return;
@@ -63,7 +67,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
 
   private void receiveExcludedPacket(Player player, PacketContainer packet) {
     try {
-      userOf(player).ignoreNextPacket();
+      userOf(player).ignoreNextInboundPacket();
       ProtocolLibrary.getProtocolManager().recieveClientPacket(player, packet);
     } catch (InvocationTargetException | IllegalAccessException exception) {
       exception.printStackTrace();
@@ -78,11 +82,11 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
   public void receiveInteractionPacket(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMetaPunishmentData punishmentData = user.meta().punishmentData();
+    PunishmentMetadata punishmentData = user.meta().punishmentData();
     BlockingMeta meta = metaOf(user);
     PacketContainer packet = event.getPacket();
 
-    if (!user.meta().clientData().flyingPacketStream() || user.meta().abilityData().ignoringMovementPackets()) {
+    if (!user.meta().protocolData().flyingPacketStream() || user.meta().abilityData().ignoringMovementPackets()) {
       return;
     }
 
@@ -159,8 +163,8 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
     Player player = event.getPlayer();
     User user = userOf(player);
     BlockingMeta meta = metaOf(user);
-    UserMetaMovementData movementData = user.meta().movementData();
-    UserMetaClientData clientData = user.meta().clientData();
+    MovementMetadata movementData = user.meta().movementData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     if (movementData.lastTeleport == 0) {
       return;
     }
@@ -169,7 +173,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
       if (meta.heldItemOperations > 0) {
         if (meta.blocksPlacedThisTick == 0 || meta.heldItemOperations > 2) {
           String description = "sent too many item operations (operations: " + meta.heldItemOperations + ")";
-          description += " (version " + user.meta().clientData().versionString() + ")";
+          description += " (version " + user.meta().protocolData().versionString() + ")";
           Anomaly anomaly = Anomaly.anomalyOf("144", Confidence.NONE, Anomaly.Type.KILLAURA, description, 0);
           parentCheck().saveAnomaly(player, anomaly);
 //          if(meta.unsendPackets.size() != meta.heldItemOperations) {
@@ -197,7 +201,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
   public void receiveUseItem(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     BlockingMeta meta = metaOf(player);
     // 1.8
     if(clientData.protocolVersion() >= VER_1_9) {
@@ -214,7 +218,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
     Player player = event.getPlayer();
     User user = userOf(player);
     BlockingMeta meta = metaOf(player);
-    UserMetaClientData clientData = user.meta().clientData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     // 1.9+
     if(clientData.protocolVersion() < VER_1_9) {
       meta.blocksPlacedThisTick++;
@@ -230,8 +234,8 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
     Player player = event.getPlayer();
     User user = userOf(player);
     BlockingMeta meta = metaOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
-    UserMetaClientData clientData = user.meta().clientData();
+    MovementMetadata movementData = user.meta().movementData();
+    ProtocolMetadata clientData = user.meta().protocolData();
     if (user.meta().abilityData().ignoringMovementPackets()) {
       return;
     }
@@ -247,7 +251,7 @@ public final class BlockingHeuristic extends MetaCheckPart<Heuristics, BlockingH
     meta.heldItemOperations++;
   }
 
-  public final static class BlockingMeta extends UserCustomCheckMeta {
+  public final static class BlockingMeta extends CheckCustomMetadata {
     private List<PacketContainer> unsendPackets = new ArrayList<>();
     private int blocksPlacedThisTick;
     public boolean releasedItemAfterClientTick;

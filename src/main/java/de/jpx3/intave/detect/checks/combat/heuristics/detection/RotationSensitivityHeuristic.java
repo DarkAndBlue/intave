@@ -9,9 +9,9 @@ import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserCustomCheckMeta;
-import de.jpx3.intave.user.UserMetaAttackData;
-import de.jpx3.intave.user.UserMetaMovementData;
+import de.jpx3.intave.user.meta.AttackMetadata;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.*;
@@ -36,8 +36,8 @@ public final class RotationSensitivityHeuristic extends MetaCheckPart<Heuristics
     User user = userOf(player);
     RotationGCDMeta heuristicMeta = metaOf(user);
 
-    UserMetaAttackData attackData = user.meta().attackData();
-    UserMetaMovementData movementData = user.meta().movementData();
+    AttackMetadata attackData = user.meta().attackData();
+    MovementMetadata movementData = user.meta().movementData();
 
     float rotationYaw = movementData.rotationYaw;
     float rotationPitch = movementData.rotationPitch;
@@ -108,7 +108,7 @@ public final class RotationSensitivityHeuristic extends MetaCheckPart<Heuristics
 
   private void ensureSensitivity(Player player, User user) {
     RotationGCDMeta heuristicMeta = metaOf(user);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     float pitchDifference = Math.abs(movementData.rotationPitch - movementData.lastRotationPitch);
 
     float prevPitchGCD = heuristicMeta.prevPitchGCD;
@@ -165,7 +165,7 @@ public final class RotationSensitivityHeuristic extends MetaCheckPart<Heuristics
     return s.length();
   }
 
-  public static class RotationGCDMeta extends UserCustomCheckMeta {
+  public static class RotationGCDMeta extends CheckCustomMetadata {
     private int decimalVL;
     private int decimalSpeedVL;
     private int sensitivityVL;

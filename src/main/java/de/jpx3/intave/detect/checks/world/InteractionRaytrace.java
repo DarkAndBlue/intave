@@ -25,7 +25,11 @@ import de.jpx3.intave.tools.annotate.DispatchTarget;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.*;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.AbilityMetadata;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.InventoryMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
@@ -71,8 +75,8 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     Player player = event.getPlayer();
     User user = userOf(player);
     InteractionMeta interactionMeta = metaOf(user);
-    UserMetaMovementData movementData = user.meta().movementData();
-    UserMetaAbilityData userMetaAbilityData = user.meta().abilityData();
+    MovementMetadata movementData = user.meta().movementData();
+    AbilityMetadata abilityMetadata = user.meta().abilityData();
     PacketContainer packet = event.getPacket();
     BlockPosition blockPosition = readBlockPositionFrom(packet);
 
@@ -88,7 +92,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     Material clickedType = BukkitBlockAccess.blockAccess(blockPosition.toLocation(player.getWorld())).getType();
     boolean clickableInteraction = BlockDataAccess.isClickable(clickedType);
     Material heldItemType = user.meta().inventoryData().heldItemType();
-    boolean interactionIsPlacement = heldItemType != Material.AIR && heldItemType.isBlock() && !clickableInteraction && !userMetaAbilityData.inGameMode(GameMode.ADVENTURE);
+    boolean interactionIsPlacement = heldItemType != Material.AIR && heldItemType.isBlock() && !clickableInteraction && !abilityMetadata.inGameMode(GameMode.ADVENTURE);
 
     EnumWrappers.Hand handSlot = packet.getHands().readSafely(0);
     handSlot = handSlot == null ? EnumWrappers.Hand.MAIN_HAND : handSlot;
@@ -117,8 +121,8 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
   public void receiveBreak(PacketEvent event) {
     Player player = event.getPlayer();
     User user = userOf(player);
-    UserMetaAbilityData abilityData = user.meta().abilityData();
-    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    AbilityMetadata abilityData = user.meta().abilityData();
+    InventoryMetadata inventoryData = user.meta().inventoryData();
     PacketContainer packet = event.getPacket();
     BlockPosition blockPosition = packet.getBlockPositionModifier().readSafely(0);
 
@@ -174,7 +178,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     Player player = event.getPlayer();
     World world = player.getWorld();
     User user = userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     InteractionMeta interactionMeta = metaOf(user);
 
     List<Interaction> interactionList = interactionMeta.interactionList;
@@ -198,7 +202,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     World world = interaction.world();
     Player player = interaction.player();
     User user = userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     InteractionMeta interactionMeta = metaOf(user);
 
     Location playerLocation = new Location(player.getWorld(), movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ);
@@ -541,7 +545,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
 
   private void receiveExcludedPacket(Player player, PacketContainer packet) {
     try {
-      userOf(player).ignoreNextPacket();
+      userOf(player).ignoreNextInboundPacket();
       ProtocolLibrary.getProtocolManager().recieveClientPacket(player, packet);
     } catch (InvocationTargetException | IllegalAccessException exception) {
       exception.printStackTrace();
@@ -602,7 +606,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     CANCEL
   }
 
-  public static class InteractionMeta extends UserCustomCheckMeta {
+  public static class InteractionMeta extends CheckCustomMetadata {
     final List<Interaction> interactionList = new CopyOnWriteArrayList<>();
     public boolean estimateMouseDelayFix = false;
     public boolean isBreakingBlock = false;

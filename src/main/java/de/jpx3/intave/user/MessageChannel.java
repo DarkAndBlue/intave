@@ -5,14 +5,14 @@ package de.jpx3.intave.user;
  * Created by Richard Strunk 2021
  */
 
-public enum UserMessageChannel {
+public enum MessageChannel {
   VERBOSE("intave.command.verbose", false),
   NOTIFY("intave.command.notify", true);
 
   final String permission;
   final boolean enabledByDefault;
 
-  UserMessageChannel(String permission, boolean enabledByDefault) {
+  MessageChannel(String permission, boolean enabledByDefault) {
     this.permission = permission;
     this.enabledByDefault = enabledByDefault;
   }

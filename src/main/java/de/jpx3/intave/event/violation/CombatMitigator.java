@@ -7,11 +7,11 @@ import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.sync.Synchronizer;
+import de.jpx3.intave.user.MessageChannelSubscriptions;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMessageSubscriptions;
-import de.jpx3.intave.user.UserMetaPunishmentData;
-import de.jpx3.intave.user.UserMetaPunishmentData.AttackNerfer;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.PunishmentMetadata;
+import de.jpx3.intave.user.meta.PunishmentMetadata.AttackNerfer;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -33,7 +33,7 @@ public final class CombatMitigator implements BukkitEventSubscriber {
       return;
     }
     Player player = (Player) attacker;
-    UserMetaPunishmentData punishmentData = UserRepository.userOf(player).meta().punishmentData();
+    PunishmentMetadata punishmentData = UserRepository.userOf(player).meta().punishmentData();
     for (AttackNerfer attackNerfer : punishmentData.availableAttackNerfer()) {
       if (attackNerfer.active() && !attackNerfer.inverseEvent()) {
         attackNerfer.executor().accept(event);
@@ -78,7 +78,7 @@ public final class CombatMitigator implements BukkitEventSubscriber {
       IntaveLogger.logger().pushPrintln("[Intave] " + ChatColor.stripColor(message));
     }
 
-    for (Player authenticatedPlayer : UserMessageSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
+    for (Player authenticatedPlayer : MessageChannelSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {
       if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
         authenticatedPlayer.sendMessage(message);
       }

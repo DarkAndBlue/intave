@@ -24,6 +24,10 @@ import de.jpx3.intave.tools.annotate.Relocate;
 import de.jpx3.intave.tools.placeholder.PlayerContext;
 import de.jpx3.intave.tools.placeholder.PlayerIdentificationContext;
 import de.jpx3.intave.tools.sync.Synchronizer;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.ConnectionMetadata;
+import de.jpx3.intave.user.meta.MetadataBundle;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockshape.MultiChunkKeyOCBlockShapeAccess;
 import de.jpx3.intave.world.blockshape.OCBlockShapeAccess;
@@ -43,26 +47,26 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import static de.jpx3.intave.event.feedback.FeedbackService.TransactionOptions.SELF_SYNCHRONIZATION;
-import static de.jpx3.intave.user.UserMetaClientData.VER_1_13;
-import static de.jpx3.intave.user.UserMetaClientData.VER_1_9;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_13;
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_9;
 
 @Relocate
 public final class PlayerUser implements User {
-  private final Map<Class<? extends UserCustomCheckMeta>, UserCustomCheckMeta> customMetaPool = new ConcurrentHashMap<>();
+  private final Map<Class<? extends CheckCustomMetadata>, CheckCustomMetadata> customMetaPool = new ConcurrentHashMap<>();
 
   private final WeakReference<Player> player;
   private final WeakReference<Object> playerHandle;
   private final WeakReference<Object> playerConnection;
-  private final UserMeta userMeta;
+  private final MetadataBundle metadata;
   private final BukkitPermissionCache permissionCache;
   private final ComplexColliderProcessor complexColliderProcessor;
   private final SimpleColliderProcessor simpleColliderProcessor;
-  private final List<UserMessageChannel> receivingUserChannels = new ArrayList<>();
-  private final Map<UserMessageChannel, Predicate<Player>> receiveWhitelist = Maps.newEnumMap(UserMessageChannel.class);
+  private final List<MessageChannel> receivingUserChannels = new ArrayList<>();
+  private final Map<MessageChannel, Predicate<Player>> receiveWhitelist = Maps.newEnumMap(MessageChannel.class);
   private final Map<Material, Material> typeTranslations = Maps.newHashMap();
   private final Map<Pose, HitBoxBoundaries> poseSizes;
   private OCBlockShapeAccess blockShapeAccess;
-  private boolean ignoreNextPacket;
+  private boolean ignoreNextInboundPacket;
   private boolean ignoreNextOutboundPacket;
   private boolean hasShadow;
   private CustomClientSupport customClientSupport = CustomClientSupport.createDefault();
@@ -77,14 +81,14 @@ public final class PlayerUser implements User {
     this.player = new WeakReference<>(player);
     this.playerHandle = new WeakReference<>(ReflectiveHandleAccess.handleOf(player));
     this.playerConnection = new WeakReference<>(ReflectiveHandleAccess.playerConnectionOf(player));
-    this.userMeta = new UserMeta(player, this);
+    this.metadata = new MetadataBundle(player, this);
     this.permissionCache = new BukkitPermissionCache();
     setBlockShapeAccess(new MultiChunkKeyOCBlockShapeAccess(player(), BoundingBoxResolverFactory.resolver()));
     this.complexColliderProcessor = Collider.suitableComplexColliderProcessorFor(this);
     this.simpleColliderProcessor = Collider.suitableSimpleColliderProcessorFor(this);
     Synchronizer.synchronize(this::setDefaultMessagingChannel);
     this.identificationContext = new PlayerIdentificationContext(player.getName(), player.getUniqueId(), player.getAddress().getAddress());
-    int version = userMeta.clientData().protocolVersion();
+    int version = metadata.protocolData().protocolVersion();
     if (version >= VER_1_13) {
       this.poseSizes = Pose.AT_LEAST_1_13_POSE;
     } else if (version >= VER_1_9) {
@@ -92,13 +96,13 @@ public final class PlayerUser implements User {
     } else {
       this.poseSizes = Pose.AT_LEAST_1_8_POSE;
     }
-    this.userMeta.setup();
+    this.metadata.setup();
   }
 
   @Override
   public void delayedSetup() {
     Player player = player();
-    UserMetaClientData clientData = meta().clientData();
+    ProtocolMetadata clientData = meta().protocolData();
     clientData.refresh(player);
     outputVersionJoinInfo();
     BlockTypeAccess.setupTranslationsFor(this);
@@ -106,7 +110,7 @@ public final class PlayerUser implements User {
 
   private void outputVersionJoinInfo() {
     Player player = player();
-    UserMetaClientData clientData = meta().clientData();
+    ProtocolMetadata clientData = meta().protocolData();
     String string = player.getName() + " joined with version " + clientData.versionString() + " ";
     string += "(" + clientData.protocolVersion() + ")";
     if (clientData.clientVersionOlderThanServerVersion()) {
@@ -116,8 +120,8 @@ public final class PlayerUser implements User {
   }
 
   @Override
-  public UserMeta meta() {
-    return this.userMeta;
+  public MetadataBundle meta() {
+    return this.metadata;
   }
 
   @Override
@@ -151,16 +155,16 @@ public final class PlayerUser implements User {
   }
 
   @Override
-  public UserCustomCheckMeta customMeta(Class<? extends UserCustomCheckMeta> classTarget) {
-    UserCustomCheckMeta userCustomCheckMeta = customMetaPool.get(classTarget);
-    if (userCustomCheckMeta == null) {
+  public CheckCustomMetadata checkMetadata(Class<? extends CheckCustomMetadata> classTarget) {
+    CheckCustomMetadata checkCustomMetadata = customMetaPool.get(classTarget);
+    if (checkCustomMetadata == null) {
       try {
-        customMetaPool.put(classTarget, userCustomCheckMeta = classTarget.newInstance());
+        customMetaPool.put(classTarget, checkCustomMetadata = classTarget.newInstance());
       } catch (InstantiationException | IllegalAccessException exception) {
         exception.printStackTrace();
       }
     }
-    return userCustomCheckMeta;
+    return checkCustomMetadata;
   }
 
   @Override
@@ -179,8 +183,8 @@ public final class PlayerUser implements User {
   }
 
   @Override
-  public boolean shouldIgnoreNextPacket() {
-    return ignoreNextPacket;
+  public boolean shouldIgnoreNextInboundPacket() {
+    return ignoreNextInboundPacket;
   }
 
   @Override
@@ -189,8 +193,8 @@ public final class PlayerUser implements User {
   }
 
   @Override
-  public void ignoreNextPacket() {
-    this.ignoreNextPacket = true;
+  public void ignoreNextInboundPacket() {
+    this.ignoreNextInboundPacket = true;
   }
 
   @Override
@@ -199,12 +203,12 @@ public final class PlayerUser implements User {
   }
 
   @Override
-  public void receiveNextPacket() {
-    this.ignoreNextPacket = false;
+  public void receiveNextInboundPacketAgain() {
+    this.ignoreNextInboundPacket = false;
   }
 
   @Override
-  public void receiveNextOutboundPacket() {
+  public void receiveNextOutboundPacketAgain() {
     this.ignoreNextOutboundPacket = false;
   }
 
@@ -273,7 +277,7 @@ public final class PlayerUser implements User {
 
   @Override
   public void setDefaultMessagingChannel() {
-    for (UserMessageChannel channel : UserMessageChannel.values()) {
+    for (MessageChannel channel : MessageChannel.values()) {
       if (channel.enabledByDefault && BukkitPermissionCheck.permissionCheck(player(), channel.permission())) {
         toggleReceive(channel);
       }
@@ -281,7 +285,7 @@ public final class PlayerUser implements User {
   }
 
   @Override
-  public boolean receives(UserMessageChannel channel) {
+  public boolean receives(MessageChannel channel) {
     if (!BukkitPermissionCheck.permissionCheck(player(), channel.permission())) {
       receivingUserChannels.remove(channel);
       return false;
@@ -290,7 +294,7 @@ public final class PlayerUser implements User {
   }
 
   @Override
-  public void toggleReceive(UserMessageChannel channel) {
+  public void toggleReceive(MessageChannel channel) {
     boolean remove = receives(channel);
     if (remove) {
       receivingUserChannels.remove(channel);
@@ -298,21 +302,21 @@ public final class PlayerUser implements User {
       receivingUserChannels.add(channel);
       removeChannelConstraint(channel);
     }
-    UserMessageSubscriptions.setChannelActivation(player(), channel, !remove);
+    MessageChannelSubscriptions.setChannelActivation(player(), channel, !remove);
   }
 
   @Override
-  public void setChannelConstraint(UserMessageChannel channel, Predicate<Player> constraint) {
+  public void setChannelConstraint(MessageChannel channel, Predicate<Player> constraint) {
     receiveWhitelist.put(channel, constraint);
   }
 
   @Override
-  public boolean hasChannelConstraint(UserMessageChannel channel) {
+  public boolean hasChannelConstraint(MessageChannel channel) {
     return receiveWhitelist.containsKey(channel);
   }
 
   @Override
-  public Predicate<Player> channelPlayerConstraint(UserMessageChannel channel) {
+  public Predicate<Player> channelPlayerConstraint(MessageChannel channel) {
     return receiveWhitelist.get(channel);
   }
 
@@ -326,7 +330,7 @@ public final class PlayerUser implements User {
   }
 
   @Override
-  public void removeChannelConstraint(UserMessageChannel channel) {
+  public void removeChannelConstraint(MessageChannel channel) {
     receiveWhitelist.remove(channel);
   }
 
@@ -368,7 +372,7 @@ public final class PlayerUser implements User {
 
   @Override
   public void noteHardTransactionResponse() {
-    UserMetaConnectionData connectionData = userMeta.connectionData();
+    ConnectionMetadata connectionData = metadata.connectionData();
     if (connectionData.hardTransactionResponse++ > 100) {
       Player player = player();
       IntaveLogger.logger().error(player.getName() + " has been removed for repeated feedback faults");
@@ -394,8 +398,8 @@ public final class PlayerUser implements User {
       fakePlayer.remove();
     }
     EntityNoDamageTickChanger.removeNoDamageTickChangeOf(this);
-    for (UserMessageChannel value : UserMessageChannel.values()) {
-      UserMessageSubscriptions.setChannelActivation(player(), value, false);
+    for (MessageChannel value : MessageChannel.values()) {
+      MessageChannelSubscriptions.setChannelActivation(player(), value, false);
     }
   }
 

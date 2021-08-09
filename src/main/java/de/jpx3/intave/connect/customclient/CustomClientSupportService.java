@@ -17,8 +17,8 @@ import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaConnectionData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.ConnectionMetadata;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.bukkit.Bukkit;
@@ -77,7 +77,7 @@ public final class CustomClientSupportService implements EventProcessor {
       String messageKey = LabyModChannelHelper.readString(bytes, 100);
       if (messageKey.equalsIgnoreCase("clientconfig")) {
         User user = UserRepository.userOf(player);
-        UserMetaConnectionData connectionData = user.meta().connectionData();
+        ConnectionMetadata connectionData = user.meta().connectionData();
         if (AccessHelper.now() - connectionData.lastCCCInfoMessageSent > 4000) {
           IntaveLogger.logger().info(player.getName() + " has sent a custom client configuration (client has special Intave support)");
           connectionData.lastCCCInfoMessageSent = AccessHelper.now();

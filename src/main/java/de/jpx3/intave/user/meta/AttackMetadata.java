@@ -1,4 +1,4 @@
-package de.jpx3.intave.user;
+package de.jpx3.intave.user.meta;
 
 import de.jpx3.intave.detect.checks.combat.heuristics.MiningStrategy;
 import de.jpx3.intave.detect.checks.combat.heuristics.mining.MiningStrategyContainer;
@@ -10,10 +10,12 @@ import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.annotate.Nullable;
 import de.jpx3.intave.tools.annotate.Relocate;
 import de.jpx3.intave.tools.client.RotationHelper;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
 import org.bukkit.entity.Player;
 
 @Relocate
-public final class UserMetaAttackData {
+public final class AttackMetadata {
   private final Player player;
   private double lastReach;
   private int lastAttackedEntityID = -1;
@@ -36,13 +38,13 @@ public final class UserMetaAttackData {
   public double fakePlayerLastReportedY;
   public double fakePlayerLastReportedZ;
 
-  public UserMetaAttackData(Player player) {
+  public AttackMetadata(Player player) {
     this.player = player;
   }
 
   public void updatePerfectRotation() {
     User user = UserRepository.userOf(player);
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     double positionX = movementData.positionX;
     double lastPositionX = movementData.lastPositionX;
     double positionY = movementData.positionY;

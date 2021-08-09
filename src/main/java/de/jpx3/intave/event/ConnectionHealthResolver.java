@@ -10,8 +10,8 @@ import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaConnectionData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.ConnectionMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -39,7 +39,7 @@ public final class ConnectionHealthResolver implements PacketEventSubscriber {
   }
 
   private long lastKeepAliveResponse(User user) {
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
     Map<Long, Long> remainingPingPackets = synchronizeData.remainingPingPacketTimestamps();
     long last = AccessHelper.now();
     for (Long value : remainingPingPackets.values()) {
@@ -75,7 +75,7 @@ public final class ConnectionHealthResolver implements PacketEventSubscriber {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     PacketContainer packet = event.getPacket();
-    UserMetaConnectionData synchronizeData = user.meta().connectionData();
+    ConnectionMetadata synchronizeData = user.meta().connectionData();
 
     Map<Long, Long> remainingPingPackets = synchronizeData.remainingPingPacketTimestamps();
 

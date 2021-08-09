@@ -6,7 +6,7 @@ import de.jpx3.intave.detect.checks.world.placementanalysis.*;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaClientData;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 
 public final class PlacementAnalysis extends Check {
   private final IntavePlugin plugin;
@@ -20,8 +20,8 @@ public final class PlacementAnalysis extends Check {
 
   @Native
   public void setupSubChecks() {
-    boolean enterprise = (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
-    boolean partner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
+    boolean enterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
+    boolean partner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
     if (enterprise || partner) {
       appendCheckPart(new SpeedAnalyzer(this));
       appendCheckPart(new RotationSpeedAnalyzer(this));

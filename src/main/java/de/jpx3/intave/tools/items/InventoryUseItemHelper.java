@@ -5,8 +5,8 @@ import com.google.common.collect.Lists;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.tools.annotate.Nullable;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaMovementData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.MovementMetadata;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -103,7 +103,7 @@ public final class InventoryUseItemHelper {
   private static boolean tridentUsable(User user, ItemStack itemStack) {
     Player player = user.player();
     World world = player.getWorld();
-    UserMetaMovementData movementData = user.meta().movementData();
+    MovementMetadata movementData = user.meta().movementData();
     if (tridentRiptideEnchanted(itemStack)) {
       return movementData.inWater || (world.isThundering() || world.hasStorm());
     }

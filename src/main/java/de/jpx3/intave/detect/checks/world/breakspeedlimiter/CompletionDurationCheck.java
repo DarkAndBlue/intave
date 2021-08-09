@@ -19,7 +19,11 @@ import de.jpx3.intave.reflect.ReflectiveEntityAccess;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedEnumDirection;
-import de.jpx3.intave.user.*;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.CheckCustomMetadata;
+import de.jpx3.intave.user.meta.InventoryMetadata;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockaccess.BukkitBlockAccess;
 import org.bukkit.Location;
@@ -47,8 +51,8 @@ public final class CompletionDurationCheck extends MetaCheckPart<BreakSpeedLimit
     User user = userOf(player);
     BreakSpeedFinishMeta meta = metaOf(user);
 
-    UserMetaClientData clientData = user.meta().clientData();
-    UserMetaInventoryData inventoryData = user.meta().inventoryData();
+    ProtocolMetadata clientData = user.meta().protocolData();
+    InventoryMetadata inventoryData = user.meta().inventoryData();
 
     if (meta.breakProcess) {
       ItemStack itemInHand = inventoryData.heldItem();
@@ -76,9 +80,9 @@ public final class CompletionDurationCheck extends MetaCheckPart<BreakSpeedLimit
     Player player = event.getPlayer();
     User user = userOf(player);
     BreakSpeedFinishMeta meta = metaOf(user);
-    UserMetaClientData clientData = user.meta().clientData();
-    UserMetaInventoryData inventoryData = user.meta().inventoryData();
-    UserMetaMovementData movementData = user.meta().movementData();
+    ProtocolMetadata clientData = user.meta().protocolData();
+    InventoryMetadata inventoryData = user.meta().inventoryData();
+    MovementMetadata movementData = user.meta().movementData();
 
     ItemStack heldItem = inventoryData.heldItem();
     PacketContainer packet = event.getPacket();
@@ -202,7 +206,7 @@ public final class CompletionDurationCheck extends MetaCheckPart<BreakSpeedLimit
     return blockDamage;
   }
 
-  public static final class BreakSpeedFinishMeta extends UserCustomCheckMeta {
+  public static final class BreakSpeedFinishMeta extends CheckCustomMetadata {
     public BlockPosition targetBlockPosition;
     public float curBlockDamageMP = 0f;
     public float maximumBlockDamage;

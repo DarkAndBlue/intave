@@ -4,8 +4,8 @@ import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
 import de.jpx3.intave.tools.wrapper.WrappedEnumDirection;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMetaClientData;
 import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.world.blockaccess.BlockDataAccess;
 import de.jpx3.intave.world.blockaccess.BlockTypeAccess;
 import de.jpx3.intave.world.blockshape.resolver.BoundingBoxBuilder;
@@ -31,7 +31,7 @@ public final class BlockAnvilPatch extends BoundingBoxPatch {
   public List<WrappedAxisAlignedBB> patch(World world, Player player, int posX, int posY, int posZ, Material type, int blockState, List<WrappedAxisAlignedBB> bbs) {
     User user = UserRepository.userOf(player);
     WrappedEnumDirection.Axis axis = axisOf(blockState);
-    boolean legacy = user.meta().clientData().protocolVersion() < UserMetaClientData.VER_1_13;
+    boolean legacy = user.meta().protocolData().protocolVersion() < ProtocolMetadata.VER_1_13;
     if (legacy) {
       BoundingBoxBuilder boundingBoxBuilder = BoundingBoxBuilder.create();
       if (axis == WrappedEnumDirection.Axis.X) {

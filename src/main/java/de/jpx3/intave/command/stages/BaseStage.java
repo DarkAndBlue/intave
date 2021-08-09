@@ -12,9 +12,9 @@ import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.DurationTranslator;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.update.Version;
+import de.jpx3.intave.user.MessageChannel;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.UserMessageChannel;
-import de.jpx3.intave.user.UserMetaClientData;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
@@ -40,20 +40,20 @@ public final class BaseStage extends CommandStage {
   )
   public void verboseCommand(User user, @Optional Player[] selectedPlayers) {
     Player player = user.player();
-    boolean receivesVerbose = user.receives(UserMessageChannel.VERBOSE);
+    boolean receivesVerbose = user.receives(MessageChannel.VERBOSE);
 
-    if (user.receives(UserMessageChannel.VERBOSE)) {
-      if (selectedPlayers != null && !user.hasChannelConstraint(UserMessageChannel.VERBOSE)) {
+    if (user.receives(MessageChannel.VERBOSE)) {
+      if (selectedPlayers != null && !user.hasChannelConstraint(MessageChannel.VERBOSE)) {
         List<UUID> uniqueIds = Arrays.stream(selectedPlayers).map(Entity::getUniqueId).distinct().collect(Collectors.toList());
         String names = Arrays.stream(selectedPlayers).map(Entity::getName).map(s -> s + " ").collect(Collectors.joining()).trim();
-        user.setChannelConstraint(UserMessageChannel.VERBOSE, player1 -> uniqueIds.contains(player1.getUniqueId()));
+        user.setChannelConstraint(MessageChannel.VERBOSE, player1 -> uniqueIds.contains(player1.getUniqueId()));
         String target = ChatColor.RED + names;
         player.sendMessage(IntavePlugin.prefix() + "You have specified verbose output to " + target);
         return;
       }
     }
 
-    user.toggleReceive(UserMessageChannel.VERBOSE);
+    user.toggleReceive(MessageChannel.VERBOSE);
 
     if (receivesVerbose) {
       player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.RED + "no longer " + IntavePlugin.defaultColor() + "receiving verbose output");
@@ -64,7 +64,7 @@ public final class BaseStage extends CommandStage {
       } else {
         List<UUID> uniqueIds = Arrays.stream(selectedPlayers).map(Entity::getUniqueId).distinct().collect(Collectors.toList());
         String names = Arrays.stream(selectedPlayers).map(Entity::getName).map(s -> s + " ").collect(Collectors.joining()).trim();
-        user.setChannelConstraint(UserMessageChannel.VERBOSE, player1 -> uniqueIds.contains(player1.getUniqueId()));
+        user.setChannelConstraint(MessageChannel.VERBOSE, player1 -> uniqueIds.contains(player1.getUniqueId()));
         String target = ChatColor.RED + names;
         player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.GREEN + "now " + IntavePlugin.defaultColor() + "receiving verbose output for: " + target);
       }
@@ -80,8 +80,8 @@ public final class BaseStage extends CommandStage {
   public void notifyCommand(User user) {
     Player player = user.player();
 
-    boolean receiveNotify = user.receives(UserMessageChannel.NOTIFY);
-    user.toggleReceive(UserMessageChannel.NOTIFY);
+    boolean receiveNotify = user.receives(MessageChannel.NOTIFY);
+    user.toggleReceive(MessageChannel.NOTIFY);
 
     if (receiveNotify) {
       player.sendMessage(IntavePlugin.prefix() + "You are " + ChatColor.RED + "no longer " + IntavePlugin.defaultColor() + "receiving notifications");
@@ -171,8 +171,8 @@ public final class BaseStage extends CommandStage {
       version = IntavePlugin.version() + " (unlisted)";
     }
 
-    boolean enterprise = (UserMetaClientData.VERSION_DETAILS & 0x200) != 0;
-    boolean partner = (UserMetaClientData.VERSION_DETAILS & 0x100) != 0;
+    boolean enterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
+    boolean partner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
 
     String prefix = IntavePlugin.prefix();
     player.sendMessage(new String[]{
