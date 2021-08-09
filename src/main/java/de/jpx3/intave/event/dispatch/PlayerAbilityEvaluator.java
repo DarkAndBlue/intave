@@ -159,8 +159,8 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
         Field field = obj.getClass().getDeclaredField("b");
         field.setAccessible(true);
         return (int) field.get(obj) == 3;
-      } catch (Exception e) {
-        e.printStackTrace();
+      } catch (Exception exception) {
+        exception.printStackTrace();
         return false;
       }
     } else {

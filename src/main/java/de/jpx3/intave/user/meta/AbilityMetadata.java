@@ -50,6 +50,8 @@ public final class AbilityMetadata {
       this.unsynchronizedHealth = this.health;
       setupDefaultGameMode(player.getGameMode());
 
+      player.setWalkSpeed(0.2f);
+
       this.walkSpeed = player.getWalkSpeed() / 2.0f;
       this.flySpeed = player.getFlySpeed() / 2.0f;
 
@@ -75,7 +77,8 @@ public final class AbilityMetadata {
 
   public void setupAttributes() {
     PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacket(PacketType.Play.Server.UPDATE_ATTRIBUTES);
-    attributeModifiers.put(WrappedAttribute.newBuilder().attributeKey("generic.movementSpeed").baseValue(0.1).packet(packet).build(), new CopyOnWriteArrayList<>());
+    boolean atLeastMinecraft16 = MinecraftVersions.VER1_16_0.atOrAbove();
+    attributeModifiers.put(WrappedAttribute.newBuilder().attributeKey(keyTranslation("generic.movementSpeed")).baseValue(atLeastMinecraft16 ? (double) 0.1F : 0.1).packet(packet).build(), new CopyOnWriteArrayList<>());
   }
 
   public double attributeValue(String key) {
@@ -86,7 +89,7 @@ public final class AbilityMetadata {
     key = keyTranslation(key);
     for (Map.Entry<WrappedAttribute, List<WrappedAttributeModifier>> wrappedAttributeListEntry : attributeModifiers.entrySet()) {
       WrappedAttribute attribute = wrappedAttributeListEntry.getKey();
-      if (attribute.getAttributeKey().equals(key)) {
+      if (keyTranslation(attribute.getAttributeKey()).equals(key)) {
         List<WrappedAttributeModifier> modifiers = wrappedAttributeListEntry.getValue();
         if (!modifiers.isEmpty()) {
           modifiers = new ArrayList<>(modifiers);
