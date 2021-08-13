@@ -8,7 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
@@ -88,7 +88,7 @@ public final class LabymodShadowIntegration {
     try {
       byte[] bytesToSend = Unpooled.copyInt(update.key()).array();
       //noinspection unchecked
-      Class<Object> packetDataSerializerClass = (Class<Object>) ReflectiveAccess.lookupServerClass("PacketDataSerializer");
+      Class<Object> packetDataSerializerClass = (Class<Object>) Lookup.serverClass("PacketDataSerializer");
       Object packetDataSerializer = packetDataSerializerClass.getConstructor(ByteBuf.class).newInstance(Unpooled.wrappedBuffer(bytesToSend));
       packetContainer.getSpecificModifier(packetDataSerializerClass).write(0, packetDataSerializer);
       Synchronizer.synchronize(() -> {

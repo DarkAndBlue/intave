@@ -7,7 +7,7 @@ import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.detect.MetaCheck;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.Violation;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.user.User;
@@ -85,7 +85,7 @@ public final class ProtocolScanner extends MetaCheck<ProtocolScanner.ProtocolSca
     ProtocolMetadata clientData = user.meta().protocol();
     if (HAS_OFF_HAND && clientData.combatUpdate()) {
       if (enumMainHandClass == null) {
-        enumMainHandClass = ReflectiveAccess.lookupServerClass("EnumMainHand");
+        enumMainHandClass = Lookup.serverClass("EnumMainHand");
       }
       HandSlot sentHand = packet.getEnumModifier(HandSlot.class, enumMainHandClass).read(0);
       if (!equalHand(player.getMainHand(), sentHand)) {

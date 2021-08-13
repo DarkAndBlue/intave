@@ -1,7 +1,7 @@
 package de.jpx3.intave.event.violation;
 
 import de.jpx3.intave.logging.IntaveLogger;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
@@ -55,7 +55,7 @@ public final class EntityNoDamageTickChanger {
   private static int resolveNoDamageTicksOf(Player player) {
     try {
       Object handle = ReflectiveHandleAccess.handleOf(player);
-      Field maxDamageTicks = ReflectiveAccess.lookupServerField("EntityLiving", "maxNoDamageTicks");;
+      Field maxDamageTicks = Lookup.serverField("EntityLiving", "maxNoDamageTicks");;
       return (int) maxDamageTicks.get(handle);
     } catch (IllegalAccessException exception) {
       exception.printStackTrace();
@@ -67,7 +67,7 @@ public final class EntityNoDamageTickChanger {
 
   public static void setNoDamageTicksOf(Player player, int noDamageTicks) {
     try {
-      Field maxDamageTicks = ReflectiveAccess.lookupServerField("EntityLiving", "maxNoDamageTicks");//handle.getClass().getField("maxNoDamageTicks");
+      Field maxDamageTicks = Lookup.serverField("EntityLiving", "maxNoDamageTicks");//handle.getClass().getField("maxNoDamageTicks");
       Object handle = ReflectiveHandleAccess.handleOf(player);
       maxDamageTicks.set(handle, noDamageTicks);
     } catch (IllegalAccessException exception) {

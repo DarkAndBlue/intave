@@ -3,7 +3,7 @@ package de.jpx3.intave.tools.sync;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.logging.IntaveLogger;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitScheduler;
 
@@ -24,7 +24,7 @@ public final class Synchronizer {
 
   public static void setup() {
     try {
-      Class<?> minecraftServerClass = ReflectiveAccess.lookupServerClass("MinecraftServer");
+      Class<?> minecraftServerClass = Lookup.serverClass("MinecraftServer");
       Object minecraftServer = minecraftServerClass.getMethod("getServer").invoke(null);
       //noinspection unchecked
       cachedProcessQueue = (Queue<Runnable>) minecraftServerClass.getField("processQueue").get(minecraftServer);
@@ -36,7 +36,7 @@ public final class Synchronizer {
     }
 
     try {
-      minecraftServer = ReflectiveAccess.lookupServerClass("MinecraftServer").getMethod("getServer").invoke(null);
+      minecraftServer = Lookup.serverClass("MinecraftServer").getMethod("getServer").invoke(null);
       Class<?> serverClass = minecraftServer.getClass();
       while ((serverClass = serverClass.getSuperclass()) != Object.class) {
         Method[] declaredMethods = serverClass.getDeclaredMethods();

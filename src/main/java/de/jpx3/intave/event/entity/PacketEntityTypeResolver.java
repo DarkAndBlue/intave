@@ -11,6 +11,7 @@ import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.logging.IntaveLogger;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import de.jpx3.intave.reflect.hitbox.HitBoxBoundaries;
@@ -54,7 +55,7 @@ public final class PacketEntityTypeResolver {
     // search field
 
     Class<?> entityClass = ReflectiveAccess.NMS_ENTITY_CLASS;
-    Class<?> dataWatcherClass = ReflectiveAccess.lookupServerClass("DataWatcher");
+    Class<?> dataWatcherClass = Lookup.serverClass("DataWatcher");
 
     for (Field declaredField : dataWatcherClass.getDeclaredFields()) {
       if (declaredField.getType() == entityClass) {

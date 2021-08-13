@@ -8,7 +8,7 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.connect.sibyl.LabyModChannelHelper;
 import de.jpx3.intave.event.packet.PacketEventSubscriber;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import io.netty.buffer.ByteBuf;
 import org.bukkit.entity.Player;
 
@@ -57,7 +57,7 @@ public final class LabymodClientListener implements PacketEventSubscriber {
     if (!tag.equalsIgnoreCase("LMC")) {
       return;
     }
-    ByteBuf bytes = (ByteBuf) packet.getSpecificModifier(ReflectiveAccess.lookupServerClass("PacketDataSerializer")).getValues().get(0);
+    ByteBuf bytes = (ByteBuf) packet.getSpecificModifier(Lookup.serverClass("PacketDataSerializer")).getValues().get(0);
 //    if (bytes.array().length == 0) {
 //      return;
 //    }

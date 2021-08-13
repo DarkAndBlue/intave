@@ -13,10 +13,12 @@ import org.bukkit.craftbukkit.v1_16_R3.block.data.CraftBlockData;
 public abstract class BlockStateData<T> {
   private final String name;
   private final T defaultValue;
+  private final Class<T> clazz;
 
-  protected BlockStateData(String name, T defaultValue) {
+  protected BlockStateData(String name, T defaultValue, Class<T> clazz) {
     this.name = name;
     this.defaultValue = defaultValue;
+    this.clazz = clazz;
   }
 
   public abstract void build();

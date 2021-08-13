@@ -10,7 +10,7 @@ import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketEventSubscriber;
 import de.jpx3.intave.event.packet.PacketId;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -150,7 +150,7 @@ public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
   }
 
   private final static boolean NEW_GAME_STATE_CHANGE_PACKET = MinecraftVersions.VER1_16_0.atOrAbove();
-  private final static Class<?> GAME_STATE_CLASS = !NEW_GAME_STATE_CHANGE_PACKET ? null : ReflectiveAccess.lookupServerClass("PacketPlayOutGameStateChange$a");
+  private final static Class<?> GAME_STATE_CLASS = !NEW_GAME_STATE_CHANGE_PACKET ? null : Lookup.serverClass("PacketPlayOutGameStateChange$a");
 
   private boolean gameModeUpdateState(PacketContainer packet) {
     if (NEW_GAME_STATE_CHANGE_PACKET) {

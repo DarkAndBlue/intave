@@ -636,7 +636,7 @@ public final class IntavePlugin extends JavaPlugin {
     }
   }
 
-//  public final static long INTEGRITY_ERASE_BUFFER = TimeUnit.MINUTES.toMillis(1);
+  public final static long INTEGRITY_ERASE_BUFFER = TimeUnit.MINUTES.toMillis(1);
 
   @Native
   public void clearIntegrityGarbage() {
@@ -646,27 +646,17 @@ public final class IntavePlugin extends JavaPlugin {
         .map(Path::toFile)
         .filter(File::canRead)
         .filter(File::canWrite)
-//        .map(File::getParentFile)
-        .filter(parentFile -> {
-          String name = parentFile.getName();
-          boolean isIntave = name.toLowerCase(Locale.ROOT).startsWith("intave") && Character.isDigit(name.charAt(name.length() - 1));
-          boolean isJNIC = name.startsWith("lib") && name.endsWith(".tmp");
-          return isIntave || isJNIC;
-        })
+        .filter(file -> file.getName().equalsIgnoreCase("deleteme") && file.getParentFile().getName().toLowerCase(Locale.ROOT).contains("intave"))
+        .filter(file -> (AccessHelper.now() - file.lastModified()) > INTEGRITY_ERASE_BUFFER)
+        .map(File::getParentFile)
         .filter(File::canRead)
         .filter(File::canWrite)
         .forEach(file -> {
           try {
-            if (file.isDirectory()) {
-              clearDirectory(file);
-            } else {
-              file.delete();
-            }
+            clearDirectory(file);
           } catch (IOException ignored) {}
         });
-    } catch (Exception exception) {
-//      exception.printStackTrace();
-    }
+    } catch (Exception ignored) {}
   }
 
   private void clearDirectory(File directory) throws IOException {

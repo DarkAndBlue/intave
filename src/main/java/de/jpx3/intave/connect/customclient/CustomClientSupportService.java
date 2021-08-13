@@ -13,7 +13,7 @@ import de.jpx3.intave.connect.sibyl.LabyModChannelHelper;
 import de.jpx3.intave.detect.EventProcessor;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.logging.IntaveLogger;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
@@ -72,7 +72,7 @@ public final class CustomClientSupportService implements EventProcessor {
     if (!tag.equalsIgnoreCase("intave")) {
       return;
     }
-    ByteBuf bytes = (ByteBuf) packet.getSpecificModifier(ReflectiveAccess.lookupServerClass("PacketDataSerializer")).getValues().get(0);
+    ByteBuf bytes = (ByteBuf) packet.getSpecificModifier(Lookup.serverClass("PacketDataSerializer")).getValues().get(0);
     try {
       bytes.markReaderIndex();
       String messageKey = LabyModChannelHelper.readString(bytes, 100);
@@ -107,7 +107,7 @@ public final class CustomClientSupportService implements EventProcessor {
     }
     try {
       //noinspection unchecked
-      Class<Object> packetDataSerializerClass = (Class<Object>) ReflectiveAccess.lookupServerClass("PacketDataSerializer");
+      Class<Object> packetDataSerializerClass = (Class<Object>) Lookup.serverClass("PacketDataSerializer");
       Object packetDataSerializer = packetDataSerializerClass.getConstructor(ByteBuf.class).newInstance(Unpooled.wrappedBuffer(LabyModChannelHelper.getBytesToSend(channel, data)));
       packetContainer.getSpecificModifier(packetDataSerializerClass).write(0, packetDataSerializer);
       Synchronizer.synchronize(() -> {

@@ -8,7 +8,7 @@ import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.detect.checks.movement.Physics;
 import de.jpx3.intave.detect.checks.movement.physics.Pose;
 import de.jpx3.intave.logging.IntaveLogger;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.reflect.caller.CallerResolver;
 import de.jpx3.intave.reflect.caller.PluginInvocation;
 import de.jpx3.intave.tools.MathHelper;
@@ -56,10 +56,10 @@ public final class MovementEmulationEngine {
   private void setup() {
     try {
       if (teleportFlags.isEmpty()) {
-        teleportFlags.add(ReflectiveAccess.lookupServerField("PacketPlayOutPosition$EnumPlayerTeleportFlags", "X_ROT").get(null));
-        teleportFlags.add(ReflectiveAccess.lookupServerField("PacketPlayOutPosition$EnumPlayerTeleportFlags", "Y_ROT").get(null));
+        teleportFlags.add(Lookup.serverField("PacketPlayOutPosition$EnumPlayerTeleportFlags", "X_ROT").get(null));
+        teleportFlags.add(Lookup.serverField("PacketPlayOutPosition$EnumPlayerTeleportFlags", "Y_ROT").get(null));
       }
-      Class<?> playerConnectionClass = ReflectiveAccess.lookupServerClass("PlayerConnection");
+      Class<?> playerConnectionClass = Lookup.serverClass("PlayerConnection");
       if (WEIRD_BOOLEAN_IN_INVOKE) {
         internalTeleportMethod = playerConnectionClass.getDeclaredMethod("internalTeleport", Double.TYPE, Double.TYPE, Double.TYPE, Float.TYPE, Float.TYPE, Set.class, Boolean.TYPE);
       } else {
@@ -413,8 +413,8 @@ public final class MovementEmulationEngine {
         if (Math.abs(nativeYaw) > 360f) {
           internalTeleportExecution(player, dest,  nativeYaw % 360f, nativePitch, false);
         } else {
-          Field yawField = ReflectiveAccess.lookupServerField("Entity", "yaw");
-          Field pitchField = ReflectiveAccess.lookupServerField("Entity", "pitch");
+          Field yawField = Lookup.serverField("Entity", "yaw");
+          Field pitchField = Lookup.serverField("Entity", "pitch");
           float yaw = (float) yawField.get(playerHandle);
           float pitch = (float) pitchField.get(playerHandle);
           yawField.set(playerHandle, 0f);

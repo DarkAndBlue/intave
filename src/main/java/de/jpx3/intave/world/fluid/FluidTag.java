@@ -1,7 +1,7 @@
 package de.jpx3.intave.world.fluid;
 
 import de.jpx3.intave.access.IntaveInternalException;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.tools.annotate.KeepEnumInternalNames;
 
 @KeepEnumInternalNames
@@ -30,7 +30,7 @@ public enum FluidTag {
 
   private Object resolveNativeTag() {
     try {
-      return ReflectiveAccess.lookupServerField("TagsFluid", name()).get(null);
+      return Lookup.serverField("TagsFluid", name()).get(null);
     } catch (IllegalAccessException e) {
       throw new IntaveInternalException("Cannot access fluid tag", e);
     }

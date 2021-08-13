@@ -3,7 +3,7 @@ package de.jpx3.intave.reflect.locate;
 import java.util.function.BiFunction;
 
 public abstract class IntegerMatcher {
-  public static IntegerMatcher anything() {
+  public static IntegerMatcher any() {
     return between(Integer.MIN_VALUE, Integer.MAX_VALUE);
   }
 
@@ -25,7 +25,7 @@ public abstract class IntegerMatcher {
     return merge(MergeOperation.AND, matchers);
   }
 
-  public static IntegerMatcher merge(MergeOperation operation, IntegerMatcher... matchers) {
+  private static IntegerMatcher merge(MergeOperation operation, IntegerMatcher... matchers) {
     return new IntegerMatcher() {
       @Override
       public boolean matches(int integer) {

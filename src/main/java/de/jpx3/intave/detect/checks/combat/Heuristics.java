@@ -8,6 +8,7 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.MetaCheck;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
+import de.jpx3.intave.detect.checks.combat.heuristics.Combinator;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
 import de.jpx3.intave.detect.checks.combat.heuristics.MiningStrategy;
 import de.jpx3.intave.detect.checks.combat.heuristics.detection.*;
@@ -43,10 +44,13 @@ import static de.jpx3.intave.event.packet.PacketId.Client.*;
 
 public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
   private final IntavePlugin plugin;
+  private final Combinator combinator;
 
   public Heuristics(IntavePlugin plugin) {
     super("Heuristics", "heuristics", HeuristicMeta.class);
     this.plugin = plugin;
+    this.combinator = new Combinator(this);
+
     this.setupSubChecks();
     this.setupEvaluationScheduler(plugin);
   }
@@ -232,7 +236,11 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     if (!trust) {
       anomalies.removeIf(anomaly -> !anomaly.forceApply());
     }
-    anomalies = new ArrayList<>(anomalies);
+    Anomaly combined = combinator.combined(anomalies);
+    if (combined != null) {
+      anomalies.add(combined);
+    }
+//    anomalies = new ArrayList<>(anomalies);
     return anomalies;
   }
 

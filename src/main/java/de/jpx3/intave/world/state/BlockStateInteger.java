@@ -6,7 +6,7 @@ public final class BlockStateInteger extends BlockStateData<Integer> {
   private Object converter;
 
   private BlockStateInteger(String name, int min, int max, int defaultValue) {
-    super(name, defaultValue);
+    super(name, defaultValue, Integer.class);
     this.min = min;
     this.max = max;
   }

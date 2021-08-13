@@ -18,6 +18,7 @@ import de.jpx3.intave.detect.checks.world.interaction.InteractionEmulator;
 import de.jpx3.intave.detect.checks.world.interaction.InteractionType;
 import de.jpx3.intave.event.dispatch.PlayerAbilityEvaluator;
 import de.jpx3.intave.event.packet.ListenerPriority;
+import de.jpx3.intave.event.packet.PacketId;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
@@ -26,6 +27,7 @@ import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.*;
 import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.AbilityMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.InventoryMetadata;
@@ -42,6 +44,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -442,7 +445,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
         vl = longBreakDuration ? 20 : 15;
       }
       float blockDamage = BlockInnerAccess.blockDamage(player, user.meta().inventory().heldItem(), interaction.targetBlock());
-      boolean instantBreak = blockDamage == Float.POSITIVE_INFINITY || blockDamage >= 1.0f || user.meta().abilities().inGameMode(PlayerAbilityEvaluator.GameMode.CREATIVE);
+      boolean instantBreak = blockDamage >= 1.0f || user.meta().abilities().inGameMode(PlayerAbilityEvaluator.GameMode.CREATIVE);
       if (instantBreak) {
         vl = 0;
       }
@@ -492,6 +495,23 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       .build();
     ViolationContext violationContext = plugin.violationProcessor().processViolation(violation);
     return violationContext.shouldCounterThreat() || mustFlag;
+  }
+
+  @PacketSubscription(
+    packetsOut = PacketId.Server.BLOCK_BREAK_ANIMATION
+  )
+  public void clearInvalidBreakingUpdates(PacketEvent event) {
+//    Player player = event.getPlayer();
+//    User user = userOf(player);
+    PacketContainer packet = event.getPacket();
+    Entity entity = packet.getEntityModifier(event).read(0);
+
+    if (entity instanceof Player && UserRepository.hasUser((Player) entity)) {
+      User breakingUser = UserRepository.userOf((Player) entity);
+      if (!metaOf(breakingUser).isBreakingBlock) {
+        packet.getIntegers().write(1, 11);
+      }
+    }
   }
 
   private boolean atLeastLookingAtBlock(User user, Location location, Location targetBlockLocation, WrappedMovingObjectPosition movingObjectPosition) {

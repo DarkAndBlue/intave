@@ -6,6 +6,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.PlayerInfoData;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.reflect.converters.PlayerInfoDataConverter;
 import de.jpx3.intave.tools.AccessHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -36,7 +37,7 @@ public final class VanishFilter extends Filter {
     PacketContainer packet = event.getPacket();
     EnumWrappers.PlayerInfoAction playerInfoAction = packet.getPlayerInfoAction().read(0);
     if (playerInfoAction == UPDATE_LATENCY) {
-      List<PlayerInfoData> playerInfoDataList = packet.getPlayerInfoDataLists().read(0);
+      List<PlayerInfoData> playerInfoDataList = packet.getLists(PlayerInfoDataConverter.threadConverter()).read(0);
       playerInfoDataList.removeIf(playerInfoData -> {
         UUID otherId = playerInfoData.getProfile().getUUID();
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(otherId);

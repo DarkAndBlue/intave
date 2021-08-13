@@ -3,7 +3,7 @@ package de.jpx3.intave.world.blockaccess;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.user.User;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -24,13 +24,13 @@ public final class BlockDataAccess {
   public static void setup() {
     try {
       if (NEW_BLOCK_ACCESS) {
-        Class<?> blockDataClass = ReflectiveAccess.lookupServerClass("IBlockData");
-        Class<?> craftBukkitClass = ReflectiveAccess.lookupCraftBukkitClass("block.CraftBlock");
+        Class<?> blockDataClass = Lookup.serverClass("IBlockData");
+        Class<?> craftBukkitClass = Lookup.craftBukkitClass("block.CraftBlock");
         nativeBlockDataAccess = MethodHandles.lookup().findVirtual(craftBukkitClass, "getNMS", MethodType.methodType(blockDataClass));
       } else {
-        Class<?> blockClass = ReflectiveAccess.lookupServerClass("Block");
-        Class<?> blockDataClass = ReflectiveAccess.lookupServerClass("IBlockData");
-        Class<?> craftBukkitClass = ReflectiveAccess.lookupCraftBukkitClass("block.CraftBlock");
+        Class<?> blockClass = Lookup.serverClass("Block");
+        Class<?> blockDataClass = Lookup.serverClass("IBlockData");
+        Class<?> craftBukkitClass = Lookup.craftBukkitClass("block.CraftBlock");
         Method getNMSBlockMethod = craftBukkitClass.getDeclaredMethod("getNMSBlock");
         getNMSBlockMethod.setAccessible(true);
         nativeBlockDataAccess = MethodHandles.lookup().unreflect(getNMSBlockMethod);
@@ -52,7 +52,8 @@ public final class BlockDataAccess {
     if (!MODERN_MATERIAL_PROCESSING) {
       return BlockAccessProvider.blockAccessor().dataAccess(block);
     } else {
-      return RuntimeBlockDataIndexer.indexOfModernState(type, nativeBlockDataOf(block));
+      int index = RuntimeBlockDataIndexer.indexOfModernState(type, nativeBlockDataOf(block));
+      return Math.max(index, 0);
     }
   }
 
@@ -62,7 +63,11 @@ public final class BlockDataAccess {
     }
     Material type = wrappedBlockData.getType();
     Object handle = wrappedBlockData.getHandle();
-    return RuntimeBlockDataIndexer.indexOfModernState(type, handle);
+    int index = RuntimeBlockDataIndexer.indexOfModernState(type, handle);
+    if (index < 0) {
+      throw new IllegalStateException("Invalid block data update: " + type + "/" + handle);
+    }
+    return index;
   }
 
   public static Object nativeBlockDataOf(Block bukkitBlock) {

@@ -13,7 +13,7 @@ import de.jpx3.intave.detect.checks.movement.physics.*;
 import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.DispatchTarget;
 import de.jpx3.intave.tools.annotate.Relocate;
@@ -75,7 +75,7 @@ public final class Physics extends Check {
   }
 
   private void searchFallDamageApplier() {
-    Class<?> entityLivingClass = ReflectiveAccess.lookupServerClass("EntityLiving");
+    Class<?> entityLivingClass = Lookup.serverClass("EntityLiving");
     // Search method name
     String methodName = "e";
     if (MinecraftVersions.VER1_17_0.atOrAbove()) {
@@ -90,7 +90,7 @@ public final class Physics extends Check {
     // Search method descriptor
     MethodType methodType;
     if (MinecraftVersions.VER1_17_0.atOrAbove()) {
-      Class<?> damageSource = ReflectiveAccess.lookupServerClass("DamageSource");
+      Class<?> damageSource = Lookup.serverClass("DamageSource");
       methodType = MethodType.methodType(Boolean.TYPE, Float.TYPE, Float.TYPE, damageSource);
     } else if (MinecraftVersions.VER1_15_0.atOrAbove()) {
       // >= 1.15
@@ -134,7 +134,7 @@ public final class Physics extends Check {
     try {
       if (MinecraftVersions.VER1_17_0.atOrAbove()) {
         if (FALL_DAMAGE_SOURCE == null) {
-          FALL_DAMAGE_SOURCE = ReflectiveAccess.lookupServerClass("DamageSource").getField("k").get(null);
+          FALL_DAMAGE_SOURCE = Lookup.serverClass("DamageSource").getField("k").get(null);
         }
         fallDamageInvokeMethod.invoke(playerHandle, fallDistance, 1.0f, FALL_DAMAGE_SOURCE);
       } else {

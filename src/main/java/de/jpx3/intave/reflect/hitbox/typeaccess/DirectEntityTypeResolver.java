@@ -3,6 +3,7 @@ package de.jpx3.intave.reflect.hitbox.typeaccess;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.patchy.annotate.PatchyAutoTranslation;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.reflect.hitbox.HitBoxBoundaries;
 import net.minecraft.server.v1_16_R1.EntitySize;
@@ -21,8 +22,8 @@ public final class DirectEntityTypeResolver {
 
   static void setup() {
     try {
-      Class<?> entityTypesClass = ReflectiveAccess.lookupServerClass("EntityTypes");
-      Class<?> entitySizeClass = ReflectiveAccess.lookupServerClass("EntitySize");
+      Class<?> entityTypesClass = Lookup.serverClass("EntityTypes");
+      Class<?> entitySizeClass = Lookup.serverClass("EntitySize");
       for (Field field : entityTypesClass.getDeclaredFields()) {
         if (field.getType() == entitySizeClass) {
           entitySizeField = field;
@@ -33,7 +34,7 @@ public final class DirectEntityTypeResolver {
       if (MinecraftVersions.VER1_17_0.atOrAbove()) {
         methodName = "h";
       }
-      componentExtractionMethod = ReflectiveAccess.lookupServerClass("EntityTypes").getMethod(methodName);
+      componentExtractionMethod = Lookup.serverClass("EntityTypes").getMethod(methodName);
       if (entitySizeField == null) {
         throw new IntaveInternalException("EntitySize field does not exist in " + entityTypesClass);
       }

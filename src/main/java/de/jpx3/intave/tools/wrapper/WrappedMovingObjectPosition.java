@@ -1,6 +1,7 @@
 package de.jpx3.intave.tools.wrapper;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.tools.wrapper.link.WrapperLinkage;
@@ -80,9 +81,9 @@ public class WrappedMovingObjectPosition {
 
   private static WrappedMovingObjectPosition modernResolve(Object movingObjectPosition) {
     try {
-      Class<?> movingObjectPositionBase = ReflectiveAccess.lookupServerClass("MovingObjectPosition");
-      Class<?> movingObjectPositionEntity = ReflectiveAccess.lookupServerClass("MovingObjectPositionEntity");
-      Class<?> movingObjectPositionBlock = ReflectiveAccess.lookupServerClass("MovingObjectPositionBlock");
+      Class<?> movingObjectPositionBase = Lookup.serverClass("MovingObjectPosition");
+      Class<?> movingObjectPositionEntity = Lookup.serverClass("MovingObjectPositionEntity");
+      Class<?> movingObjectPositionBlock = Lookup.serverClass("MovingObjectPositionBlock");
       String typeName = (String) Enum.class.getMethod("name").invoke(movingObjectPositionBase.getMethod("getType").invoke(movingObjectPosition));
       MovingObjectType movingObjectType = MovingObjectType.valueOf(typeName);
       if (movingObjectType == MovingObjectType.ENTITY) {
@@ -93,7 +94,7 @@ public class WrappedMovingObjectPosition {
         Object entity = field.get(movingObjectPosition);
         return new WrappedMovingObjectPosition(serverEntityByIdentifier((int) entity.getClass().getMethod("getId").invoke(entity)));
       } else {
-        Field movingObjectPositionBaseField = ReflectiveAccess.lookupServerField("MovingObjectPosition", "pos");
+        Field movingObjectPositionBaseField = Lookup.serverField("MovingObjectPosition", "pos");
         if (!movingObjectPositionBaseField.isAccessible())
           movingObjectPositionBaseField.setAccessible(true);
         Object pos = movingObjectPositionBaseField.get(movingObjectPosition);
@@ -118,7 +119,7 @@ public class WrappedMovingObjectPosition {
 
   private static WrappedMovingObjectPosition legacyResolve(Object movingObjectPosition) {
     try {
-      Class<?> movingObjectPositionClass = ReflectiveAccess.lookupServerClass("MovingObjectPosition");
+      Class<?> movingObjectPositionClass = Lookup.serverClass("MovingObjectPosition");
       Field eField = movingObjectPositionClass.getDeclaredField("e");
       ReflectiveAccess.ensureAccessible(eField);
       Object blockPosition = eField.get(movingObjectPosition);

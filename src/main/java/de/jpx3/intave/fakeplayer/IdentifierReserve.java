@@ -1,6 +1,7 @@
 package de.jpx3.intave.fakeplayer;
 
 import de.jpx3.intave.access.IntaveInternalException;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import org.bukkit.Bukkit;
@@ -21,7 +22,7 @@ public final class IdentifierReserve {
 
   static {
     try {
-      Field entityCountField = ReflectiveAccess.lookupServerClass("Entity").getDeclaredField("entityCount");
+      Field entityCountField = Lookup.serverClass("Entity").getDeclaredField("entityCount");
       ENTITY_COUNT_FIELD = ReflectiveAccess.ensureAccessible(entityCountField);
     } catch (NoSuchFieldException e) {
       throw new IntaveInternalException(e);

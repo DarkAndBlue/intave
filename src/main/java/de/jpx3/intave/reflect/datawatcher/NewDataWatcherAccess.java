@@ -2,7 +2,7 @@ package de.jpx3.intave.reflect.datawatcher;
 
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.patchy.annotate.PatchyAutoTranslation;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import net.minecraft.server.v1_9_R2.DataWatcher;
 import net.minecraft.server.v1_9_R2.DataWatcherObject;
 import net.minecraft.server.v1_9_R2.Entity;
@@ -22,8 +22,8 @@ public final class NewDataWatcherAccess implements DataWatcherAccess {
   }
 
   private Field searchField() {
-    Class<?> livingEntity = ReflectiveAccess.lookupServerClass("EntityLiving");
-    Class<?> dataWatcherObj = ReflectiveAccess.lookupServerClass("DataWatcherObject");
+    Class<?> livingEntity = Lookup.serverClass("EntityLiving");
+    Class<?> dataWatcherObj = Lookup.serverClass("DataWatcherObject");
     Field searchedField = null;
     for (Field field : livingEntity.getDeclaredFields()) {
       Class<?> type = field.getType();

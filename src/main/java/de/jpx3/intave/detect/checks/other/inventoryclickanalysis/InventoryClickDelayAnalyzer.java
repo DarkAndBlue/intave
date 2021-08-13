@@ -9,10 +9,10 @@ import de.jpx3.intave.detect.checks.other.InventoryClickAnalysis;
 import de.jpx3.intave.event.packet.ListenerPriority;
 import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.Violation;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
-import de.jpx3.intave.tools.Rotation;
+import de.jpx3.intave.tools.RotationUtilities;
 import de.jpx3.intave.tools.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.user.User;
@@ -37,7 +37,7 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
     newWindowClickVersion = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
     plugin = IntavePlugin.singletonInstance();
     if (newWindowClickVersion) {
-      clickType = ReflectiveAccess.lookupServerClass("InventoryClickType");
+      clickType = Lookup.serverClass("InventoryClickType");
     }
   }
 
@@ -145,7 +145,7 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
 
   private void processStandardDeviationCheck(Player player, ClickDelayMeta meta) {
     User user = userOf(player);
-    double std = Rotation.calculateStandardDeviation(meta.clickDelayList) * 100;
+    double std = RotationUtilities.calculateStandardDeviation(meta.clickDelayList) * 100;
 
     double averageMovementPacketTimestamp = user.meta().connection().averageMovementPacketTimestamp();
     if (std < 2 && Math.abs(averageMovementPacketTimestamp - 50) < 40) {

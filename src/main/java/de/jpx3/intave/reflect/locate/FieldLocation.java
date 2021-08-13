@@ -38,6 +38,6 @@ public final class FieldLocation extends Location {
   }
 
   public static FieldLocation defaultFor(String classKey, String fieldKey) {
-    return new FieldLocation(classKey, fieldKey, IntegerMatcher.anything(), fieldKey);
+    return new FieldLocation(classKey, fieldKey, IntegerMatcher.any(), fieldKey);
   }
 }

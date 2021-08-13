@@ -2,7 +2,7 @@ package de.jpx3.intave.tools;
 
 import java.util.List;
 
-public final class Rotation {
+public final class RotationUtilities {
   public static double averageOf(List<? extends Number> data) {
     double sum = 0;
     for (Number element : data) {

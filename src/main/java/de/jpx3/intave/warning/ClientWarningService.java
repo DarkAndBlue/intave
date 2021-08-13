@@ -6,7 +6,7 @@ import com.google.common.base.Charsets;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.event.packet.PacketEventSubscriber;
 import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.GarbageCollector;
 import de.jpx3.intave.tools.annotate.Native;
@@ -61,7 +61,7 @@ public final class ClientWarningService implements PacketEventSubscriber {
       tag = tag.substring(10);
     }
     if (tag.endsWith("Brand")) {
-      ByteBuf bytes = (ByteBuf) packet.getSpecificModifier(ReflectiveAccess.lookupServerClass("PacketDataSerializer")).getValues().get(0);
+      ByteBuf bytes = (ByteBuf) packet.getSpecificModifier(Lookup.serverClass("PacketDataSerializer")).getValues().get(0);
       try {
         bytes.markReaderIndex();
         int length = bytes.readByte();

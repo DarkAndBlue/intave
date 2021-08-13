@@ -70,8 +70,13 @@ public final class Locator {
   }
 
   public static FieldLocation fieldLookupByKey(String classKey, String fieldKey) {
-    return fieldLocations.filterByClassKey(classKey).filterByFieldKey(fieldKey)
-      .stream().findAny().orElseGet(() -> FieldLocation.defaultFor(classKey, fieldKey));
+    return fieldLocations
+      .filterByClassKey(classKey)
+      .filterByFieldKey(fieldKey)
+      .stream().findAny()
+      .orElseGet(
+        () -> FieldLocation.defaultFor(classKey, fieldKey)
+      );
   }
 
   public static String classPathByKey(String name) {

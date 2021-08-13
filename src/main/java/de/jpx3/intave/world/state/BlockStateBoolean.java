@@ -4,7 +4,7 @@ public final class BlockStateBoolean extends BlockStateData<Boolean> {
   private Object converter;
 
   private BlockStateBoolean(String name, boolean defaultValue) {
-    super(name, defaultValue);
+    super(name, defaultValue, Boolean.class);
   }
 
   @Override

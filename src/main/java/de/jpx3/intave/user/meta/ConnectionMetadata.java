@@ -5,7 +5,7 @@ import com.google.common.collect.Maps;
 import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.event.feedback.Request;
 import de.jpx3.intave.tools.AccessHelper;
-import de.jpx3.intave.tools.Rotation;
+import de.jpx3.intave.tools.RotationUtilities;
 import de.jpx3.intave.tools.annotate.DispatchTarget;
 import de.jpx3.intave.tools.annotate.Relocate;
 import org.bukkit.entity.Player;
@@ -62,7 +62,7 @@ public final class ConnectionMetadata {
   }
 
   public double averageMovementPacketTimestamp() {
-    return Rotation.averageOf(movementLagSpikeHistory);
+    return RotationUtilities.averageOf(movementLagSpikeHistory);
   }
 
   public Map<Short, Request<?>> transactionShortKeyMap() {

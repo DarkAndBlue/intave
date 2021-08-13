@@ -15,7 +15,7 @@ import de.jpx3.intave.connect.sibyl.LabymodClientListener;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
 import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.executor.BackgroundExecutor;
-import de.jpx3.intave.reflect.ReflectiveAccess;
+import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.security.LicenseVerification;
 import de.jpx3.intave.tools.GarbageCollector;
 import de.jpx3.intave.tools.annotate.Native;
@@ -149,8 +149,8 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
     internalWhitelist.add(UUID.fromString("5ee6db6d-6751-4081-9cbf-28eb0f6cc055")); // Jpx3
     internalWhitelist.add("Jpx3");
 //    internalWhitelist.add(UUID.fromString("3fef889a-fb68-4dfb-bcee-38d56637f6f6")); // Klaus
-//    internalWhitelist.add(UUID.fromString("31eee66d-d818-40ad-b58a-7467f09a6a2c")); // Henriks9
-//    internalWhitelist.add("Henriks9");
+    internalWhitelist.add(UUID.fromString("31eee66d-d818-40ad-b58a-7467f09a6a2c")); // Henriks9
+    internalWhitelist.add("Henriks9");
     internalWhitelist.add(UUID.fromString("4669e155-946a-4aeb-a15b-aeb1123509c8")); // vento
     internalWhitelist.add("vento");
     internalWhitelist.add(UUID.fromString("9bcc67cb-febb-42e2-9fd0-63ea3912be41")); // DarkAndBlue
@@ -213,7 +213,7 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
     try {
       byte[] bytesToSend = LabyModChannelHelper.getBytesToSend(messageKey, jsonElement == null ? null : jsonElement.toString());
       //noinspection unchecked
-      Class<Object> packetDataSerializerClass = (Class<Object>) ReflectiveAccess.lookupServerClass("PacketDataSerializer");
+      Class<Object> packetDataSerializerClass = (Class<Object>) Lookup.serverClass("PacketDataSerializer");
       Object packetDataSerializer = packetDataSerializerClass.getConstructor(ByteBuf.class).newInstance(Unpooled.wrappedBuffer(bytesToSend));
       packetContainer.getSpecificModifier(packetDataSerializerClass).write(0, packetDataSerializer);
       Synchronizer.synchronize(() -> {

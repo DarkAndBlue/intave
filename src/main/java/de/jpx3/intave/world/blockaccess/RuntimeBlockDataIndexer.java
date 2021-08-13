@@ -45,7 +45,8 @@ public final class RuntimeBlockDataIndexer {
     Map<Object, Integer> indexMap = blockDataIndex.get(type);
     Integer integer = indexMap.get(rawBlockData);
     if (integer == null) {
-      throw new IllegalStateException("Unable to find block " + type + "/" + rawBlockData);
+      return -1;
+//      throw new IllegalStateException("Unable to find block " + type + "/" + rawBlockData);
     }
     return integer;
   }
