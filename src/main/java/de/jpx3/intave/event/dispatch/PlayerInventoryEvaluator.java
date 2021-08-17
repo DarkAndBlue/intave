@@ -9,12 +9,12 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
-import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
-import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketEventSubscriber;
-import de.jpx3.intave.event.packet.PacketId;
-import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriber;
+import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketEventSubscriber;
+import de.jpx3.intave.module.linker.packet.PacketId;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.user.User;
@@ -34,9 +34,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.lang.reflect.InvocationTargetException;
 
-import static de.jpx3.intave.event.packet.PacketId.Client.HELD_ITEM_SLOT;
-import static de.jpx3.intave.event.packet.PacketId.Client.*;
-import static de.jpx3.intave.event.packet.PacketId.Server.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.HELD_ITEM_SLOT;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 
 public final class PlayerInventoryEvaluator implements PacketEventSubscriber, BukkitEventSubscriber {
   private final IntavePlugin plugin;

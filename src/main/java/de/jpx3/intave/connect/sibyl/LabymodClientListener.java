@@ -5,8 +5,8 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.PacketEventSubscriber;
-import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.module.linker.packet.PacketEventSubscriber;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.reflect.Lookup;
 import io.netty.buffer.ByteBuf;
 import org.bukkit.entity.Player;
@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiConsumer;
 
-import static de.jpx3.intave.event.packet.PacketId.Client.CUSTOM_PAYLOAD;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.CUSTOM_PAYLOAD;
 
 public final class LabymodClientListener implements PacketEventSubscriber {
   private final static JsonParser jsonParser = new JsonParser();

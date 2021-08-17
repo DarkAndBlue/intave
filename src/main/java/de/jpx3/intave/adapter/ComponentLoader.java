@@ -1,6 +1,7 @@
 package de.jpx3.intave.adapter;
 
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.access.IntaveInternalException;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.InvalidDescriptionException;
@@ -28,7 +29,16 @@ public final class ComponentLoader {
 
   public boolean loadComponents() {
     essentialComponents.put("ProtocolLib", "https://intave.de/cnd/global/ProtocolLib-4-7-1.jar");
-    return essentialComponents.keySet().stream().allMatch(this::loadComponent);
+    for (String s : essentialComponents.keySet()) {
+      try {
+        if (!loadComponent(s)) {
+          return false;
+        }
+      } catch (Exception exception) {
+        throw new IntaveInternalException("Unable to load library " + s, exception);
+      }
+    }
+    return true;
   }
 
   private boolean loadComponent(String componentName) {
@@ -47,7 +57,7 @@ public final class ComponentLoader {
         downloadComponentPlugin(componentPluginFile, componentName, downloadURL);
         return true;
       } catch (Exception e) {
-        e.printStackTrace();
+        throw new IntaveInternalException("Unable to download library " + componentName, e);
       }
     }
     return false;

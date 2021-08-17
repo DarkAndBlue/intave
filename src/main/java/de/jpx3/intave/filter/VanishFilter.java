@@ -5,7 +5,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.PlayerInfoData;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.reflect.converters.PlayerInfoDataConverter;
 import de.jpx3.intave.tools.AccessHelper;
 import org.bukkit.Bukkit;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerInfoAction.UPDATE_LATENCY;
-import static de.jpx3.intave.event.packet.PacketId.Server.PLAYER_INFO;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.PLAYER_INFO;
 
 public final class VanishFilter extends Filter {
   private final IntavePlugin plugin;

@@ -1,8 +1,11 @@
 package de.jpx3.intave.module;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.module.example.ExampleModule;
+import de.jpx3.intave.access.IntaveInternalException;
+import de.jpx3.intave.module.linker.bukkit.BukkitEventLinker;
+import de.jpx3.intave.module.linker.packet.PacketSubscriptionLinker;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +16,9 @@ public final class ModuleLoader {
   private final Map<Class<? extends Module>, ModuleSettings> pendingModuleClasses = new HashMap<>();
 
   public void setup() {
-    prepareModule(ExampleModule.class, ModuleSettings.builder().requiresProtocolLib().build());
+    prepareModule(BukkitEventLinker.class, ModuleSettings.builder().bootAt(BootSegment.STAGE_3).build());
+    prepareModule(PacketSubscriptionLinker.class, ModuleSettings.builder().requiresProtocolLib().bootAt(BootSegment.STAGE_3).build());
+//    prepareModule(ExampleModule.class, ModuleSettings.builder().requiresProtocolLib().build());
   }
 
   private void prepareModule(Class<? extends Module> moduleClass) {
@@ -35,7 +40,13 @@ public final class ModuleLoader {
 
   private <T> T instanceOf(Class<T> klass) {
     try {
-      return klass.newInstance();
+      try {
+        return klass.getConstructor(IntavePlugin.class).newInstance(IntavePlugin.singletonInstance());
+      } catch (InvocationTargetException internalException) {
+        throw new IntaveInternalException(internalException);
+      } catch (Exception exception) {
+        return klass.newInstance();
+      }
     } catch (InstantiationException | IllegalAccessException exception) {
       throw new IllegalStateException(exception);
     }

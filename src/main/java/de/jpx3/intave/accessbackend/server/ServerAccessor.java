@@ -23,8 +23,4 @@ public final class ServerAccessor {
   private ServerAccess newServerAccess() {
     return serverStatisticAccessor::serverStatisticAccess;
   }
-
-  public void pluginShutdown() {
-    serverStatisticAccessor.shutdownScheduler();
-  }
 }

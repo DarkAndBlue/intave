@@ -6,11 +6,11 @@ import de.jpx3.intave.detect.CheckStatistics;
 import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
 import de.jpx3.intave.detect.MetaCheck;
 import de.jpx3.intave.detect.checks.movement.physics.SimulationProcessor;
-import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.logging.IntaveLogger;
+import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.DispatchTarget;
@@ -30,8 +30,8 @@ import org.bukkit.util.Vector;
 
 import java.util.Map;
 
-import static de.jpx3.intave.event.packet.PacketId.Server.POSITION;
-import static de.jpx3.intave.event.packet.PacketId.Server.RESPAWN;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.POSITION;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.RESPAWN;
 
 public final class Timer extends MetaCheck<Timer.TimerData> {
   private final IntavePlugin plugin;

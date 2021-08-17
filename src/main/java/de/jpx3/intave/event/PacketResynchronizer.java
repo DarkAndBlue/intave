@@ -5,15 +5,15 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.EventProcessor;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
 
-import static de.jpx3.intave.event.packet.PacketId.Server.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 
 public final class PacketResynchronizer implements EventProcessor {
   private final IntavePlugin plugin;

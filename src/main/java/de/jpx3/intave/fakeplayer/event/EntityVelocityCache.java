@@ -4,16 +4,16 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.google.common.collect.Lists;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.PacketEventSubscriber;
-import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.fakeplayer.FakePlayer;
+import de.jpx3.intave.module.linker.packet.PacketEventSubscriber;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-import static de.jpx3.intave.event.packet.PacketId.Server.ENTITY_VELOCITY;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.ENTITY_VELOCITY;
 
 public final class EntityVelocityCache implements PacketEventSubscriber {
   private final static double VELOCITY_CONVERT_FACTOR = 8000.0D;

@@ -3,10 +3,16 @@ package de.jpx3.intave.module;
 public final class ModuleSettings {
   private final BootSegment bootSegment;
   private final Requirement requirement;
+  private final boolean linkSubscriptions;
 
-  private ModuleSettings(BootSegment bootSegment, Requirement requirement) {
+  private ModuleSettings(
+    BootSegment bootSegment,
+    Requirement requirement,
+    boolean linkSubscriptions
+  ) {
     this.bootSegment = bootSegment;
     this.requirement = requirement;
+    this.linkSubscriptions = linkSubscriptions;
   }
 
   public BootSegment bootSegment() {
@@ -15,6 +21,10 @@ public final class ModuleSettings {
 
   public boolean requirementsFulfilled() {
     return requirement.fulfilled();
+  }
+
+  public boolean shouldLinkSubscriptions() {
+    return linkSubscriptions;
   }
 
   public static ModuleSettings of() {
@@ -28,6 +38,7 @@ public final class ModuleSettings {
   public static class Builder {
     private BootSegment bootSegment;
     private Requirement requirement;
+    private boolean linkSubscriptions = true;
 
     public Builder bootBeforeIntave() {
       return bootAt(BootSegment.STAGE_3);
@@ -71,6 +82,10 @@ public final class ModuleSettings {
       return this;
     }
 
+    public void doNotLinkSubscriptions() {
+      this.linkSubscriptions = false;
+    }
+
     public ModuleSettings build() {
       if (bootSegment == null) {
         bootUsually();
@@ -78,7 +93,7 @@ public final class ModuleSettings {
       if (requirement == null) {
         requirement = Requirements.none();
       }
-      return new ModuleSettings(bootSegment, requirement);
+      return new ModuleSettings(bootSegment, requirement, linkSubscriptions);
     }
   }
 }

@@ -1,8 +1,8 @@
 package de.jpx3.intave.detect;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.bukkit.BukkitEventLinker;
-import de.jpx3.intave.event.packet.PacketSubscriptionLinker;
+import de.jpx3.intave.module.linker.bukkit.BukkitEventLinker;
+import de.jpx3.intave.module.linker.packet.PacketSubscriptionLinker;
 
 import java.util.Collection;
 import java.util.function.Consumer;

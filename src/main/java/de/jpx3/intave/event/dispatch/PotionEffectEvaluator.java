@@ -4,9 +4,9 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketEventSubscriber;
-import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketEventSubscriber;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.EffectMetadata;
@@ -16,8 +16,8 @@ import org.bukkit.potion.PotionEffectType;
 
 import java.util.Objects;
 
-import static de.jpx3.intave.event.packet.PacketId.Server.ENTITY_EFFECT;
-import static de.jpx3.intave.event.packet.PacketId.Server.REMOVE_ENTITY_EFFECT;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.ENTITY_EFFECT;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.REMOVE_ENTITY_EFFECT;
 
 public final class PotionEffectEvaluator implements PacketEventSubscriber {
   public static final int POTION_EFFECT_SPEED = 1;

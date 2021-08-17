@@ -11,8 +11,8 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.connect.sibyl.LabyModChannelHelper;
 import de.jpx3.intave.detect.EventProcessor;
-import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.logging.IntaveLogger;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
@@ -26,7 +26,7 @@ import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
 
-import static de.jpx3.intave.event.packet.PacketId.Client.CUSTOM_PAYLOAD;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.CUSTOM_PAYLOAD;
 
 public final class CustomClientSupportService implements EventProcessor {
   private final static JsonParser jsonParser = new JsonParser();

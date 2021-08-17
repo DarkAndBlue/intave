@@ -17,9 +17,6 @@ import de.jpx3.intave.detect.CheckService;
 import de.jpx3.intave.diagnostics.report.RuntimeDiagnostics;
 import de.jpx3.intave.event.CustomEventService;
 import de.jpx3.intave.event.EventService;
-import de.jpx3.intave.event.bukkit.BukkitEventLinker;
-import de.jpx3.intave.event.entity.WrappedEntity;
-import de.jpx3.intave.event.packet.PacketSubscriptionLinker;
 import de.jpx3.intave.event.violation.ViolationProcessor;
 import de.jpx3.intave.executor.BackgroundExecutor;
 import de.jpx3.intave.fakeplayer.event.FakePlayerEventService;
@@ -29,11 +26,15 @@ import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.metrics.Metrics;
 import de.jpx3.intave.module.BootSegment;
 import de.jpx3.intave.module.Modules;
+import de.jpx3.intave.module.dispatch.entity.WrappedEntity;
+import de.jpx3.intave.module.linker.bukkit.BukkitEventLinker;
+import de.jpx3.intave.module.linker.packet.PacketSubscriptionLinker;
 import de.jpx3.intave.reflect.ReflectiveAccess;
 import de.jpx3.intave.reflect.hitbox.typeaccess.DualEntityTypeAccess;
 import de.jpx3.intave.reflect.locate.Locator;
 import de.jpx3.intave.security.*;
 import de.jpx3.intave.security.blacklist.BlackListService;
+import de.jpx3.intave.tools.Shutdown;
 import de.jpx3.intave.tools.*;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.client.SinusCache;
@@ -109,6 +110,7 @@ public final class IntavePlugin extends JavaPlugin {
   private IntaveAccessService accessService;
   private IntaveAccess access;
   private BlackListService blackListService;
+  private Letis letis;
   private Metrics metrics;
 
   public IntavePlugin() {
@@ -536,6 +538,7 @@ public final class IntavePlugin extends JavaPlugin {
       proxyMessenger = new ProxyMessenger(this);
       sibylIntegrationService = new SibylIntegrationService(this);
       blackListService = new BlackListService(this);
+      letis = new Letis(this);
 
       getCommand("intave").setExecutor(new CommandProcessor());
 
@@ -782,25 +785,7 @@ public final class IntavePlugin extends JavaPlugin {
   public void performShutdown() {
     logger.info("Stopping Intave");
     BackgroundExecutor.stopBlocking();
-    GarbageCollector.die();
-    UserRepository.die();
-    modules.shutdown();
-    if (shadowIntegration != null) {
-      shadowIntegration.shutdown();
-    }
-    if (packetSubscriptionLinker != null) {
-      packetSubscriptionLinker.reset();
-    }
-    if (eventLinker != null) {
-      eventLinker.performShutdown();
-    }
-    if (accessService != null) {
-      accessService.serverAccessor().pluginShutdown();
-    }
-    if (proxyMessenger != null) {
-      proxyMessenger.closeChannel();
-    }
-    RuntimeDiagnostics.applicationShutdown();
+    Shutdown.executeShutdownTasks();
     deleteIntegrityCache();
     logger.info("Intave offline");
     logger.shutdown();
@@ -865,12 +850,12 @@ public final class IntavePlugin extends JavaPlugin {
 
   @Deprecated
   public BukkitEventLinker eventLinker() {
-    return eventLinker;
+    return modules().bukkitEventLinker();
   }
 
   @Deprecated
   public PacketSubscriptionLinker packetSubscriptionLinker() {
-    return packetSubscriptionLinker;
+    return modules().packetSubscriptionLinker();
   }
 
   @Deprecated

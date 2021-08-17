@@ -1,6 +1,7 @@
 package de.jpx3.intave.tools.sync;
 
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.access.UnsupportedFallbackOperationException;
 import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.logging.IntaveLogger;
 import de.jpx3.intave.reflect.Lookup;
@@ -83,6 +84,8 @@ public final class Synchronizer {
       try {
         Timings.EXE_SERVER.start();
         runnable.run();
+      } catch (UnsupportedFallbackOperationException fallbackOp) {
+        IntaveLogger.logger().info("Task " + runnable + " failed because the associated player logged off already");
       } catch (Exception | Error throwable) {
         IntaveLogger.logger().error("Failed to execute server task " + runnable);
         throwable.printStackTrace();

@@ -3,8 +3,8 @@ package de.jpx3.intave.detect.checks.combat.heuristics.detection;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.detect.MetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
-import de.jpx3.intave.event.entity.WrappedEntity;
-import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.module.dispatch.entity.WrappedEntity;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
@@ -14,7 +14,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.util.NumberConversions;
 
-import static de.jpx3.intave.event.packet.PacketId.Client.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
 public final class RotationAngleHeuristic extends MetaCheckPart<Heuristics, RotationAngleHeuristic.RotationAngleMeta> {
   public RotationAngleHeuristic(Heuristics parentCheck) {

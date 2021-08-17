@@ -4,10 +4,10 @@ import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.MetaCheckPart;
 import de.jpx3.intave.detect.checks.world.PlacementAnalysis;
-import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.Violation;
+import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.user.User;
@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.jpx3.intave.detect.checks.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
-import static de.jpx3.intave.event.packet.PacketId.Client.LOOK;
-import static de.jpx3.intave.event.packet.PacketId.Client.POSITION_LOOK;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.LOOK;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION_LOOK;
 
 public final class SharpRotationAnalyzer extends MetaCheckPart<PlacementAnalysis, SharpRotationAnalyzer.SharpRotationMeta> {
   private final IntavePlugin plugin;

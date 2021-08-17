@@ -3,7 +3,7 @@ package de.jpx3.intave.user.meta;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 import de.jpx3.intave.detect.checks.movement.physics.*;
-import de.jpx3.intave.event.entity.WrappedEntity;
+import de.jpx3.intave.module.dispatch.entity.WrappedEntity;
 import de.jpx3.intave.reflect.ReflectiveDataWatcherAccess;
 import de.jpx3.intave.reflect.ReflectiveHandleAccess;
 import de.jpx3.intave.tools.annotate.DispatchTarget;

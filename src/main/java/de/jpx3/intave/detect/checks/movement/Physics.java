@@ -5,7 +5,6 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.check.MitigationStrategy;
 import de.jpx3.intave.access.player.trust.TrustFactor;
-import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.detect.Check;
 import de.jpx3.intave.detect.CheckStatistics;
 import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
@@ -13,10 +12,12 @@ import de.jpx3.intave.detect.checks.movement.physics.*;
 import de.jpx3.intave.diagnostics.timings.Timings;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
-import de.jpx3.intave.reflect.Lookup;
+import de.jpx3.intave.reflect.method.FallDamageContainerMethod;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.DispatchTarget;
 import de.jpx3.intave.tools.annotate.Relocate;
+import de.jpx3.intave.tools.annotate.refactoring.IdoNotBelongHerePleaseRefactorMe;
+import de.jpx3.intave.tools.annotate.refactoring.ImVeryBigPleaseSplitMeUp;
 import de.jpx3.intave.tools.client.MovementContext;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.tools.wrapper.WrappedAxisAlignedBB;
@@ -40,9 +41,6 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,9 +54,10 @@ public final class Physics extends Check {
 
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer decrementer;
-  private MethodHandle fallDamageInvokeMethod;
   private final SimulationProcessor simulationProcessor;
   private final SimulationEvaluator simulationEvaluator;
+
+  private FallDamageContainerMethod fallDamageContainerMethod;
 
   private final boolean highToleranceMode;
 
@@ -72,78 +71,14 @@ public final class Physics extends Check {
     highToleranceMode = configuration().settings().boolBy("high-tolerance", false);
     setDefaultMitigationStrategy(MitigationStrategy.CAREFUL);
 
-    searchFallDamageApplier();
-    linkCheckToPoseSimulators();
-  }
+    fallDamageContainerMethod = new FallDamageContainerMethod();
 
-  private void searchFallDamageApplier() {
-    Class<?> entityLivingClass = Lookup.serverClass("EntityLiving");
-    // Search method name
-    String methodName = "e";
-    if (MinecraftVersions.VER1_17_0.atOrAbove()) {
-      methodName = "a";
-    } else if (MinecraftVersions.VER1_14_0.atOrAbove()) {
-      // >= 1.14
-      methodName = "b";
-    } else if (MinecraftVersions.VER1_13_0.atOrAbove()) {
-      // 1.13
-      methodName = "c";
-    }
-    // Search method descriptor
-    MethodType methodType;
-    if (MinecraftVersions.VER1_17_0.atOrAbove()) {
-      Class<?> damageSource = Lookup.serverClass("DamageSource");
-      methodType = MethodType.methodType(Boolean.TYPE, Float.TYPE, Float.TYPE, damageSource);
-    } else if (MinecraftVersions.VER1_15_0.atOrAbove()) {
-      // >= 1.15
-      methodType = MethodType.methodType(Boolean.TYPE, Float.TYPE, Float.TYPE);
-    } else {
-      methodType = MethodType.methodType(Void.TYPE, Float.TYPE, Float.TYPE);
-    }
-    try {
-      fallDamageInvokeMethod = MethodHandles.publicLookup().findVirtual(entityLivingClass, methodName, methodType);
-    } catch (NoSuchMethodException | IllegalAccessException e) {
-      throw new IllegalStateException(e);
-    }
+    linkCheckToPoseSimulators();
   }
 
   private void linkCheckToPoseSimulators() {
     for (Simulator simulator : Simulators.simulators()) {
       simulator.enterLinkage(this);
-    }
-  }
-
-  public void applyFallDamageUpdate(User user) {
-    if (!user.hasPlayer()) {
-      return;
-    }
-    MovementMetadata movementData = user.meta().movement();
-    if (movementData.artificialFallDistance > 3.0F) {
-      float fallDistance = movementData.artificialFallDistance;
-      Synchronizer.synchronize(() -> {
-        Object playerHandle = user.playerHandle();
-        movementData.allowFallDamage = true;
-        dealFallDamage(playerHandle, fallDistance);
-        movementData.allowFallDamage = false;
-      });
-      movementData.artificialFallDistance = 0F;
-    }
-  }
-
-  private static Object FALL_DAMAGE_SOURCE = null;
-
-  private void dealFallDamage(Object playerHandle, float fallDistance) {
-    try {
-      if (MinecraftVersions.VER1_17_0.atOrAbove()) {
-        if (FALL_DAMAGE_SOURCE == null) {
-          FALL_DAMAGE_SOURCE = Lookup.serverClass("DamageSource").getField("k").get(null);
-        }
-        fallDamageInvokeMethod.invoke(playerHandle, fallDistance, 1.0f, FALL_DAMAGE_SOURCE);
-      } else {
-        fallDamageInvokeMethod.invoke(playerHandle, fallDistance, 1.0f);
-      }
-    } catch (Throwable throwable) {
-      throwable.printStackTrace();
     }
   }
 
@@ -315,6 +250,7 @@ public final class Physics extends Check {
   /**
    * This method is too big, please refactor
    */
+  @ImVeryBigPleaseSplitMeUp
   private void evaluateBestSimulation(User user, ComplexColliderSimulationResult expectedMovement) {
     Player player = user.player();
     MetadataBundle meta = user.meta();
@@ -682,6 +618,24 @@ public final class Physics extends Check {
       key += "D";
     }
     return key;
+  }
+
+  @IdoNotBelongHerePleaseRefactorMe
+  public void applyFallDamageUpdate(User user) {
+    if (!user.hasPlayer()) {
+      return;
+    }
+    MovementMetadata movementData = user.meta().movement();
+    if (movementData.artificialFallDistance > 3.0F) {
+      float fallDistance = movementData.artificialFallDistance;
+      Synchronizer.synchronize(() -> {
+        Player player = user.player();
+        movementData.allowFallDamage = true;
+        fallDamageContainerMethod.dealFallDamage(player, fallDistance);
+        movementData.allowFallDamage = false;
+      });
+      movementData.artificialFallDistance = 0F;
+    }
   }
 
   private boolean containsBoundingBoxAny(

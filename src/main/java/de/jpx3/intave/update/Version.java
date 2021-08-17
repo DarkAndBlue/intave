@@ -27,6 +27,10 @@ public final class Version {
     return typeClassifier;
   }
 
+  public boolean outdated() {
+    return typeClassifier == Status.OUTDATED;
+  }
+
   public enum Status {
     OUTDATED("OUTDATED"),
     LATEST("LATEST"),

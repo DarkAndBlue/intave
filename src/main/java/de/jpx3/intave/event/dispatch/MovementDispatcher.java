@@ -12,15 +12,15 @@ import de.jpx3.intave.detect.checks.movement.Physics;
 import de.jpx3.intave.detect.checks.movement.Timer;
 import de.jpx3.intave.detect.checks.movement.physics.Pose;
 import de.jpx3.intave.detect.checks.world.InteractionRaytrace;
-import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.event.feedback.Callback;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketSubscription;
-import de.jpx3.intave.event.packet.PacketSubscriptionLinker;
-import de.jpx3.intave.event.packet.PrioritySlot;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.fakeplayer.FakePlayer;
+import de.jpx3.intave.module.dispatch.entity.WrappedEntity;
+import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
+import de.jpx3.intave.module.linker.packet.PacketSubscriptionLinker;
+import de.jpx3.intave.module.linker.packet.PrioritySlot;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.Relocate;
@@ -44,10 +44,10 @@ import org.bukkit.util.Vector;
 
 import java.util.List;
 
-import static de.jpx3.intave.event.packet.PacketId.Client.POSITION;
-import static de.jpx3.intave.event.packet.PacketId.Client.VEHICLE_MOVE;
-import static de.jpx3.intave.event.packet.PacketId.Client.*;
-import static de.jpx3.intave.event.packet.PacketId.Server.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.VEHICLE_MOVE;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_16;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_9;
 

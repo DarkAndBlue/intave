@@ -9,14 +9,14 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.CheckStatistics;
 import de.jpx3.intave.detect.CheckViolationLevelDecrementer;
 import de.jpx3.intave.detect.MetaCheck;
-import de.jpx3.intave.event.entity.DeadWrappedEntity;
-import de.jpx3.intave.event.entity.WrappedEntity;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
 import de.jpx3.intave.logging.IntaveLogger;
+import de.jpx3.intave.module.dispatch.entity.DeadWrappedEntity;
+import de.jpx3.intave.module.dispatch.entity.WrappedEntity;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.wrapper.WrappedVector;
 import de.jpx3.intave.user.User;
@@ -30,9 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static de.jpx3.intave.event.entity.ClientSideEntityService.entityByIdentifier;
-import static de.jpx3.intave.event.packet.PacketId.Client.*;
 import static de.jpx3.intave.event.violation.Violation.ViolationFlags.DONT_PROCESS_VIOSTAT;
+import static de.jpx3.intave.module.dispatch.entity.ClientSideEntityService.entityByIdentifier;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_9;
 
 public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytraceMeta> {

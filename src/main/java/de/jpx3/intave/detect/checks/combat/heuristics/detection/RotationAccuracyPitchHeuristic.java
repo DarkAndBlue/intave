@@ -5,9 +5,9 @@ import de.jpx3.intave.detect.MetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
-import de.jpx3.intave.event.entity.WrappedEntity;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.module.dispatch.entity.WrappedEntity;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
@@ -17,8 +17,8 @@ import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.DELAY_128s;
 import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.SUGGEST_MINING;
-import static de.jpx3.intave.event.packet.PacketId.Client.LOOK;
-import static de.jpx3.intave.event.packet.PacketId.Client.POSITION_LOOK;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.LOOK;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION_LOOK;
 
 public final class RotationAccuracyPitchHeuristic extends MetaCheckPart<Heuristics, RotationAccuracyPitchHeuristic.RotationAccuracyHeuristicMeta> {
   public RotationAccuracyPitchHeuristic(Heuristics parentCheck) {

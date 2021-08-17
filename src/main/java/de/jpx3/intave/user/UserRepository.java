@@ -5,6 +5,7 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.event.violation.EntityNoDamageTickChanger;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.MemoryWatchdog;
+import de.jpx3.intave.tools.Shutdown;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -18,7 +19,7 @@ public final class UserRepository {
 
   // used to load the class on startup
   public static void setup() {
-
+    Shutdown.addTask(UserRepository::die);
   }
 
   public static void registerUser(Player player) {

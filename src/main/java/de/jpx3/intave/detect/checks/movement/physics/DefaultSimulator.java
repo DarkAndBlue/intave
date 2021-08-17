@@ -1,7 +1,7 @@
 package de.jpx3.intave.detect.checks.movement.physics;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.event.entity.WrappedEntity;
+import de.jpx3.intave.module.dispatch.entity.WrappedEntity;
 import de.jpx3.intave.tools.client.EffectLogic;
 import de.jpx3.intave.tools.client.Materials;
 import de.jpx3.intave.tools.client.MovementContext;

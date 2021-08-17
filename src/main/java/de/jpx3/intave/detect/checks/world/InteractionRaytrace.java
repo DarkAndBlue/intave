@@ -17,11 +17,11 @@ import de.jpx3.intave.detect.checks.world.interaction.Interaction;
 import de.jpx3.intave.detect.checks.world.interaction.InteractionEmulator;
 import de.jpx3.intave.detect.checks.world.interaction.InteractionType;
 import de.jpx3.intave.event.dispatch.PlayerAbilityEvaluator;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketId;
-import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.event.violation.ViolationContext;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketId;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.tools.annotate.DispatchTarget;
 import de.jpx3.intave.tools.items.InventoryUseItemHelper;
 import de.jpx3.intave.tools.sync.Synchronizer;
@@ -53,7 +53,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.*;
-import static de.jpx3.intave.event.packet.PacketId.Client.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
 public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.InteractionMeta> {
   private final IntavePlugin plugin;

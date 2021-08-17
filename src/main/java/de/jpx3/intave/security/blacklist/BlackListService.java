@@ -1,8 +1,8 @@
 package de.jpx3.intave.security.blacklist;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.bukkit.BukkitEventSubscriber;
-import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
+import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriber;
+import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.tools.CachedResource;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import org.bukkit.Bukkit;

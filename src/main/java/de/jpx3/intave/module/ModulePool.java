@@ -1,5 +1,8 @@
 package de.jpx3.intave.module;
 
+import de.jpx3.intave.module.linker.bukkit.BukkitEventLinker;
+import de.jpx3.intave.module.linker.packet.PacketSubscriptionLinker;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -20,10 +23,20 @@ public final class ModulePool {
   }
 
   private boolean readyToBoot(Module module, BootSegment bootSegment) {
-    return module.moduleSettings().bootSegment().equals(bootSegment);
+    return module.settings().bootSegment().equals(bootSegment);
   }
 
   public void enableModule(Module module) {
+    if (module.settings().shouldLinkSubscriptions()) {
+      PacketSubscriptionLinker packetSubscriptionLinker = lookup(PacketSubscriptionLinker.class);
+      BukkitEventLinker bukkitEventLinker = lookup(BukkitEventLinker.class);
+      if (bukkitEventLinker != null) {
+        bukkitEventLinker.registerEventsIn(module);
+      }
+      if (packetSubscriptionLinker != null) {
+        packetSubscriptionLinker.linkSubscriptionsIn(module);
+      }
+    }
     module.enable();
   }
 
@@ -43,7 +56,7 @@ public final class ModulePool {
     moduleClassMappings.remove(module.getClass());
   }
 
-  public <T extends Module> T lookup(Class<? extends Module> moduleClass) {
+  public <T extends Module> T lookup(Class<T> moduleClass) {
     //noinspection unchecked
     return (T) moduleClassMappings.get(moduleClass);
   }

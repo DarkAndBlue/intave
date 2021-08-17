@@ -14,10 +14,10 @@ import de.jpx3.intave.detect.checks.combat.heuristics.MiningStrategy;
 import de.jpx3.intave.detect.checks.combat.heuristics.detection.*;
 import de.jpx3.intave.detect.checks.combat.heuristics.mining.MiningStrategyContainer;
 import de.jpx3.intave.detect.checks.combat.heuristics.mining.MiningStrategyExecutor;
-import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.Violation;
 import de.jpx3.intave.logging.IntaveLogger;
+import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.annotate.Nullable;
@@ -40,7 +40,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-import static de.jpx3.intave.event.packet.PacketId.Client.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
 public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
   private final IntavePlugin plugin;
@@ -185,7 +185,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
       Anomaly.Type type = findDominantType(anomalies);
       String identifier;
       if (IntaveControl.DEBUG_HEURISTICS) {
-        identifier = anomaliesForId(anomalies).stream().map(anomaly -> "p[" + anomaly.key() + "]").collect(Collectors.joining(","));
+        identifier = restructureForOutput(anomalies).stream().map(anomaly -> "p[" + anomaly.key() + "]").collect(Collectors.joining(","));
       } else {
         identifier = resolveIdentifier(anomalies);
       }
@@ -391,10 +391,10 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
 
   @Native
   private String resolveIdentifier(List<Anomaly> anomalies) {
-    return encryptAnomalies(anomaliesForId(anomalies));
+    return encryptAnomalies(restructureForOutput(anomalies));
   }
 
-  private List<Anomaly> anomaliesForId(List<Anomaly> anomalies) {
+  private List<Anomaly> restructureForOutput(List<Anomaly> anomalies) {
     // Remove anomalies without effect
     anomalies.removeIf(anomaly -> anomaly.confidence() == Confidence.NONE);
 

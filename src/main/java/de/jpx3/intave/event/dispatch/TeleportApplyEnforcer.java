@@ -7,10 +7,10 @@ import com.comphenix.protocol.utility.MinecraftReflection;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketEventSubscriber;
-import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.logging.IntaveLogger;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketEventSubscriber;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.annotate.DispatchTarget;
@@ -27,8 +27,8 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.Set;
 
-import static de.jpx3.intave.event.packet.PacketId.Client.TELEPORT_ACCEPT;
-import static de.jpx3.intave.event.packet.PacketId.Server.POSITION;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.TELEPORT_ACCEPT;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.POSITION;
 
 public final class TeleportApplyEnforcer implements PacketEventSubscriber {
   private final static boolean TELEPORTATION_DEBUG = false;

@@ -9,9 +9,9 @@ import com.google.common.collect.Lists;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.detect.EventProcessor;
-import de.jpx3.intave.event.packet.Engine;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.module.linker.packet.Engine;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.MovementMetadata;
@@ -30,8 +30,8 @@ import java.util.List;
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.*;
 import static de.jpx3.intave.event.feedback.FeedbackService.TransactionOptions.APPEND_ON_OVERFLOW;
 import static de.jpx3.intave.event.feedback.FeedbackService.TransactionOptions.SELF_SYNCHRONIZATION;
-import static de.jpx3.intave.event.packet.PacketId.Client.*;
-import static de.jpx3.intave.event.packet.PacketId.Server.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 
 public final class BlockActionDispatcher implements EventProcessor {
   private final IntavePlugin plugin;

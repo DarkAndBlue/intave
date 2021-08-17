@@ -3,9 +3,9 @@ package de.jpx3.intave.detect.checks.combat.heuristics.detection;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.detect.MetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.executor.IntaveThreadFactory;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.tools.packet.PlayerAction;
 import de.jpx3.intave.tools.packet.PlayerActionResolver;
 import de.jpx3.intave.user.User;
@@ -21,7 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static de.jpx3.intave.event.packet.PacketId.Client.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
 public final class LinearRegressionHeuristic extends MetaCheckPart<Heuristics, LinearRegressionHeuristic.LinearRegressionHeuristicMeta> {
   private final ExecutorService executorService = Executors.newSingleThreadExecutor(IntaveThreadFactory.ofLowestPriority());

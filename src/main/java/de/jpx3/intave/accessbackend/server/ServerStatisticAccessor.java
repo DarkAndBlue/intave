@@ -3,6 +3,7 @@ package de.jpx3.intave.accessbackend.server;
 import com.google.common.collect.Maps;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.server.ServerHealthStatisticAccess;
+import de.jpx3.intave.tools.Shutdown;
 import de.jpx3.intave.tools.TPSArrayAccessor;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public final class ServerStatisticAccessor {
         }
       });
     },20,20 * 5);
+    Shutdown.addTask(this::shutdownScheduler);
   }
 
   public void shutdownScheduler() {

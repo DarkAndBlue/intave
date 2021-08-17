@@ -5,11 +5,11 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-import static de.jpx3.intave.event.packet.PacketId.Server.ENTITY_METADATA;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.ENTITY_METADATA;
 
 public final class HealthFilter extends Filter {
   private final IntavePlugin plugin;

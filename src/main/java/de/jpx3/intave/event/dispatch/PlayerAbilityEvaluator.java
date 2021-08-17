@@ -5,11 +5,11 @@ import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
-import de.jpx3.intave.event.entity.ClientSideEntityService;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketEventSubscriber;
-import de.jpx3.intave.event.packet.PacketId;
-import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.module.dispatch.entity.ClientSideEntityService;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketEventSubscriber;
+import de.jpx3.intave.module.linker.packet.PacketId;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.tools.wrapper.WrappedMathHelper;
 import de.jpx3.intave.user.User;
@@ -21,8 +21,8 @@ import org.bukkit.entity.Player;
 
 import java.lang.reflect.Field;
 
-import static de.jpx3.intave.event.packet.PacketId.Server.CAMERA;
-import static de.jpx3.intave.event.packet.PacketId.Server.GAME_STATE_CHANGE;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.CAMERA;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.GAME_STATE_CHANGE;
 
 public final class PlayerAbilityEvaluator implements PacketEventSubscriber {
   private final IntavePlugin plugin;

@@ -3,7 +3,7 @@ package de.jpx3.intave.detect.checks.other.inventoryclickanalysis;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.CheckPart;
 import de.jpx3.intave.detect.checks.other.InventoryClickAnalysis;
-import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
+import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.InventoryMetadata;
 import de.jpx3.intave.user.meta.MetadataBundle;

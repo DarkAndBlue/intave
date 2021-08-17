@@ -10,11 +10,11 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.detect.EventProcessor;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
-import de.jpx3.intave.event.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.event.entity.WrappedEntity;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.fakeplayer.FakePlayer;
+import de.jpx3.intave.module.dispatch.entity.WrappedEntity;
+import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.tools.RomanNumberConverter;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
@@ -36,9 +36,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static de.jpx3.intave.event.packet.PacketId.Client.USE_ENTITY;
-import static de.jpx3.intave.event.packet.PacketId.Server.RESPAWN;
-import static de.jpx3.intave.event.packet.PacketId.Server.SET_SLOT;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.USE_ENTITY;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.RESPAWN;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.SET_SLOT;
 
 public final class AttackDispatcher implements EventProcessor {
   public static boolean REDUCING_DISABLED;

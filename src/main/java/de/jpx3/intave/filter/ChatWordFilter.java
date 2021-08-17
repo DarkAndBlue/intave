@@ -4,8 +4,8 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.Engine;
-import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.module.linker.packet.Engine;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static de.jpx3.intave.event.packet.PacketId.Server.CHAT;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.CHAT;
 
 public final class ChatWordFilter extends Filter {
   private final IntavePlugin plugin;

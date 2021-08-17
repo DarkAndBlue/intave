@@ -7,10 +7,10 @@ import de.jpx3.intave.detect.MetaCheckPart;
 import de.jpx3.intave.detect.checks.combat.Heuristics;
 import de.jpx3.intave.detect.checks.combat.heuristics.Anomaly;
 import de.jpx3.intave.detect.checks.combat.heuristics.Confidence;
-import de.jpx3.intave.event.entity.WrappedEntity;
-import de.jpx3.intave.event.packet.ListenerPriority;
-import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.event.violation.AttackNerfStrategy;
+import de.jpx3.intave.module.dispatch.entity.WrappedEntity;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.tools.MathHelper;
 import de.jpx3.intave.tools.RotationUtilities;
 import de.jpx3.intave.user.User;
@@ -24,8 +24,8 @@ import java.util.List;
 
 import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.LIMIT_2;
 import static de.jpx3.intave.detect.checks.combat.heuristics.Anomaly.AnomalyOption.SUGGEST_MINING;
-import static de.jpx3.intave.event.packet.PacketId.Client.LOOK;
-import static de.jpx3.intave.event.packet.PacketId.Client.POSITION_LOOK;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.LOOK;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION_LOOK;
 
 public final class RotationStandardDeviationHeuristic extends MetaCheckPart<Heuristics, RotationStandardDeviationHeuristic.RotationStandardDeviationMeta> {
   private final IntavePlugin plugin;

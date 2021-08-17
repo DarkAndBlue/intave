@@ -2,8 +2,8 @@ package de.jpx3.intave.user.meta;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import de.jpx3.intave.event.entity.WrappedEntity;
 import de.jpx3.intave.event.feedback.Request;
+import de.jpx3.intave.module.dispatch.entity.WrappedEntity;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.RotationUtilities;
 import de.jpx3.intave.tools.annotate.DispatchTarget;

@@ -10,6 +10,7 @@ import de.jpx3.intave.connect.proxy.protocol.IntavePacketSerializer;
 import de.jpx3.intave.connect.proxy.protocol.PacketRegister;
 import de.jpx3.intave.executor.BackgroundExecutor;
 import de.jpx3.intave.logging.IntaveLogger;
+import de.jpx3.intave.tools.Shutdown;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -66,6 +67,7 @@ public final class ProxyMessenger {
       return;
     }
     openChannel();
+    Shutdown.addTask(this::closeChannel);
   }
 
   private void openChannel() {

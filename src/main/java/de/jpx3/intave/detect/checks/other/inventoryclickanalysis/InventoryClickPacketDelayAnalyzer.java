@@ -4,7 +4,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.detect.MetaCheckPart;
 import de.jpx3.intave.detect.checks.other.InventoryClickAnalysis;
-import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.sync.Synchronizer;
@@ -14,7 +14,7 @@ import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import static de.jpx3.intave.event.packet.PacketId.Client.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
 public final class InventoryClickPacketDelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, InventoryClickPacketDelayAnalyzer.TimingData> {
   public InventoryClickPacketDelayAnalyzer(InventoryClickAnalysis parentCheck) {

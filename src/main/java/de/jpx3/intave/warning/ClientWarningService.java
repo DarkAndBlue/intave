@@ -4,8 +4,8 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.google.common.base.Charsets;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.PacketEventSubscriber;
-import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.module.linker.packet.PacketEventSubscriber;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.reflect.Lookup;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.tools.GarbageCollector;
@@ -21,7 +21,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-import static de.jpx3.intave.event.packet.PacketId.Client.CUSTOM_PAYLOAD;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.CUSTOM_PAYLOAD;
 
 public final class ClientWarningService implements PacketEventSubscriber {
   private final IntavePlugin plugin;

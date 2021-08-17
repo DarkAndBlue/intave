@@ -108,7 +108,8 @@ public final class BaseStage extends CommandStage {
   @Forward(
     target = ProxyStage.class
   )
-  public void proxyCommand(CommandSender sender) {}
+  public void proxyCommand(CommandSender sender) {
+  }
 
   @SubCommand(
     selectors = "root",
@@ -120,7 +121,8 @@ public final class BaseStage extends CommandStage {
   @Forward(
     target = RootStage.class
   )
-  public void rootCommand(User user) {}
+  public void rootCommand(User user) {
+  }
 
   @SubCommand(
     selectors = "diagnostics",
@@ -131,7 +133,8 @@ public final class BaseStage extends CommandStage {
   @Forward(
     target = DiagnosticsStage.class
   )
-  public void diagnosticsCommand(CommandSender commandSender) {}
+  public void diagnosticsCommand(CommandSender commandSender) {
+  }
 
   @SubCommand(
     selectors = "internals",
@@ -142,12 +145,12 @@ public final class BaseStage extends CommandStage {
   @Forward(
     target = InternalsStage.class
   )
-  public void internalCommand(User user) {}
+  public void internalCommand(User user) {
+  }
 
   @Override
   protected void showAllCommands(CommandSender sender) {
     boolean hasIntavePermission = BukkitPermissionCheck.permissionCheck(sender, "intave.command");
-
     if (hasIntavePermission) {
       super.showAllCommands(sender);
     } else {
@@ -161,11 +164,10 @@ public final class BaseStage extends CommandStage {
 
     Version versionInformation = IntavePlugin.singletonInstance().versionList().versionInformation(IntavePlugin.version());
     String version;
-
     if (!hasVersionViewPermission) {
       version = "(version hidden)";
     } else if (versionInformation != null) {
-      boolean outdated = versionInformation.typeClassifier() == Version.Status.OUTDATED;
+      boolean outdated = versionInformation.outdated();
       version = IntavePlugin.version() + " (" + (outdated ? "outdated, " : "") + DurationTranslator.translateDuration(AccessHelper.now() - versionInformation.release()) + " old)";
     } else {
       version = IntavePlugin.version() + " (unlisted)";
@@ -177,18 +179,18 @@ public final class BaseStage extends CommandStage {
     String prefix = IntavePlugin.prefix();
     player.sendMessage(new String[]{
       prefix + "Running Intave " + version,
-      prefix + "Made in Germany by the Intave development team",
-      prefix + "Visit our website for a full list of contributors"
+      prefix + "Serving as automated cheat-removal and defense tool",
+      prefix + "Visit " + ChatColor.UNDERLINE + "intave.de" + IntavePlugin.defaultColor() + " for more information",
     });
 
     if (IntaveControl.GOMME_MODE) {
-      player.sendMessage(prefix + "Certified for GommeHDnet (verified)");
+      player.sendMessage(prefix + "Certified for GommeHDnet (trusted)");
     } else if (IntavePlugin.isInOfflineMode()) {
-      player.sendMessage(prefix + "Unable to verify certificate " + LicenseVerification.licenseKey() + ". Intave servers down?");
-    } else if (LicenseVerification.network().equals("~bypass")){
-      player.sendMessage(prefix + "This self-issued version does not require certification");
+      player.sendMessage(prefix + "Certification failed, Intave servers down?");
+    } else if (LicenseVerification.network().equals("~bypass")) {
+      player.sendMessage(prefix + "Certification disabled, trust release");
     } else {
-      player.sendMessage(prefix + "Certified for " + LicenseVerification.network() + (enterprise || partner ? " (verified)" : /*" (not verified)"*/""));
+      player.sendMessage(prefix + "Certified for " + LicenseVerification.network() + (enterprise && !partner ? " (verified)" : (partner ? " (trusted)" : "")));
     }
   }
 

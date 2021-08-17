@@ -3,7 +3,7 @@ package de.jpx3.intave.filter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.PacketSubscription;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -11,7 +11,7 @@ import org.bukkit.inventory.meta.*;
 
 import java.util.Collections;
 
-import static de.jpx3.intave.event.packet.PacketId.Server.ENTITY_EQUIPMENT;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.ENTITY_EQUIPMENT;
 
 public final class EquipmentFilter extends Filter {
   private final IntavePlugin plugin;

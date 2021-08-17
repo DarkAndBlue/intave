@@ -2,7 +2,7 @@ package de.jpx3.intave.detect.checks.combat.heuristics;
 
 import java.util.Arrays;
 
-public enum Confidence {
+public enum Confidence implements Comparable<Confidence> {
   CERTAIN("!!", 100000),
   VERY_LIKELY("!", 320),
   LIKELY("?!", 80),

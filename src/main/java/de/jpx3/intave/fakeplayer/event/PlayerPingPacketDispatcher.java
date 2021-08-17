@@ -7,9 +7,9 @@ import com.comphenix.protocol.wrappers.PlayerInfoData;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.comphenix.protocol.wrappers.WrappedGameProfile;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.event.packet.PacketEventSubscriber;
-import de.jpx3.intave.event.packet.PacketSubscription;
 import de.jpx3.intave.fakeplayer.FakePlayer;
+import de.jpx3.intave.module.linker.packet.PacketEventSubscriber;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.tools.AccessHelper;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -17,7 +17,7 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-import static de.jpx3.intave.event.packet.PacketId.Server.PLAYER_INFO;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.PLAYER_INFO;
 
 public final class PlayerPingPacketDispatcher implements PacketEventSubscriber {
   private final static long MIN_TIME_BETWEEN_PLAYER_INFO_UPDATE = 10_000;

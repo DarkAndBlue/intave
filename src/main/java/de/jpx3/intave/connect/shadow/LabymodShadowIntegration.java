@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.reflect.Lookup;
+import de.jpx3.intave.tools.Shutdown;
 import de.jpx3.intave.tools.annotate.Native;
 import de.jpx3.intave.tools.sync.Synchronizer;
 import de.jpx3.intave.user.User;
@@ -41,6 +42,7 @@ public final class LabymodShadowIntegration {
 
   public void setup() {
 //    Bukkit.getOnlinePlayers().forEach(this::enableShadow);
+    Shutdown.addTask(this::shutdown);
   }
 
   @Native
