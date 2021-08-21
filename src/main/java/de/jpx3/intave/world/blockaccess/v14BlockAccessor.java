@@ -22,6 +22,8 @@ import org.bukkit.inventory.ItemStack;
 
 @PatchyAutoTranslation
 public final class v14BlockAccessor implements BlockAccessor {
+  private final static boolean INVENTORY_VIA_GETTER = MinecraftVersions.VER1_17_0.atOrAbove();
+
   static {
     checkVersion();
   }
@@ -68,8 +70,6 @@ public final class v14BlockAccessor implements BlockAccessor {
     return blockData.getBlock().getDamage(blockData, ((CraftPlayer) player).getHandle(), worldServer, blockPosition);
   }
 
-  private final static boolean INVENTORY_VIA_GETTER = MinecraftVersions.VER1_17_0.atOrAbove();
-
   @Override
   @PatchyAutoTranslation
   public boolean replacementPlace(World world, Player player, BlockPosition nativeBlockPosition) {
@@ -83,7 +83,7 @@ public final class v14BlockAccessor implements BlockAccessor {
     net.minecraft.server.v1_14_R1.BlockPosition blockPosition = positionOfNative(nativeBlockPosition);
     IBlockData blockData = blockAccess.getType(blockPosition);
     Object heldItem;
-    if(INVENTORY_VIA_GETTER) {
+    if (INVENTORY_VIA_GETTER) {
       heldItem = ((org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer) player).getHandle().getInventory().getItem(heldItemType).getItem();
     } else {
       heldItem = ((CraftPlayer) player).getHandle().inventory.getItem(heldItemType).getItem();
