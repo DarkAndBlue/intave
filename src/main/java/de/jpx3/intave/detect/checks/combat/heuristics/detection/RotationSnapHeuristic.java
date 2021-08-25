@@ -279,8 +279,8 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
     RotationSnapHeuristicMeta meta = metaOf(user);
     Player player = user.player();
 
-    Confidence confidence = Confidence.confidenceFrom(violationToAdd + meta.internalViolation);
     meta.internalViolation += violationToAdd;
+    Confidence confidence = Confidence.confidenceFrom(meta.internalViolation);
 
     if (confidence.level() >= 30) {
       meta.internalViolation -= confidence.level();
@@ -288,11 +288,11 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
         description += " " + user.meta().protocol().protocolVersion();
       }
 
-      description += " conf:" + confidence.level();
+      description += " conf:" + confidence.level() + "/" + meta.internalViolation;
       Anomaly anomaly = Anomaly.anomalyOf(key, confidence, Anomaly.Type.KILLAURA, description, anomalyOptions(isPartner()));
       parentCheck().saveAnomaly(player, anomaly);
     } else if(confidence.level() > 0) {
-      description += " nonflag";
+      description += " nonflag(" + violationToAdd + "/" + confidence.level() +")";
       Anomaly anomaly = Anomaly.anomalyOf(key, Confidence.NONE, Anomaly.Type.KILLAURA, description, anomalyOptions(isPartner()));
       parentCheck().saveAnomaly(player, anomaly);
     }
