@@ -117,6 +117,10 @@ Fluid -> {
   17 -> "net/minecraft/world/level/material/Fluid"
 }
 
+GeneratorAccess -> {
+  17 -> "net/minecraft/world/level/GeneratorAccess"
+}
+
 IBlockAccess -> {
   17 -> "net/minecraft/world/level/IBlockAccess"
 }

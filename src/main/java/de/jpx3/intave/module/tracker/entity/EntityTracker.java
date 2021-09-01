@@ -447,6 +447,7 @@ public final class EntityTracker extends Module {
     long serverPosX;
     long serverPosY;
     long serverPosZ;
+
     if (NEW_POSITION_PROCESSING_1_9) {
       serverPosX = WrappedMathHelper.getPositionLong(location.getX());
       serverPosY = WrappedMathHelper.getPositionLong(location.getY());

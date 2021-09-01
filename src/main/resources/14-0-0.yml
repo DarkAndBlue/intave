@@ -10,7 +10,7 @@ physics:
 
 attackraytrace:
 
-  pending-allowance: [100, 40, 30, 15, 10, 5]
+  pending-allowance: [100, 40, 20, 10, 5, 3]
 
   prevention-activation: [100, 50, 15, 10, 5, 5]
 
