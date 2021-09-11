@@ -2,7 +2,7 @@ package de.jpx3.intave.block.shape;
 
 import de.jpx3.intave.block.access.BlockTypeAccess;
 import de.jpx3.intave.block.access.BlockVariantAccess;
-import de.jpx3.intave.block.access.BukkitBlockAccess;
+import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.shape.boxresolver.BoundingBoxResolver;
 import de.jpx3.intave.block.shape.boxresolver.ResolverPipeline;
 import de.jpx3.intave.diagnostic.BoundingBoxAccessFlowStudy;
@@ -64,7 +64,7 @@ public final class MultiChunkKeyBlockShapeAccess implements BlockShapeAccess {
     blockShape = blockCache.get(key);
     if (blockShape == null) {
       World world = player.getWorld();
-      Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
+      Block block = VolatileBlockAccess.unsafe__BlockAccess(world, posX, posY, posZ);
       blockShape = lookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
         blockCache.put(key, blockShape);
@@ -98,7 +98,7 @@ public final class MultiChunkKeyBlockShapeAccess implements BlockShapeAccess {
     blockShape = blockCache.get(key);
     if (blockShape == null) {
       World world = player.getWorld();
-      Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
+      Block block = VolatileBlockAccess.unsafe__BlockAccess(world, posX, posY, posZ);
       blockShape = lookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
         blockCache.put(key, blockShape);
@@ -132,7 +132,7 @@ public final class MultiChunkKeyBlockShapeAccess implements BlockShapeAccess {
     blockShape = blockCache.get(key);
     if (blockShape == null) {
       World world = player.getWorld();
-      Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
+      Block block = VolatileBlockAccess.unsafe__BlockAccess(world, posX, posY, posZ);
       blockShape = lookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
         blockCache.put(key, blockShape);

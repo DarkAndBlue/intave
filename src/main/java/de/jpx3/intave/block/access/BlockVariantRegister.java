@@ -19,19 +19,21 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 public final class BlockVariantRegister {
-  private final static boolean required = MinecraftVersions.VER1_14_0.atOrAbove();
+  private final static boolean REGISTER_ACTIVE = MinecraftVersions.VER1_14_0.atOrAbove();
   private final static Map<Material, Map<Object, Integer>> blockDataIndex = new EnumMap<>(Material.class);
   private final static Map<Material, Map<Integer, Object>> blockDataRegister = new EnumMap<>(Material.class);
   private final static Map<Material, Map<Integer, BlockState>> blockStates = new EnumMap<>(Material.class);
 
   static {
-    if (required) {
+    if (REGISTER_ACTIVE) {
       PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), "de.jpx3.intave.block.access.BlockVariantRegister$Indexer");
     }
   }
 
-  public static void prepareIndex() {
-    if (!required) return;
+  public static void indexIfAvailable() {
+    if (!REGISTER_ACTIVE) {
+      return;
+    }
     Arrays.stream(Material.values())
       .filter(Material::isBlock)
       .forEach(type -> Indexer.index(type, blockDataIndex::put, blockDataRegister::put, blockStates::put));
@@ -54,7 +56,7 @@ public final class BlockVariantRegister {
     try {
       return blockDataRegister.get(type).get(blockState);
     } catch (Exception exception) {
-      IntaveLogger.logger().pushPrintln("[Intave] Failed to correctly emulate data structure of block type " + type + " (requested state " + blockState + ")");
+      IntaveLogger.logger().printLine("[Intave] Failed to correctly emulate data structure of block type " + type + " (requested state " + blockState + ")");
       exception.printStackTrace();
       return blockDataRegister.get(type).get(0);
     }

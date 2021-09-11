@@ -2,7 +2,7 @@ package de.jpx3.intave.block.shape.boxresolver.patcher;
 
 import de.jpx3.intave.block.access.BlockTypeAccess;
 import de.jpx3.intave.block.access.BlockVariantAccess;
-import de.jpx3.intave.block.access.BukkitBlockAccess;
+import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.shade.EnumDirection;
 import de.jpx3.intave.user.User;
@@ -30,14 +30,14 @@ final class DoorBlockPatch extends BoundingBoxPatch {
     User user = UserRepository.userOf(player);
     boolean isUpper = (upperData & 8) != 0;
     if (isUpper) {
-      lowerData = BukkitBlockAccess.cacheAppliedVariantAccess(user, world, posX, posY - 1, posZ);
+      lowerData = VolatileBlockAccess.safeVariantAccess(user, world, posX, posY - 1, posZ);
     } else {
       lowerData = upperData;
       if (topAcquire.get()) {
         upperData = 0;
       } else {
         topAcquire.set(true);
-        upperData = BukkitBlockAccess.cacheAppliedVariantAccess(user, world, posX, posY + 1, posZ);
+        upperData = VolatileBlockAccess.safeVariantAccess(user, world, posX, posY + 1, posZ);
         topAcquire.set(false);
       }
     }

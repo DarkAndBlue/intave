@@ -93,7 +93,7 @@ public final class BlockUpdateTracker extends Module {
         reader.close();
         return;
       }
-      BlockPlaceReader placeInterpreter = (BlockPlaceReader) reader;
+      BlockInteractionReader placeInterpreter = (BlockInteractionReader) reader;
       if (placeInterpreter.enumDirection() == 255 || event.isCancelled()) {
         check = false;
       }

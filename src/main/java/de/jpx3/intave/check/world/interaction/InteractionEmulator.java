@@ -4,10 +4,10 @@ import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.event.BucketAction;
-import de.jpx3.intave.block.access.BlockInnerAccess;
+import de.jpx3.intave.block.access.BlockInteractionAccess;
 import de.jpx3.intave.block.access.BlockTypeAccess;
 import de.jpx3.intave.block.access.BlockVariantAccess;
-import de.jpx3.intave.block.access.BukkitBlockAccess;
+import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.physics.MaterialMagic;
 import de.jpx3.intave.block.shape.BlockShapeAccess;
@@ -100,7 +100,7 @@ public final class InteractionEmulator implements EventProcessor {
     BlockPosition blockPosition = interaction.targetBlock();
     Location blockBreakLocation = blockPosition.toLocation(world);
     boolean access = WorldPermission.blockBreakPermission(
-      player, BukkitBlockAccess.blockAccess(blockBreakLocation)
+      player, VolatileBlockAccess.unsafe__BlockAccess(blockBreakLocation)
     );
     if (access) {
       int blockX = blockBreakLocation.getBlockX();
@@ -118,7 +118,7 @@ public final class InteractionEmulator implements EventProcessor {
     World world = interaction.world();
     Location blockAgainstLocation = interaction.targetBlock().toLocation(world);
     Location defaultPlacementLocation = blockAgainstLocation.clone().add(EnumDirection.getFront(interaction.targetDirection()).getDirectionVec().convertToBukkitVec());
-    boolean replace = BlockInnerAccess.replacementPlace(world, player, new BlockPosition(blockAgainstLocation.toVector()));
+    boolean replace = BlockInteractionAccess.replacedOnPlacement(world, player, new BlockPosition(blockAgainstLocation.toVector()));
     Location blockPlacementLocation = replace ? blockAgainstLocation : defaultPlacementLocation;
     Material itemTypeInHand = interaction.itemTypeInHand();
     int blockX = blockPlacementLocation.getBlockX();
@@ -156,7 +156,7 @@ public final class InteractionEmulator implements EventProcessor {
   private EmulationResult emulateInteraction(Player player, Interaction interaction) {
     World world = interaction.world();
     Location clickedBlockLocation = interaction.targetBlock().toLocation(world);
-    Block clickedBlock = BukkitBlockAccess.blockAccess(clickedBlockLocation);
+    Block clickedBlock = VolatileBlockAccess.unsafe__BlockAccess(clickedBlockLocation);
     Material itemTypeInHand = interaction.itemTypeInHand();
     Location placementLocation = clickedBlockLocation.clone().add(EnumDirection.getFront(interaction.targetDirection()).getDirectionVec().convertToBukkitVec());
     emulateInteractWithHandItem(player, clickedBlock, placementLocation, itemTypeInHand);
@@ -174,7 +174,7 @@ public final class InteractionEmulator implements EventProcessor {
     World world = player.getWorld();
     switch (itemTypeInHand) {
       case BUCKET: {
-        Material placementType = BukkitBlockAccess.cacheAppliedTypeAccess(UserRepository.userOf(player), placementLocation);//placementLocation.getBlock().getType();
+        Material placementType = VolatileBlockAccess.safeTypeAccess(UserRepository.userOf(player), placementLocation);//placementLocation.getBlock().getType();
         // remove liquid on location if exists
         if (MaterialMagic.isLiquid(placementType)) {
           // emulate

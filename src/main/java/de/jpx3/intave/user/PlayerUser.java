@@ -17,12 +17,12 @@ import de.jpx3.intave.connect.customclient.CustomClientSupportConfig;
 import de.jpx3.intave.connect.shadow.ShadowPacketDataLink;
 import de.jpx3.intave.entity.size.HitboxSize;
 import de.jpx3.intave.executor.Synchronizer;
-import de.jpx3.intave.fakeplayer.FakePlayer;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.feedback.FeedbackSender;
-import de.jpx3.intave.player.collider.Collider;
+import de.jpx3.intave.player.Collider;
 import de.jpx3.intave.player.collider.complex.ComplexColliderProcessor;
 import de.jpx3.intave.player.collider.simple.SimpleColliderProcessor;
+import de.jpx3.intave.player.fake.FakePlayer;
 import de.jpx3.intave.reflect.access.ReflectiveHandleAccess;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.ConnectionMetadata;
@@ -118,7 +118,7 @@ final class PlayerUser implements User {
     if (clientData.clientVersionOlderThanServerVersion()) {
       string += " (behind)";
     }
-    IntaveLogger.logger().pushPrintln(string);
+    IntaveLogger.logger().printLine(string);
   }
 
   @Override

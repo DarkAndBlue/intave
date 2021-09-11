@@ -1,6 +1,6 @@
 package de.jpx3.intave.block.collision;
 
-import de.jpx3.intave.block.access.BukkitBlockAccess;
+import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.state.BlockState;
 import de.jpx3.intave.block.state.BlockStateBoolean;
 import de.jpx3.intave.block.state.BlockStateInteger;
@@ -43,7 +43,7 @@ public final class ScaffoldingCollisionModifier extends CollisionModifier {
   }
 
   private boolean bottomProperty(User user, World world, int posX, int posY, int posZ) {
-    Block block = BukkitBlockAccess.blockAccess(world, posX, posY, posZ);
+    Block block = VolatileBlockAccess.unsafe__BlockAccess(world, posX, posY, posZ);
     if (block.getY() < 0) {
       return false;
     }

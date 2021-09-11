@@ -14,7 +14,7 @@ import de.jpx3.intave.clazz.trace.Caller;
 import de.jpx3.intave.clazz.trace.PluginInvocation;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.math.MathHelper;
-import de.jpx3.intave.player.effect.Effects;
+import de.jpx3.intave.player.Effects;
 import de.jpx3.intave.reflect.method.InternalTeleportMethodContainer;
 import de.jpx3.intave.shade.BlockPosition;
 import de.jpx3.intave.shade.BoundingBox;
@@ -408,9 +408,9 @@ public final class MovementEmulator {
         if (IntaveControl.DEBUG_INTAVE_TELEPORT_EVENT_CANCELS && cancel) {
           PluginInvocation pluginInvocation = Caller.pluginInfo();
           if (pluginInvocation == null) {
-            IntaveLogger.logger().pushPrintln("[Intave] Intave's teleport event was cancelled anonymously");
+            IntaveLogger.logger().printLine("[Intave] Intave's teleport event was cancelled anonymously");
           } else {
-            IntaveLogger.logger().pushPrintln("[Intave] " + pluginInvocation.pluginName() + " cancelled Intave's teleport event (" + pluginInvocation.className() + ": " + pluginInvocation.methodName() + ")");
+            IntaveLogger.logger().printLine("[Intave] " + pluginInvocation.pluginName() + " cancelled Intave's teleport event (" + pluginInvocation.className() + ": " + pluginInvocation.methodName() + ")");
           }
         }
         super.setCancelled(cancel);

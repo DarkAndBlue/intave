@@ -3,8 +3,8 @@ package de.jpx3.intave.user.meta;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.executor.Synchronizer;
-import de.jpx3.intave.player.item.Enchantments;
-import de.jpx3.intave.player.item.ItemProperties;
+import de.jpx3.intave.player.Enchantments;
+import de.jpx3.intave.player.ItemProperties;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.Material;
@@ -15,10 +15,10 @@ import org.bukkit.inventory.PlayerInventory;
 @Relocate
 public final class InventoryMetadata {
   private final Player player;
-  private ItemStack heldItem;
   private int handSlot;
   private boolean handActive;
 
+  private Material activeItem;
   private boolean foodItem;
   private boolean inventoryOpen;
   public int handActiveTicks, pastHandActiveTicks = 100;
@@ -34,7 +34,7 @@ public final class InventoryMetadata {
     if (player != null) {
       this.handSlot = player.getInventory().getHeldItemSlot();
     }
-    this.heldItem = resolveMaterialInHand();
+    activeItem = Material.AIR;
   }
 
   private ItemStack resolveMaterialInHand() {
@@ -73,6 +73,7 @@ public final class InventoryMetadata {
     this.handActive = false;
     this.pastItemUsageTransition = 0;
     this.handActiveTicks = 0;
+    this.activeItem = Material.AIR;
   }
 
   public void activateHand() {
@@ -80,6 +81,11 @@ public final class InventoryMetadata {
     this.foodItem = ItemProperties.foodConsumable(player, heldItemType());
     this.pastItemUsageTransition = 0;
     this.handActiveTicks = 0;
+    this.activeItem = heldItemType();
+  }
+
+  public Material activeItem() {
+    return activeItem;
   }
 
   @IdoNotBelongHere

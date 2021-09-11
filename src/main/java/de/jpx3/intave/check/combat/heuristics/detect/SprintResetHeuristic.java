@@ -13,7 +13,7 @@ import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.packet.converter.PlayerAction;
 import de.jpx3.intave.packet.converter.PlayerActionResolver;
-import de.jpx3.intave.player.item.ItemProperties;
+import de.jpx3.intave.player.ItemProperties;
 import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.*;

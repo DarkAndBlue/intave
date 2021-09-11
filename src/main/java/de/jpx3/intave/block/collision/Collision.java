@@ -4,7 +4,7 @@ import de.jpx3.intave.annotate.DoNotFlowObfuscate;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.access.BlockTypeAccess;
 import de.jpx3.intave.block.access.BlockVariantAccess;
-import de.jpx3.intave.block.access.BukkitBlockAccess;
+import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.physics.MaterialMagic;
 import de.jpx3.intave.block.shape.BlockShapeAccess;
 import de.jpx3.intave.block.shape.boxresolver.BoundingBoxResolver;
@@ -132,7 +132,7 @@ public final class Collision {
           for (int x = xstart; x < xend; ++x) {
             for (int z = zstart; z < zend; ++z) {
               for (int y = ystart; y < maxY; ++y) {
-                Block block = BukkitBlockAccess.blockAccess(world, x, y, z);
+                Block block = VolatileBlockAccess.unsafe__BlockAccess(world, x, y, z);
                 Material type = BlockTypeAccess.typeAccess(block);
                 int variant = BlockVariantAccess.variantAccess(block);
                 List<BoundingBox> resolve = boundingBoxResolver.resolve(world, null, type, variant, x, y, z);
@@ -234,7 +234,7 @@ public final class Collision {
     for (int x = minX; x <= maxX; x++) {
       for (int y = minY; y <= maxY; y++) {
         for (int z = minZ; z <= maxZ; z++) {
-          Block block = BukkitBlockAccess.blockAccess(world, x, y, z);
+          Block block = VolatileBlockAccess.unsafe__BlockAccess(world, x, y, z);
           Material type = BlockTypeAccess.typeAccess(block);
           if (!MaterialMagic.isLiquid(type) && BlockTypeAccess.typeAccess(block) != Material.AIR) {
             return true;
@@ -267,7 +267,7 @@ public final class Collision {
     for (int x = minX; x <= maxX; x++) {
       for (int y = minY; y <= maxY; y++) {
         for (int z = minZ; z <= maxZ; z++) {
-          Block block = BukkitBlockAccess.blockAccess(world, x, y, z);
+          Block block = VolatileBlockAccess.unsafe__BlockAccess(world, x, y, z);
           if (blockTypeApplier.apply(BlockTypeAccess.typeAccess(block))) {
             return true;
           }
