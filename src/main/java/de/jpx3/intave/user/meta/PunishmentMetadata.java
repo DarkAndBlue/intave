@@ -79,7 +79,7 @@ public final class PunishmentMetadata {
         HurtimeModifier.applyHurtTimeChangeTo(player, (int) (DAMAGE_CANCEL_LIGHT_DURATION / 50), ticks);
       }),
       new AttackNerfer(AttackNerfStrategy.BLOCKING, BLOCKING_DAMAGE_CANCEL_DURATION, event -> {
-        DamageController.withNewDamageApplier(event, BLOCKING, originalDamage -> 0d);
+        DamageController.withNewDamageApplier(event, BLOCKING, current -> -0d);
       }, true),
       new AttackNerfer(AttackNerfStrategy.GARBAGE_HITS, GARBAGE_HITS_DURATION, event -> {
         int entityId = event.getEntity().getEntityId();

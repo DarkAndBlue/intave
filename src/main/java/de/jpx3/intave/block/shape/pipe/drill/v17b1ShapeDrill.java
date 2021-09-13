@@ -18,7 +18,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 @PatchyAutoTranslation
-public final class v17B1ShapeDrill extends AbstractShapeDrill {
+public final class v17b1ShapeDrill extends AbstractShapeDrill {
   @Override
   @PatchyAutoTranslation
   public BlockShape resolve(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
