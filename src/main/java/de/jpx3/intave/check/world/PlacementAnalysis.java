@@ -20,7 +20,7 @@ public final class PlacementAnalysis extends Check {
 
   @Native
   public void setupSubChecks() {
-    boolean useTimings = configuration().settings().boolBy("use_timings", true);
+    boolean useTimings = configuration().settings().boolBy("check_timings", true);
 
     boolean enterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
     boolean partner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;

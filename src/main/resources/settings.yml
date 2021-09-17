@@ -103,7 +103,7 @@ check:
 
     enabled: true
 
-    use_timings: false
+    check_timings: false
 
     thresholds:
       50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is placing blocks incorrectly"
