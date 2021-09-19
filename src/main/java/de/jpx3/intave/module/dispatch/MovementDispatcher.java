@@ -700,7 +700,7 @@ public final class MovementDispatcher extends Module {
         break;
       case PRESS_SHIFT_KEY:
       case START_SNEAKING:
-        if (System.currentTimeMillis() - punishmentData.timeLastSneakToggleCancel < 1000) {
+        if (System.currentTimeMillis() - punishmentData.timeLastSneakToggleCancel < 2000) {
           event.setCancelled(true);
         }
         if (movementData.hasRidingEntity()) {

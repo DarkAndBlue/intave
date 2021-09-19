@@ -92,7 +92,7 @@ public final class PacketPlayerActionToggleHeuristic extends MetaCheckPart<Heuri
           parentCheck().saveAnomaly(player, anomaly);
         }
 
-        boolean cancel = flyingPacketStream || Hypot.fast(movementData.motionX(), movementData.motionZ()) > 0.1 && heuristicMeta.threshold++ > 2;
+        boolean cancel = flyingPacketStream || Hypot.fast(movementData.motionX(), movementData.motionZ()) > 0.1 && heuristicMeta.threshold++ > 1;
         if (cancel) {
           if (sprint) {
             //dmc12
