@@ -10,9 +10,9 @@ import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.Collision;
+import de.jpx3.intave.block.fluid.Fluid;
 import de.jpx3.intave.block.fluid.FluidTag;
 import de.jpx3.intave.block.fluid.Fluids;
-import de.jpx3.intave.block.fluid.WrappedFluid;
 import de.jpx3.intave.block.physics.BlockProperties;
 import de.jpx3.intave.check.movement.physics.*;
 import de.jpx3.intave.entity.datawatcher.DataWatcherAccess;
@@ -36,7 +36,7 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static de.jpx3.intave.shade.WrappedMathHelper.*;
+import static de.jpx3.intave.shade.ClientMathHelper.*;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_14;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_15;
 
@@ -100,7 +100,7 @@ public final class MovementMetadata {
   public float frictionMultiplier;
   public float genericMovementSpeedAttribute;
   @Nullable
-  public WrappedFluid interactingFluid;
+  public Fluid interactingFluid;
   public boolean inWater;
   public boolean inWeb;
   private boolean eyesInWater;
@@ -327,7 +327,7 @@ public final class MovementMetadata {
     this.eyesInWater = interactingFluid != null && interactingFluid.isIn(FluidTag.WATER);
     this.interactingFluid = null;
 
-    WrappedFluid fluid = Fluids.fluidAt(user, positionX, yPos, positionZ);
+    Fluid fluid = Fluids.fluidAt(user, positionX, yPos, positionZ);
     if (fluid.isIn(FluidTag.WATER)) {
       double d1 = (float) floor(yPos) + 1.0f;
       if (d1 > yPos) {
