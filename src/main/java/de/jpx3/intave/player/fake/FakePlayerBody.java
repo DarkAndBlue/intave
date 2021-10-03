@@ -30,11 +30,13 @@ import static de.jpx3.intave.player.fake.TablistMutator.addToTabList;
 import static de.jpx3.intave.player.fake.TablistMutator.removeFromTabList;
 
 public abstract class FakePlayerBody extends FakePlayerIdentity {
-  private final static boolean MODERN_POSITION_PROCESSING = MinecraftVersions.VER1_9_0.atOrAbove();
+  private final static boolean POSITION_PROCESSING_1_9 = MinecraftVersions.VER1_9_0.atOrAbove();
+  private final static boolean POSITION_PROCESSING_1_14 = MinecraftVersions.VER1_14_0.atOrAbove();
+
   private final static Map<Integer, Object> METADATA = new HashMap<Integer, Object>() {{
     // Entity
     put(0, (byte) 0);
-    put(1, MODERN_POSITION_PROCESSING ? 300 : (short) 300);
+    put(1, returnShortOrInt(POSITION_PROCESSING_1_9));
     put(2, "");
     put(3, (byte) 0);
     put(4, (byte) 0);
@@ -68,6 +70,7 @@ public abstract class FakePlayerBody extends FakePlayerIdentity {
   }
 
   protected void spawn(Location spawn) {
+    boolean includeMetadata = !MinecraftVersions.VER1_5_0.atOrAbove();
     PacketContainer spawnPacket = create(PacketType.Play.Server.NAMED_ENTITY_SPAWN);
     WrappedGameProfile profile = profile();
     WrappedDataWatcher dataWatcher = dataWatcher();
@@ -77,14 +80,22 @@ public abstract class FakePlayerBody extends FakePlayerIdentity {
       .write(5, compressRotation(spawn.getYaw()))
       .write(6, compressRotation(spawn.getPitch()));
     pushLocationToPacket(spawnPacket, spawn, 0);
-    if (!MODERN_POSITION_PROCESSING) {
+    if (!POSITION_PROCESSING_1_9) {
       spawnPacket.getModifier().write(7, 0);
     }
     METADATA.forEach((index, object) -> metadataAccept(dataWatcher, index, object.getClass(), object));
-    spawnPacket.getDataWatcherModifier().write(0, dataWatcher);
+    if (includeMetadata) {
+      spawnPacket.getDataWatcherModifier().write(0, dataWatcher);
+    }
     String tabListName = listedPrefix + profile.getName();
     addToTabList(observer, profile, tabListName);
     send(spawnPacket);
+    if (!includeMetadata) {
+      PacketContainer metadata = create(PacketType.Play.Server.ENTITY_METADATA);
+      metadata.getIntegers().write(0, identifier());
+      metadata.getWatchableCollectionModifier().write(0, dataWatcher.getWatchableObjects());
+      send(metadata);
+    }
     if (!hasAttribute(attributes, IN_TABLIST)) {
       removeFromTabList(observer, profile());
     }
@@ -130,7 +141,15 @@ public abstract class FakePlayerBody extends FakePlayerIdentity {
     if (move && look) {
       packet = create(PacketType.Play.Server.REL_ENTITY_MOVE_LOOK);
       packet.getIntegers().write(0, identifier());
-      if (MODERN_POSITION_PROCESSING) {
+      if (POSITION_PROCESSING_1_14) {
+        packet.getShorts()
+          .write(0, (short) ((to.getX() - from.getX()) * 4096d))
+          .write(1, (short) ((to.getY() - from.getY()) * 4096d))
+          .write(2, (short) ((to.getZ() - from.getZ()) * 4096d));
+        packet.getBytes()
+          .write(0, compressRotation(to.getYaw()))
+          .write(1, compressRotation(to.getPitch()));
+      } else if (POSITION_PROCESSING_1_9) {
         packet.getIntegers()
           .write(1, (int) ((to.getX() - from.getX()) * 4096.0D))
           .write(2, (int) ((to.getY() - from.getY()) * 4096.0D))
@@ -149,12 +168,16 @@ public abstract class FakePlayerBody extends FakePlayerIdentity {
     } else if (move) {
       packet = create(PacketType.Play.Server.REL_ENTITY_MOVE);
       packet.getIntegers().write(0, identifier());
-      if (MODERN_POSITION_PROCESSING) {
+      if (POSITION_PROCESSING_1_14) {
+        packet.getShorts()
+          .write(0, (short) ((to.getX() - from.getX()) * 4096d))
+          .write(1, (short) ((to.getY() - from.getY()) * 4096d))
+          .write(2, (short) ((to.getZ() - from.getZ()) * 4096d));
+      } else if (POSITION_PROCESSING_1_9) {
         packet.getIntegers()
           .write(1, (int) ((to.getX() - from.getX()) * 4096.0D))
           .write(2, (int) ((to.getY() - from.getY()) * 4096.0D))
           .write(3, (int) ((to.getZ() - from.getZ()) * 4096.0D));
-
       } else {
         packet.getBytes()
           .write(0, compressAxisUpdate(to.getX(), from.getX()))
@@ -220,7 +243,7 @@ public abstract class FakePlayerBody extends FakePlayerIdentity {
   }
 
   private void pushLocationToPacket(PacketContainer packet, Location location, int offset) {
-    if (MODERN_POSITION_PROCESSING) {
+    if (POSITION_PROCESSING_1_9) {
       packet.getDoubles()
         .write(offset + 0, location.getX())
         .write(offset + 1, location.getY())
@@ -269,7 +292,7 @@ public abstract class FakePlayerBody extends FakePlayerIdentity {
   }
 
   private String walkingSoundAt(Location location) {
-    Block block = VolatileBlockAccess.unsafe__BlockAccess(location.clone().add(0.0, -1.0, 0.0));
+    Block block = VolatileBlockAccess.serverBlockAccess(location.clone().add(0.0, -1.0, 0.0));
     switch (BlockTypeAccess.typeAccess(block)) {
       case GRASS: {
         return "step.grass";
@@ -329,6 +352,15 @@ public abstract class FakePlayerBody extends FakePlayerIdentity {
     }
     Synchronizer.synchronize(apply);
     return true;
+  }
+
+  // Do not remove
+  private static Object returnShortOrInt(boolean returnInt) {
+    if (returnInt) {
+      return 300;
+    } else {
+      return (short) 300;
+    }
   }
 
   public Player observer() {

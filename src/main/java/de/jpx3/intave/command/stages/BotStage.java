@@ -29,7 +29,7 @@ public final class BotStage extends CommandStage {
   )
   public void spawn(CommandSender commandSender, Player targetPlayer, Type type) {
     User target = UserRepository.userOf(targetPlayer);
-    if (MinecraftVersions.VER1_13_0.atOrAbove()) {
+    if (MinecraftVersions.VER1_17_0.atOrAbove()) {
       commandSender.sendMessage(IntavePlugin.prefix() + "Bots are currently unavailable for your server version. Please wait for upcoming updates.");
       return;
     }

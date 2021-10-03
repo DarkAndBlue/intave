@@ -1,14 +1,25 @@
 package de.jpx3.intave.player.fake.movement;
 
+import de.jpx3.intave.block.access.BlockVariantAccess;
+import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.Collision;
+import de.jpx3.intave.block.shape.ShapeResolver;
+import de.jpx3.intave.block.shape.ShapeResolverPipeline;
+import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.player.collider.simple.SimpleColliderSimulationResult;
 import de.jpx3.intave.shade.BoundingBox;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static de.jpx3.intave.shade.ClientMathHelper.floor;
 import static de.jpx3.intave.shade.Direction.Axis.*;
 
 public abstract class Movement extends HeadRotationMovement {
@@ -92,7 +103,7 @@ public abstract class Movement extends HeadRotationMovement {
   }
 
   private SimpleColliderSimulationResult collide(BoundingBox boundingBox, double motionX, double motionY, double motionZ) {
-    List<BoundingBox> collisionBoxes = Collision.__INVALID__resolveBoxes(location.getWorld(), boundingBox.expand(motionX, motionY, motionZ));
+    List<BoundingBox> collisionBoxes = resolveCollisions(location.getWorld(), boundingBox.expand(motionX, motionY, motionZ));
     double startMotionY = motionY;
     for (BoundingBox collisionBox : collisionBoxes) {
       motionY = collisionBox.allowedOffset(Y_AXIS, boundingBox, motionY);
@@ -107,6 +118,54 @@ public abstract class Movement extends HeadRotationMovement {
       motionZ = collisionBox.allowedOffset(Z_AXIS, boundingBox, motionZ);
     }
     return new SimpleColliderSimulationResult(motionX, motionY, motionZ, onGround, startMotionY != motionY);
+  }
+
+  private final static ShapeResolverPipeline boundingBoxResolver = ShapeResolver.pipelineHead();
+
+  private List<BoundingBox> resolveCollisions(World world, BoundingBox boundingBox) {
+    int minX = floor(boundingBox.minX);
+    int maxX = floor(boundingBox.maxX + 1.0D);
+    int minY = floor(boundingBox.minY);
+    int maxY = floor(boundingBox.maxY + 1.0D);
+    int minZ = floor(boundingBox.minZ);
+    int maxZ = floor(boundingBox.maxZ + 1.0D);
+    int ystart = Math.max(minY - 1, 0);
+    List<BoundingBox> resolvedBoundingBoxes = null;
+    for (int chunkx = minX >> 4; chunkx <= maxX - 1 >> 4; ++chunkx) {
+      int chunkXPos = chunkx << 4;
+      for (int chunkz = minZ >> 4; chunkz <= maxZ - 1 >> 4; ++chunkz) {
+        if (world.isChunkLoaded(chunkx, chunkz)) {
+          int chunkZPos = chunkz << 4;
+          int xstart = Math.max(minX, chunkXPos);
+          int zstart = Math.max(minZ, chunkZPos);
+          int xend = Math.min(maxX, chunkXPos + 16);
+          int zend = Math.min(maxZ, chunkZPos + 16);
+          for (int x = xstart; x < xend; ++x) {
+            for (int z = zstart; z < zend; ++z) {
+              for (int y = ystart; y < maxY; ++y) {
+                Block block = VolatileBlockAccess.serverBlockAccess(world, x, y, z);
+                Material type = BlockTypeAccess.typeAccess(block);
+                int variant = BlockVariantAccess.variantAccess(block);
+                List<BoundingBox> resolve = boundingBoxResolver.resolve(world, null, type, variant, x, y, z).boundingBoxes();
+                if ((resolve != null && !resolve.isEmpty())) {
+                  if (resolvedBoundingBoxes == null) {
+                    resolvedBoundingBoxes = new ArrayList<>(resolve);
+                  } else {
+                    resolvedBoundingBoxes.addAll(resolve);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    if (resolvedBoundingBoxes == null) {
+      resolvedBoundingBoxes = Collections.emptyList();
+    } else {
+      resolvedBoundingBoxes.removeIf(wrappedAxisAlignedBB -> !wrappedAxisAlignedBB.intersectsWith(boundingBox));
+    }
+    return resolvedBoundingBoxes;
   }
 
   public boolean shouldMove(Location parentLocation) {
@@ -140,10 +199,7 @@ public abstract class Movement extends HeadRotationMovement {
   }
 
   public double safeDistance(Location location1, Location location2) {
-    if (location1.getWorld() != location2.getWorld()) {
-      return 0.0;
-    }
-    return location1.distance(location2);
+    return location1.getWorld() != location2.getWorld() ? 0.0 : location1.distance(location2);
   }
 
   public double minBotDistance() {

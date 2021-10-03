@@ -172,7 +172,7 @@ public final class CompletionDurationCheck extends MetaCheckPart<BreakSpeedLimit
     if (!VolatileBlockAccess.isInLoadedChunk(location.getWorld(), location.getBlockX(), location.getBlockZ())) {
       return;
     }
-    Block block = VolatileBlockAccess.unsafe__BlockAccess(location);
+    Block block = VolatileBlockAccess.serverBlockAccess(location);
     Object handle = BlockVariantAccess.nativeVariantAccess(block);
     WrappedBlockData blockData = WrappedBlockData.fromHandle(handle);
     packet.getBlockData().write(0, blockData);

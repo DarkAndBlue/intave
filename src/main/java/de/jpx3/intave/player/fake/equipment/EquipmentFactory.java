@@ -17,18 +17,18 @@ public final class EquipmentFactory {
   static {
     heldItems = ImmutableList.of(
       // tools
-      Material.WOOD_SWORD,
-      Material.GOLD_SWORD,
+      lookupItem("WOOD_SWORD", "WOODEN_SWORD"),
+      lookupItem("GOLD_SWORD", "GOLDEN_SWORD"),
       Material.STONE_SWORD,
       Material.IRON_SWORD,
       Material.DIAMOND_SWORD,
-      Material.WOOD_AXE,
-      Material.GOLD_AXE,
+      lookupItem("WOOD_AXE", "WOODEN_AXE"),
+      lookupItem("GOLD_AXE", "GOLDEN_AXE"),
       Material.STONE_AXE,
       Material.IRON_AXE,
       Material.DIAMOND_AXE,
-      Material.WOOD_PICKAXE,
-      Material.GOLD_PICKAXE,
+      lookupItem("WOOD_PICKAXE", "WOODEN_PICKAXE"),
+      lookupItem("GOLD_PICKAXE", "GOLDEN_PICKAXE"),
       Material.STONE_PICKAXE,
       Material.IRON_PICKAXE,
       Material.DIAMOND_PICKAXE,
@@ -69,6 +69,11 @@ public final class EquipmentFactory {
       Material.AIR,
       Material.AIR
     ));
+  }
+
+  private static Material lookupItem(String legacy, String modern) {
+    Material material = Material.getMaterial(legacy);
+    return material != null ? material : Material.getMaterial(modern);
   }
 
   public static Equipment randomEquipment() {

@@ -367,7 +367,7 @@ public final class Physics extends Check {
         double blockPositionX = (boundingBox.minX + boundingBox.maxX) / 2.0;
         double blockPositionY = (boundingBox.minY + boundingBox.maxY) / 2.0;
         double blockPositionZ = (boundingBox.minZ + boundingBox.maxZ) / 2.0;
-        Block block = VolatileBlockAccess.unsafe__BlockAccess(player.getWorld(), blockPositionX, blockPositionY, blockPositionZ);
+        Block block = VolatileBlockAccess.serverBlockAccess(player.getWorld(), blockPositionX, blockPositionY, blockPositionZ);
         boolean currentlyInOverride = blockStateAccess.currentlyInOverride(ClientMathHelper.floor(blockPositionX), ClientMathHelper.floor(blockPositionY), ClientMathHelper.floor(blockPositionZ));
         boolean altered = BlockTypeAccess.hasTranslation(user, BlockTypeAccess.typeAccess(block));
 
@@ -421,7 +421,7 @@ public final class Physics extends Check {
           double blockPositionX = (boundingBox.minX + boundingBox.maxX) / 2.0;
           double blockPositionY = (boundingBox.minY + boundingBox.maxY) / 2.0;
           double blockPositionZ = (boundingBox.minZ + boundingBox.maxZ) / 2.0;
-          Block block = VolatileBlockAccess.unsafe__BlockAccess(player.getWorld(), blockPositionX, blockPositionY, blockPositionZ);
+          Block block = VolatileBlockAccess.serverBlockAccess(player.getWorld(), blockPositionX, blockPositionY, blockPositionZ);
 
           String message = "moved into " + shortenTypeName(BlockTypeAccess.typeAccess(block, player)) + " block whilst moving in another block";
           boolean multipleBoxes = intersectionBoundingBoxesCurrent.size() > 1;

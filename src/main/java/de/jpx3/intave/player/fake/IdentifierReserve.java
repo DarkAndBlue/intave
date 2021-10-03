@@ -1,6 +1,7 @@
 package de.jpx3.intave.player.fake;
 
 import de.jpx3.intave.access.IntaveInternalException;
+import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.klass.Lookup;
 import org.bukkit.Bukkit;
@@ -9,6 +10,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 /**
@@ -68,11 +70,18 @@ public final class IdentifierReserve {
     return IntStream.range(0, amount).map(i -> reserveEntityId()).toArray();
   }
 
+  private final static boolean ATOMIC_INTEGER_FIELD = MinecraftVersions.VER1_14_0.atOrAbove();
+
   private static int reserveEntityId() {
     int newId = 0;
     try {
-      newId = ENTITY_COUNT_FIELD.getInt(null);
-      ENTITY_COUNT_FIELD.setInt(null, newId + 1);
+      if (ATOMIC_INTEGER_FIELD) {
+        AtomicInteger atomicInteger = (AtomicInteger) ENTITY_COUNT_FIELD.get(null);
+        newId = atomicInteger.getAndAdd(1);
+      } else {
+        newId = ENTITY_COUNT_FIELD.getInt(null);
+        ENTITY_COUNT_FIELD.setInt(null, newId + 1);
+      }
     } catch (IllegalAccessException e) {
       e.printStackTrace();
     }

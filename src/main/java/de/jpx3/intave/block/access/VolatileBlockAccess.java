@@ -18,23 +18,19 @@ public final class VolatileBlockAccess implements BukkitEventSubscriber {
   public static void setup() {
   }
 
-  @Deprecated
-  public static Block unsafe__BlockAccess(Location location) {
-    return unsafe__BlockAccess(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+  public static Block serverBlockAccess(Location location) {
+    return serverBlockAccess(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
   }
 
-  @Deprecated
-  public static Block unsafe__BlockAccess(World blockAccess, double x, double y, double z) {
-    return unsafe__BlockAccess(blockAccess, floor(x), floor(y),floor(z));
+  public static Block serverBlockAccess(World blockAccess, double x, double y, double z) {
+    return serverBlockAccess(blockAccess, floor(x), floor(y), floor(z));
   }
 
-  @Deprecated
-  public static Block unsafe__BlockAccess(World blockAccess, BlockPosition position) {
-    return unsafe__BlockAccess(blockAccess, position.xCoord, position.yCoord, position.zCoord);
+  public static Block serverBlockAccess(World blockAccess, BlockPosition position) {
+    return serverBlockAccess(blockAccess, position.xCoord, position.yCoord, position.zCoord);
   }
 
-  @Deprecated
-  public static Block unsafe__BlockAccess(World blockAccess, int x, int y, int z) {
+  public static Block serverBlockAccess(World blockAccess, int x, int y, int z) {
     if (isInLoadedChunk(blockAccess, x, z) || Bukkit.isPrimaryThread()) {
       return blockAccess.getBlockAt(x, y, z);
     }

@@ -423,8 +423,8 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     Player player = interaction.player();
     User user = userOf(player);
     InteractionType type = interaction.type();
-    Block targetLocationBlock = VolatileBlockAccess.unsafe__BlockAccess(targetLocation);
-    Block raycastLocationBlock = VolatileBlockAccess.unsafe__BlockAccess(raycastLocation);
+    Block targetLocationBlock = VolatileBlockAccess.serverBlockAccess(targetLocation);
+    Block raycastLocationBlock = VolatileBlockAccess.serverBlockAccess(raycastLocation);
     Material raycastLocationBlockType = BlockTypeAccess.typeAccess(raycastLocationBlock);
     Material targetLocationBlockType = BlockTypeAccess.typeAccess(targetLocationBlock);
     if (targetLocationBlockType == Material.AIR || raycastLocationBlockType == Material.AIR) {
@@ -564,7 +564,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     if (!VolatileBlockAccess.isInLoadedChunk(location.getWorld(), location.getBlockX(), location.getBlockZ())) {
       return;
     }
-    Block block = VolatileBlockAccess.unsafe__BlockAccess(location);
+    Block block = VolatileBlockAccess.serverBlockAccess(location);
     Object handle = BlockVariantAccess.nativeVariantAccess(block);
     WrappedBlockData blockData = WrappedBlockData.fromHandle(handle);
     com.comphenix.protocol.wrappers.BlockPosition position = new com.comphenix.protocol.wrappers.BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ());

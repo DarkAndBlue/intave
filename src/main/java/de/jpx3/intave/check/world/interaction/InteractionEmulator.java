@@ -100,7 +100,7 @@ public final class InteractionEmulator implements EventProcessor {
     BlockPosition blockPosition = interaction.targetBlock();
     Location blockBreakLocation = blockPosition.toLocation(world);
     boolean access = WorldPermission.blockBreakPermission(
-      player, VolatileBlockAccess.unsafe__BlockAccess(blockBreakLocation)
+      player, VolatileBlockAccess.serverBlockAccess(blockBreakLocation)
     );
     if (access) {
       int blockX = blockBreakLocation.getBlockX();
@@ -156,7 +156,7 @@ public final class InteractionEmulator implements EventProcessor {
   private EmulationResult emulateInteraction(Player player, Interaction interaction) {
     World world = interaction.world();
     Location clickedBlockLocation = interaction.targetBlock().toLocation(world);
-    Block clickedBlock = VolatileBlockAccess.unsafe__BlockAccess(clickedBlockLocation);
+    Block clickedBlock = VolatileBlockAccess.serverBlockAccess(clickedBlockLocation);
     Material itemTypeInHand = interaction.itemTypeInHand();
     Location placementLocation = clickedBlockLocation.clone().add(Direction.getFront(interaction.targetDirection()).getDirectionVec().convertToBukkitVec());
     emulateInteractWithHandItem(player, clickedBlock, placementLocation, itemTypeInHand);

@@ -154,7 +154,7 @@ public final class MovementHelper {
   public static boolean isOnLadder(User user, double positionX, double positionY, double positionZ) {
     Player player = user.player();
     ProtocolMetadata clientData = user.meta().protocol();
-    Block block = VolatileBlockAccess.unsafe__BlockAccess(
+    Block block = VolatileBlockAccess.serverBlockAccess(
       player.getWorld(),
       floor(positionX),
       floor(positionY),
@@ -185,7 +185,7 @@ public final class MovementHelper {
       if (!(trapDoorData instanceof Directional)) {
         return false;
       }
-      Block downBlock = VolatileBlockAccess.unsafe__BlockAccess(downLocation);
+      Block downBlock = VolatileBlockAccess.serverBlockAccess(downLocation);
       MaterialData downBlockData = downBlock.getState().getData();
       if (!(downBlockData instanceof Directional)) {
         return false;

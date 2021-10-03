@@ -264,7 +264,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
 
     if (liteFlag) {
       String description = "rotation snap scaffold [" +  MathHelper.formatDouble(meta.yawMotions[0], 2) + "]";
-      int addedViolationLevel = 10;
+      int addedViolationLevel = 30;
       if(IntaveControl.GOMME_MODE) {
         addedViolationLevel = 30;
       }

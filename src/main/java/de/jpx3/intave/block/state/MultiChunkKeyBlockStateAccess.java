@@ -67,7 +67,7 @@ public final class MultiChunkKeyBlockStateAccess implements BlockStateAccess {
     blockState = blockCache.get(key);
     if (blockState == null) {
       World world = player.getWorld();
-      Block block = VolatileBlockAccess.unsafe__BlockAccess(world, posX, posY, posZ);
+      Block block = VolatileBlockAccess.serverBlockAccess(world, posX, posY, posZ);
       blockState = lookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
         blockCache.put(key, blockState);
@@ -101,7 +101,7 @@ public final class MultiChunkKeyBlockStateAccess implements BlockStateAccess {
     blockState = blockCache.get(key);
     if (blockState == null) {
       World world = player.getWorld();
-      Block block = VolatileBlockAccess.unsafe__BlockAccess(world, posX, posY, posZ);
+      Block block = VolatileBlockAccess.serverBlockAccess(world, posX, posY, posZ);
       blockState = lookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
         blockCache.put(key, blockState);
@@ -135,7 +135,7 @@ public final class MultiChunkKeyBlockStateAccess implements BlockStateAccess {
     blockState = blockCache.get(key);
     if (blockState == null) {
       World world = player.getWorld();
-      Block block = VolatileBlockAccess.unsafe__BlockAccess(world, posX, posY, posZ);
+      Block block = VolatileBlockAccess.serverBlockAccess(world, posX, posY, posZ);
       blockState = lookup(world, block, posX, posY, posZ);
       if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
         blockCache.put(key, blockState);

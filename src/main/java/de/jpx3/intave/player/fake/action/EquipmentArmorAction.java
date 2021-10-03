@@ -3,15 +3,18 @@ package de.jpx3.intave.player.fake.action;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.comphenix.protocol.wrappers.Pair;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.player.fake.FakePlayer;
 import de.jpx3.intave.player.fake.equipment.ArmorPiece;
+import de.jpx3.intave.player.fake.equipment.ArmorSlot;
 import de.jpx3.intave.player.fake.equipment.Equipment;
 import de.jpx3.intave.player.fake.equipment.EquipmentFactory;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class EquipmentArmorAction extends Action {
@@ -25,45 +28,33 @@ public final class EquipmentArmorAction extends Action {
     List<ArmorPiece> armorPieceList = equipment.armorPieces();
     for (ArmorPiece armorPiece : armorPieceList) {
       Material armorMaterial = armorPiece.material();
-      if (armorMaterial == Material.AIR) {
-        continue;
+      if (armorMaterial != Material.AIR) {
+        ArmorSlot type = armorPiece.type();
+        sendEquipment(type, armorMaterial);
       }
-      int slotId = armorPiece.type().slotId();
-      sendEquipment(slotId - 1, armorMaterial);
     }
   }
 
   private final static boolean HAS_OFF_HAND = MinecraftVersions.VER1_9_0.atOrAbove();
 
-  private void sendEquipment(
-    int slot,
-    Material material
-  ) {
+  private void sendEquipment(ArmorSlot slot, Material material) {
+    ItemStack itemStack = new ItemStack(material);
     PacketContainer packet = create(PacketType.Play.Server.ENTITY_EQUIPMENT);
     packet.getIntegers().writeSafely(0, this.fakePlayer.identifier());
     if (HAS_OFF_HAND) {
-      EnumWrappers.ItemSlot itemSlot;
-      switch (slot) {
-        case 0:
-          itemSlot = EnumWrappers.ItemSlot.HEAD;
-          break;
-        case 1:
-          itemSlot = EnumWrappers.ItemSlot.CHEST;
-          break;
-        case 2:
-          itemSlot = EnumWrappers.ItemSlot.LEGS;
-          break;
-        case 3:
-          itemSlot = EnumWrappers.ItemSlot.FEET;
-          break;
-        default:
-          return;
+      boolean modernProcessing = MinecraftVersions.VER1_16_0.atOrAbove();
+      if (modernProcessing) {
+        List<Pair<EnumWrappers.ItemSlot, ItemStack>> list = new ArrayList<>();
+        list.add(new Pair<>(slot.itemSlot(), itemStack));
+        packet.getSlotStackPairLists().write(0, list);
+      } else {
+        packet.getItemModifier().writeSafely(0, itemStack);
+        packet.getItemSlots().write(0, slot.itemSlot());
       }
-      packet.getItemSlots().write(0, itemSlot);
     } else {
-      packet.getModifier().write(1, slot);
+      packet.getItemModifier().writeSafely(0, itemStack);
+      packet.getModifier().write(1, slot.slotId());
     }
-    packet.getItemModifier().writeSafely(0, new ItemStack(material));
     send(packet);
   }
 }

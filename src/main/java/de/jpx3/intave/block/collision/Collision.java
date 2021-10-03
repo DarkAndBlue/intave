@@ -2,7 +2,6 @@ package de.jpx3.intave.block.collision;
 
 import de.jpx3.intave.annotate.DoNotFlowObfuscate;
 import de.jpx3.intave.annotate.Relocate;
-import de.jpx3.intave.block.access.BlockVariantAccess;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.physics.MaterialMagic;
 import de.jpx3.intave.block.shape.*;
@@ -126,7 +125,6 @@ public final class Collision {
 
   private final static ShapeResolverPipeline boundingBoxResolver = ShapeResolver.pipelineHead();
 
-
   @Deprecated
   // I suck, please remove
   public static List<BoundingBox> __INVALID__resolveBoxes(Player player, BoundingBox playerBoundingBox) {
@@ -198,63 +196,6 @@ public final class Collision {
     return resolvedBoundingBoxes;
   }
 
-  @Deprecated
-  public static List<BoundingBox> __INVALID__resolveBoxes(
-    World world,
-    BoundingBox boundingBox
-  ) {
-    int minX = floor(boundingBox.minX);
-    int maxX = floor(boundingBox.maxX + 1.0D);
-    int minY = floor(boundingBox.minY);
-    int maxY = floor(boundingBox.maxY + 1.0D);
-    int minZ = floor(boundingBox.minZ);
-    int maxZ = floor(boundingBox.maxZ + 1.0D);
-    int ystart = Math.max(minY - 1, 0);
-    List<BoundingBox> resolvedBoundingBoxes = null;
-    for (int chunkx = minX >> 4; chunkx <= maxX - 1 >> 4; ++chunkx) {
-      int chunkXPos = chunkx << 4;
-      for (int chunkz = minZ >> 4; chunkz <= maxZ - 1 >> 4; ++chunkz) {
-        if (world.isChunkLoaded(chunkx, chunkz)) {
-          int chunkZPos = chunkz << 4;
-          int xstart = Math.max(minX, chunkXPos);
-          int zstart = Math.max(minZ, chunkZPos);
-          int xend = Math.min(maxX, chunkXPos + 16);
-          int zend = Math.min(maxZ, chunkZPos + 16);
-          for (int x = xstart; x < xend; ++x) {
-            for (int z = zstart; z < zend; ++z) {
-              for (int y = ystart; y < maxY; ++y) {
-                Block block = VolatileBlockAccess.unsafe__BlockAccess(world, x, y, z);
-                Material type = BlockTypeAccess.typeAccess(block);
-                int variant = BlockVariantAccess.variantAccess(block);
-                List<BoundingBox> resolve = boundingBoxResolver.resolve(world, null, type, variant, x, y, z).boundingBoxes();
-                boolean blockIsOutsideBorder = !blockInsideBorder(world, x, z);
-                if (blockIsOutsideBorder) {
-                  if (resolvedBoundingBoxes == null) {
-                    resolvedBoundingBoxes = new ArrayList<>();
-                  }
-                  resolvedBoundingBoxes.add(new BoundingBox(x, y, z, x + 1, y, z + 1));
-                }
-                if ((resolve != null && !resolve.isEmpty())) {
-                  if (resolvedBoundingBoxes == null) {
-                    resolvedBoundingBoxes = new ArrayList<>(resolve);
-                  } else {
-                    resolvedBoundingBoxes.addAll(resolve);
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    if (resolvedBoundingBoxes == null) {
-      resolvedBoundingBoxes = Collections.emptyList();
-    } else {
-      resolvedBoundingBoxes.removeIf(wrappedAxisAlignedBB -> !wrappedAxisAlignedBB.intersectsWith(boundingBox));
-    }
-    return resolvedBoundingBoxes;
-  }
-
   public static boolean blockInsideBorder(World world, double positionX, double positionZ) {
     Location center = WorldBorders.centerOfWorldBorderIn(world);
     double radius = WorldBorders.sizeOfWorldBorderIn(world) / 2.0;
@@ -313,7 +254,7 @@ public final class Collision {
     for (int x = minX; x <= maxX; x++) {
       for (int y = minY; y <= maxY; y++) {
         for (int z = minZ; z <= maxZ; z++) {
-          Block block = VolatileBlockAccess.unsafe__BlockAccess(world, x, y, z);
+          Block block = VolatileBlockAccess.serverBlockAccess(world, x, y, z);
           Material type = BlockTypeAccess.typeAccess(block);
           if (!MaterialMagic.isLiquid(type) && BlockTypeAccess.typeAccess(block) != Material.AIR) {
             return true;
@@ -346,7 +287,7 @@ public final class Collision {
     for (int x = minX; x <= maxX; x++) {
       for (int y = minY; y <= maxY; y++) {
         for (int z = minZ; z <= maxZ; z++) {
-          Block block = VolatileBlockAccess.unsafe__BlockAccess(world, x, y, z);
+          Block block = VolatileBlockAccess.serverBlockAccess(world, x, y, z);
           if (blockTypeApplier.apply(BlockTypeAccess.typeAccess(block))) {
             return true;
           }
