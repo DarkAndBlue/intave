@@ -16,11 +16,11 @@ import static de.jpx3.intave.reflect.access.ReflectiveHandleAccess.handleOf;
 @SuppressWarnings("UnstableApiUsage")
 public final class EntityLookup {
   private final static MethodHandle entityByIdAccessor = MethodSearchBySignature
-    .publicSearch(Lookup.serverClass("World"), new Class[]{Integer.TYPE}, Lookup.serverClass("Entity"))
+    .search(Lookup.serverClass("World"), new Class[]{Integer.TYPE}, Lookup.serverClass("Entity"))
     .findAnyOrThrow();
 
   private final static MethodHandle bukkitEntityFromEntityAccessor = MethodSearchBySignature
-    .publicSearch(Lookup.serverClass("Entity"), new Class[0], Lookup.craftBukkitClass("entity.CraftEntity"))
+    .search(Lookup.serverClass("Entity"), new Class[0], Lookup.craftBukkitClass("entity.CraftEntity"))
     .findAnyOrThrow();
 
   private final static Cache<Integer, Entity> entityAccessCache =

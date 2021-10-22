@@ -3,14 +3,13 @@ package de.jpx3.intave.module.warning;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.packet.reader.PayloadInReader;
-import org.bukkit.Bukkit;
+import de.jpx3.intave.user.UserRepository;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -19,7 +18,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.CUSTOM_PAYLOAD;
+import static de.jpx3.intave.module.linker.packet.PacketId.Client.CUSTOM_PAYLOAD_IN;
 
 public final class ClientWarningModule extends Module {
   private final IntavePlugin plugin;
@@ -30,10 +29,9 @@ public final class ClientWarningModule extends Module {
     this.plugin = plugin;
   }
 
-
   @PacketSubscription(
     packetsIn = {
-      CUSTOM_PAYLOAD
+      CUSTOM_PAYLOAD_IN
     }
   )
   public void receivePayloadPacket(PacketEvent event) {
@@ -58,20 +56,13 @@ public final class ClientWarningModule extends Module {
     reader.close();
   }
 
-  @Native
   private void warn(Player player, ClientData clientData) {
     Long lastInformation = lastInformationPrinted.computeIfAbsent(player.getUniqueId(), uuid -> 0L);
     if (System.currentTimeMillis() - lastInformation < 1000) {
       return;
     }
     lastInformationPrinted.put(player.getUniqueId(), System.currentTimeMillis());
-
-    String message = ChatColor.RED + "[CW] " + player.getName() + " joined with " + clientData.name();
-    for (Player authenticatedPlayer : Bukkit.getOnlinePlayers()) {
-      if (plugin.sibylIntegrationService().isAuthenticated(authenticatedPlayer)) {
-        authenticatedPlayer.sendMessage(message);
-      }
-    }
+    UserRepository.userOf(player).meta().protocol().setClientBrand(clientData.name());
     switch (clientData.action()) {
       case "message":
         Synchronizer.synchronize(() -> {

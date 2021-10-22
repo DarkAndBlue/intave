@@ -43,6 +43,7 @@ public final class MethodSearchBySignature {
     return ofClass(target).withParameters(params).withReturnType(returnVal).search();
   }
 
+  @Deprecated
   public static MethodSearchBySignature publicSearch(Class<?> target, Class<?>[] params, Class<?> returnVal) {
     return ofClass(target).withParameters(params).withReturnType(returnVal).publicLookup().search();
   }
@@ -77,6 +78,7 @@ public final class MethodSearchBySignature {
       return this;
     }
 
+    @Deprecated
     public Builder publicLookup() {
       publicLookup = true;
       return this;
