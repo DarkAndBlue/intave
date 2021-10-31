@@ -49,7 +49,7 @@ public final class VoxelShape implements BlockShape {
   public double allowedOffset(Direction.Axis axis, BoundingBox collisionBox, double desiredOffset) {
     if (this.isEmpty()) {
       return desiredOffset;
-    } else if (Math.abs(desiredOffset) < 1.0E-7D) {
+    } else if (Math.abs(desiredOffset) < 0.0000001) {
       return 0.0D;
     } else {
       AxisRotation axisrotation = AxisRotation.from(axis, X_AXIS).reverse();

@@ -251,6 +251,26 @@ public final class MovementDispatcher extends Module {
       return;
     }
 
+    if (hasMovement) {
+      StructureModifier<Double> modifier = packet.getDoubles();
+      for (int i = 0; i < 3; i++) {
+        if (Double.isInfinite(modifier.read(i))) {
+          Synchronizer.synchronize(() -> player.kickPlayer("Infinite position?"));
+          return;
+        }
+      }
+    }
+
+    if (hasRotation) {
+      StructureModifier<Float> modifier = packet.getFloat();
+      for (int i = 0; i < 2; i++) {
+        if (Double.isInfinite(modifier.read(i))) {
+          Synchronizer.synchronize(() -> player.kickPlayer("Infinite rotation?"));
+          return;
+        }
+      }
+    }
+
     // garbage fix
     if (
       clientData.cavesAndCliffsUpdate() && !movementData.awaitTeleport && !movementData.awaitOutgoingTeleport
@@ -554,6 +574,10 @@ public final class MovementDispatcher extends Module {
     PacketContainer packet = event.getPacket();
     int strafeKey = (int) (packet.getFloat().read(0) / 0.98f);
     int forwardKey = (int) (packet.getFloat().read(1) / 0.98f);
+    if (Math.abs(strafeKey) > 1 || Math.abs(forwardKey) > 1) {
+      user.synchronizedDisconnect("Invalid key input");
+      return;
+    }
     Boolean jumping = packet.getBooleans().read(0);
     movementData.externalKeyApply = true;
     movementData.clientStrafeKey = strafeKey;

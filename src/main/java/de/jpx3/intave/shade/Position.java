@@ -45,6 +45,15 @@ public final class Position {
     return new Position(xCoordinate + motion.motionX, yCoordinate + motion.motionY, zCoordinate + motion.motionZ);
   }
 
+  @Override
+  public String toString() {
+    return "Position{" +
+      "x=" + xCoordinate +
+      ", y=" + yCoordinate +
+      ", z=" + zCoordinate +
+      '}';
+  }
+
   public static Position empty() {
     return new Position();
   }

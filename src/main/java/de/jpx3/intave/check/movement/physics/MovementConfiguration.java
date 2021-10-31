@@ -80,7 +80,7 @@ public final class MovementConfiguration {
 
   public MovementConfiguration withKeyPress(int forward, int strafe) {
     if (Math.abs(forward) > 1 || Math.abs(strafe) > 1) {
-      throw new IllegalStateException("That key can not exist");
+      throw new IllegalStateException("That key can not exist (" + forward + "/" + strafe+")");
     }
     int forwardSlot = (forward + 1 & 0x3) << BOOLEANS + 2;
     int strafeSlot = (strafe + 1 & 0x3) << BOOLEANS;
@@ -135,7 +135,7 @@ public final class MovementConfiguration {
     boolean jumped, boolean handActive
   ) {
     if (Math.abs(forward) > 1 || Math.abs(strafe) > 1) {
-      throw new IllegalStateException("That key can not exist");
+      throw new IllegalStateException("That key can not exist " + forward + " " + strafe);
     }
     int key =
       forward + 1 << BOOLEANS + 2 | strafe + 1 << BOOLEANS |

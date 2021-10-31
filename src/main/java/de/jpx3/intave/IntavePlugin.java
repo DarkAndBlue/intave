@@ -187,8 +187,6 @@ public final class IntavePlugin extends JavaPlugin {
       // we need to put this here
       BackgroundExecutor.start();
 
-//      packetSubscriptionLinker = new PacketSubscriptionLinker(this);
-
       // stage 7
       configurationService = new ConfigurationService(this);
       String configurationKey = configurationService.configurationKey();

@@ -1,5 +1,6 @@
 package de.jpx3.intave.check.movement.physics;
 
+import de.jpx3.intave.annotate.refactoring.SplitMeUp;
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.math.Hypot;
 import de.jpx3.intave.math.MathHelper;
@@ -12,9 +13,11 @@ import de.jpx3.intave.user.meta.ViolationMetadata;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+@SplitMeUp
 public final class SimulationEvaluator {
   private final static double LADDER_UPWARDS_MOTION = (0.2 - 0.08) * 0.98005f;
 
+  @SplitMeUp
   public double calculateVerticalViolationLevelIncrease(
     User user,
     double predictedY,
@@ -185,6 +188,7 @@ public final class SimulationEvaluator {
     return abuseVertically * multiplier;
   }
 
+  @SplitMeUp
   public double calculateHorizontalViolationIncrease(
     User user,
     double predictedX,

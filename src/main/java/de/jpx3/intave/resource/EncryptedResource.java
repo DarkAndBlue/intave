@@ -51,8 +51,8 @@ public final class EncryptedResource implements Resource {
     if (pluginInvocation != null && !pluginInvocation.pluginName().equals("Intave")) {
       throw new IllegalStateException("Unable to access resource file \"" + resourceId() + "\", is it corrupted?");
     }
+    FileChannel fileInputStream = acquireInputFileChannel();
     try {
-      FileChannel fileInputStream = acquireInputFileChannel();
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       fileInputStream.transferTo(0, Long.MAX_VALUE, Channels.newChannel(byteArrayOutputStream));
       ByteBuffer byteBuffer = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
@@ -67,10 +67,12 @@ public final class EncryptedResource implements Resource {
       Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
       GCMParameterSpec parameterSpec = new GCMParameterSpec(128, iv);
       cipher.init(Cipher.DECRYPT_MODE, secretKey, parameterSpec);
-      removeFileLock(fileInputStream);
       return new ByteArrayInputStream(cipher.doFinal(cipherBytes));
     } catch (Exception | Error throwable) {
+      fileStore().delete();
       throw new IntaveInternalException("Unable to access resource file \"" + resourceId() + "\" (\"" + name + "\"), is it corrupted?", throwable);
+    } finally {
+      removeFileLock(fileInputStream);
     }
   }
 
@@ -90,9 +92,9 @@ public final class EncryptedResource implements Resource {
     if (pluginInvocation == null || !pluginInvocation.pluginName().equals("Intave")) {
       throw new IllegalStateException("Unable to access resource file \"" + resourceId() + "\", is it corrupted?");
     }
+    // lock file early
+    FileChannel fileChannel = acquireOutputFileChannel();
     try {
-      // lock file early
-      FileChannel fileChannel = acquireOutputFileChannel();
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
       byte[] buf = new byte[4096];
       int i;
@@ -119,10 +121,11 @@ public final class EncryptedResource implements Resource {
       ReadableByteChannel byteChannel = Channels.newChannel(new ByteArrayInputStream(byteBuffer.array()));
       fileChannel.transferFrom(byteChannel, 0, Long.MAX_VALUE);
       file.setLastModified(System.currentTimeMillis());
-      removeFileLock(fileChannel);
     } catch (Exception exception) {
 //      exception.printStackTrace();
       return false;
+    } finally {
+      removeFileLock(fileChannel);
     }
     return file.exists();
   }

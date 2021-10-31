@@ -94,7 +94,14 @@ public final class Physics extends Check {
     Timings.CHECK_PHYSICS_PROC_TOT.start();
     predictFlyingPacketBeforeVelocity(user);
     // simulation
-    Simulation simulation = simulationProcessor.simulate(user, movementData.simulator());
+    Simulation simulation;
+    try {
+      simulation = simulationProcessor.simulate(user, movementData.simulator());
+    } catch (IllegalStateException exception) {
+      user.synchronizedDisconnect("An error occurred processing a movement packet");
+      exception.printStackTrace();
+      return;
+    }
     ComplexColliderSimulationResult collider = simulation.collider();
     movementData.onGround = collider.onGround();
     movementData.collidedHorizontally = collider.collidedHorizontally();
@@ -433,7 +440,7 @@ public final class Physics extends Check {
       String received = formatPosition(receivedMotionX, receivedMotionY, receivedMotionZ);
       String expected = formatPosition(predictedX, predictedY, predictedZ);
       String message = "moved incorrectly";
-      String details = received + " pred: " + expected;
+      String details = received + " est: " + expected;
 
       if (velocityDetected) {
         details += ", strict";
