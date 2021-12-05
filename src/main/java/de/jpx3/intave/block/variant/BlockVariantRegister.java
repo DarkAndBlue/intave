@@ -65,7 +65,7 @@ public final class BlockVariantRegister {
 
   @PatchyAutoTranslation
   private static class Indexer {
-    private final static boolean MODERN_INDEX = MinecraftVersions.VER1_14_0.atOrAbove();
+    private final static boolean AQUATIC_INDEX = MinecraftVersions.VER1_14_0.atOrAbove();
 
     @PatchyAutoTranslation
     public static void index(
@@ -73,15 +73,15 @@ public final class BlockVariantRegister {
       BiConsumer<Material, Map<Object, Integer>> indexApply,
       BiConsumer<Material, Map<Integer, Object>> registerApply
     ) {
-      if (MODERN_INDEX) {
-        modernIndex(type, indexApply, registerApply);
+      if (AQUATIC_INDEX) {
+        aquaticIndex(type, indexApply, registerApply);
       } else {
         legacyIndex(type, indexApply, registerApply);
       }
     }
 
     @PatchyAutoTranslation
-    public static void modernIndex(
+    public static void aquaticIndex(
       Material type,
       BiConsumer<Material, Map<Object, Integer>> indexApply,
       BiConsumer<Material, Map<Integer, Object>> registerApply

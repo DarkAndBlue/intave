@@ -65,8 +65,7 @@ public final class PatchyClassSwitchLoader<T> {
       throw new IllegalStateException("Base class name does not contain ver placeholder");
     }
     String version = nameOf(selectedVersion().orElseThrow(MissingVersionTranslationException::new));
-    String className = baseClassName.replace("{ver}", version);
-    return className;
+    return baseClassName.replace("{ver}", version);
   }
 
   private Optional<MinecraftVersion> selectedVersion() {

@@ -1,8 +1,8 @@
 package de.jpx3.intave.block.shape.pipe.patch;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.block.access.BlockVariantAccess;
 import de.jpx3.intave.block.type.BlockTypeAccess;
+import de.jpx3.intave.block.variant.BlockVariantAccess;
 import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.shade.Direction;
 import de.jpx3.intave.user.User;

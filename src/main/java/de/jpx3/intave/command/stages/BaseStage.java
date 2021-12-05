@@ -69,6 +69,18 @@ public final class BaseStage extends CommandStage {
     }
   }
 
+  private static String describePlayerList(List<String> elements) {
+    int size = elements.size();
+    String defaultColor = IntavePlugin.defaultColor();
+    if(size == 0) {
+      return defaultColor + "nobody";
+    } else if (size == 1) {
+      return elements.get(0);
+    } else {
+      return defaultColor + String.join(defaultColor + ", ", elements.subList(0, size - 1)) + defaultColor + " and " + elements.get(size - 1);
+    }
+  }
+
   @SubCommand(
     selectors = {"alert", "alerts"},
     hideInHelp = true,
@@ -79,18 +91,6 @@ public final class BaseStage extends CommandStage {
       showAllCommands(sender);
     } else {
       sender.sendMessage(IntavePlugin.prefix() + "Did you mean verbose or notify?");
-    }
-  }
-
-  private static String describePlayerList(List<String> elements) {
-    int size = elements.size();
-    String defaultColor = IntavePlugin.defaultColor();
-    if(size == 0) {
-      return defaultColor + "nobody";
-    } else if (size == 1) {
-      return elements.get(0);
-    } else {
-      return defaultColor + String.join(defaultColor + ", ", elements.subList(0, size - 1)) + defaultColor + " and " + elements.get(size - 1);
     }
   }
 

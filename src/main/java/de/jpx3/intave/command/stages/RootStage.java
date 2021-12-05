@@ -371,7 +371,7 @@ public final class RootStage extends CommandStage {
       target = user.player();
     }
     UserRepository.userOf(target).setTrustFactor(trustFactor);
-    user.player().sendMessage(ChatColor.GRAY + "Applied "+trustFactor.chatColor() + trustFactor.name() + ChatColor.GRAY+" trustfactor to " +ChatColor.RED + target.getName());
+    user.player().sendMessage(ChatColor.GRAY + "Applied "+trustFactor.chatColor() + trustFactor.name() + ChatColor.GRAY + " trustfactor to " +ChatColor.RED + target.getName());
   }
 
   @SubCommand(
@@ -386,7 +386,7 @@ public final class RootStage extends CommandStage {
       target = user.player();
     }
     TrustFactor trustFactor = UserRepository.userOf(target).trustFactor();
-    user.player().sendMessage(ChatColor.RED + target.getName() + ChatColor.GRAY + " has a "+trustFactor.chatColor() + trustFactor.name() + ChatColor.GRAY+" trustfactor");
+    user.player().sendMessage(ChatColor.RED + target.getName() + ChatColor.GRAY + " has a " + trustFactor.chatColor() + trustFactor.name() + ChatColor.GRAY+" trustfactor");
   }
 
   @SubCommand(

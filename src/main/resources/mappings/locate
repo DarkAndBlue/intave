@@ -1,7 +1,7 @@
 AxisAlignedBB -> {
-  17 -> "net/minecraft/world/phys/AxisAlignedBB"
+  [17-18] -> "net/minecraft/world/phys/AxisAlignedBB"
   fields {
-    17 -> {
+    [17-18] -> {
       "minX" -> "a"
       "minY" -> "b"
       "minZ" -> "c"
@@ -13,53 +13,53 @@ AxisAlignedBB -> {
 }
 
 Block -> {
-  17 -> "net/minecraft/world/level/block/Block"
+  [17-18] -> "net/minecraft/world/level/block/Block"
 }
 
 BlockStateInteger -> {
-  17 -> "net/minecraft/world/level/block/state/properties/BlockStateInteger"
+  [17-18] -> "net/minecraft/world/level/block/state/properties/BlockStateInteger"
 }
 
 BlockStateBoolean -> {
-  17 -> "net/minecraft/world/level/block/state/properties/BlockStateBoolean"
+  [17-18] -> "net/minecraft/world/level/block/state/properties/BlockStateBoolean"
 }
 
 BlockStateList -> {
-  17 -> "net/minecraft/world/level/block/state/BlockStateList"
+  [17-18] -> "net/minecraft/world/level/block/state/BlockStateList"
 }
 
 BlockPosition -> {
-  17 -> "net/minecraft/core/BlockPosition"
+  [17-18] -> "net/minecraft/core/BlockPosition"
 }
 
 BlockPosition$MutableBlockPosition -> {
-  17 -> "net/minecraft/core/BlockPosition$MutableBlockPosition"
+  [17-18] -> "net/minecraft/core/BlockPosition$MutableBlockPosition"
 }
 
 Chunk -> {
-  17 -> "net/minecraft/world/level/chunk/Chunk"
+  [17-18] -> "net/minecraft/world/level/chunk/Chunk"
 }
 
 ChunkProviderServer -> {
-  17 -> "net/minecraft/server/level/ChunkProviderServer"
+  [17-18] -> "net/minecraft/server/level/ChunkProviderServer"
 }
 
 DataWatcher -> {
-  17 -> "net/minecraft/network/syncher/DataWatcher"
+  [17-18] -> "net/minecraft/network/syncher/DataWatcher"
 }
 
 DataWatcherObject -> {
-  17 -> "net/minecraft/network/syncher/DataWatcherObject"
+  [17-18] -> "net/minecraft/network/syncher/DataWatcherObject"
 }
 
 DamageSource -> {
-  17 -> "net/minecraft/world/damagesource/DamageSource"
+  [17-18] -> "net/minecraft/world/damagesource/DamageSource"
 }
 
 Entity -> {
-  17 -> "net/minecraft/world/entity/Entity"
+  [17-18] -> "net/minecraft/world/entity/Entity"
   fields {
-    17 -> {
+    [17-18] -> {
       "yaw" -> "ay"
       "pitch" -> "az"
       "onGround" -> "z"
@@ -68,22 +68,22 @@ Entity -> {
 }
 
 EntityHuman -> {
-  17 -> "net/minecraft/world/entity/player/EntityHuman"
+  [17-18] -> "net/minecraft/world/entity/player/EntityHuman"
   fields {
-    17 -> {
+    [17-18] -> {
       "inventory" -> "co"
     }
   }
 }
 
 EntityTypes -> {
-  17 -> "net/minecraft/world/entity/EntityTypes"
+  [17-18] -> "net/minecraft/world/entity/EntityTypes"
 }
 
 EntitySize -> {
-  17 -> "net/minecraft/world/entity/EntitySize"
+  [17-18] -> "net/minecraft/world/entity/EntitySize"
   fields {
-    17 -> {
+    [17-18] -> {
       "width" -> "a"
       "height" -> "b"
     }
@@ -91,18 +91,18 @@ EntitySize -> {
 }
 
 EntityLiving -> {
-  17 -> "net/minecraft/world/entity/EntityLiving"
+  [17-18] -> "net/minecraft/world/entity/EntityLiving"
   fields {
-    17 -> {
+    [17-18] -> {
       "maxNoDamageTicks" -> "aU"
     }
   }
 }
 
 EntityPlayer -> {
-  17 -> "net/minecraft/server/level/EntityPlayer"
+  [17-18] -> "net/minecraft/server/level/EntityPlayer"
   fields {
-    17 -> {
+    [17-18] -> {
       "playerConnection" -> "b"
       "inventory" -> "co"
     }
@@ -110,123 +110,128 @@ EntityPlayer -> {
 }
 
 EnumMainHand -> {
-  17 -> "net/minecraft/world/entity/EnumMainHand"
+  [17-18] -> "net/minecraft/world/entity/EnumMainHand"
 }
 
 Fluid -> {
-  17 -> "net/minecraft/world/level/material/Fluid"
+  [17-18] -> "net/minecraft/world/level/material/Fluid"
 }
 
 GeneratorAccess -> {
-  17 -> "net/minecraft/world/level/GeneratorAccess"
+  [17-18] -> "net/minecraft/world/level/GeneratorAccess"
 }
 
 IBlockAccess -> {
-  17 -> "net/minecraft/world/level/IBlockAccess"
+  [17-18] -> "net/minecraft/world/level/IBlockAccess"
 }
 
 IBlockData -> {
-  17 -> "net/minecraft/world/level/block/state/IBlockData"
+  [17-18] -> "net/minecraft/world/level/block/state/IBlockData"
+  methods {
+    18 -> {
+      "getBlock()RBlock;" -> "b()RBlock;"
+    }
+  }
 }
 
 IBlockState -> {
-  17 -> "net/minecraft/world/level/block/state/properties/IBlockState"
+  [17-18] -> "net/minecraft/world/level/block/state/properties/IBlockState"
 }
 
 BlockStateInteger -> {
-  17 -> "net/minecraft/world/level/block/state/properties/BlockStateInteger"
+  [17-18] -> "net/minecraft/world/level/block/state/properties/BlockStateInteger"
 }
 
 BlockStateBoolean -> {
-  17 -> "net/minecraft/world/level/block/state/properties/BlockStateBoolean"
+  [17-18] -> "net/minecraft/world/level/block/state/properties/BlockStateBoolean"
 }
 
 BlockStateEnum -> {
-  17 -> "net/minecraft/world/level/block/state/properties/BlockStateEnum"
+  [17-18] -> "net/minecraft/world/level/block/state/properties/BlockStateEnum"
 }
 
 BlockStateDirection -> {
-  17 -> "net/minecraft/world/level/block/state/properties/BlockStateDirection"
+  [17-18] -> "net/minecraft/world/level/block/state/properties/BlockStateDirection"
 }
 
 IChatBaseComponent -> {
-  17 -> "net/minecraft/network/chat/IChatBaseComponent"
+  [17-18] -> "net/minecraft/network/chat/IChatBaseComponent"
 }
 
 IChunkProvider -> {
-  17 -> "net/minecraft/world/level/chunk/IChunkProvider"
+  [17-18] -> "net/minecraft/world/level/chunk/IChunkProvider"
 }
 
 InventoryClickType -> {
-  17 -> "net/minecraft/world/inventory/InventoryClickType"
+  [17-18] -> "net/minecraft/world/inventory/InventoryClickType"
 }
 
 IRegistry -> {
-  17 -> "net/minecraft/core/IRegistry"
+  [17-18] -> "net/minecraft/core/IRegistry"
   fields {
-    17 -> {
+    [17-18] -> {
       "ENTITY_TYPE" -> "Y"
     }
   }
 }
 
 Item -> {
-  17 -> "net/minecraft/world/item/Item"
+  [17-18] -> "net/minecraft/world/item/Item"
 }
 
 IWorldReader -> {
-  17 -> "net/minecraft/world/level/IWorldReader"
+  [17-18] -> "net/minecraft/world/level/IWorldReader"
 }
 
 Material -> {
-  17 -> "net/minecraft/world/level/material/Material"
+  [17-18] -> "net/minecraft/world/level/material/Material"
 }
 
 MinecraftServer -> {
-  17 -> "net/minecraft/server/MinecraftServer"
+  [17-18] -> "net/minecraft/server/MinecraftServer"
 }
 
 MovingObjectPosition -> {
-  17 -> "net/minecraft/world/phys/MovingObjectPosition"
+  [17-18] -> "net/minecraft/world/phys/MovingObjectPosition"
   fields {
-    17 -> {
+    [17-18] -> {
       "pos" -> "a"
     }
   }
 }
 
 MovingObjectPositionEntity -> {
-  17 -> "net/minecraft/world/phys/MovingObjectPositionEntity"
+  [17-18] -> "net/minecraft/world/phys/MovingObjectPositionEntity"
 }
 
 MovingObjectPositionBlock -> {
-  17 -> "net/minecraft/world/phys/MovingObjectPositionBlock"
+  [17-18] -> "net/minecraft/world/phys/MovingObjectPositionBlock"
 }
 
 NetworkManager -> {
-  17 -> "net/minecraft/network/NetworkManager"
+  [17-18] -> "net/minecraft/network/NetworkManager"
 }
 
 Packet -> {
-  17 -> "net/minecraft/network/protocol/Packet"
+  [17-18] -> "net/minecraft/network/protocol/Packet"
 }
 
 PacketDataSerializer -> {
-  17 -> "net/minecraft/network/PacketDataSerializer"
+  [17-18] -> "net/minecraft/network/PacketDataSerializer"
 }
 
 PacketLoginInStart -> {
-  17 -> "net/minecraft/network/protocol/login/PacketLoginInStart"
+  [17-18] -> "net/minecraft/network/protocol/login/PacketLoginInStart"
 }
 
 PacketPlayOutScoreboardTeam -> {
-  17 -> "net/minecraft/network/protocol/game/PacketPlayOutScoreboardTeam"
+  [17-18] -> "net/minecraft/network/protocol/game/PacketPlayOutScoreboardTeam"
 }
 
 PacketPlayOutPosition$EnumPlayerTeleportFlags -> {
-  17 -> "net/minecraft/network/protocol/game/PacketPlayOutPosition$EnumPlayerTeleportFlags"
+  [17-18] -> "net/minecraft/network/protocol/game/PacketPlayOutPosition$EnumPlayerTeleportFlags"
   fields {
-    17 -> {
+    [17-18] -> {
       "X_ROT" -> "d"
       "Y_ROT" -> "e"
     }
@@ -234,25 +239,25 @@ PacketPlayOutPosition$EnumPlayerTeleportFlags -> {
 }
 
 PacketPlayInEntityAction$EnumPlayerAction -> {
-  17 -> "net/minecraft/network/protocol/game/PacketPlayInEntityAction$EnumPlayerAction"
+  [17-18] -> "net/minecraft/network/protocol/game/PacketPlayInEntityAction$EnumPlayerAction"
 }
 
 PacketPlayOutGameStateChange$a -> {
-  17 -> "net/minecraft/network/protocol/game/PacketPlayOutGameStateChange$a"
+  [17-18] -> "net/minecraft/network/protocol/game/PacketPlayOutGameStateChange$a"
 }
 
 PlayerConnection -> {
-  17 -> "net/minecraft/server/network/PlayerConnection"
+  [17-18] -> "net/minecraft/server/network/PlayerConnection"
 }
 
 RayTrace -> {
-  17 -> "net/minecraft/world/level/RayTrace"
+  [17-18] -> "net/minecraft/world/level/RayTrace"
 }
 
 RayTrace$BlockCollisionOption -> {
-  17 -> "net/minecraft/world/level/RayTrace$BlockCollisionOption"
+  [17-18] -> "net/minecraft/world/level/RayTrace$BlockCollisionOption"
   fields {
-    17 -> {
+    [17-18] -> {
       "COLLIDER" -> "a"
       "OUTLINE" -> "b"
       "VISUAL" -> "c"
@@ -261,9 +266,9 @@ RayTrace$BlockCollisionOption -> {
 }
 
 RayTrace$FluidCollisionOption -> {
-  17 -> "net/minecraft/world/level/RayTrace$FluidCollisionOption"
+  [17-18] -> "net/minecraft/world/level/RayTrace$FluidCollisionOption"
   fields {
-    17 -> {
+    [17-18] -> {
       "NONE" -> "a"
       "SOURCE_ONLY" -> "b"
       "ANY" -> "c"
@@ -272,21 +277,21 @@ RayTrace$FluidCollisionOption -> {
 }
 
 RegistryBlocks -> {
-  17 -> "net/minecraft/core/RegistryBlocks"
+  [17-18] -> "net/minecraft/core/RegistryBlocks"
 }
 
 Scoreboard -> {
-  17 -> "net/minecraft/world/scores/Scoreboard"
+  [17-18] -> "net/minecraft/world/scores/Scoreboard"
 }
 
 ScoreboardTeam -> {
-  17 -> "net/minecraft/world/scores/ScoreboardTeam"
+  [17-18] -> "net/minecraft/world/scores/ScoreboardTeam"
 }
 
 ScoreboardTeamBase$EnumNameTagVisibility -> {
-  17 -> "net/minecraft/world/scores/ScoreboardTeamBase$EnumNameTagVisibility"
+  [17-18] -> "net/minecraft/world/scores/ScoreboardTeamBase$EnumNameTagVisibility"
   fields {
-    17 -> {
+    [17-18] -> {
       "ALWAYS" -> "a"
       "NEVER" -> "b"
       "HIDE_FOR_OTHER_TEAMS" -> "c"
@@ -296,17 +301,17 @@ ScoreboardTeamBase$EnumNameTagVisibility -> {
 }
 
 ServerConnection -> {
-  17 -> "net/minecraft/server/network/ServerConnection"
+  [17-18] -> "net/minecraft/server/network/ServerConnection"
 }
 
 Tag -> {
-  17 -> "net/minecraft/tags/Tag"
+  [17-18] -> "net/minecraft/tags/Tag"
 }
 
 TagsFluid -> {
-  17 -> "net/minecraft/tags/TagsFluid"
+  [17-18] -> "net/minecraft/tags/TagsFluid"
   fields {
-    17 -> {
+    [17-18] -> {
       "WATER" -> "b"
       "LAVA" -> "c"
     }
@@ -314,9 +319,9 @@ TagsFluid -> {
 }
 
 Vec3D -> {
-  17 -> "net/minecraft/world/phys/Vec3D"
+  [17-18] -> "net/minecraft/world/phys/Vec3D"
   fields {
-    17 -> {
+    [17-18] -> {
       "x" -> "b"
       "y" -> "c"
       "z" -> "d"
@@ -325,17 +330,17 @@ Vec3D -> {
 }
 
 VoxelShape -> {
-  17 -> "net/minecraft/world/phys/shapes/VoxelShape"
+  [17-18] -> "net/minecraft/world/phys/shapes/VoxelShape"
 }
 
 VoxelShapes -> {
-  17 -> "net/minecraft/world/phys/shapes/VoxelShapes"
+  [17-18] -> "net/minecraft/world/phys/shapes/VoxelShapes"
 }
 
 World -> {
-  17 -> "net/minecraft/world/level/World"
+  [17-18] -> "net/minecraft/world/level/World"
 }
 
 WorldServer -> {
-  17 -> "net/minecraft/server/level/WorldServer"
+  [17-18] -> "net/minecraft/server/level/WorldServer"
 }

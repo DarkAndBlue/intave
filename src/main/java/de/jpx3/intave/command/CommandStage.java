@@ -15,7 +15,7 @@ public abstract class CommandStage {
   private final static Map<Class<? extends CommandStage>, CommandStage> globalInstances = new HashMap<>();
   private final CommandStage parent;
   private final String name;
-  private final List<CommandExecutor> subCommandList = new ArrayList<>();
+  private final List<CommandExecutor> commandExecutors = new ArrayList<>();
 
   protected CommandStage(CommandStage parent, String name) {
     this.parent = parent;
@@ -31,12 +31,12 @@ public abstract class CommandStage {
 
   public void processMethod(Method method) {
     if (method.getDeclaredAnnotation(SubCommand.class) != null) {
-      subCommandList.add(new CommandExecutor(this, method));
+      commandExecutors.add(new CommandExecutor(this, method));
     }
   }
 
   public void orderSubCommands() {
-    subCommandList.sort(Comparator.comparing(commandExecutor -> commandExecutor.selectors()[0]));
+    commandExecutors.sort(Comparator.comparing(commandExecutor -> commandExecutor.selectors()[0]));
   }
 
   private final static String NO_PERMISSION_MESSAGE = ChatColor.RED + "I'm sorry, but you do not have permission to perform this command. Please contact the server administrators if you believe that this is in error.";
@@ -118,7 +118,7 @@ public abstract class CommandStage {
 
   @Native
   private List<String> subcommandCompletions(CommandSender player) {
-    return subCommandList.stream()
+    return commandExecutors.stream()
       .filter(subCommand -> BukkitPermissionCheck.permissionCheck(player, subCommand.permission()))
       .filter(subCommand -> !subCommand.hideInHelp())
       .map(subCommand -> subCommand.selectors()[0])
@@ -130,7 +130,7 @@ public abstract class CommandStage {
   @Native
   protected void showAllCommands(CommandSender sender) {
     List<String> messages = new ArrayList<>();
-    for (CommandExecutor commandExecutor : subCommandList) {
+    for (CommandExecutor commandExecutor : commandExecutors) {
       if (commandExecutor.hideInHelp()) {
         continue;
       }
@@ -211,7 +211,7 @@ public abstract class CommandStage {
 
   private CommandExecutor findLink(String commandName) {
     String finalCommandName = commandName.toLowerCase(Locale.ROOT);
-    return subCommandList.stream()
+    return commandExecutors.stream()
       .filter(commandExecutor -> Arrays.asList(commandExecutor.selectors()).contains(finalCommandName))
       .findFirst().orElse(null);
   }
@@ -219,7 +219,7 @@ public abstract class CommandStage {
   @Native
   private LevenshteinPicker.SearchResult levenshteinSubCommandPick(CommandSender sender, String search) {
     List<String> haystacks = new ArrayList<>();
-    for (CommandExecutor commandExecutor : subCommandList) {
+    for (CommandExecutor commandExecutor : commandExecutors) {
       String permission = commandExecutor.permission();
       if (permission.equals("sibyl") && !(sender instanceof Player && IntavePlugin.singletonInstance().sibylIntegrationService().isAuthenticated((Player) sender))) {
         continue;
@@ -233,7 +233,7 @@ public abstract class CommandStage {
 
   @Native
   private CommandExecutor subcommandBySelector(CommandSender sender, String search) {
-    for (CommandExecutor subCommand : subCommandList) {
+    for (CommandExecutor subCommand : commandExecutors) {
       String permission = subCommand.permission();
       if (sender instanceof Player && permission.equals("sibyl") && !IntavePlugin.singletonInstance().sibylIntegrationService().isAuthenticated((Player) sender)) {
         continue;

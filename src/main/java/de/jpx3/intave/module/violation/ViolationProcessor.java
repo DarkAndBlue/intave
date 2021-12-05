@@ -287,17 +287,21 @@ public final class ViolationProcessor extends Module {
   private final static MessageChannel VERBOSE_MESSAGE_CHANNEL = MessageChannel.VERBOSE;
 
   public void broadcastVerbose(Player target, ViolationContext violationContext) {
+    Collection<Player> receivers = MessageChannelSubscriptions.receiverOf(VERBOSE_MESSAGE_CHANNEL);
+    if (receivers.isEmpty()) {
+      return;
+    }
     String message = MessageFormatter.resolveVerboseMessage(
       target, violationContext.placeholderContextOf(DetailScope.FULL)
     );
-    for (Player allPlayers : MessageChannelSubscriptions.receiverOf(VERBOSE_MESSAGE_CHANNEL)) {
-      User allUsers = UserRepository.userOf(allPlayers);
-      if (!allUsers.receives(VERBOSE_MESSAGE_CHANNEL)) {
+    for (Player receiver : receivers) {
+      User receiverUser = UserRepository.userOf(receiver);
+      if (!receiverUser.receives(VERBOSE_MESSAGE_CHANNEL)) {
         continue;
       }
-      Predicate<Player> constraint = allUsers.channelPlayerConstraint(VERBOSE_MESSAGE_CHANNEL);
+      Predicate<Player> constraint = receiverUser.channelPlayerConstraint(VERBOSE_MESSAGE_CHANNEL);
       if (constraint == null || constraint.test(target)) {
-        synchronizedMessage(allPlayers, message);
+        synchronizedMessage(receiver, message);
       }
     }
   }

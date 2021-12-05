@@ -1,6 +1,7 @@
 package de.jpx3.intave.block.access;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.block.variant.BlockVariantAccess;
 import de.jpx3.intave.klass.rewrite.PatchyAutoTranslation;
 import de.jpx3.intave.klass.rewrite.PatchyLoadingInjector;
 import de.jpx3.intave.klass.rewrite.PatchyTranslateParameters;

@@ -24,15 +24,19 @@ public final class ShapeCombiner {
 
   public BlockShape compile() {
     if (EMPTY == this) {
+      // fast escape
       return BlockShapes.emptyShape();
     } else {
       int size = shapes.size();
-      if (size == 1) {
-        return shapes.get(0);
-      } else if (size == 2) {
-        return new MergeBlockShape(shapes.get(0), shapes.get(1));
-      } else {
-        return new ArrayBlockShape(shapes);
+      switch (size) {
+        case 0:
+          return BlockShapes.emptyShape();
+        case 1:
+          return shapes.get(0);
+        case 2:
+          return new MergeBlockShape(shapes.get(0), shapes.get(1));
+        default:
+          return new ArrayBlockShape(shapes);
       }
     }
   }

@@ -15,7 +15,6 @@ import org.bukkit.entity.Player;
 import static de.jpx3.intave.diagnostic.timings.Timings.SERVICE_TYPE_LOOKUP;
 
 @Relocate
-@Deprecated
 public final class BlockTypeAccess {
   public static final Material WEB = resolveFrom("WEB", "COBWEB");
   public static final Material SNOW_LAYER = resolveFrom("SNOW", "SNOW_LAYER");
@@ -23,8 +22,7 @@ public final class BlockTypeAccess {
   public static final Material NETHER_PORTAL = resolveFrom("PORTAL", "NETHER_PORTAL");
   public static final Material SKULL = resolveFrom("SKULL", "LEGACY_SKULL");
 
-  public static void setup() {
-  }
+  public static void setup() {}
 
   private static Material resolveFrom(String name, String alternativeName) {
     Material material = Material.getMaterial(name);
@@ -38,6 +36,7 @@ public final class BlockTypeAccess {
       throw new IntaveInternalException("Unable to find block " + name + " or " + alternativeName);
     }
   }
+
   private static final FileTypeTranslator translator = new VerTraFileTypeTranslator();
   private static final TypeTranslations typeTranslations;
 
@@ -53,7 +52,7 @@ public final class BlockTypeAccess {
   }
 
   /**
-   * This method performs a direct type lookup, which will be incorrect if the underlying chunk has not been loaded yet.
+   * This method performs a direct type lookup, which will cause lag if the underlying chunk has not been loaded yet.
    * To avoid this, use {@link VolatileBlockAccess#typeAccess(User, World, int, int, int)} instead,
    * providing fast performance, a robust cache implementation and stable fallback
    */
@@ -68,7 +67,7 @@ public final class BlockTypeAccess {
   }
 
   /**
-   * This method performs a direct type lookup, which will be incorrect if the underlying chunk has not been loaded yet.
+   * This method performs a direct type lookup, which will cause lag if the underlying chunk has not been loaded yet.
    * To avoid this, use {@link VolatileBlockAccess#typeAccess(User, World, int, int, int)} instead,
    * providing fast performance, a robust cache implementation and stable fallback
    */

@@ -1,10 +1,10 @@
 package de.jpx3.intave.player.fake.movement;
 
-import de.jpx3.intave.block.access.BlockVariantAccess;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.shape.ShapeResolver;
 import de.jpx3.intave.block.shape.ShapeResolverPipeline;
 import de.jpx3.intave.block.type.BlockTypeAccess;
+import de.jpx3.intave.block.variant.BlockVariantAccess;
 import de.jpx3.intave.player.collider.simple.SimpleColliderSimulationResult;
 import de.jpx3.intave.shade.BoundingBox;
 import org.bukkit.Location;

@@ -3,16 +3,19 @@ package de.jpx3.intave.klass.locate;
 import de.jpx3.intave.cleanup.ShutdownTasks;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class Locate {
-  private final static ClassAndFieldLocations CLASS_AND_FIELD_LOCATIONS =
-    ClassAndFieldLocationFileCompiler.create().fromResourceInJar("/mappings/locate").reduced();
+  private final static Locations CLASS_AND_FIELD_LOCATIONS =
+    LocateFileCompiler.create().fromResourceInJar("/mappings/locate").reduced();
   private final static ClassLocations classLocation = CLASS_AND_FIELD_LOCATIONS.classLocations();
   private final static FieldLocations fieldLocations = CLASS_AND_FIELD_LOCATIONS.fieldLocations();
+  private final static MethodLocations methodLocations = CLASS_AND_FIELD_LOCATIONS.methodLocations();
   private final static Map<String, ClassLocation> classLocationCache = new ConcurrentHashMap<>();
   private final static Map<String, FieldLocation> fieldLocationCache = new ConcurrentHashMap<>();
+  private final static Map<String, MethodLocation> methodLocationCache = new ConcurrentHashMap<>();
 
   public static String patchyConvert(String input) {
     input = input.replace("/", ".");
@@ -55,6 +58,36 @@ public final class Locate {
       .findAnyOrDefault(() -> ClassLocation.defaultFor(key));
   }
 
+  public static String patchyMethodCovert(String classInput, String methodName, String methodDescription) {
+    classInput = classInput.replace("/", ".");
+    String outputName;
+    if (classInput.startsWith("net.minecraft.server.v")) {
+      outputName = methodNameByKey(classInput.split("\\.")[4], methodName + methodDescription);
+    } else {
+      outputName = methodName;
+    }
+    return outputName;
+  }
+
+  public static Method methodByKey(String classKey, String methodKey) {
+    String key = classKey + "." + methodKey;
+    MethodLocation methodLocation = methodLocationCache.computeIfAbsent(key, s -> methodLookupByKey(classKey, methodKey));
+    return methodLocation.access();
+  }
+
+  public static String methodNameByKey(String classKey, String methodKey) {
+    String key = classKey + "." + methodKey;
+    MethodLocation methodLocation = methodLocationCache.computeIfAbsent(key, s -> methodLookupByKey(classKey, methodKey));
+    return methodLocation.targetMethodName();
+  }
+
+  private static MethodLocation methodLookupByKey(String classKey, String methodKey) {
+    return methodLocations
+      .filterByClassKey(classKey)
+      .filterByMethodKey(methodKey)
+      .findAnyOrDefault(() -> MethodLocation.defaultFor(classKey, methodKey));
+  }
+
   public static String patchyFieldCovert(String classInput, String fieldKey) {
     classInput = classInput.replace("/", ".");
     String output;
@@ -69,8 +102,7 @@ public final class Locate {
   public static Field fieldByKey(String classKey, String fieldKey) {
     String key = classKey + "." + fieldKey;
     FieldLocation fieldLocation = fieldLocationCache.computeIfAbsent(key, s -> fieldLookupByKey(classKey, fieldKey));
-    Class<?> owner = classByKey(classKey);
-    return fieldLocation.access(owner);
+    return fieldLocation.access();
   }
 
   public static String fieldNameByKey(String classKey, String fieldKey) {

@@ -5,12 +5,12 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.event.BucketAction;
 import de.jpx3.intave.block.access.BlockInteractionAccess;
-import de.jpx3.intave.block.access.BlockVariantAccess;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.physics.MaterialMagic;
 import de.jpx3.intave.block.state.BlockStateAccess;
 import de.jpx3.intave.block.type.BlockTypeAccess;
+import de.jpx3.intave.block.variant.BlockVariantAccess;
 import de.jpx3.intave.check.EventProcessor;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
@@ -144,7 +144,7 @@ public final class InteractionEmulator implements EventProcessor {
       BlockStateAccess blockStateAccess = userOf(player).blockStates();
       blockStateAccess.override(world, blockX, blockY, blockZ, replacementType, variant);
       // enforce block reset later
-      Synchronizer.packetSynchronize(() -> {
+      Synchronizer.synchronize(() -> {
         Synchronizer.synchronize(() -> blockStateAccess.invalidateOverride(blockX, blockY, blockZ));
       });
     } else {
@@ -224,7 +224,7 @@ public final class InteractionEmulator implements EventProcessor {
         blockStateAccess.override(world, block.getX(), block.getY() + 1, block.getZ(), clickedType, upperData);
 
         Block finalBlock = block;
-        Synchronizer.packetSynchronize(() -> {
+        Synchronizer.synchronize(() -> {
           blockStateAccess.invalidateOverride(finalBlock.getX(), finalBlock.getY(), finalBlock.getZ());
           blockStateAccess.invalidateOverride(finalBlock.getX(), finalBlock.getY() + 1, finalBlock.getZ());
         });
@@ -247,7 +247,7 @@ public final class InteractionEmulator implements EventProcessor {
         Material material = BlockTypeAccess.typeAccess(block, player);
         blockStateAccess.override(world, block.getX(), block.getY(), block.getZ(), material, newData);
         Block finalBlock1 = block;
-        Synchronizer.packetSynchronize(() -> blockStateAccess.invalidateOverride(finalBlock1.getX(), finalBlock1.getY(), finalBlock1.getZ()));
+        Synchronizer.synchronize(() -> blockStateAccess.invalidateOverride(finalBlock1.getX(), finalBlock1.getY(), finalBlock1.getZ()));
         break;
       }
     }

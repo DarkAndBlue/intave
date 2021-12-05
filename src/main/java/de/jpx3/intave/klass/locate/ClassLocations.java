@@ -17,12 +17,12 @@ public final class ClassLocations {
   }
 
   public ClassLocations filterByKey(String key) {
-    return forward(classLocation -> classLocation.key().equals(key));
+    return filter(classLocation -> classLocation.key().equals(key));
   }
 
   public ClassLocations reduceToCurrentVersion() {
     int currentMinecraftVersion = currentMinecraftVersion();
-    return forward(classLocation -> classLocation.versionMatcher().matches(currentMinecraftVersion));
+    return filter(classLocation -> classLocation.versionMatcher().matches(currentMinecraftVersion));
   }
 
   private int currentMinecraftVersion() {
@@ -45,7 +45,7 @@ public final class ClassLocations {
     return StreamSupport.stream(this.classLocations.spliterator(), false);
   }
 
-  public ClassLocations forward(Predicate<ClassLocation> predicate) {
+  public ClassLocations filter(Predicate<ClassLocation> predicate) {
     return new ClassLocations(
       stream().filter(predicate).collect(Collectors.toList())
     );

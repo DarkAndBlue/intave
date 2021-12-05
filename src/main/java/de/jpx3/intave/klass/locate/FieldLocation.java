@@ -1,5 +1,7 @@
 package de.jpx3.intave.klass.locate;
 
+import de.jpx3.intave.klass.Lookup;
+
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
@@ -16,18 +18,18 @@ public final class FieldLocation extends Location {
     this.target = target;
   }
 
-  public Field access(Class<?> owner) {
+  public Field access() {
     Field field = fieldCache.get();
     if (field == null) {
-      field = compile(owner);
+      field = compile();
       fieldCache = new WeakReference<>(field);
     }
     return field;
   }
 
-  private Field compile(Class<?> owner) {
+  private Field compile() {
     try {
-      Field declaredField = owner.getDeclaredField(target);
+      Field declaredField = Lookup.serverClass(classKey).getDeclaredField(target);
       if (!declaredField.isAccessible()) {
         declaredField.setAccessible(true);
       }

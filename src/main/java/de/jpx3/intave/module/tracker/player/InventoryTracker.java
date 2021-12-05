@@ -306,7 +306,7 @@ public final class InventoryTracker extends Module {
       && packet.getDirections().read(0).equals(EnumWrappers.Direction.DOWN)
       && packet.getBlockPositionModifier().read(0).toVector().length() == 0
     ) {
-      event.setCancelled(true);
+//      event.setCancelled(true);
       return;
     }
 

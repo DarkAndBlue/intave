@@ -16,16 +16,16 @@ public final class FieldLocations {
   }
 
   public FieldLocations filterByClassKey(String key) {
-    return forward(fieldLocation -> fieldLocation.classKey().equals(key));
+    return filter(fieldLocation -> fieldLocation.classKey().equals(key));
   }
 
   public FieldLocations filterByFieldKey(String key) {
-    return forward(fieldLocation -> fieldLocation.key().equals(key));
+    return filter(fieldLocation -> fieldLocation.key().equals(key));
   }
 
   public FieldLocations reduceToCurrentVersion() {
     int currentMinecraftVersion = currentMinecraftVersion();
-    return forward(fieldLocation -> fieldLocation.versionMatcher().matches(currentMinecraftVersion));
+    return filter(fieldLocation -> fieldLocation.versionMatcher().matches(currentMinecraftVersion));
   }
 
   private int currentMinecraftVersion() {
@@ -36,7 +36,7 @@ public final class FieldLocations {
     return StreamSupport.stream(this.fieldLocations.spliterator(), false);
   }
 
-  public FieldLocations forward(Predicate<FieldLocation> predicate) {
+  public FieldLocations filter(Predicate<FieldLocation> predicate) {
     Iterable<FieldLocation> classLocations = stream().filter(predicate).collect(Collectors.toList());
     return new FieldLocations(classLocations);
   }

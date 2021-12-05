@@ -79,6 +79,8 @@ public final class CubeShape extends MemoryTraced implements BlockShape {
   }
 
   public boolean intersectsWith(BoundingBox boundingBox) {
-    return boundingBox.maxX > min(X_AXIS) && boundingBox.minX < max(X_AXIS) && (boundingBox.maxY > min(Y_AXIS) && boundingBox.minY < max(Y_AXIS) && boundingBox.maxZ > min(Z_AXIS) && boundingBox.minZ < max(Z_AXIS));
+    return boundingBox.maxX > min(X_AXIS) && boundingBox.minX < max(X_AXIS) &&
+      boundingBox.maxY > min(Y_AXIS) && boundingBox.minY < max(Y_AXIS) &&
+      boundingBox.maxZ > min(Z_AXIS) && boundingBox.minZ < max(Z_AXIS);
   }
 }

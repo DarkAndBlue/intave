@@ -16,7 +16,7 @@ public final class BukkitPermissionCheck {
       }
       return playerPermissionCheck((Player) permissible, permission);
     } else {
-      // non-player can not and never will inherit sibyl permissions
+      // non-player can not and will never inherit sibyl permissions
       if (permission.equalsIgnoreCase("sibyl")) {
         return false;
       }
