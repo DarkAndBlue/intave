@@ -196,31 +196,40 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
       }
       String threshold = "confidence-thresholds." + overallConfidence.output();
       String message = "is fighting suspiciously";
-      String details = type.details() + ": " + define(overallConfidence) + " / " + identifier;
+      String confidence = define(overallConfidence);
+      String confidenceName = overallConfidence.name();
+      String confidenceSymbol = overallConfidence.output();
+      String typeName = type.typeName();
+      String details = typeName + ": " + confidence + " / " + identifier;
       Violation violation = Violation.builderFor(Heuristics.class)
         .forPlayer(player).withMessage(message).withDetails(details)
         .withCustomThreshold(threshold).withVL(25)
+        .withPlaceholder("confidence", confidence)
+        .withPlaceholder("confidence-name", confidenceName)
+        .withPlaceholder("confidence-symbol", confidenceSymbol)
+        .withPlaceholder("identifier", identifier)
         .build();
       Modules.violationProcessor().processViolation(violation);
     }
   }
 
-  @Native
+//  @Native
   private String define(Confidence confidence) {
-    switch (confidence) {
-      case CERTAIN:
-        return "certain (!!)";
-      case ALMOST_CERTAIN:
-        return "almost certain (!)";
-      case VERY_LIKELY:
-        return "very likely (?!)";
-      case LIKELY:
-        return "likely (?)";
-      case MAYBE:
-        return "maybe (??)";
-      default:
-        return "none";
-    }
+//    switch (confidence) {
+//      case CERTAIN:
+//        return "certain (!!)";
+//      case ALMOST_CERTAIN:
+//        return "almost certain (!)";
+//      case VERY_LIKELY:
+//        return "very likely (?!)";
+//      case LIKELY:
+//        return "likely (?)";
+//      case MAYBE:
+//        return "maybe (??)";
+//      default:
+//        return "none";
+//    }
+    return confidence.name() + " (" + confidence.output() + ")";
   }
 
   @SuppressWarnings("UnusedAssignment")
@@ -230,7 +239,9 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
     boolean isPartner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
     boolean isEnterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
-    boolean trust = IntaveControl.DISABLE_LICENSE_CHECK || isPartner || isEnterprise || !(onlinePlayers.size() <= 5 || player.isOp());
+    int amountOfPlugins = Bukkit.getPluginManager().getPlugins().length;
+    boolean trust = IntaveControl.DISABLE_LICENSE_CHECK || isPartner || isEnterprise || !(onlinePlayers.size() <= 5 || player.isOp() || amountOfPlugins <= 5);
+
     List<Anomaly> anomalies = metaOf(user).anomalies;
     anomalies.removeIf(Anomaly::expired);
     anomalies = new ArrayList<>(anomalies);

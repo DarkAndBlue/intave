@@ -105,14 +105,14 @@ public final class Anomaly {
     KILLAURA("killaura"),
     AUTOCLICKER("autoclicker");
 
-    private final String details;
+    private final String name;
 
-    Type(String details) {
-      this.details = details;
+    Type(String name) {
+      this.name = name;
     }
 
-    public String details() {
-      return details;
+    public String typeName() {
+      return name;
     }
   }
 

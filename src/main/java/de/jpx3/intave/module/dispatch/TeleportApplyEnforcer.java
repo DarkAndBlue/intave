@@ -77,10 +77,19 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
       IntaveLogger.logger().printLine("[Intave] Sent teleportation request to " + player.getName() + ": " + MathHelper.formatPosition(movementData.teleportLocation));
     }
 
-    Modules.feedback().doubleSynchronize(player, event, null,
-      (player1, target) -> movementData.transactionTeleportAllow = true,
-      (player1, target) -> movementData.transactionTeleportAllow = false
-    );
+    /*
+     * ViaBackwards messes up the order of teleportation packets, so we need to account for that
+     */
+    if (!user.meta().protocol().clientVersionOlderThanServerVersion() || user.meta().protocol().combatUpdate()) {
+      Modules.feedback().doubleSynchronize(player, event, null,
+        (player1, target) -> movementData.transactionTeleportAllow = true,
+        (player1, target) -> movementData.transactionTeleportAllow = false
+      );
+    } else {
+      Modules.feedback().synchronize(player,
+        (player1, target) -> movementData.transactionTeleportAllow = true
+      );
+    }
 
     movementData.awaitTeleport = true;
     movementData.awaitOutgoingTeleport = false;

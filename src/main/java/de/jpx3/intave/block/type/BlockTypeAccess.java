@@ -1,16 +1,21 @@
 package de.jpx3.intave.block.type;
 
 import com.comphenix.protocol.utility.MinecraftVersion;
+import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.access.BlockAccess;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
+import de.jpx3.intave.resource.Resource;
+import de.jpx3.intave.resource.Resources;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+
+import java.util.concurrent.TimeUnit;
 
 import static de.jpx3.intave.diagnostic.timings.Timings.SERVICE_TYPE_LOOKUP;
 
@@ -37,11 +42,12 @@ public final class BlockTypeAccess {
     }
   }
 
+  private static final Resource MAPPING_RESOURCE = Resources.cacheResourceChain("https://service.intave.de/bbm/" + IntavePlugin.version(), "bbm", TimeUnit.DAYS.toMillis(14));
   private static final FileTypeTranslator translator = new VerTraFileTypeTranslator();
   private static final TypeTranslations typeTranslations;
 
   static {
-    typeTranslations = translator.fromResourceInJar("/mappings/bb-mappings");
+    typeTranslations = translator.fromResource(MAPPING_RESOURCE);
   }
 
   public static void setupTranslationsFor(User user) {

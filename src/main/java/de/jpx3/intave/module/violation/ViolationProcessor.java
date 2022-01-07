@@ -13,6 +13,7 @@ import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.metric.ServerHealth;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.Modules;
+import de.jpx3.intave.module.violation.placeholder.PlaceholderContext;
 import de.jpx3.intave.module.violation.placeholder.TextContext;
 import de.jpx3.intave.module.violation.placeholder.ViolationPlaceholderContext;
 import de.jpx3.intave.module.violation.placeholder.ViolationPlaceholderContext.DetailScope;
@@ -230,7 +231,7 @@ public final class ViolationProcessor extends Module {
     double afterVL = violationContext.violationLevelAfter();
     List<String> newCommands = new ArrayList<>();
     for (String command : violationContext.commands()) {
-      ViolationPlaceholderContext placeholderContext = violationContext.placeholderContextOf(DetailScope.FULL /* automaticallly striped when not enterprise */);
+      ViolationPlaceholderContext placeholderContext = violationContext.placeholder(DetailScope.FULL /* automaticallly striped when not enterprise */);
       String executedCommand = MessageFormatter.resolveCommandReplacements(player, command, placeholderContext);
       IntaveCommandExecutionEvent commandTriggerEvent = Modules.eventInvoker().invokeEvent(
         IntaveCommandExecutionEvent.class,
@@ -291,8 +292,11 @@ public final class ViolationProcessor extends Module {
     if (receivers.isEmpty()) {
       return;
     }
+    PlaceholderContext violationPlaceholder = violationContext.violation().placeholder();
+    PlaceholderContext violationContextPlaceholder = violationContext.placeholder(DetailScope.FULL);
+
     String message = MessageFormatter.resolveVerboseMessage(
-      target, violationContext.placeholderContextOf(DetailScope.FULL)
+      target, violationPlaceholder.merge(violationContextPlaceholder)
     );
     for (Player receiver : receivers) {
       User receiverUser = UserRepository.userOf(receiver);

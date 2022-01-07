@@ -3,12 +3,12 @@ package de.jpx3.intave.module.violation;
 import com.google.common.base.Preconditions;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.check.Check;
+import de.jpx3.intave.module.violation.placeholder.PlaceholderContext;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * A {@link Violation} serves as threat-assessment submitted by a {@link Check}.<br>
@@ -27,6 +27,7 @@ public final class Violation {
   private final String details;
   private final String threshold;
   private final double addedViolationPoints;
+  private final Map<String, String> placeholders;
   private final int optionFlags;
 
   private Violation(
@@ -36,7 +37,7 @@ public final class Violation {
     String details,
     String threshold,
     double addedViolationPoints,
-    int optionFlags
+    Map<String, String> placeholders, int optionFlags
   ) {
     this.checkClass = checkClass;
     this.id = id;
@@ -44,6 +45,7 @@ public final class Violation {
     this.details = details;
     this.threshold = threshold;
     this.addedViolationPoints = addedViolationPoints;
+    this.placeholders = placeholders;
     this.optionFlags = optionFlags;
   }
 
@@ -84,6 +86,12 @@ public final class Violation {
     return addedViolationPoints;
   }
 
+  private final static PlaceholderContext NO_CONTEXT = Collections::emptyMap;
+
+  public PlaceholderContext placeholder() {
+    return placeholders == null ? NO_CONTEXT : () -> placeholders;
+  }
+
   public boolean flagSet(int flag) {
     return ViolationFlags.matches(optionFlags, flag);
   }
@@ -99,6 +107,7 @@ public final class Violation {
     private String details;
     private String threshold;
     private double addedViolationPoints;
+    private Map<String, String> placeholders;
     private int optionFlags = 0;
 
     private boolean constructed;
@@ -129,6 +138,14 @@ public final class Violation {
 
     public Builder appendFlags(int flags) {
       this.optionFlags |= flags;
+      return this;
+    }
+
+    public Builder withPlaceholder(String placeholder, String replace) {
+      if (this.placeholders == null) {
+        this.placeholders = new HashMap<>();
+      }
+      placeholders.put(placeholder, replace);
       return this;
     }
 
@@ -171,7 +188,7 @@ public final class Violation {
       if (threshold == null) {
         withDefaultThreshold();
       }
-      return new Violation(checkClass, playerid, baseMessage, details, threshold, addedViolationPoints, optionFlags);
+      return new Violation(checkClass, playerid, baseMessage, details, threshold, addedViolationPoints, placeholders, optionFlags);
     }
   }
 

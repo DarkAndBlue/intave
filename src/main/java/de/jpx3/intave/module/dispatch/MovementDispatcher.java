@@ -717,7 +717,7 @@ public final class MovementDispatcher extends Module {
 
       /*
         Some players abuse "velocity buffering", giving them the ability to jump up to 40 - 50 blocks (provided they have external help).
-        This fix is an attempt to decrease this bugs effectiveness, neither perfect nor sustainable, but at least working to a certain degree
+        This fix is an attempt to decrease this bugs effectiveness, neither perfect nor sustainable, but somewhat working
        */
       int pendingVelocityPackets = movementData.pendingVelocityPackets.get();
       if(pendingVelocityPackets > 1 && user.meta().attack().wasRecentlyAttackedByEntity()) {

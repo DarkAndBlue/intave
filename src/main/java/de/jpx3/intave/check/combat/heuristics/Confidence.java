@@ -3,20 +3,22 @@ package de.jpx3.intave.check.combat.heuristics;
 import java.util.Arrays;
 
 public enum Confidence implements Comparable<Confidence> {
-  CERTAIN("!!", 100000),
-  ALMOST_CERTAIN("!", 320),
-  VERY_LIKELY("?!", 160),
-  LIKELY("?", 80),
-  PROBABLE("??", 40),
-  MAYBE("-", 10),
-  NONE("-", 0),
+  CERTAIN("certain", "!!", 100000),
+  ALMOST_CERTAIN("almost certain", "!", 320),
+  VERY_LIKELY("very likely", "?!", 160),
+  LIKELY("likely", "?", 80),
+  PROBABLE("probable", "??", 40),
+  MAYBE("maybe", "-", 10),
+  NONE("none", "-", 0),
 
   ;
 
+  final String name;
   final String output;
   final int level;
 
-  Confidence(String output, int level) {
+  Confidence(String name, String output, int level) {
+    this.name = name;
     this.output = output;
     this.level = level;
   }

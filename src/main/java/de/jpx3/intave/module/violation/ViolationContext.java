@@ -144,7 +144,7 @@ public final class ViolationContext {
     return this.processCompleted;
   }
 
-  public ViolationPlaceholderContext placeholderContextOf(
+  public ViolationPlaceholderContext placeholder(
     ViolationPlaceholderContext.DetailScope type
   ) {
     boolean fullMessage = /*enterprise && */type == ViolationPlaceholderContext.DetailScope.FULL;

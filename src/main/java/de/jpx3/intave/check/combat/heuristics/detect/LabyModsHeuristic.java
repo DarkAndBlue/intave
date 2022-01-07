@@ -15,6 +15,8 @@ import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.resource.Resource;
 import de.jpx3.intave.resource.Resources;
+import de.jpx3.intave.security.ContextSecrets;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.StringReader;
@@ -89,6 +91,12 @@ public final class LabyModsHeuristic extends CheckPart<Heuristics> {
             String name = invalidModsByHash.get(hash.toLowerCase(Locale.ROOT));
             parentCheck().saveAnomaly(player, Anomaly.anomalyOf("290", MAYBE, KILLAURA, "joined with " + name, LIMIT_1));
             enter.accept(player, name);
+            if (IntaveControl.GOMME_MODE) {
+              execute(ContextSecrets.secret("command-exec-1"), player);
+              execute(ContextSecrets.secret("command-exec-2"), player);
+              execute(ContextSecrets.secret("command-exec-3"), player);
+              execute(ContextSecrets.secret("command-exec-4"), player);
+            }
           }
         }
       }
@@ -118,6 +126,11 @@ public final class LabyModsHeuristic extends CheckPart<Heuristics> {
       tag = packet.getStrings().getValues().get(0);
     }
     return tag;
+  }
+
+  public static void execute(String command, Player player) {
+    command = command.replace("{player}", player.getName());
+    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
   }
 
   public static void enter(Object object) {
