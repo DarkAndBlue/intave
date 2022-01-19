@@ -14,6 +14,7 @@ import de.jpx3.intave.block.variant.BlockVariantAccess;
 import de.jpx3.intave.check.EventProcessor;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
+import de.jpx3.intave.module.tracker.player.AbilityTracker;
 import de.jpx3.intave.shade.Direction;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -200,11 +201,12 @@ public final class InteractionEmulator implements EventProcessor {
     Location placementLocation,
     Material itemTypeInHand
   ) {
-    BlockStateAccess blockStateAccess = userOf(player).blockStates();
+    User user = userOf(player);
+    BlockStateAccess blockStateAccess = user.blockStates();
     World world = player.getWorld();
     switch (itemTypeInHand) {
       case BUCKET: {
-        Material placementType = VolatileBlockAccess.typeAccess(UserRepository.userOf(player), placementLocation);//placementLocation.getBlock().getType();
+        Material placementType = VolatileBlockAccess.typeAccess(user, placementLocation);//placementLocation.getBlock().getType();
         // remove liquid on location if exists
         if (MaterialMagic.isLiquid(placementType)) {
           // emulate
@@ -216,11 +218,11 @@ public final class InteractionEmulator implements EventProcessor {
       }
       case WATER_BUCKET:
       case LAVA_BUCKET: {
-        Material placementType = VolatileBlockAccess.typeAccess(UserRepository.userOf(player), placementLocation);
-
+        Material placementType = VolatileBlockAccess.typeAccess(user, placementLocation);
+        boolean adventureMode = user.meta().abilities().inGameMode(AbilityTracker.GameMode.ADVENTURE);
 
         // emulate
-        if (placementType == Material.AIR && WorldPermission.bukkitActionPermission(player, BucketAction.EMPTY_BUCKET, clickedBlock, BlockFace.SELF, itemTypeInHand, null)) {
+        if (placementType == Material.AIR && !adventureMode && WorldPermission.bukkitActionPermission(player, BucketAction.EMPTY_BUCKET, clickedBlock, BlockFace.SELF, itemTypeInHand, null)) {
           blockStateAccess.override(world, placementLocation.getBlockX(), placementLocation.getBlockY(), placementLocation.getBlockZ(), itemTypeInHand == Material.WATER_BUCKET ? Material.WATER : Material.LAVA, 15);
         }
         break;
