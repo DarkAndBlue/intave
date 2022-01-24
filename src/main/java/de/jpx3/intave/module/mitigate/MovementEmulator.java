@@ -47,10 +47,15 @@ import static org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.UNKNOWN;
 public final class MovementEmulator extends Module {
   private Physics physicsCheck;
   private InternalTeleportApplier teleportMethodContainer;
+  private boolean closeInventoryOnDetection;
 
   @Override
   public void enable() {
     this.physicsCheck = plugin.checks().searchCheck(Physics.class);
+    this.closeInventoryOnDetection = physicsCheck
+      .configuration()
+      .settings()
+      .boolBy("close-inventory-on-detection", true);
     this.teleportMethodContainer = new InternalTeleportApplier();
   }
 
@@ -408,7 +413,7 @@ public final class MovementEmulator extends Module {
     movementData.setBoundingBox(entityBoundingBox);
     movementData.setVerifiedLocation(teleportLocation.clone(), "Emulation-Setback");
 //    player.teleport(teleportLocation);
-    if (user.meta().inventory().inventoryOpen()) {
+    if (closeInventoryOnDetection && user.meta().inventory().inventoryOpen()) {
       player.closeInventory();
     }
     rotationlessTeleport(player, teleportLocation, movementData.rotationYaw, movementData.rotationPitch);

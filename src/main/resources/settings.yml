@@ -13,6 +13,8 @@ check:
 
     reset-item-usage: true
 
+    close-inventory-on-detection: true
+
     thresholds:
       100: "intave internals sendnotify &c{player}&7/{trust-color}&7 is moving incorrectly"
       400:
