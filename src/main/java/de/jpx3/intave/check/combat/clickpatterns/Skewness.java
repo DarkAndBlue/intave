@@ -53,7 +53,7 @@ public final class Skewness extends MetaCheckPart<ClickPatterns, Skewness.Skewne
         if (meta.vl > 4) {
           parentCheck().makeDetection(
             player,
-            "undistributed attacks",
+            "invariant",
             "s:" + formatDouble(skewness, 3) + " t:" + formatDouble(length / 1000d, 2),
             /*meta.vl > 8 ? 1 : */0
           );

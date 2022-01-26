@@ -40,15 +40,12 @@ public final class Kurtosis extends MetaCheckPart<ClickPatterns, Kurtosis.Kurtos
       attacks.clear();
       return;
     }
-    if (attacks.isEmpty()) {
-      meta.started = System.currentTimeMillis();
-    }
     attacks.offerFirst(swingDifference);
     if (attacks.size() >= BUFFER_LENGTH) {
       double kurtosis = kurtosisOf(attacks) / 1000d;
       if (kurtosis < 13) {
         if (++meta.vl > 20) {
-          parentCheck().makeDetection(player, "low relative variance", "h:" + ((int) kurtosis), meta.vl > 30 ? 10 : 5);
+          parentCheck().makeDetection(player, "low relative variance", "h:" + ((int) kurtosis), meta.vl > 21 ? 10 : 5);
           attacks.clear();
         }
       } else if (meta.vl > 0) {
@@ -83,22 +80,9 @@ public final class Kurtosis extends MetaCheckPart<ClickPatterns, Kurtosis.Kurtos
     return d2 * (s4 / pow(s2 / sum, 2)) - d3;
   }
 
-  private double standardDeviationOf(Collection<? extends Number> sd) {
-    double sum = 0, newSum = 0;
-    for (Number v : sd) {
-      sum = sum + v.doubleValue();
-    }
-    double mean = sum / sd.size();
-    for (Number v : sd) {
-      newSum = newSum + (v.doubleValue() - mean) * (v.doubleValue() - mean);
-    }
-    return Math.sqrt(newSum / sd.size());
-  }
-
   public static class KurtosisMeta extends CheckCustomMetadata {
     private final Deque<Long> attacks = new ArrayDeque<>();
     private double vl = 0;
     private long lastSwing = 0;
-    private long started = System.currentTimeMillis();
   }
 }

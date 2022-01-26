@@ -49,7 +49,6 @@ public final class Spikes extends MetaCheckPart<ClickPatterns, Spikes.SpikesMeta
       if (meta.lastCPS > 0) {
         double difference = Math.abs(cps - meta.lastCPS);
         double meanChange = (meta.lastCPS - cps) / 2;
-//        player.sendMessage(meanChange + " " + difference);
         if (meanChange > 9.25 && difference > 2.8) {
           if (++meta.vl > 0) {
             parentCheck().makeDetection(
