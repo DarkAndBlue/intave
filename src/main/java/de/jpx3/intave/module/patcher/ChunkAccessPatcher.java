@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.klass.Lookup;
+import de.jpx3.intave.klass.rewrite.PatchyLoadingInjector;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.world.chunk.ChunkProviderServerAccess;
@@ -16,6 +17,11 @@ import java.util.Iterator;
 
 public final class ChunkAccessPatcher extends Module {
   private final static boolean ENABLED = !MinecraftVersions.VER1_14_0.atOrAbove();
+
+  static {
+    ClassLoader classLoader = ChunkAccessPatcher.class.getClassLoader();
+    PatchyLoadingInjector.loadUnloadedClassPatched(classLoader, "de.jpx3.intave.module.patcher.SynchronizedLongHashSet");
+  }
 
   @Override
   public void enable() {
@@ -36,24 +42,21 @@ public final class ChunkAccessPatcher extends Module {
       if (unloadQueueField == null) {
         return;
       }
+      if (!unloadQueueField.isAccessible()) {
+        unloadQueueField.setAccessible(true);
+      }
+      String unloadQueueFieldClassName = unloadQueueField.getType().getName();
       Object chunkProviderServer = ChunkProviderServerAccess.chunkProviderServerOf(world);
       Object unloadQueue = unloadQueueField.get(chunkProviderServer);
-      String unloadQueueClassName = unloadQueue.getClass().getName();
       String patchName;
-
-      if (unloadQueueClassName.contains("intave")) {
-        return;
-      }
-
       //noinspection unchecked
       Iterator<Long> iterator = (Iterator<Long>) unloadQueue.getClass().getMethod("iterator").invoke(unloadQueue);
-
-      if (unloadQueueClassName.equalsIgnoreCase("it.unimi.dsi.fastutil.longs.LongSet")) {
+      if (unloadQueueFieldClassName.contains("dsi.fastutil.longs")) {
         SynchronizedLongArraySet newQueue = new SynchronizedLongArraySet();
         unloadQueueField.set(chunkProviderServer, newQueue);
         patchName = "s(dsi/ls)";
         iterator.forEachRemaining(newQueue::add);
-      } else if (unloadQueueClassName.endsWith("util.LongHashSet")) {
+      } else if (unloadQueueFieldClassName.endsWith("util.LongHashSet")) {
         SynchronizedLongHashSet newQueue = new SynchronizedLongHashSet();
         unloadQueueField.set(chunkProviderServer, newQueue);
         patchName = "s(ut/lhs)";
