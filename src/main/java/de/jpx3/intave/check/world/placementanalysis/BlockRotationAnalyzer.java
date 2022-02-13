@@ -55,7 +55,7 @@ public final class BlockRotationAnalyzer extends MetaCheckPart<PlacementAnalysis
     BlockInteractionReader reader = PacketReaders.readerOf(packet);
     com.comphenix.protocol.wrappers.BlockPosition blockPosition = reader.blockPosition();
 
-    if (blockPosition == null || event.isCancelled() || movement.hasRidingEntity()) {
+    if (blockPosition == null || event.isCancelled() || movement.isInVehicle()) {
       reader.close();
       return;
     }

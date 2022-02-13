@@ -148,7 +148,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public boolean enforceBoatStep;
   public volatile Location nearestBoatLocation = null;
   // Vehicle
-  private EntityShade ridingEntity;
+  private EntityShade vehicle;
   private double attachMoveDistance;
   public int attachVehicleTicks = 100;
 
@@ -679,10 +679,10 @@ public final class MovementMetadata implements SimulationEnvironment {
   }
 
   public void dismountRidingEntity() {
-    if (!hasRidingEntity()) {
+    if (!isInVehicle()) {
       return;
     }
-    this.ridingEntity = null;
+    this.vehicle = null;
   }
 
   public void resetFlyingPacketAccurate() {
@@ -699,12 +699,12 @@ public final class MovementMetadata implements SimulationEnvironment {
     return blockOnPosition;
   }
 
-  public boolean hasRidingEntity() {
-    return ridingEntity != null;
+  public boolean isInVehicle() {
+    return vehicle != null;
   }
 
   public EntityShade ridingEntity() {
-    return ridingEntity;
+    return vehicle;
   }
 
   public Object nmsWorld() {
@@ -926,9 +926,9 @@ public final class MovementMetadata implements SimulationEnvironment {
     return attachMoveDistance * 2;
   }
 
-  public void setRidingEntity(EntityShade ridingEntity) {
+  public void setVehicle(EntityShade ridingEntity) {
     this.attachVehicleTicks = 0;
     this.attachMoveDistance = ridingEntity.distance(lastPosition());
-    this.ridingEntity = ridingEntity;
+    this.vehicle = ridingEntity;
   }
 }

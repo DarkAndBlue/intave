@@ -8,6 +8,7 @@ import de.jpx3.intave.block.fluid.LegacyWaterflow;
 import de.jpx3.intave.block.physics.BlockPhysics;
 import de.jpx3.intave.block.physics.BlockProperties;
 import de.jpx3.intave.block.physics.MaterialMagic;
+import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.tracker.entity.EntityShade;
 import de.jpx3.intave.player.Effects;
 import de.jpx3.intave.player.Enchantments;
@@ -619,11 +620,21 @@ class BaseSimulator extends Simulator {
       zDistance = zDistance * pushFactor;
       xDistance *= 0.05F;
       zDistance *= 0.05F;
-      if (!movementData.hasRidingEntity()) {
+      if (!movementData.isInVehicle()) {
         movementData.pushedByEntity = true;
         motionVector.motionX += xDistance;
         motionVector.motionZ += zDistance;
       }
     }
+  }
+
+  @Override
+  public void setback(User user, double predictedX, double predictedY, double predictedZ) {
+    MovementMetadata movement = user.meta().movement();
+    ViolationMetadata violationMetadata = user.meta().violationLevel();
+
+    Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
+    int setbackTicks = (movement.pastExternalVelocity <= 8) ? 8 : ((violationMetadata.physicsVL > 50) ? 3 : 2);
+    Modules.mitigate().movement().emulationSetBack(user.player(), emulationMotion, setbackTicks, true);
   }
 }

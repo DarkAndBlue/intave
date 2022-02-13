@@ -157,7 +157,7 @@ public final class MovementDispatcher extends Module {
     User user = UserRepository.userOf(player);
     MetadataBundle meta = user.meta();
     MovementMetadata movementData = meta.movement();
-    if (!movementData.hasRidingEntity()) {
+    if (!movementData.isInVehicle()) {
       return;
     }
     Location location = event.getTo();
@@ -261,7 +261,7 @@ public final class MovementDispatcher extends Module {
     boolean hasMovement = vehicleMove || packet.getBooleans().read(1);
     boolean hasRotation = vehicleMove || packet.getBooleans().read(2);
 
-    if (movementData.hasRidingEntity() && !vehicleMove && hasRotation && !hasMovement) {
+    if (movementData.isInVehicle() && !vehicleMove && hasRotation && !hasMovement) {
       movementData.applyGroundInformationToPacket(packet);
       movementData.rotationYaw = packet.getFloat().read(0);
       movementData.rotationPitch = packet.getFloat().read(1);
@@ -487,7 +487,7 @@ public final class MovementDispatcher extends Module {
       return;
     }
 
-    if (movementData.hasRidingEntity() && !vehicleMove && hasRotation && !hasMovement) {
+    if (movementData.isInVehicle() && !vehicleMove && hasRotation && !hasMovement) {
       movementData.applyGroundInformationToPacket(packet);
       return;
     }
@@ -790,7 +790,7 @@ public final class MovementDispatcher extends Module {
         if (System.currentTimeMillis() - punishmentData.timeLastSneakToggleCancel < 2000) {
           event.setCancelled(true);
         }
-        if (movementData.hasRidingEntity()) {
+        if (movementData.isInVehicle()) {
           movementData.dismountRidingEntity();
           movementData.sneaking = false;
         }

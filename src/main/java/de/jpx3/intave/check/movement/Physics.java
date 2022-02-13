@@ -4,6 +4,7 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.check.MitigationStrategy;
 import de.jpx3.intave.access.player.trust.TrustFactor;
+import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.DispatchTarget;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
@@ -137,7 +138,10 @@ public final class Physics extends Check {
 
   private Simulator selectSimulator(User user) {
     MovementMetadata movementData = user.meta().movement();
-    if (movementData.hasRidingEntity()) {
+    ProtocolMetadata protocol = user.meta().protocol();
+    boolean clientVehicleMovement = MinecraftVersions.VER1_9_0.atOrAbove() && protocol.combatUpdate();
+
+    if (movementData.isInVehicle() && clientVehicleMovement) {
       EntityShade entityShade = movementData.ridingEntity();
       int typeId = entityShade.typeData.identifier();
       return typeId == BOAT_ID ? Simulators.BOAT : Simulators.HORSE;
@@ -455,7 +459,11 @@ public final class Physics extends Check {
 
       double vl = violationLevelIncrease / (highToleranceMode ? 75 : (violationLevelData.physicsVL >= 100 ? 20 : 50));
       Violation violation = Violation.builderFor(Physics.class)
-        .forPlayer(player).withMessage(message).withDetails(details).withVL(vl).build();
+        .forPlayer(player)
+        .withMessage(message)
+        .withDetails(details)
+        .withVL(vl)
+        .build();
       ViolationContext violationContext = Modules.violationProcessor().processViolation(violation);
 
       // a few helpful states
@@ -508,11 +516,8 @@ public final class Physics extends Check {
       }
 
       if (setback) {
-        Synchronizer.synchronize(player::leaveVehicle);
-
-        Vector emulationMotion = new Vector(predictedX, predictedY, predictedZ);
-        int setbackTicks = (movementData.pastExternalVelocity <= 8) ? 8 : ((violationLevelData.physicsVL > 50) ? 3 : 2);
-        Modules.mitigate().movement().emulationSetBack(player, emulationMotion, setbackTicks, true);
+        Simulator simulator = user.meta().movement().simulator();
+        simulator.setback(user, predictedX, predictedY, predictedZ);
         movementData.invalidMovement = true;
       }
     }

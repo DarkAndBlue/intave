@@ -95,7 +95,7 @@ public final class SimulationEvaluator {
       legitimateDeviation = Math.max(legitimateDeviation, velocityY * 1.2 - differenceY);
     }
 
-    if (collidedWithBoat && !movementData.hasRidingEntity() && movementData.motionY() < 0.605) {
+    if (collidedWithBoat && !movementData.isInVehicle() && movementData.motionY() < 0.605) {
       if (movementData.enforceBoatStep) {
         if (movementData.motionY() < 0.1) {
           legitimateDeviation = Math.max(legitimateDeviation, 10);
@@ -148,7 +148,7 @@ public final class SimulationEvaluator {
     }
 
     double abuseVertically = Math.max(0, differenceY - legitimateDeviation);
-    boolean allowDeviation = fastMathAffected || movementData.inLava();
+    boolean allowDeviation = fastMathAffected || movementData.inLava() || movementData.isInVehicle();
     double multiplier;
 
     if (abuseVertically > 0.1 && !allowDeviation) {

@@ -23,6 +23,11 @@ public abstract class Simulator {
     double motionX, double motionY, double motionZ
   );
 
+  public abstract void setback(
+    User user,
+    double predictedX, double predictedY, double predictedZ
+  );
+
   public String debugName() {
     return "";
   }

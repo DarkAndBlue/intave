@@ -5,6 +5,7 @@ import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.fluid.Fluid;
 import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.physics.BlockProperties;
+import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.math.SinusCache;
 import de.jpx3.intave.player.collider.Collider;
 import de.jpx3.intave.player.collider.complex.ComplexColliderSimulationResult;
@@ -15,8 +16,6 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MetadataBundle;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.user.meta.ViolationMetadata;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -26,7 +25,7 @@ import static de.jpx3.intave.block.fluid.FluidTag.WATER;
 import static de.jpx3.intave.shade.ClientMathHelper.ceil;
 import static de.jpx3.intave.shade.ClientMathHelper.floor;
 
-public final class BoatSimulator extends BaseSimulator {
+public final class BoatSimulator extends Simulator {
   @Override
   public Simulation simulate(
     User user, Motion motion,
@@ -251,6 +250,13 @@ public final class BoatSimulator extends BaseSimulator {
       movement.physicsMotionY = motionVector.motionY;
       movement.physicsMotionZ = motionVector.motionZ;
     }
+  }
+
+  @Override
+  public void setback(User user, double predictedX, double predictedY, double predictedZ) {
+    Player player = user.player();
+    Synchronizer.synchronize(player::leaveVehicle);
+    user.meta().movement().dismountRidingEntity();
   }
 
   @Override

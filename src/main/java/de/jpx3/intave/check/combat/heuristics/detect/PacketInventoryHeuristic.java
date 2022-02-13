@@ -88,7 +88,7 @@ public final class PacketInventoryHeuristic extends MetaCheckPart<Heuristics, Pa
     MovementMetadata movementData = user.meta().movement();
     ProtocolMetadata clientData = user.meta().protocol();
 
-    if (!clientData.flyingPacketStream() || movementData.hasRidingEntity()) {
+    if (!clientData.flyingPacketStream() || movementData.isInVehicle()) {
       return;
     }
 
