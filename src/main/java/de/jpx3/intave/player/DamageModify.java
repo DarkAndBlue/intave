@@ -1,4 +1,4 @@
-package de.jpx3.intave.player.dmc;
+package de.jpx3.intave.player;
 
 import com.google.common.base.Function;
 import org.bukkit.event.entity.EntityDamageEvent;

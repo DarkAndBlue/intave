@@ -26,7 +26,7 @@ public final class LegacyComplexColliderProcessor implements ComplexColliderProc
     double startMotionY = context.motionY;
     double startMotionZ = context.motionZ;
     boolean step = false;
-    if (movement.onGround && movement.sneaking) {
+    if (movement.onGround() && movement.isSneaking()) {
       BoundingBox boundingBox = movement.boundingBox();
       double size;
       for (size = 0.05D; context.motionX != 0.0D && Collision.nonePresent(player, boundingBox.offset(context.motionX, -1.0D, 0.0D)); startMotionX = context.motionX) {

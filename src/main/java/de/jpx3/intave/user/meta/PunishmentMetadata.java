@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.mitigate.HurttimeModifier;
-import de.jpx3.intave.player.dmc.DamageModify;
+import de.jpx3.intave.player.DamageModify;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;

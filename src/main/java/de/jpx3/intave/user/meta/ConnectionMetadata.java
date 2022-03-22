@@ -41,7 +41,8 @@ public final class ConnectionMetadata {
   // Lag identification
   private long lastMovementTimestamps;
   private final List<Long> movementLagSpikeHistory = new ArrayList<>();
-  
+  private final List<Long> transactionPings = new LinkedList<>();
+
   public ConnectionMetadata(Player player) {
     this.player = player;
   }
@@ -73,6 +74,45 @@ public final class ConnectionMetadata {
     }
     return sum / data.size();
   }
+
+  private long transactionSum = 0;
+  private long transactionNum = 0;
+
+  public void receivedTransactionAfter(long milliseconds) {
+    transactionSum += Math.min(milliseconds, 1000);
+    transactionNum++;
+
+    if (transactionNum > Short.MAX_VALUE / 2) {
+      transactionSum /= 2;
+      transactionNum /= 2;
+    }
+  }
+
+  public long transactionPingAverage() {
+    return transactionSum / transactionNum;
+  }
+
+//  public void receivedTransactionAfter(long milliseconds) {
+//    if (transactionPings.size() > 1024 * 8) {
+//      transactionPings.remove(0);
+//    }
+//    transactionPings.add(milliseconds);
+//  }
+//
+//  private long transactionPingCache = -1;
+//  private long lastTPCRefresh = 0;
+//
+//  public long transactionPingAverage() {
+//    if (System.currentTimeMillis() - lastTPCRefresh > 5000) {
+//      long sum = 0;
+//      for (Long transactionPing : transactionPings) {
+//        sum += Math.min(transactionPing, 500);
+//      }
+//      lastTPCRefresh = System.currentTimeMillis();
+//      transactionPingCache = sum / transactionPings.size();
+//    }
+//    return transactionPingCache;
+//  }
 
   public Map<Short, FeedbackRequest<?>> transactionShortKeyMap() {
     return transactionShortMap;

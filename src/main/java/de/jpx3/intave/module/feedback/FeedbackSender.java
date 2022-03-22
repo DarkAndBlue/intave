@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import static de.jpx3.intave.module.feedback.TransactionOptions.*;
+import static de.jpx3.intave.module.feedback.FeedbackOptions.*;
 
 public final class FeedbackSender extends Module {
   public final static short TRANSACTION_MIN_CODE = -32768;
@@ -72,7 +72,7 @@ public final class FeedbackSender extends Module {
     int options
   ) {
     if (!Bukkit.isPrimaryThread()) {
-      if (TransactionOptions.matches(SELF_SYNCHRONIZATION, options)) {
+      if (FeedbackOptions.matches(SELF_SYNCHRONIZATION, options)) {
         Synchronizer.synchronize(() -> tracedDoubleSynchronize(player, encapsulate, target, firstCallback, secondCallback, firstTracker, secondTracker, options));
       } else {
         IntaveLogger.logger().error("Can't perform tick-validation off main thread");
@@ -117,7 +117,7 @@ public final class FeedbackSender extends Module {
     Player player, T target, FeedbackCallback<T> callback, FeedbackTracker tracker, int options
   ) {
     if (!Bukkit.isPrimaryThread()) {
-      if (TransactionOptions.matches(SELF_SYNCHRONIZATION, options)) {
+      if (FeedbackOptions.matches(SELF_SYNCHRONIZATION, options)) {
         Synchronizer.synchronize(() -> tracedSingleSynchronize(player, target, callback, tracker, options));
       } else {
         IntaveLogger.logger().error("Can't perform tick-validation off main thread");
@@ -132,12 +132,12 @@ public final class FeedbackSender extends Module {
       return;
     }
     boolean append = false;
-    if (TransactionOptions.matches(APPEND_ON_OVERFLOW, options)) {
+    if (FeedbackOptions.matches(APPEND_ON_OVERFLOW, options)) {
       boolean tooManyPending = pendingTransactions(userOf(player)) > OPTIONAL_PENDING_LIMIT;
       boolean sentTooManyRecently = user.meta().connection().transactionPacketCounter > OPTIONAL_SENT_LIMIT;
       append = tooManyPending || sentTooManyRecently;
     }
-    if (TransactionOptions.matches(APPEND, options)) {
+    if (FeedbackOptions.matches(APPEND, options)) {
       append = true;//pendingTransactions(userOf(player)) > 0;
     }
     if (append) {

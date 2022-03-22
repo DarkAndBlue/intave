@@ -172,7 +172,18 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         // stops raytrace if the entity is null or the player is in the death screen
         boolean entityIsAlive = unsynchronizedHealth > 0 && !(entity instanceof EntityShade.Destroyed);
         boolean entityHasNotTimedOut = pendingFeedbackPackets < maximumPendingFeedbackPackets;
-//        player.sendMessage(remainingAttack + " " + entity.typeData.name());
+        long transactionPingAverage = user.meta().connection().transactionPingAverage();
+        double transactionTickAverage = transactionPingAverage / 50d;
+        int historyBasedTransactionLimit = (int) ((LatencyStudy.cachedAverage() + transactionTickAverage + 1) * 0.9);
+        boolean pendingOverAverage = transactionPingAverage > 0 && pendingFeedbackPackets > historyBasedTransactionLimit;
+
+        if (pendingOverAverage) {
+          boolean blocked = !user.trustFactor().atLeast(TrustFactor.ORANGE);
+          SibylBroadcast.broadcast(ChatColor.RED + "[R] " + player.getName() + " attacked with "+(pendingOverAverage ? "an above-average " : "acceptable ") + "latency ("+(blocked ? "blocked, " : "") + pendingFeedbackPackets + "/"+historyBasedTransactionLimit+" packets with " + transactionPingAverage + "ms trans-ping)");
+          if (blocked) {
+            entityHasNotTimedOut = false;
+          }
+        }
 
         if (entityIsAlive && entityHasNotTimedOut) {
           if (entity.mountedEntity() == null && !player.isInsideVehicle() && entity.typeData().isLivingEntity() && !abilityData.ignoringMovementPackets()) {

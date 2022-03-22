@@ -13,6 +13,7 @@ import de.jpx3.intave.diagnostic.PacketSynchronizations;
 import de.jpx3.intave.diagnostic.timings.Timing;
 import de.jpx3.intave.diagnostic.timings.Timings;
 import de.jpx3.intave.math.MathHelper;
+import de.jpx3.intave.resource.Resource;
 import de.jpx3.intave.resource.ResourceRegistry;
 import de.jpx3.intave.security.HashAccess;
 import de.jpx3.intave.user.User;
@@ -156,6 +157,20 @@ public final class DiagnosticsStage extends CommandStage {
     ResourceRegistry.registeredResources().forEach((identifier, resource) ->
       sender.sendMessage(IntavePlugin.prefix() + " " + identifier.substring(0, 2) + " of " + HashAccess.readHash(resource.read()))
     );
+  }
+
+  @SubCommand(
+    selectors = "invalidatecaches",
+    usage = "",
+    permission = "intave.command.diagnostics.performance",
+    description = ""
+  )
+  public void cacheInvalidate(CommandSender sender) {
+    sender.sendMessage(IntavePlugin.prefix() + "Invalidating caches..");
+    for (Resource value : ResourceRegistry.registeredResources().values()) {
+      value.delete();
+    }
+    sender.sendMessage(IntavePlugin.prefix() + "Done, please restart Intave");
   }
 
   private final static DateTimeFormatter MESSAGE_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH.mm.ss.SSS");

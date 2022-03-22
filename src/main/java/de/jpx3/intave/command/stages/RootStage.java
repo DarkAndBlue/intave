@@ -410,6 +410,20 @@ public final class RootStage extends CommandStage {
   }
 
   @SubCommand(
+    selectors = "transping",
+    usage = "[<target>]",
+    description = "",
+    permission = "sibyl"
+  )
+  @Native
+  public void transactionPing(User user, @Optional Player target) {
+    if (target == null) {
+      target = user.player();
+    }
+    user.player().sendMessage(ChatColor.RED + target.getName() + ChatColor.GRAY + " has a transaction-ping of " + ChatColor.RED + UserRepository.userOf(target).meta().connection().transactionPingAverage() + ChatColor.GRAY + "ms");
+  }
+
+  @SubCommand(
     selectors = "trustmap",
     usage = "",
     permission = "sibyl"

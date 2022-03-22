@@ -29,8 +29,8 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.comphenix.protocol.wrappers.EnumWrappers.PlayerDigType.*;
-import static de.jpx3.intave.module.feedback.TransactionOptions.APPEND_ON_OVERFLOW;
-import static de.jpx3.intave.module.feedback.TransactionOptions.SELF_SYNCHRONIZATION;
+import static de.jpx3.intave.module.feedback.FeedbackOptions.APPEND_ON_OVERFLOW;
+import static de.jpx3.intave.module.feedback.FeedbackOptions.SELF_SYNCHRONIZATION;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 

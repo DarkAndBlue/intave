@@ -1,6 +1,6 @@
 package de.jpx3.intave.module.feedback;
 
-public final class TransactionOptions {
+public final class FeedbackOptions {
   public static int SELF_SYNCHRONIZATION = 1;
   public static int APPEND_ON_OVERFLOW = 2;
   @Deprecated

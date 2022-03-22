@@ -17,7 +17,7 @@ import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.tracker.entity.EntityShade;
 import de.jpx3.intave.packet.PacketSender;
-import de.jpx3.intave.player.dmc.DamageModify;
+import de.jpx3.intave.player.DamageModify;
 import de.jpx3.intave.player.fake.FakePlayer;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;

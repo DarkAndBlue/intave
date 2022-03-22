@@ -22,12 +22,12 @@ public final class ModernComplexColliderProcessor implements ComplexColliderProc
       motion.motionY *= 0.05f;
       motion.motionZ *= 0.25D;
     }
-    if (movement.onGround && movement.sneaking) {
+    if (movement.onGround() && movement.isSneaking()) {
       calculateBackOffFromEdge(user, movement.stepHeight, motion);
     }
-    double startMotionX = motion.motionX;
-    double startMotionY = motion.motionY;
-    double startMotionZ = motion.motionZ;
+    double startMotionX = motion.motionX();
+    double startMotionY = motion.motionY();
+    double startMotionZ = motion.motionZ();
     boolean step = false;
     BlockShape collisionShape = Collision.collisionShape(
       player, movement.boundingBox().expand(motion.motionX, motion.motionY, motion.motionZ)

@@ -1,4 +1,4 @@
-package de.jpx3.intave.player.id;
+package de.jpx3.intave.player;
 
 import com.google.common.collect.Maps;
 import de.jpx3.intave.cleanup.GarbageCollector;

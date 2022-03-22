@@ -52,7 +52,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
-import static de.jpx3.intave.module.feedback.TransactionOptions.SELF_SYNCHRONIZATION;
+import static de.jpx3.intave.module.feedback.FeedbackOptions.SELF_SYNCHRONIZATION;
 
 @Relocate
 final class PlayerUser implements User {

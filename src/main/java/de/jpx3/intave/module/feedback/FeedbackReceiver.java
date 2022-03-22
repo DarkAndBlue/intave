@@ -124,6 +124,7 @@ public final class FeedbackReceiver extends Module {
       transactionShortKeyMap.remove(transactionIdentifier);
       transactionGlobalKeyMap.remove(transactionResponse.num());
       receiveRequest(user, transactionResponse);
+      user.meta().connection().receivedTransactionAfter(transactionResponse.passedTime());
       event.setCancelled(true);
     }
   }

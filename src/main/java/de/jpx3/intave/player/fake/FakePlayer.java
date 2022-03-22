@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
 
-import static de.jpx3.intave.module.feedback.TransactionOptions.SELF_SYNCHRONIZATION;
+import static de.jpx3.intave.module.feedback.FeedbackOptions.SELF_SYNCHRONIZATION;
 import static de.jpx3.intave.player.fake.FakePlayerAttribute.*;
 import static de.jpx3.intave.player.fake.MetadataAccess.updateHealthFor;
 import static de.jpx3.intave.player.fake.ProfileLookup.acquireGameProfile;
