@@ -23,6 +23,7 @@ import de.jpx3.intave.check.world.interaction.Interaction;
 import de.jpx3.intave.check.world.interaction.InteractionEmulator;
 import de.jpx3.intave.check.world.interaction.InteractionType;
 import de.jpx3.intave.executor.Synchronizer;
+import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketId;
@@ -31,6 +32,7 @@ import de.jpx3.intave.module.tracker.player.AbilityTracker;
 import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.module.violation.ViolationContext;
 import de.jpx3.intave.packet.PacketSender;
+import de.jpx3.intave.packet.converter.BlockPositionConverter;
 import de.jpx3.intave.packet.reader.BlockInteractionReader;
 import de.jpx3.intave.packet.reader.EntityReader;
 import de.jpx3.intave.packet.reader.PacketReaders;
@@ -147,7 +149,10 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     InventoryMetadata inventoryData = meta.inventory();
 
     PacketContainer packet = event.getPacket();
-    com.comphenix.protocol.wrappers.BlockPosition blockPosition = packet.getBlockPositionModifier().readSafely(0);
+//    com.comphenix.protocol.wrappers.BlockPosition blockPosition = packet.getBlockPositionModifier().readSafely(0);
+    com.comphenix.protocol.wrappers.BlockPosition blockPosition = event.getPacket().getModifier()
+      .withType(Lookup.serverClass("BlockPosition"), BlockPositionConverter.threadConverter())
+      .read(0);
 
     if (blockPosition == null || event.isCancelled()) {
       if (attack.inBreakProcess) {

@@ -423,7 +423,6 @@ public final class IntavePlugin extends JavaPlugin {
           String keyResponse = properties.get("exchange-key");
           // verify the server integrity
           boolean validResponse = false;
-          // don't optimize please - otherwise we will have JVM Crashes
           if (keyResponse != null) {
             byte[] responseBytes = new byte[keyResponse.length() / 2];
             for (int i = 0; i < responseBytes.length; i++) {
@@ -431,7 +430,7 @@ public final class IntavePlugin extends JavaPlugin {
             }
             validResponse = Arrays.equals(responseBytes, digest);
           }
-          if (!validResponse /*|| foundInterceptor*/) {
+          if (!validResponse) {
             logger.error("Unable to boot: Authentication response not trustworthy");
             contextStatusResource.write(new ByteArrayInputStream(("failure-"+response).getBytes(UTF_8)));
             bootFailure("Internal failure");
@@ -661,23 +660,6 @@ public final class IntavePlugin extends JavaPlugin {
       BackgroundExecutor.execute(NativeCheck::run);
     });
   }
-
-  private static String bytesToHumanReadable(byte[] bytes) {
-    StringBuilder stringBuilder = new StringBuilder();
-    for (byte b : bytes) {
-      stringBuilder.append(String.format("%02X", b));
-    }
-    return stringBuilder.toString();
-  }
-
-  private static byte[] humanReadableFromString(String string) {
-    byte[] bytes = new byte[string.length() / 2];
-    for (int i = 0; i < bytes.length; i++) {
-      bytes[i] = (byte) Integer.parseInt(string.substring(i * 2, i * 2 + 2), 16);
-    }
-    return bytes;
-  }
-
 
   private void registerNativeCheck() {
     NativeCheck.registerNative(this::invalidateCaches);

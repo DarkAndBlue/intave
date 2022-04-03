@@ -14,9 +14,11 @@ import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.check.combat.heuristics.Anomaly;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
 import de.jpx3.intave.executor.Synchronizer;
+import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
+import de.jpx3.intave.packet.converter.BlockPositionConverter;
 import de.jpx3.intave.shade.MovingObjectPosition;
 import de.jpx3.intave.shade.NativeVector;
 import de.jpx3.intave.user.User;
@@ -78,7 +80,10 @@ public final class AirClickLimitHeuristic extends MetaCheckPart<Heuristics, AirC
     AirClickLimitHeuristicMeta meta = metaOf(user);
 
     // TODO: 01/28/21 Warning by Richy: The block-place is empty for native server versions from 1.9! Use the USE_ITEM packet instead
-    BlockPosition blockPosition = event.getPacket().getBlockPositionModifier().read(0);
+//    BlockPosition blockPosition = event.getPacket().getBlockPositionModifier().read(0);
+    BlockPosition blockPosition = event.getPacket().getModifier()
+      .withType(Lookup.serverClass("BlockPosition"), BlockPositionConverter.threadConverter())
+      .read(0);
     int blockPlaceDirection = event.getPacket().getIntegers().read(0);
 
     if (blockPosition != null) {
@@ -113,7 +118,10 @@ public final class AirClickLimitHeuristic extends MetaCheckPart<Heuristics, AirC
     if (digType == EnumWrappers.PlayerDigType.START_DESTROY_BLOCK) {
       meta.isBreakingClientSide = true;
 
-      meta.currentDiggedBlock = event.getPacket().getBlockPositionModifier().read(0);
+//      meta.currentDiggedBlock = event.getPacket().getBlockPositionModifier().read(0);
+      meta.currentDiggedBlock = event.getPacket().getModifier()
+        .withType(Lookup.serverClass("BlockPosition"), BlockPositionConverter.threadConverter())
+        .read(0);
     } else if (digType == EnumWrappers.PlayerDigType.ABORT_DESTROY_BLOCK) {
       meta.isBreakingClientSide = false;
     } else if (digType == EnumWrappers.PlayerDigType.STOP_DESTROY_BLOCK) {

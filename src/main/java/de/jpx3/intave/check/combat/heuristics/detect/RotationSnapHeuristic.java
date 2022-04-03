@@ -13,10 +13,12 @@ import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.check.combat.heuristics.Anomaly;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
+import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.module.tracker.entity.EntityShade;
+import de.jpx3.intave.packet.converter.BlockPositionConverter;
 import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.shade.ClientMathHelper;
 import de.jpx3.intave.user.User;
@@ -71,7 +73,10 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
     User user = userOf(player);
 
     // TODO: 01/28/21 Warning by Richy: The block-place is empty for native server versions from 1.9! Use the USE_ITEM packet instead
-    BlockPosition blockPosition = event.getPacket().getBlockPositionModifier().read(0);
+//    BlockPosition blockPosition = event.getPacket().getBlockPositionModifier().read(0);
+    BlockPosition blockPosition = event.getPacket().getModifier()
+      .withType(Lookup.serverClass("BlockPosition"), BlockPositionConverter.threadConverter())
+      .read(0);
     int blockPlaceDirection = event.getPacket().getIntegers().read(0);
 
     if (blockPosition != null) {

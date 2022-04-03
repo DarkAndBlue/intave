@@ -13,6 +13,7 @@ import de.jpx3.intave.block.variant.BlockVariantAccess;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.world.BreakSpeedLimiter;
 import de.jpx3.intave.executor.Synchronizer;
+import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
@@ -21,6 +22,7 @@ import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.module.violation.ViolationContext;
 import de.jpx3.intave.module.violation.ViolationProcessor;
 import de.jpx3.intave.packet.PacketSender;
+import de.jpx3.intave.packet.converter.BlockPositionConverter;
 import de.jpx3.intave.reflect.access.ReflectiveEntityAccess;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
@@ -95,7 +97,10 @@ public final class CompletionDurationCheck extends MetaCheckPart<BreakSpeedLimit
 
     ItemStack heldItem = inventoryData.heldItem();
     PacketContainer packet = event.getPacket();
-    BlockPosition blockPosition = packet.getBlockPositionModifier().read(0);
+//    BlockPosition blockPosition = packet.getBlockPositionModifier().read(0);
+    BlockPosition blockPosition = event.getPacket().getModifier()
+      .withType(Lookup.serverClass("BlockPosition"), BlockPositionConverter.threadConverter())
+      .read(0);
     EnumWrappers.PlayerDigType digType = packet.getPlayerDigTypes().read(0);
 
     switch (digType) {

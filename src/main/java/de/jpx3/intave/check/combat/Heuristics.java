@@ -63,7 +63,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
 
   private void setupEvaluationScheduler(IntavePlugin plugin) {
     //noinspection deprecation
-    int taskId = Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, this::evaluateAll, 0, 400);
+    int taskId = Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, this::evaluateAll, 0, 20 * 20);
     TaskTracker.begun(taskId);
   }
 

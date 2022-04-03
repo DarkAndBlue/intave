@@ -3,6 +3,7 @@ package de.jpx3.intave.module.tracker.player;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.comphenix.protocol.wrappers.WrappedChatComponent;
 import com.mojang.authlib.GameProfile;
@@ -18,6 +19,7 @@ import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketId;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.packet.PacketSender;
+import de.jpx3.intave.packet.converter.BlockPositionConverter;
 import de.jpx3.intave.player.ItemProperties;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -402,10 +404,13 @@ public final class InventoryTracker extends Module {
     PacketContainer packet = event.getPacket();
     EnumWrappers.PlayerDigType digType = packet.getPlayerDigTypes().read(0);
 
+    BlockPosition blockPosition = event.getPacket().getModifier()
+      .withType(Lookup.serverClass("BlockPosition"), BlockPositionConverter.threadConverter())
+      .read(0);
     if (digType == EnumWrappers.PlayerDigType.RELEASE_USE_ITEM
       && !inventoryData.handActive()
       && packet.getDirections().read(0).equals(EnumWrappers.Direction.DOWN)
-      && packet.getBlockPositionModifier().read(0).toVector().length() == 0
+      && blockPosition.toVector().length() == 0
     ) {
 //      event.setCancelled(true);
       return;
