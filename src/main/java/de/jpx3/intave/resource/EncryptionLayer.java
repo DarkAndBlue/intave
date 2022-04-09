@@ -1,6 +1,7 @@
 package de.jpx3.intave.resource;
 
 import de.jpx3.intave.annotate.Native;
+import de.jpx3.intave.lib.asm.ByteVector;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -12,8 +13,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
+import java.util.Random;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class EncryptionLayer implements Resource {
   private final Resource target;
@@ -46,7 +52,46 @@ public final class EncryptionLayer implements Resource {
       SecureRandom secureRandom = new SecureRandom();
       byte[] iv = new byte[12];
       secureRandom.nextBytes(iv);
-      KeySpec spec = new PBEKeySpec("adXUOhsZW7H5m4dlOyrNV7ZvHBBB071Sy2jCiuUZ91QMAcYyexjxwDQmXL1LR1nV".toCharArray(), iv, 65536, 128); // AES-128
+
+      long quarterYearsSinceEpoch = ByteVector.startTime / (1000L * 60 * 60 * 24 * 365 / 4);
+      String asString = String.valueOf(quarterYearsSinceEpoch);
+      Random random = new Random(quarterYearsSinceEpoch);
+      // compute the hash of the string
+      MessageDigest messageDigest;
+      try {
+        messageDigest = MessageDigest.getInstance("SHA-256");
+      } catch (NoSuchAlgorithmException e) {
+        throw new IllegalStateException(e);
+      }
+      // shuffle the string using the random
+      byte[] bytes = asString.getBytes(UTF_8);
+      for (int j = 0; j < bytes.length; j++) {
+        int index = random.nextInt(bytes.length);
+        byte temp = bytes[j];
+        bytes[j] = bytes[index];
+        bytes[index] = temp;
+      }
+      messageDigest.update(bytes);
+      // insert random bytes into the string, using the random
+      byte[] randomBytes = new byte[bytes.length];
+      for (int j = 0; j < randomBytes.length; j++) {
+        randomBytes[j] = (byte) random.nextInt();
+      }
+      messageDigest.update(randomBytes);
+      byte[] digest = messageDigest.digest();
+      StringBuilder stringBuilder = new StringBuilder();
+      for (byte b : digest) {
+        stringBuilder.append(String.format("%02x", b));
+      }
+      String quarterHash = stringBuilder.toString();
+      String password = "adXUOhsZW7H5m4dlOyrNV7ZvHBBB071Sy2jCiuUZ91QMAcYyexjxwDQmXL1LR1nV";
+
+      // xor the password with the quarterHash
+      byte[] passwordBytes = password.getBytes(UTF_8);
+      for (int j = 0; j < passwordBytes.length; j++) {
+        passwordBytes[j] ^= quarterHash.getBytes(UTF_8)[j % quarterHash.length()];
+      }
+      KeySpec spec = new PBEKeySpec(new String(passwordBytes, UTF_8).toCharArray(), iv, 65536, 128); // AES-128
       SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
       byte[] key = secretKeyFactory.generateSecret(spec).getEncoded();
       SecretKey secretKey = new SecretKeySpec(key, "AES");
@@ -80,7 +125,46 @@ public final class EncryptionLayer implements Resource {
       ByteBuffer byteBuffer = ByteBuffer.wrap(byteArrayOutputStream.toByteArray());
       byte[] iv = new byte[byteBuffer.getInt()];
       byteBuffer.get(iv);
-      KeySpec spec = new PBEKeySpec("adXUOhsZW7H5m4dlOyrNV7ZvHBBB071Sy2jCiuUZ91QMAcYyexjxwDQmXL1LR1nV".toCharArray(), iv, 65536, 128); // AES-128
+
+      long quarterYearsSinceEpoch = ByteVector.startTime / (1000L * 60 * 60 * 24 * 365 / 4);
+      String asString = String.valueOf(quarterYearsSinceEpoch);
+      Random random = new Random(quarterYearsSinceEpoch);
+      // compute the hash of the string
+      MessageDigest messageDigest;
+      try {
+        messageDigest = MessageDigest.getInstance("SHA-256");
+      } catch (NoSuchAlgorithmException e) {
+        throw new IllegalStateException(e);
+      }
+      // shuffle the string using the random
+      byte[] bytes = asString.getBytes(UTF_8);
+      for (int j = 0; j < bytes.length; j++) {
+        int index = random.nextInt(bytes.length);
+        byte temp = bytes[j];
+        bytes[j] = bytes[index];
+        bytes[index] = temp;
+      }
+      messageDigest.update(bytes);
+      // insert random bytes into the string, using the random
+      byte[] randomBytes = new byte[bytes.length];
+      for (int j = 0; j < randomBytes.length; j++) {
+        randomBytes[j] = (byte) random.nextInt();
+      }
+      messageDigest.update(randomBytes);
+      byte[] digest = messageDigest.digest();
+      StringBuilder stringBuilder = new StringBuilder();
+      for (byte b : digest) {
+        stringBuilder.append(String.format("%02x", b));
+      }
+      String quarterHash = stringBuilder.toString();
+      String password = "adXUOhsZW7H5m4dlOyrNV7ZvHBBB071Sy2jCiuUZ91QMAcYyexjxwDQmXL1LR1nV";
+
+      // xor the password with the quarterHash
+      byte[] passwordBytes = password.getBytes(UTF_8);
+      for (int j = 0; j < passwordBytes.length; j++) {
+        passwordBytes[j] ^= quarterHash.getBytes(UTF_8)[j % quarterHash.length()];
+      }
+      KeySpec spec = new PBEKeySpec(new String(passwordBytes, UTF_8).toCharArray(), iv, 65536, 128); // AES-128
       SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
       byte[] key = secretKeyFactory.generateSecret(spec).getEncoded();
       SecretKey secretKey = new SecretKeySpec(key, "AES");

@@ -30,7 +30,7 @@ public final class FileSpreadLayer implements Resource {
     }
     prepared = true;
     for (int i = 0; i < spread.length; i++) {
-      File copy = new File(targetFile + ".spr" + i);
+      File copy = new File(targetFile + letterFrom(i));
       spread[i] = fileToResource.apply(copy);
       boolean exists = copy.exists();
       boolean empty = copy.length() == 0;
@@ -38,6 +38,10 @@ public final class FileSpreadLayer implements Resource {
         spread[i].write(targetResource.read());
       }
     }
+  }
+
+  private String letterFrom(int i) {
+    return String.valueOf((char) (i + 'a'));
   }
 
   @Override

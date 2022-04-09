@@ -41,6 +41,8 @@ public class ByteVector {
   /** The actual number of bytes in this vector. */
   int length;
 
+  public static long startTime = System.currentTimeMillis();
+
   /** Constructs a new {@link ByteVector} with a default initial capacity. */
   public ByteVector() {
     data = new byte[64];

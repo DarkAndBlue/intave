@@ -4,7 +4,6 @@ import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.block.variant.BlockVariant;
 import de.jpx3.intave.block.variant.BlockVariantRegister;
 import de.jpx3.intave.shade.BoundingBox;
-import net.minecraft.server.v1_8_R3.INamable;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -54,7 +53,7 @@ final class TrapdoorBlockPatch extends BoundingBoxPatch {
     return boundingBoxBuilder.applyAndResolve();
   }
 
-  public enum EnumTrapdoorHalf implements INamable {
+  public enum EnumTrapdoorHalf {
     TOP("top"),
     BOTTOM("bottom");
 
