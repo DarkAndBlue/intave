@@ -15,10 +15,11 @@ import de.jpx3.intave.check.combat.heuristics.Anomaly;
 import de.jpx3.intave.check.combat.heuristics.Combinator;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
 import de.jpx3.intave.check.combat.heuristics.MiningStrategy;
+import de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.AirClickLimitHeuristics;
 import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.*;
 import de.jpx3.intave.check.combat.heuristics.detect.inventory.PacketInventoryHeuristic;
 import de.jpx3.intave.check.combat.heuristics.detect.mods.LabyModsHeuristic;
-import de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.AirClickLimitHeuristic;
+import de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.OldAirClickLimitHeuristic;
 import de.jpx3.intave.check.combat.heuristics.detect.other.*;
 import de.jpx3.intave.check.combat.heuristics.mine.MiningStrategyContainer;
 import de.jpx3.intave.check.combat.heuristics.mine.MiningStrategyExecutor;
@@ -81,7 +82,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     boolean partner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
 
     if (enterprise) {
-      appendCheckPart(new AirClickLimitHeuristic(this));
+      appendCheckPart(new OldAirClickLimitHeuristic(this));
       appendCheckPart(new AttackReduceIgnoreHeuristic(this));
       appendCheckPart(new RotationStandardDeviationHeuristic(this));
       appendCheckPart(new RotationSnapHeuristic(this));
@@ -94,6 +95,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
       appendCheckPart(new LabyModsHeuristic(this));
     }
 
+    appendCheckPart(new AirClickLimitHeuristics(this));
     appendCheckPart(new PreAttackHeuristic(this));
 //    appendCheckPart(new RotationAngleHeuristic(this));
 

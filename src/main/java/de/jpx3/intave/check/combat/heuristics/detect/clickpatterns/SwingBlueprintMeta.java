@@ -8,6 +8,7 @@ import java.util.List;
 public abstract class SwingBlueprintMeta extends CheckCustomMetadata {
   protected final List<Integer> delays = new ArrayList<>();
   protected int delay;
+  protected int doubleClicks;
   protected int lastAttack; // In client ticks
   protected boolean placedBlock;
 }

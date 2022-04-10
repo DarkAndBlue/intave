@@ -3,11 +3,21 @@ package de.jpx3.intave.check.combat.heuristics.detect.clickpatterns;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.google.common.util.concurrent.AtomicDouble;
 import de.jpx3.intave.check.CheckPartBlueprintLayout;
 import de.jpx3.intave.check.combat.Heuristics;
+import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
+import de.jpx3.intave.shade.MovingObjectPosition;
+import de.jpx3.intave.shade.NativeVector;
 import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.MovementMetadata;
+import de.jpx3.intave.world.raytrace.Raytracing;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 
@@ -17,19 +27,47 @@ public abstract class SwingBlueprint<M extends SwingBlueprintMeta>
   extends CheckPartBlueprintLayout<Heuristics, SwingBlueprintMeta, M> {
   private final int sampleSize;
   // Could use bit-shift operations for these options in constructor? they're always true & false for now
-  private boolean ignoreDoubleClicks = true;
+  private final boolean ignoreDoubleClicks;
   // This could be done inside the Anomaly system with REQUIRES_HEAVY_COMBAT, but doing it here allow us to just
   // pause sample instead of voiding them and also enter specific conditions
-  private boolean requireCombat = false;
+  private final boolean requireCombat;
 
+  public SwingBlueprint(Heuristics parentCheck, Class<M> metaClass, int sampleSize, boolean ignoreDoubleClicks, boolean requireCombat) {
+    super(parentCheck, metaClass);
+    this.sampleSize = sampleSize;
+    this.ignoreDoubleClicks = ignoreDoubleClicks;
+    this.requireCombat = requireCombat;
+  }
+
+  // Could use bit-shift operations for these options in constructor?
   public SwingBlueprint(Heuristics parentCheck, Class<M> metaClass, int sampleSize) {
     super(parentCheck, metaClass);
     this.sampleSize = sampleSize;
+    this.ignoreDoubleClicks = true;
+    this.requireCombat = false;
   }
 
   // This isn't going to work because when we will extend it we won't know our user?
   // Should we put it through parameters or something?
-  public abstract void check(List<Integer> delays);
+  public abstract void check(User user, List<Integer> delays);
+
+  private boolean breakingBlock(User user) {
+    Player player = user.player();
+    World world = user.player().getWorld();
+    MovementMetadata movementData = user.meta().movement();
+    Location playerLocation = new Location(world,
+      movementData.lastPositionX, movementData.lastPositionY, movementData.lastPositionZ,
+      movementData.rotationYaw, movementData.rotationPitch);
+
+    MovingObjectPosition raycastResult;
+    try {
+      raycastResult = Raytracing.blockRayTrace(player, playerLocation);
+    } catch (Exception exception) {
+      exception.printStackTrace();
+      return true;
+    }
+    return raycastResult != null && raycastResult.hitVec != NativeVector.ZERO;
+  }
 
   @PacketSubscription(
     priority = ListenerPriority.HIGH,
@@ -41,16 +79,19 @@ public abstract class SwingBlueprint<M extends SwingBlueprintMeta>
     User user = userOf(event.getPlayer());
     SwingBlueprintMeta meta = metaOf(user);
     // Completely ignore this swing, like it never existed!
-    if (user.meta().attack().inBreakProcess || meta.placedBlock) {
+    if (user.meta().attack().inBreakProcess || meta.placedBlock || breakingBlock(user)) {
       return;
     }
 
     boolean requireCombatCheck = !requireCombat || meta.lastAttack <= 10;
     boolean ignoreDoubleClickCheck = !ignoreDoubleClicks || meta.delay > 0;
     if (meta.delay <= 15 && requireCombatCheck && ignoreDoubleClickCheck) {
+      if (meta.delay == 0) {
+        meta.doubleClicks++;
+      }
       meta.delays.add(meta.delay);
       if (meta.delays.size() == sampleSize) {
-        check(meta.delays);
+        check(user, meta.delays);
         meta.delays.clear();
       }
     }
@@ -67,11 +108,7 @@ public abstract class SwingBlueprint<M extends SwingBlueprintMeta>
   public void clientBlockPlace(PacketEvent event) {
     User user = userOf(event.getPlayer());
     SwingBlueprintMeta meta = metaOf(user);
-
-    int blockPlaceDirection = event.getPacket().getIntegers().read(0);
-    if (blockPlaceDirection != 255) {
-      meta.placedBlock = true;
-    }
+    meta.placedBlock = true;
   }
 
   @PacketSubscription(
@@ -105,5 +142,23 @@ public abstract class SwingBlueprint<M extends SwingBlueprintMeta>
     meta.delay++;
     meta.lastAttack++;
     meta.placedBlock = false;
+  }
+
+  public double clickPerSecond(List<Integer> delays) {
+    return 20 / average(delays);
+  }
+
+  public double standardDeviation(List<Integer> values) {
+    double average = average(values);
+    AtomicDouble variance = new AtomicDouble(0D);
+    values.forEach(delay -> variance.getAndAdd(Math.pow(delay.doubleValue() - average, 2D)));
+    return Math.sqrt(variance.get() / values.size());
+  }
+
+  public double average(List<Integer> values) {
+    return values.stream()
+      .mapToDouble(Number::doubleValue)
+      .average()
+      .orElse(0D);
   }
 }

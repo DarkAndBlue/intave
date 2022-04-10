@@ -33,10 +33,10 @@ import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
-public final class AirClickLimitHeuristic extends MetaCheckPart<Heuristics, AirClickLimitHeuristic.AirClickLimitHeuristicMeta> {
+public final class OldAirClickLimitHeuristic extends MetaCheckPart<Heuristics, OldAirClickLimitHeuristic.AirClickLimitHeuristicMeta> {
 
-  public AirClickLimitHeuristic(Heuristics parentCheck) {
-    super(parentCheck, AirClickLimitHeuristic.AirClickLimitHeuristicMeta.class);
+  public OldAirClickLimitHeuristic(Heuristics parentCheck) {
+    super(parentCheck, OldAirClickLimitHeuristic.AirClickLimitHeuristicMeta.class);
   }
 
   @PacketSubscription(
