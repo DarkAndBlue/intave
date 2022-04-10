@@ -3,7 +3,7 @@ package de.jpx3.intave.check.combat.heuristics.detect.clickpatterns;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import de.jpx3.intave.check.MetaCheckPart;
+import de.jpx3.intave.check.CheckPartBlueprintLayout;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
@@ -13,9 +13,11 @@ import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.SwingBlueprint.SwingMeta;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
-public abstract class AirSwingClickTracker extends MetaCheckPart<Heuristics, AirSwingClickTracker.AirSwingClickTrackerMeta> {
+public abstract class SwingBlueprint<M extends SwingMeta>
+  extends CheckPartBlueprintLayout<Heuristics, SwingMeta, M> {
   private final int sampleSize;
   // Could use bit-shift operations for these options in constructor? they're always true & false for now
   private boolean ignoreDoubleClicks = true;
@@ -23,12 +25,12 @@ public abstract class AirSwingClickTracker extends MetaCheckPart<Heuristics, Air
   // pause sample instead of voiding them and also enter specific conditions
   private boolean requireCombat = false;
 
-  public AirSwingClickTracker(Heuristics parentCheck, int sampleSize) {
-    super(parentCheck, AirSwingClickTracker.AirSwingClickTrackerMeta.class);
+  public SwingBlueprint(Heuristics parentCheck, Class<M> metaClass, int sampleSize) {
+    super(parentCheck, metaClass);
     this.sampleSize = sampleSize;
   }
 
-  public static class AirSwingClickTrackerMeta extends CheckCustomMetadata {
+  public abstract static class SwingMeta extends CheckCustomMetadata {
     private final List<Integer> delays = new ArrayList<>();
     private int delay;
     private int lastAttack; // In client ticks
@@ -47,7 +49,7 @@ public abstract class AirSwingClickTracker extends MetaCheckPart<Heuristics, Air
   )
   public void clientSwing(PacketEvent event) {
     User user = userOf(event.getPlayer());
-    AirSwingClickTrackerMeta meta = metaOf(user);
+    SwingMeta meta = metaOf(user);
     // Completely ignore this swing, like it never existed!
     if (user.meta().attack().inBreakProcess || meta.placedBlock) {
       return;
@@ -74,7 +76,7 @@ public abstract class AirSwingClickTracker extends MetaCheckPart<Heuristics, Air
   // BLOCK_PLACE is replaced by USE_ITEM in 1.9+ but it doesn't matter to us since those detections are for 1.8-
   public void clientBlockPlace(PacketEvent event) {
     User user = userOf(event.getPlayer());
-    AirSwingClickTrackerMeta meta = metaOf(user);
+    SwingMeta meta = metaOf(user);
 
     int blockPlaceDirection = event.getPacket().getIntegers().read(0);
     if (blockPlaceDirection != 255) {
@@ -90,7 +92,7 @@ public abstract class AirSwingClickTracker extends MetaCheckPart<Heuristics, Air
   )
   public void clientUseEntity(PacketEvent event) {
     User user = userOf(event.getPlayer());
-    AirSwingClickTrackerMeta meta = metaOf(user);
+    SwingMeta meta = metaOf(user);
     PacketContainer packet = event.getPacket();
     EnumWrappers.EntityUseAction action = packet.getEntityUseActions().readSafely(0);
     if (action == null) {
@@ -109,7 +111,7 @@ public abstract class AirSwingClickTracker extends MetaCheckPart<Heuristics, Air
   )
   public void clientTickUpdate(PacketEvent event) {
     User user = userOf(event.getPlayer());
-    AirSwingClickTrackerMeta meta = metaOf(user);
+    SwingMeta meta = metaOf(user);
     meta.delay++;
     meta.lastAttack++;
     meta.placedBlock = false;
