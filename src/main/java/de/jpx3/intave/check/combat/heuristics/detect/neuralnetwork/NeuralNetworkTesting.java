@@ -126,7 +126,7 @@ public class NeuralNetworkTesting extends MetaCheckPart<Heuristics, NeuralNetwor
     float expectedYawDelta = (serverYaw - lastPlayerYaw) % 360f;
     float yawDelta = (playerYaw -lastPlayerYaw) % 360f;
     //player.sendMessage(String.format("%.4f %.4f", expectedYawDelta, yawDelta));
-    if (meta.lastAttack <= 0) {
+    if (meta.lastAttack <= 0 && yawDelta > 0) {
       double x = mapData(expectedYawDelta, -45, 45, -1, 1);
       double y = mapData(yawDelta, -45, 45, -1, 1);
       Point point = new Point(x, y);
