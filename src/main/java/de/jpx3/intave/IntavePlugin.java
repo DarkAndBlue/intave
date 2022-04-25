@@ -7,6 +7,7 @@ import de.jpx3.intave.adapter.ComponentLoader;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.adapter.ViaVersionAdapter;
 import de.jpx3.intave.agent.AgentAccessor;
+import de.jpx3.intave.analytics.Analytics;
 import de.jpx3.intave.annotate.NameIntrinsicallyImportant;
 import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.block.access.BlockAccess;
@@ -32,8 +33,8 @@ import de.jpx3.intave.connect.proxy.ProxyMessenger;
 import de.jpx3.intave.connect.shadow.LabymodShadowIntegration;
 import de.jpx3.intave.connect.sibyl.SibylBroadcast;
 import de.jpx3.intave.connect.sibyl.SibylIntegrationService;
+import de.jpx3.intave.connect.upload.ScheduledUploadService;
 import de.jpx3.intave.diagnostic.natives.NativeCheck;
-import de.jpx3.intave.diagnostic.report.RuntimeDiagnostics;
 import de.jpx3.intave.entity.size.HitboxSizeAccess;
 import de.jpx3.intave.entity.type.EntityTypeDataAccessor;
 import de.jpx3.intave.executor.BackgroundExecutor;
@@ -119,7 +120,9 @@ public final class IntavePlugin extends JavaPlugin {
   private IntaveAccessService accessService;
   private IntaveAccess access;
   private BlackListService blackListService;
+  private ScheduledUploadService uploadService;
   private Letis letis;
+  private Analytics analytics;
   private Metrics metrics;
 
   public IntavePlugin() {
@@ -600,6 +603,8 @@ public final class IntavePlugin extends JavaPlugin {
       proxyMessenger = new ProxyMessenger(this);
       sibylIntegrationService = new SibylIntegrationService(this);
       blackListService = new BlackListService(this);
+      uploadService = new ScheduledUploadService();
+      uploadService.enable();
       letis = new Letis(this);
 
       getCommand("intave").setExecutor(new CommandForwarder());
@@ -635,8 +640,6 @@ public final class IntavePlugin extends JavaPlugin {
     BackgroundExecutor.execute(this::clearIntegrityGarbage);
     BackgroundExecutor.execute(this::clearSaveFolderGarbage);
     logger.performCompression();
-
-    RuntimeDiagnostics.applicationBoot();
 
     if (JavaVersion.current() < 17) {
       String noticePrefix = ChatColor.DARK_RED + "Notice" + ChatColor.DARK_GRAY + ": ";
@@ -933,6 +936,14 @@ public final class IntavePlugin extends JavaPlugin {
 
   public SibylIntegrationService sibylIntegrationService() {
     return sibylIntegrationService;
+  }
+
+  public Analytics analytics() {
+    return analytics;
+  }
+
+  public ScheduledUploadService uploader() {
+    return uploadService;
   }
 
   public IntaveVersionList versions() {

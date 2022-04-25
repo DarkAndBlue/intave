@@ -22,6 +22,7 @@ import de.jpx3.intave.module.tracker.entity.EntityShade;
 import de.jpx3.intave.player.Effects;
 import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.shade.Motion;
+import de.jpx3.intave.shade.Rotation;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.Bukkit;
@@ -857,6 +858,10 @@ public final class MovementMetadata implements SimulationEnvironment {
     return frictionMultiplier;
   }
 
+  public Rotation rotation() {
+    return new Rotation(rotationYaw, rotationPitch);
+  }
+
   @Override
   public float rotationYaw() {
     return rotationYaw;
@@ -873,6 +878,18 @@ public final class MovementMetadata implements SimulationEnvironment {
   @Override
   public float rotationPitch() {
     return rotationPitch;
+  }
+
+  public Rotation lastRotation() {
+    return new Rotation(lastRotationYaw, lastRotationPitch);
+  }
+
+  public float lastRotationYaw() {
+    return lastRotationYaw;
+  }
+
+  public float lastRotationPitch() {
+    return lastRotationPitch;
   }
 
   @Override

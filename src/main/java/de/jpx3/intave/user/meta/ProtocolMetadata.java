@@ -40,16 +40,8 @@ public final class ProtocolMetadata {
   }
 
   public void refresh(Player player) {
-    this.protocolVersion = player == null ? -1 : ViaVersionAdapter.protocolVersionOf(player);
-    this.versionString = versionAsString();
+    setProtocolVersion(player == null ? -1 : ViaVersionAdapter.protocolVersionOf(player));
     this.refreshes++;
-
-    if (protocolVersion <= 0) {
-      protocolVersion = VER_INVALID;
-      minecraftVersion = MinecraftVersions.VER1_18_2;
-    } else {
-      minecraftVersion = new MinecraftVersion(versionString);
-    }
   }
 
   private String versionAsString() {
@@ -61,7 +53,18 @@ public final class ProtocolMetadata {
   }
 
   public void setProtocolVersion(int protocolVersion) {
+    String versionString = versionAsString();
+    if (protocolVersion <= 0) {
+      protocolVersion = VER_INVALID;
+      minecraftVersion = MinecraftVersions.VER1_18_2;
+    } else {
+      minecraftVersion = new MinecraftVersion(versionString);
+      MinecraftVersion server = MinecraftVersion.getCurrentVersion();
+      MinecraftVersion client = new MinecraftVersion(versionString);
+      behind = !client.isAtLeast(server);
+    }
     this.protocolVersion = protocolVersion;
+    this.versionString = versionString;
   }
 
   public boolean legacyTeleportAccept() {

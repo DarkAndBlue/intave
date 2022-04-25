@@ -19,6 +19,7 @@ public final class ConnectionMetadata {
   private final Map<Long, FeedbackRequest<?>> transactionGlobalKeyMap = Maps.newConcurrentMap();
   private final Map<Long, Queue<FeedbackRequest<?>>> transactionOptionalAppendixMap = Maps.newConcurrentMap();
   private final Map<Integer, EntityShade> entitiesById = Maps.newConcurrentMap();
+  private final List<Integer> entityIds = Lists.newArrayList();
   private final List<EntityShade> entities = Lists.newCopyOnWriteArrayList();
   private final List<EntityShade> synchronizedEntities = Lists.newCopyOnWriteArrayList();
   private final Map<Long, Long> remainingPingPacketTimestamps = Maps.newConcurrentMap();
@@ -156,6 +157,7 @@ public final class ConnectionMetadata {
 
   public void destroyEntity(int entityId) {
     entitiesById.put(entityId, EntityShade.destroyedEntity());
+    entityIds.remove(entityId);
 
     // we will not override the entity collection, as it would require a lot of performance and seems quite redundant in the first place
 //    for (int i = 0, entitiesSize = entities.size(); i < entitiesSize; i++) {
@@ -175,6 +177,7 @@ public final class ConnectionMetadata {
 
   public void enterEntity(EntityShade entity) {
     entitiesById.put(entity.entityId(), entity);
+    entityIds.add(entity.entityId());
     entities.add(entity);
   }
 
@@ -192,5 +195,9 @@ public final class ConnectionMetadata {
 
   public Deque<Object> enqueuedPackets() {
     return bufferEnqueue;
+  }
+
+  public List<Integer> entityIds() {
+    return entityIds;
   }
 }

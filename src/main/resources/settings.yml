@@ -196,6 +196,12 @@ logging:
 
   file-log: true
 
+analytics:
+
+  errorReporting: true
+
+  usageReporting: true
+
 layout:
 
   verbose: "{prefix} &c{player}&7/{trust-color}&7 {message} {details} (+{vladded} -> {vl})"

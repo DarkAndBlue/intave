@@ -15,13 +15,13 @@ import de.jpx3.intave.check.combat.heuristics.Anomaly;
 import de.jpx3.intave.check.combat.heuristics.Combinator;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
 import de.jpx3.intave.check.combat.heuristics.MiningStrategy;
+import de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.OldAirClickLimitHeuristic;
 import de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.SwingDeviationHeuristics;
 import de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.SwingLimitHeuristics;
 import de.jpx3.intave.check.combat.heuristics.detect.combatpatterns.*;
 import de.jpx3.intave.check.combat.heuristics.detect.experimental.RotationPrevisionDetermination;
 import de.jpx3.intave.check.combat.heuristics.detect.inventory.PacketInventoryHeuristic;
 import de.jpx3.intave.check.combat.heuristics.detect.mods.LabyModsHeuristic;
-import de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.OldAirClickLimitHeuristic;
 import de.jpx3.intave.check.combat.heuristics.detect.other.*;
 import de.jpx3.intave.check.combat.heuristics.mine.MiningStrategyContainer;
 import de.jpx3.intave.check.combat.heuristics.mine.MiningStrategyExecutor;
@@ -282,7 +282,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     boolean isPartner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
     boolean isEnterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
     int amountOfPlugins = Bukkit.getPluginManager().getPlugins().length;
-    boolean trust = IntaveControl.DISABLE_LICENSE_CHECK || isPartner || isEnterprise || !(onlinePlayers.size() <= 5 || player.isOp() || amountOfPlugins <= 5);
+    boolean trust = IntaveControl.DISABLE_LICENSE_CHECK || !plugin.getServer().getOnlineMode() || isPartner || isEnterprise || !(onlinePlayers.size() <= 5 || player.isOp() || amountOfPlugins <= 5);
 
     List<Anomaly> anomalies = metaOf(user).anomalies;
     anomalies.removeIf(Anomaly::expired);
