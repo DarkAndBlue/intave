@@ -3,7 +3,7 @@ package de.jpx3.intave;
 public final class IntaveControl {
   public final static boolean APPLY_GLOBAL_LOW_TRUSTFACTOR = false;
   public final static boolean USE_DEBUG_RESOURCES = false;
-  public final static boolean DEBUG_MOVEMENT = true;
+  public final static boolean DEBUG_MOVEMENT = false;
   public final static boolean DEBUG_EMULATION = false;
   public final static boolean DEBUG_HEURISTICS = false;
   public final static boolean DEBUG_TELEPORT_CAUSE_AND_CAUSER = false;
@@ -21,12 +21,10 @@ public final class IntaveControl {
   public final static boolean USE_TIMINGS = true;
   public final static boolean DUMP_BLOCK_HITBOX_ON_RIGHT_CLICK = false;
   public final static boolean SETBACK_WITH_PRESSED_KEYS = false;
-
-  public final static boolean USE_SUPERPOSITIONS = true;
-
+  public final static boolean USE_SUPERPOSITIONS = false;
   public final static boolean CLICKPATTERNS_OUTPUT = false;
 
-  public final static boolean USE_EXTERNAL_CONFIGURATION_FILE = true;
+  public final static boolean USE_EXTERNAL_CONFIGURATION_FILE = false;
   public final static boolean GOMME_MODE = false;
-  public final static boolean DISABLE_LICENSE_CHECK = true;
+  public final static boolean DISABLE_LICENSE_CHECK = false;
 }

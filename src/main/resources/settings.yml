@@ -27,6 +27,10 @@ check:
 
     high-tolerance: true
 
+    reverse-blink: true
+
+    reverse-lag: false
+
     thresholds:
       50: "intave internals sendnotify &c{player}&7/{trust-color}&7 is moving too frequently / is lagging"
       100:

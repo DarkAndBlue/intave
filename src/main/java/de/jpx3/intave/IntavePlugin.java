@@ -315,7 +315,7 @@ public final class IntavePlugin extends JavaPlugin {
         }
 
         try {
-          String path = "https://intave.de/auth.php";
+          String path = "https://service.intave.de/auth.php";
           URL url = new URL(path);
           URLConnection connection = url.openConnection();
           connection.setUseCaches(false);

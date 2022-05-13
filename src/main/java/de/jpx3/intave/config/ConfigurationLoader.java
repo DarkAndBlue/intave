@@ -185,7 +185,7 @@ public final class ConfigurationLoader {
           throw new IntaveBootFailureException("Debug resources not found");
         }
       } else {
-        URL url = new URL("https://intave.de/api/configuration-download");
+        URL url = new URL("https://service.intave.de/settings/download");
         URLConnection urlConnection = url.openConnection();
         urlConnection.addRequestProperty("User-Agent", "Intave/"+IntavePlugin.version());
         urlConnection.addRequestProperty("Cache-Control", "no-cache, no-store, must-revalidate");

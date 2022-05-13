@@ -105,8 +105,7 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
 
   @Native
   private void verifyAuthKey(String authKey, Consumer<Boolean> callback) {
-    String url_path = "https://intave.de/sibyl/verify.php";
-
+    String url_path = "https://service.intave.de/sibyl/verify";
     BackgroundExecutor.execute(() -> {
       try {
         URL url = new URL(url_path);

@@ -6,6 +6,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.access.player.trust.TrustFactor;
+import de.jpx3.intave.check.movement.Timer;
 import de.jpx3.intave.connect.sibyl.SibylBroadcast;
 import de.jpx3.intave.diagnostic.LatencyStudy;
 import de.jpx3.intave.module.Module;
@@ -25,6 +26,16 @@ import java.util.concurrent.DelayQueue;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 
 public final class PacketDelayer extends Module {
+  private boolean reverseBlink;
+  private boolean reverseLag;
+
+  @Override
+  public void enable() {
+    Timer timerCheck = plugin.checks().searchCheck(Timer.class);
+    this.reverseBlink = timerCheck.reverseBlink();
+    this.reverseLag = timerCheck.reverseLag();
+  }
+
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,
     packetsOut = {
@@ -57,10 +68,6 @@ public final class PacketDelayer extends Module {
     }
   )
   public void enqueueOutgoingPackets(PacketEvent event) {
-    if (!IntaveControl.DISABLE_LICENSE_CHECK) {
-      return;
-    }
-
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     ConnectionMetadata connection = user.meta().connection();
@@ -69,7 +76,7 @@ public final class PacketDelayer extends Module {
     PacketContainer packetContainer = event.getPacket();
     PacketType packetType = event.getPacketType();
 
-    if (user.justJoined() || user.trustFactor().atLeast(TrustFactor.ORANGE)) {
+    if (user.justJoined() || !(reverseBlink || reverseLag) || user.trustFactor().atLeast(TrustFactor.YELLOW)) {
       return;
     }
 
@@ -79,7 +86,7 @@ public final class PacketDelayer extends Module {
     }
 
     long playerLatencyGain = connection.transactionPingAverage() - LatencyStudy.transactionPingAverage();
-    boolean significantPingGain = playerLatencyGain > 75; // trustfactor?
+    boolean significantPingGain = playerLatencyGain > user.trustFactorSetting("timer.pg"); // ping gain
     boolean delayRequested = System.currentTimeMillis() - connection.lastDelayRequest < 60 * 1000;
     boolean delayPackets = significantPingGain || delayRequested;
 
@@ -87,12 +94,12 @@ public final class PacketDelayer extends Module {
     long oldestTransactionPacket = oldestPendingTransaction(user);
     long positionTimeoutTolerance = user.meta().protocol().flyingPacketStream() ? 0 : 1050;
 
-    boolean transactionTimeout = oldestTransactionPacket > connection.transactionPingAverage() + LatencyStudy.transactionPingAverage() / 2 + 300;
+    long lagTolerance = user.trustFactorSetting("timer.lt");
+    boolean transactionTimeout = oldestTransactionPacket > connection.transactionPingAverage() + LatencyStudy.transactionPingAverage() / 2 + lagTolerance;
     boolean riding = movement.isInVehicle();
-    boolean positionTimeout = !riding && lastMovementPacket > connection.transactionPingAverage() + LatencyStudy.transactionPingAverage() / 2 + 300 + positionTimeoutTolerance;
+    boolean positionTimeout = !riding && lastMovementPacket > connection.transactionPingAverage() + LatencyStudy.transactionPingAverage() / 2 + lagTolerance + positionTimeoutTolerance;
 
     boolean idAddressed =
-//      packetType == PacketType.Play.Server.ATTACH_ENTITY ||
       packetType == PacketType.Play.Server.ANIMATION ||
         packetType == PacketType.Play.Server.ENTITY_STATUS ||
         packetType == PacketType.Play.Server.ENTITY_METADATA ||
@@ -108,12 +115,10 @@ public final class PacketDelayer extends Module {
 
     Deque<Object> enqueuedPackets = connection.enqueuedPackets();
     DelayQueue<DelayedPacket> delayedPackets = connection.delayedPackets();
-
     boolean tooManyPackets = enqueuedPackets.size() > 8000;
     boolean buffer = !tooManyPackets && !player.isDead() && (transactionTimeout || positionTimeout);
-//    boolean enqueueLater = significantPingGain
 
-    if (buffer) {
+    if (buffer && reverseBlink) {
       // put all delayed packets into the enqueuedPacket queue
       if (!delayedPackets.isEmpty()) {
         DelayedPacket[] delayedObjectsArray = delayedPackets.toArray(new DelayedPacket[0]);
@@ -147,11 +152,11 @@ public final class PacketDelayer extends Module {
       }
       if (connection.lastBufferNotification + 30000 < System.currentTimeMillis()) {
         connection.lastBufferNotification = System.currentTimeMillis();
-        SibylBroadcast.broadcast("[AYCN] " + player.getName() + " had himself " + enqueuedPacketAmount + " packets buffered.");
+        String message = "[AYCN] " + player.getName() + " got " + enqueuedPacketAmount + " packets buffered.";
+        SibylBroadcast.broadcast(message);
         if (IntaveControl.GOMME_MODE) {
-          System.out.println("[AYCN] " + player.getName() + " got " + enqueuedPacketAmount + " packets buffered.");
+          System.out.println(message);
         }
-//        player.sendMessage(ChatColor.RED + "You have " + enqueuedPacketAmount + " packets buffered.");
       }
       connection.lastBufferEnqueue = System.currentTimeMillis();
     } else if (!delayedPackets.isEmpty()) {
@@ -162,7 +167,7 @@ public final class PacketDelayer extends Module {
         sendPacket(player, packet);
       }
     }
-    if (delayPackets) {
+    if (delayPackets && reverseLag) {
       long requestedDelay = Math.max(delayRequested ? 100 : 0, (long) (Math.max(playerLatencyGain, 100) / 2d));
       long delay = Math.min(connection.delayedPackets++ / 2 , requestedDelay);
       long scheduledTime = System.nanoTime() + delay * 1_000_000;
@@ -172,11 +177,11 @@ public final class PacketDelayer extends Module {
       event.setCancelled(true);
       if (connection.lastDelayNotification + 30000 < System.currentTimeMillis()) {
         connection.lastDelayNotification = System.currentTimeMillis();
-        SibylBroadcast.broadcast("[AYCN] " + player.getName() + " is being delayed by " + requestedDelay + "ms.");
+        String message = "[AYCN] " + player.getName() + " is being delayed by " + requestedDelay + "ms.";
+        SibylBroadcast.broadcast(message);
         if (IntaveControl.GOMME_MODE) {
-          System.out.println("[AYCN] " + player.getName() + " is being delayed by " + requestedDelay + "ms.");
+          System.out.println(message);
         }
-//        player.sendMessage(ChatColor.RED + "You are being delayed by " + requestedDelay + "ms.");
       }
     } else {
       connection.delayedPackets = 0;
