@@ -1,10 +1,10 @@
 package de.jpx3.intave.player.collider.simple;
 
-public class SimpleColliderSimulationResult {
+public class SimpleColliderResult {
   private final double motionX, motionY, motionZ;
   private final boolean onGround, collidedVertically;
 
-  public SimpleColliderSimulationResult(double motionX, double motionY, double motionZ, boolean onGround, boolean collidedVertically) {
+  public SimpleColliderResult(double motionX, double motionY, double motionZ, boolean onGround, boolean collidedVertically) {
     this.motionX = motionX;
     this.motionY = motionY;
     this.motionZ = motionZ;

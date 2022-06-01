@@ -1,6 +1,7 @@
 package de.jpx3.intave.check.movement;
 
 import com.comphenix.protocol.events.PacketEvent;
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.CheckConfiguration.CheckSettings;
@@ -20,8 +21,8 @@ public final class Timer extends Check {
     this.decrementer = new CheckViolationLevelDecrementer(this, 0.2);
     CheckSettings settings = configuration().settings();
     highToleranceMode = settings.boolBy("high-tolerance", false);
-    reverseBlink = settings.boolBy("reverse-blink", false);
-    reverseLag = settings.boolBy("reverse-lag", false);
+    reverseBlink = settings.boolBy("reverse-blink", false) || IntaveControl.GOMME_MODE;
+    reverseLag = settings.boolBy("reverse-lag", false) || IntaveControl.GOMME_MODE;
     if (highToleranceMode) {
       IntaveLogger.logger().info("Enabled high ping tolerance");
     }

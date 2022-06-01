@@ -11,14 +11,13 @@ import de.jpx3.intave.check.MetaCheck;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.movement.physics.Pose;
 import de.jpx3.intave.connect.customclient.CustomClientSupportConfig;
-import de.jpx3.intave.connect.shadow.ShadowPacketDataLink;
 import de.jpx3.intave.entity.size.HitboxSize;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.violation.placeholder.Placeholders;
 import de.jpx3.intave.module.violation.placeholder.PlayerContext;
 import de.jpx3.intave.module.violation.placeholder.UserContext;
-import de.jpx3.intave.player.collider.complex.ColliderProcessor;
-import de.jpx3.intave.player.collider.simple.SimpleColliderProcessor;
+import de.jpx3.intave.player.collider.complex.Collider;
+import de.jpx3.intave.player.collider.simple.SimpleCollider;
 import de.jpx3.intave.trustfactor.TrustFactorConfiguration;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.MetadataBundle;
@@ -176,18 +175,6 @@ public interface User {
 
   <T extends Storage> T storageOf(Class<T> storageClass);
 
-  @Deprecated
-  boolean hasShadow();
-
-  @Deprecated
-  void setShadow(boolean hasShadow);
-
-  @Deprecated
-  ShadowPacketDataLink shadowLinkage();
-
-  @Deprecated
-  void setShadowLinkage(ShadowPacketDataLink shadowRepo);
-
   /**
    * Retrieve the player's block state cache
    *
@@ -199,18 +186,18 @@ public interface User {
   BlockStateAccess blockStates();
 
   /**
-   * Retrieve the {@link User}-associated {@link ColliderProcessor}
+   * Retrieve the {@link User}-associated {@link Collider}
    *
    * @return the complex collider processor
    */
-  ColliderProcessor collider();
+  Collider collider();
 
   /**
-   * Retrieve the {@link User}-associated {@link SimpleColliderProcessor}
+   * Retrieve the {@link User}-associated {@link SimpleCollider}
    *
    * @return the simple collider processor
    */
-  SimpleColliderProcessor simplifiedCollider();
+  SimpleCollider simplifiedCollider();
 
   /**
    * Retrieve the placeholder associated with the present {@link Player}
@@ -369,6 +356,14 @@ public interface User {
    * @param reason the reason
    */
   void kick(String reason);
+
+  /**
+   * Send a localized message to the player
+   *
+   * @param key  the key
+   * @param args the arguments
+   */
+  void message(String key, Object... args);
 
   /**
    * Unregister a user

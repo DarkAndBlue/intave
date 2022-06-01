@@ -111,6 +111,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   private float aiMoveSpeed, jumpMovementFactor;
   public float frictionMultiplier;
   public float genericMovementSpeedAttribute;
+  public int lastPositionUpdate;
   @Nullable
   public Fluid interactingFluid;
   public boolean inWater;

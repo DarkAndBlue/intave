@@ -117,6 +117,9 @@ public final class InventoryClickDelayAnalyzer extends MetaCheckPart<InventoryCl
         .withDetails("moved from slot " + meta.lastClickedSlot + " to slot " + slot + " in " + MathHelper.formatDouble(time, 3) + " seconds")
         .withVL(5).build();
       ViolationContext violationContext = Modules.violationProcessor().processViolation(violation);
+      if (violationContext.violationLevelAfter() >= 50) {
+        userOf(player).applyAttackNerfer(GARBAGE_HITS, "29");
+      }
       if (violationContext.violationLevelAfter() >= 200) {
         userOf(player).applyAttackNerfer(CANCEL_FIRST_HIT, "29");
         userOf(player).applyAttackNerfer(DMG_MEDIUM, "29");

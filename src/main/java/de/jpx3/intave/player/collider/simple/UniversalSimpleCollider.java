@@ -9,9 +9,9 @@ import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.shade.Direction.Axis.*;
 
-public final class UniversalSimpleColliderProcessor implements SimpleColliderProcessor {
+public final class UniversalSimpleCollider implements SimpleCollider {
   @Override
-  public SimpleColliderSimulationResult collide(User user, BoundingBox boundingBox, double motionX, double motionY, double motionZ) {
+  public SimpleColliderResult collide(User user, BoundingBox boundingBox, double motionX, double motionY, double motionZ) {
     Player player = user.player();
     BlockShape collider = Collision.collisionShape(
       player, boundingBox.expand(motionX, motionY, motionZ)
@@ -23,11 +23,11 @@ public final class UniversalSimpleColliderProcessor implements SimpleColliderPro
     motionX = collider.allowedOffset(X_AXIS, boundingBox, motionX);
     boundingBox = boundingBox.offset(motionX, 0.0D, 0.0D);
     motionZ = collider.allowedOffset(Z_AXIS, boundingBox, motionZ);
-    return new SimpleColliderSimulationResult(motionX, motionY, motionZ, onGround, startMotionY != motionY);
+    return new SimpleColliderResult(motionX, motionY, motionZ, onGround, startMotionY != motionY);
   }
 
   @Override
-  public SimpleColliderSimulationResult collide(User user, BoundingBox boundingBox, Motion motion) {
+  public SimpleColliderResult collide(User user, BoundingBox boundingBox, Motion motion) {
     Player player = user.player();
     double motionX = motion.motionX;
     double motionY = motion.motionY;
@@ -42,6 +42,6 @@ public final class UniversalSimpleColliderProcessor implements SimpleColliderPro
     motionX = collider.allowedOffset(X_AXIS, boundingBox, motionX);
     boundingBox = boundingBox.offset(motionX, 0.0D, 0.0D);
     motionZ = collider.allowedOffset(Z_AXIS, boundingBox, motionZ);
-    return new SimpleColliderSimulationResult(motionX, motionY, motionZ, onGround, startMotionY != motionY);
+    return new SimpleColliderResult(motionX, motionY, motionZ, onGround, startMotionY != motionY);
   }
 }

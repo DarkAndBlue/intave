@@ -14,7 +14,6 @@ import de.jpx3.intave.block.state.MultiChunkKeyBlockStateAccess;
 import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.check.movement.physics.Pose;
 import de.jpx3.intave.connect.customclient.CustomClientSupportConfig;
-import de.jpx3.intave.connect.shadow.ShadowPacketDataLink;
 import de.jpx3.intave.entity.size.HitboxSize;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Modules;
@@ -24,9 +23,9 @@ import de.jpx3.intave.module.mitigate.HurttimeModifier;
 import de.jpx3.intave.module.violation.placeholder.PlayerContext;
 import de.jpx3.intave.module.violation.placeholder.UserContext;
 import de.jpx3.intave.packet.PacketSender;
-import de.jpx3.intave.player.collider.Collider;
-import de.jpx3.intave.player.collider.complex.ColliderProcessor;
-import de.jpx3.intave.player.collider.simple.SimpleColliderProcessor;
+import de.jpx3.intave.player.collider.Colliders;
+import de.jpx3.intave.player.collider.complex.Collider;
+import de.jpx3.intave.player.collider.simple.SimpleCollider;
 import de.jpx3.intave.player.fake.FakePlayer;
 import de.jpx3.intave.reflect.access.ReflectiveHandleAccess;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
@@ -57,15 +56,15 @@ import static de.jpx3.intave.module.feedback.FeedbackOptions.SELF_SYNCHRONIZATIO
 
 @Relocate
 final class PlayerUser implements User {
-  private final Map<Class<? extends CheckCustomMetadata>, CheckCustomMetadata> customMetaPool = new ConcurrentHashMap<>();
+  private final Map<Class<? extends CheckCustomMetadata>, CheckCustomMetadata> metadataPool = new ConcurrentHashMap<>();
 
   private final Reference<Player> player;
   private final Reference<Object> playerHandle;
   private final Reference<Object> playerConnection;
   private final MetadataBundle metadata;
   private final PermissionCache permissionCache;
-  private ColliderProcessor colliderProcessor;
-  private SimpleColliderProcessor simpleColliderProcessor;
+  private Collider collider;
+  private SimpleCollider simpleCollider;
   private final List<MessageChannel> receivingUserChannels = new ArrayList<>();
   private final Map<MessageChannel, Predicate<Player>> channelConstraints = Maps.newEnumMap(MessageChannel.class);
   private final Map<Material, Material> typeTranslations = Maps.newHashMap();
@@ -73,10 +72,8 @@ final class PlayerUser implements User {
   private final BlockStateAccess blockStateAccess;
   private boolean ignoreNextInboundPacket;
   private boolean ignoreNextOutboundPacket;
-  private boolean hasShadow;
-  private CustomClientSupportConfig customClientSupportConfig = CustomClientSupportConfig.createDefault();
-  private ShadowPacketDataLink shadowRepo = null;
-  private final long birthTimestamp = System.currentTimeMillis();
+  private CustomClientSupportConfig customClientConfig = CustomClientSupportConfig.createDefault();
+  private final long birth = System.currentTimeMillis();
 
   private final UserContext playerPlaceholderContext = new UserContext(this);
   private final PlayerContext playerContext;
@@ -90,8 +87,8 @@ final class PlayerUser implements User {
     this.metadata = new MetadataBundle(player, this);
     this.permissionCache = new ExpiringPermissionCache(16, TimeUnit.SECONDS);
     this.blockStateAccess = MultiChunkKeyBlockStateAccess.forPlayer(player);
-    this.colliderProcessor = Collider.suitableComplexColliderProcessorFor(this);
-    this.simpleColliderProcessor = Collider.suitableSimpleColliderProcessorFor(this);
+    this.collider = Colliders.suitableComplexColliderProcessorFor(this);
+    this.simpleCollider = Colliders.suitableSimpleColliderProcessorFor(this);
     Synchronizer.synchronize(this::setDefaultMessagingChannel);
     this.playerContext = PlayerContext.of(player);
     this.storage = Storages.emptyPlayerStorageFor(player.getUniqueId());
@@ -119,8 +116,8 @@ final class PlayerUser implements User {
 
   @Override
   public void applyNewProtocolVersion() {
-    this.colliderProcessor = Collider.suitableComplexColliderProcessorFor(this);
-    this.simpleColliderProcessor = Collider.suitableSimpleColliderProcessorFor(this);
+    this.collider = Colliders.suitableComplexColliderProcessorFor(this);
+    this.simpleCollider = Colliders.suitableSimpleColliderProcessorFor(this);
     this.poseSizes = Pose.poseSizesByVersion(metadata.protocol().protocolVersion());
     BlockTypeAccess.setupTranslationsFor(this);
     meta().movement().setupDefaults();
@@ -162,12 +159,12 @@ final class PlayerUser implements User {
 
   @Override
   public boolean justJoined() {
-    return System.currentTimeMillis() - birthTimestamp < 5000;
+    return System.currentTimeMillis() - birth < 5000;
   }
 
   @Override
   public long joined() {
-    return birthTimestamp;
+    return birth;
   }
 
   @Override
@@ -181,11 +178,13 @@ final class PlayerUser implements User {
   }
 
   @Override
-  public CheckCustomMetadata checkMetadata(Class<? extends CheckCustomMetadata> classTarget) {
-    return customMetaPool.computeIfAbsent(classTarget, aClass -> {
+  public CheckCustomMetadata checkMetadata(Class<? extends CheckCustomMetadata> metaClass) {
+    return metadataPool.computeIfAbsent(metaClass, initializeMe -> {
       try {
-        return aClass.newInstance();
-      } catch (InstantiationException | IllegalAccessException exception) {
+        return initializeMe.newInstance();
+      } catch (RuntimeException exception) {
+        throw exception;
+      } catch (Exception exception) {
         throw new IllegalStateException(exception);
       }
     });
@@ -198,12 +197,12 @@ final class PlayerUser implements User {
 
   @Override
   public CustomClientSupportConfig customClientSupport() {
-    return customClientSupportConfig;
+    return customClientConfig;
   }
 
   @Override
   public void setCustomClientSupport(CustomClientSupportConfig customClientSupportConfig) {
-    this.customClientSupportConfig = customClientSupportConfig;
+    this.customClientConfig = customClientSupportConfig;
   }
 
   @Override
@@ -247,42 +246,18 @@ final class PlayerUser implements User {
   }
 
   @Override
-  @Deprecated
-  public boolean hasShadow() {
-    return hasShadow;
-  }
-
-  @Override
-  @Deprecated
-  public void setShadow(boolean hasShadow) {
-    this.hasShadow = hasShadow;
-  }
-
-  @Override
-  @Deprecated
-  public ShadowPacketDataLink shadowLinkage() {
-    return shadowRepo;
-  }
-
-  @Override
-  @Deprecated
-  public void setShadowLinkage(ShadowPacketDataLink shadowRepo) {
-    this.shadowRepo = shadowRepo;
-  }
-
-  @Override
   public BlockStateAccess blockStates() {
     return blockStateAccess;
   }
 
   @Override
-  public ColliderProcessor collider() {
-    return colliderProcessor;
+  public Collider collider() {
+    return collider;
   }
 
   @Override
-  public SimpleColliderProcessor simplifiedCollider() {
-    return simpleColliderProcessor;
+  public SimpleCollider simplifiedCollider() {
+    return simpleCollider;
   }
 
   @Override
@@ -417,6 +392,11 @@ final class PlayerUser implements User {
   }
 
   @Override
+  public void message(String key, Object... args) {
+
+  }
+
+  @Override
   public void unregister() {
     FakePlayer fakePlayer = meta().attack().fakePlayer();
     if (fakePlayer != null) {
@@ -459,7 +439,7 @@ final class PlayerUser implements User {
   public String toString() {
     return "PlayerUser{" +
       "player=" + player +
-      ", birthTimestamp=" + birthTimestamp +
+      ", birthTimestamp=" + birth +
       '}';
   }
 }

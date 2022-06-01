@@ -7,14 +7,13 @@ import de.jpx3.intave.block.state.BlockStateAccess;
 import de.jpx3.intave.block.state.EmptyBlockStateAccess;
 import de.jpx3.intave.check.movement.physics.Pose;
 import de.jpx3.intave.connect.customclient.CustomClientSupportConfig;
-import de.jpx3.intave.connect.shadow.ShadowPacketDataLink;
 import de.jpx3.intave.entity.size.HitboxSize;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.violation.placeholder.PlayerContext;
 import de.jpx3.intave.module.violation.placeholder.UserContext;
-import de.jpx3.intave.player.collider.Collider;
-import de.jpx3.intave.player.collider.complex.ColliderProcessor;
-import de.jpx3.intave.player.collider.simple.SimpleColliderProcessor;
+import de.jpx3.intave.player.collider.Colliders;
+import de.jpx3.intave.player.collider.complex.Collider;
+import de.jpx3.intave.player.collider.simple.SimpleCollider;
 import de.jpx3.intave.player.fake.FakePlayer;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.MetadataBundle;
@@ -35,8 +34,8 @@ import java.util.function.Predicate;
 public final class FallbackUser implements User {
   private final MetadataBundle metadata;
   private final PermissionCache permissionCache;
-  private final ColliderProcessor colliderProcessor;
-  private final SimpleColliderProcessor simpleColliderProcessor;
+  private final Collider collider;
+  private final SimpleCollider simpleCollider;
   private final Map<Pose, HitboxSize> poseSizes;
   private final BlockStateAccess blockStateAccess;
   private final CustomClientSupportConfig customClientSupportConfig = CustomClientSupportConfig.createDefault();
@@ -50,8 +49,8 @@ public final class FallbackUser implements User {
     this.metadata = new MetadataBundle(null, this);
     this.permissionCache = new ExpiringPermissionCache(16, TimeUnit.SECONDS);
     this.blockStateAccess = new EmptyBlockStateAccess();
-    this.colliderProcessor = Collider.suitableComplexColliderProcessorFor(this);
-    this.simpleColliderProcessor = Collider.suitableSimpleColliderProcessorFor(this);
+    this.collider = Colliders.suitableComplexColliderProcessorFor(this);
+    this.simpleCollider = Colliders.suitableSimpleColliderProcessorFor(this);
     this.poseSizes = Pose.AT_LEAST_1_8_POSE;
     this.metadata.setup();
   }
@@ -160,36 +159,18 @@ public final class FallbackUser implements User {
   }
 
   @Override
-  public boolean hasShadow() {
-    return false;
-  }
-
-  @Override
-  public void setShadow(boolean hasShadow) {
-  }
-
-  @Override
-  public ShadowPacketDataLink shadowLinkage() {
-    return null;
-  }
-
-  @Override
-  public void setShadowLinkage(ShadowPacketDataLink shadowRepo) {
-  }
-
-  @Override
   public BlockStateAccess blockStates() {
     return blockStateAccess;
   }
 
   @Override
-  public ColliderProcessor collider() {
-    return colliderProcessor;
+  public Collider collider() {
+    return collider;
   }
 
   @Override
-  public SimpleColliderProcessor simplifiedCollider() {
-    return simpleColliderProcessor;
+  public SimpleCollider simplifiedCollider() {
+    return simpleCollider;
   }
 
   @Override
@@ -281,6 +262,11 @@ public final class FallbackUser implements User {
 
   @Override
   public void kick(String reason) {
+  }
+
+  @Override
+  public void message(String key, Object... args) {
+
   }
 
   @Override

@@ -1,8 +1,8 @@
 package de.jpx3.intave.check.movement.physics;
 
-import de.jpx3.intave.player.collider.Collider;
-import de.jpx3.intave.player.collider.complex.ColliderSimulationResult;
-import de.jpx3.intave.player.collider.simple.SimpleColliderSimulationResult;
+import de.jpx3.intave.player.collider.Colliders;
+import de.jpx3.intave.player.collider.complex.ColliderResult;
+import de.jpx3.intave.player.collider.simple.SimpleColliderResult;
 import de.jpx3.intave.shade.Motion;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MovementMetadata;
@@ -59,7 +59,7 @@ final class ElytraSimulator extends BaseSimulator {
 
     tryRelinkFlyingPosition(user, motion, environment);
 
-    ColliderSimulationResult collisionResult = Collider.collision(
+    ColliderResult collisionResult = Colliders.collision(
       user, motion, environment.inWeb(),
       positionX, positionY, positionZ
     );
@@ -87,7 +87,7 @@ final class ElytraSimulator extends BaseSimulator {
     double interpolateZ = motion.motionZ;
 
     for (; interpolations <= 2; interpolations++) {
-      SimpleColliderSimulationResult colliderResult = Collider.simplifiedCollision(
+      SimpleColliderResult colliderResult = Colliders.simplifiedCollision(
         player, positionX, positionY, positionZ,
         interpolateX, interpolateY, interpolateZ
       );

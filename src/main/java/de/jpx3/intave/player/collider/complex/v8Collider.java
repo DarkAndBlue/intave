@@ -11,9 +11,9 @@ import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.shade.Direction.Axis.*;
 
-public final class v8ColliderProcessor implements ColliderProcessor {
+public final class v8Collider implements Collider {
   @Override
-  public ColliderSimulationResult collide(User user, Motion context, double positionX, double positionY, double positionZ, boolean inWeb) {
+  public ColliderResult collide(User user, Motion context, double positionX, double positionY, double positionZ, boolean inWeb) {
     Player player = user.player();
     MetadataBundle meta = user.meta();
     MovementMetadata movement = meta.movement();
@@ -82,27 +82,27 @@ public final class v8ColliderProcessor implements ColliderProcessor {
       BoundingBox axisalignedbb3 = entityBoundingBox;
       entityBoundingBox = startBoundingBox;
       context.motionY = movement.stepHeight;
-      BlockShape collider = Collision.collisionShape(player, entityBoundingBox.expand(startMotionX, context.motionY, startMotionZ));
+      BlockShape shape = Collision.collisionShape(player, entityBoundingBox.expand(startMotionX, context.motionY, startMotionZ));
       BoundingBox axisalignedbb4 = entityBoundingBox;
       BoundingBox axisalignedbb5 = axisalignedbb4.expand(startMotionX, 0.0D, startMotionZ);
       double d9 = context.motionY;
-      d9 = collider.allowedOffset(Y_AXIS, axisalignedbb5, d9);
+      d9 = shape.allowedOffset(Y_AXIS, axisalignedbb5, d9);
       axisalignedbb4 = axisalignedbb4.offset(0.0D, d9, 0.0D);
       double d15 = startMotionX;
-      d15 = collider.allowedOffset(X_AXIS, axisalignedbb4, d15);
+      d15 = shape.allowedOffset(X_AXIS, axisalignedbb4, d15);
       axisalignedbb4 = axisalignedbb4.offset(d15, 0.0D, 0.0D);
       double d16 = startMotionZ;
-      d16 = collider.allowedOffset(Z_AXIS, axisalignedbb4, d16);
+      d16 = shape.allowedOffset(Z_AXIS, axisalignedbb4, d16);
       axisalignedbb4 = axisalignedbb4.offset(0.0D, 0.0D, d16);
       BoundingBox axisalignedbb14 = entityBoundingBox;
       double d17 = context.motionY;
-      d17 = collider.allowedOffset(Y_AXIS, axisalignedbb14, d17);
+      d17 = shape.allowedOffset(Y_AXIS, axisalignedbb14, d17);
       axisalignedbb14 = axisalignedbb14.offset(0.0D, d17, 0.0D);
       double d18 = startMotionX;
-      d18 = collider.allowedOffset(X_AXIS, axisalignedbb14, d18);
+      d18 = shape.allowedOffset(X_AXIS, axisalignedbb14, d18);
       axisalignedbb14 = axisalignedbb14.offset(d18, 0.0D, 0.0D);
       double d19 = startMotionZ;
-      d19 = collider.allowedOffset(Z_AXIS, axisalignedbb14, d19);
+      d19 = shape.allowedOffset(Z_AXIS, axisalignedbb14, d19);
       axisalignedbb14 = axisalignedbb14.offset(0.0D, 0.0D, d19);
       double d20 = d15 * d15 + d16 * d16;
       double d10 = d18 * d18 + d19 * d19;
@@ -117,7 +117,7 @@ public final class v8ColliderProcessor implements ColliderProcessor {
         context.motionY = -d17;
         entityBoundingBox = axisalignedbb14;
       }
-      context.motionY = collider.allowedOffset(Y_AXIS, entityBoundingBox, context.motionY);
+      context.motionY = shape.allowedOffset(Y_AXIS, entityBoundingBox, context.motionY);
       entityBoundingBox = entityBoundingBox.offset(0.0, context.motionY, 0.0);
       if (copyX * copyX + copyZ * copyZ >= context.motionX * context.motionX + context.motionZ * context.motionZ) {
         context.motionX = copyX;
@@ -139,7 +139,7 @@ public final class v8ColliderProcessor implements ColliderProcessor {
     context.motionX = newPositionX - positionX;
     context.motionY = newPositionY - positionY;
     context.motionZ = newPositionZ - positionZ;
-    return new ColliderSimulationResult(
+    return new ColliderResult(
       Motion.copyFrom(context), onGround,
       collidedHorizontally, collidedVertically, moveResetX, moveResetZ, step
     );

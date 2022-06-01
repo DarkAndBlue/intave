@@ -49,7 +49,6 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.*;
 import de.jpx3.intave.world.WorldHeight;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -68,6 +67,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static de.jpx3.intave.access.player.trust.TrustFactor.BYPASS;
 import static de.jpx3.intave.module.feedback.FeedbackOptions.SELF_SYNCHRONIZATION;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.VEHICLE_MOVE;
@@ -292,7 +292,7 @@ public final class MovementDispatcher extends Module {
       StructureModifier<Double> modifier = packet.getDoubles();
       for (int i = 0; i < 3; i++) {
         if (Double.isInfinite(modifier.read(i))) {
-          Synchronizer.synchronize(() -> player.kickPlayer("Infinite position?"));
+          user.kick("Infinite position?");
           return;
         }
       }
@@ -302,10 +302,16 @@ public final class MovementDispatcher extends Module {
       StructureModifier<Float> modifier = packet.getFloat();
       for (int i = 0; i < 2; i++) {
         if (Double.isInfinite(modifier.read(i))) {
-          Synchronizer.synchronize(() -> player.kickPlayer("Infinite rotation?"));
+          user.kick("Infinite rotation?");
           return;
         }
       }
+    }
+
+    if (hasMovement) {
+      movementData.lastPositionUpdate = 0;
+    } else if (++movementData.lastPositionUpdate > 20 && !user.trustFactor().atLeast(BYPASS)) {
+      user.kick("Missing position update after 20 ticks");
     }
 
     // garbage fix for sending POSITION_LOOK packets on newer client versions when rightclicking
@@ -363,7 +369,7 @@ public final class MovementDispatcher extends Module {
     }
 
     EntityShade attachedEntity = movementData.ridingEntity();
-    if (attachedEntity != null && !attachedEntity.isEntityAlive() && !attachedEntity.entityName().equals("Boat")) {
+    if (attachedEntity != null && !attachedEntity.isEntityAlive() && !"Boat".equals(attachedEntity.entityName())) {
       movementData.dismountRidingEntity();
     }
 

@@ -8,9 +8,9 @@ import de.jpx3.intave.shade.Motion;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MovementMetadata;
 
-public final class v7ColliderProcessor implements ColliderProcessor {
+public final class v7Collider implements Collider {
   @Override
-  public ColliderSimulationResult collide(User user, Motion context, double positionX, double positionY, double positionZ, boolean inWeb) {
+  public ColliderResult collide(User user, Motion context, double positionX, double positionY, double positionZ, boolean inWeb) {
     MovementMetadata movement = user.meta().movement();
 
     // ?
@@ -92,7 +92,7 @@ public final class v7ColliderProcessor implements ColliderProcessor {
     context.motionX = newPositionX - positionX;
     context.motionY = newPositionY - positionY;
     context.motionZ = newPositionZ - positionZ;
-    return new ColliderSimulationResult(
+    return new ColliderResult(
       Motion.copyFrom(context), onGround,
       collidedHorizontally, collidedVertically, moveResetX, moveResetZ, step
     );

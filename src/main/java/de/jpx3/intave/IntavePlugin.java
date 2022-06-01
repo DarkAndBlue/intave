@@ -30,7 +30,6 @@ import de.jpx3.intave.command.CommandForwarder;
 import de.jpx3.intave.config.ConfigurationService;
 import de.jpx3.intave.connect.customclient.CustomClientSupportService;
 import de.jpx3.intave.connect.proxy.ProxyMessenger;
-import de.jpx3.intave.connect.shadow.LabymodShadowIntegration;
 import de.jpx3.intave.connect.sibyl.SibylBroadcast;
 import de.jpx3.intave.connect.sibyl.SibylIntegrationService;
 import de.jpx3.intave.connect.upload.ScheduledUploadService;
@@ -115,7 +114,6 @@ public final class IntavePlugin extends JavaPlugin {
   private CheckService checkService;
   private TrustFactorService trustFactorService;
   private IntaveVersionList versions;
-  private LabymodShadowIntegration shadowIntegration;
   private CustomClientSupportService customClientSupportService;
   private IntaveAccessService accessService;
   private IntaveAccess access;
@@ -611,8 +609,6 @@ public final class IntavePlugin extends JavaPlugin {
 
       // stage 8
       Modules.proceedBoot(BootSegment.STAGE_8);
-      shadowIntegration = new LabymodShadowIntegration(this);
-      shadowIntegration.setup();
       accessService = new IntaveAccessService(this);
       accessService.setup();
       analytics = new Analytics(this);

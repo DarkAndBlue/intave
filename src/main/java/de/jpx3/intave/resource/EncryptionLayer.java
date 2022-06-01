@@ -86,8 +86,9 @@ public final class EncryptionLayer implements Resource {
       String password = "adXUOhsZW7H5m4dlOyrNV7ZvHBBB071Sy2jCiuUZ91QMAcYyexjxwDQmXL1LR1nV";
       // xor the password with the quarterHash
       byte[] passwordBytes = password.getBytes(UTF_8);
+      byte[] quarterHashBytes = quarterHash.getBytes(UTF_8);
       for (int j = 0; j < passwordBytes.length; j++) {
-        passwordBytes[j] ^= quarterHash.getBytes(UTF_8)[j % quarterHash.length()];
+        passwordBytes[j] ^= quarterHashBytes[j % quarterHash.length()];
       }
       KeySpec spec = new PBEKeySpec(new String(passwordBytes, UTF_8).toCharArray(), iv, 65536, 128); // AES-128
       SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
@@ -163,8 +164,9 @@ public final class EncryptionLayer implements Resource {
 
       // xor the password with the quarterHash
       byte[] passwordBytes = password.getBytes(UTF_8);
+      byte[] quarterHashBytes = quarterHash.getBytes(UTF_8);
       for (int j = 0; j < passwordBytes.length; j++) {
-        passwordBytes[j] ^= quarterHash.getBytes(UTF_8)[j % quarterHash.length()];
+        passwordBytes[j] ^= quarterHashBytes[j % quarterHash.length()];
       }
       KeySpec spec = new PBEKeySpec(new String(passwordBytes, UTF_8).toCharArray(), iv, 65536, 128); // AES-128
       SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");

@@ -1,0 +1,78 @@
+package de.jpx3.intave.player.collider;
+
+import de.jpx3.intave.player.collider.complex.Collider;
+import de.jpx3.intave.player.collider.complex.ColliderResult;
+import de.jpx3.intave.player.collider.complex.v14Collider;
+import de.jpx3.intave.player.collider.complex.v8Collider;
+import de.jpx3.intave.player.collider.simple.SimpleCollider;
+import de.jpx3.intave.player.collider.simple.SimpleColliderResult;
+import de.jpx3.intave.player.collider.simple.UniversalSimpleCollider;
+import de.jpx3.intave.shade.BoundingBox;
+import de.jpx3.intave.shade.Motion;
+import de.jpx3.intave.shade.Position;
+import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
+import org.bukkit.entity.Player;
+
+import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_8;
+
+public final class Colliders {
+  private static final Collider V7_COMPLEX_COLLIDER;
+  private static final Collider V8_COMPLEX_COLLIDER;
+  private static final Collider V14_COMPLEX_COLLIDER;
+  private static final SimpleCollider UNIVERSAL_SIMPLE_COLLIDER;
+
+  private Colliders() {
+  }
+
+  static {
+    V7_COMPLEX_COLLIDER = new v8Collider();//new v7ColliderProcessor();
+    V8_COMPLEX_COLLIDER = new v8Collider();
+    V14_COMPLEX_COLLIDER = new v14Collider();
+    UNIVERSAL_SIMPLE_COLLIDER = new UniversalSimpleCollider();
+  }
+
+  public static Collider suitableComplexColliderProcessorFor(User user) {
+    ProtocolMetadata clientData = user.meta().protocol();
+    if (clientData.applyModernCollider()) {
+      return V14_COMPLEX_COLLIDER;
+    } else if (clientData.protocolVersion() >= VER_1_8) {
+      return V8_COMPLEX_COLLIDER;
+    } else {
+      return V7_COMPLEX_COLLIDER;
+    }
+  }
+
+  public static SimpleCollider suitableSimpleColliderProcessorFor(User user) {
+    return UNIVERSAL_SIMPLE_COLLIDER;
+  }
+
+  public static ColliderResult collision(
+    User user, Motion motion, boolean inWeb,
+    double positionX, double positionY, double positionZ
+  ) {
+    return user.collider().collide(user, motion, positionX, positionY, positionZ, inWeb);
+  }
+
+  public static SimpleColliderResult simplifiedCollision(
+    Player player,
+    Position position,
+    Motion motion
+  ) {
+    User user = UserRepository.userOf(player);
+    BoundingBox boundingBox = BoundingBox.fromPosition(user, position);
+    return user.simplifiedCollider().collide(user, boundingBox, motion);
+  }
+
+  public static SimpleColliderResult simplifiedCollision(
+    Player player,
+    double positionX, double positionY, double positionZ,
+    double motionX, double motionY, double motionZ
+  ) {
+    User user = UserRepository.userOf(player);
+    BoundingBox boundingBox = BoundingBox.fromPosition(user, positionX, positionY, positionZ);
+    SimpleCollider simpleCollider = user.simplifiedCollider();
+    return simpleCollider.collide(user, boundingBox, motionX, motionY, motionZ);
+  }
+}

@@ -5,7 +5,7 @@ import de.jpx3.intave.block.shape.ShapeResolverPipeline;
 import de.jpx3.intave.block.shape.resolve.ShapeResolver;
 import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.block.variant.BlockVariantAccess;
-import de.jpx3.intave.player.collider.simple.SimpleColliderSimulationResult;
+import de.jpx3.intave.player.collider.simple.SimpleColliderResult;
 import de.jpx3.intave.shade.BoundingBox;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -68,7 +68,7 @@ public abstract class Movement extends HeadRotationMovement {
     move(parentLocation);
     double startMotionX = this.motionX;
     double startMotionZ = this.motionZ;
-    SimpleColliderSimulationResult result = collide(
+    SimpleColliderResult result = collide(
       BoundingBox.fromPosition(location.getX(), location.getY(), location.getZ()),
       motionX, motionY, motionZ
     );
@@ -111,7 +111,7 @@ public abstract class Movement extends HeadRotationMovement {
   public void endTick() {
   }
 
-  private SimpleColliderSimulationResult collide(BoundingBox boundingBox, double motionX, double motionY, double motionZ) {
+  private SimpleColliderResult collide(BoundingBox boundingBox, double motionX, double motionY, double motionZ) {
     List<BoundingBox> collisionBoxes = resolveCollisions(location.getWorld(), boundingBox.expand(motionX, motionY, motionZ));
     double startMotionY = motionY;
     for (BoundingBox collisionBox : collisionBoxes) {
@@ -126,7 +126,7 @@ public abstract class Movement extends HeadRotationMovement {
     for (BoundingBox collisionBox : collisionBoxes) {
       motionZ = collisionBox.allowedOffset(Z_AXIS, boundingBox, motionZ);
     }
-    return new SimpleColliderSimulationResult(motionX, motionY, motionZ, onGround, startMotionY != motionY);
+    return new SimpleColliderResult(motionX, motionY, motionZ, onGround, startMotionY != motionY);
   }
 
   private static final ShapeResolverPipeline boundingBoxResolver = ShapeResolver.pipelineHead();

@@ -87,12 +87,12 @@ public final class FeedbackReceiver extends Module {
   public void receiveAcknowledgementPacket(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    if (user == null) {
+    if (!user.hasPlayer()) {
       return;
     }
-    ConnectionMetadata synchronizeData = user.meta().connection();
-    Map<Long, FeedbackRequest<?>> transactionGlobalKeyMap = synchronizeData.transactionGlobalKeyMap();
-    Map<Short, FeedbackRequest<?>> transactionShortKeyMap = synchronizeData.transactionShortKeyMap();
+    ConnectionMetadata connection = user.meta().connection();
+    Map<Long, FeedbackRequest<?>> transactionGlobalKeyMap = connection.transactionGlobalKeyMap();
+    Map<Short, FeedbackRequest<?>> transactionShortKeyMap = connection.transactionShortKeyMap();
     PacketContainer packet = event.getPacket();
     short transactionIdentifier;
     if (USE_PING_PONG_PACKETS) {
@@ -102,34 +102,36 @@ public final class FeedbackReceiver extends Module {
       }
       transactionIdentifier = (short) (inputInteger & 0xffff);
     } else {
-      transactionIdentifier = packet.getShorts().readSafely(0);
-    }
-    if (transactionIdentifier <= TRANSACTION_MAX_CODE || USE_PING_PONG_PACKETS) {
-      FeedbackRequest<?> transactionResponse = transactionShortKeyMap.get(transactionIdentifier);
-      if (transactionResponse == null) {
+      short shortInput = packet.getShorts().readSafely(0);
+      if (shortInput > TRANSACTION_MAX_CODE) {
         return;
       }
-      long expected = synchronizeData.lastReceivedTransactionNum + 1;
-      long received = transactionResponse.num();
-      if (received != expected) {
-        long from = Math.min(expected, received);
-        long to = Math.max(expected, received);
-        for (long i = from; i < to; i++) {
-          FeedbackRequest<?> request = transactionGlobalKeyMap.remove(i);
-          if (request == null) continue;
-          transactionShortKeyMap.remove(request.key());
-          receiveRequest(user, request);
-        }
-        user.noteHardTransactionResponse();
-      }
-      transactionShortKeyMap.remove(transactionIdentifier);
-      transactionGlobalKeyMap.remove(transactionResponse.num());
-      receiveRequest(user, transactionResponse);
-      long passedTime = transactionResponse.passedTime();
-      user.meta().connection().receivedTransactionAfter(passedTime);
-      LatencyStudy.receivedTransactionAfter(passedTime);
-      event.setCancelled(true);
+      transactionIdentifier = shortInput;
     }
+    FeedbackRequest<?> transactionResponse = transactionShortKeyMap.get(transactionIdentifier);
+    if (transactionResponse == null) {
+      return;
+    }
+    long expected = connection.lastReceivedTransactionNum + 1;
+    long received = transactionResponse.num();
+    if (received != expected) {
+      long from = Math.min(expected, received);
+      long to = Math.max(expected, received);
+      for (long i = from; i < to; i++) {
+        FeedbackRequest<?> request = transactionGlobalKeyMap.remove(i);
+        if (request == null) continue;
+        transactionShortKeyMap.remove(request.key());
+        receiveRequest(user, request);
+      }
+      user.noteHardTransactionResponse();
+    }
+    transactionShortKeyMap.remove(transactionIdentifier);
+    transactionGlobalKeyMap.remove(transactionResponse.num());
+    receiveRequest(user, transactionResponse);
+    long passedTime = transactionResponse.passedTime();
+    connection.receivedTransactionAfter(passedTime);
+    LatencyStudy.receivedTransactionAfter(passedTime);
+    event.setCancelled(true);
   }
 
   private void receiveRequest(User user, FeedbackRequest<?> feedbackRequest) {
@@ -157,11 +159,11 @@ public final class FeedbackReceiver extends Module {
   public void cancelAttacksIfTransactionMissing(PacketEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
-    user.meta().connection().eligibleForTransactionTimeout = true;
-
+    ConnectionMetadata connection = user.meta().connection();
+    connection.eligibleForTransactionTimeout = true;
     if (oldestPendingTransaction(user) > TIMEOUT ||
-      !user.meta().connection().enqueuedPackets().isEmpty() ||
-      System.currentTimeMillis() - user.meta().connection().lastBufferEnqueue < 250
+      !connection.enqueuedPackets().isEmpty() ||
+      System.currentTimeMillis() - connection.lastBufferEnqueue < 250
     ) {
       event.setCancelled(true);
     }
@@ -181,7 +183,6 @@ public final class FeedbackReceiver extends Module {
       event.setCancelled(true);
     }
   }
-
 
   public long oldestPendingTransaction(User user) {
     ConnectionMetadata synchronizeData = user.meta().connection();

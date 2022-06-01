@@ -7,8 +7,8 @@ import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.physics.BlockProperties;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.math.SinusCache;
-import de.jpx3.intave.player.collider.Collider;
-import de.jpx3.intave.player.collider.complex.ColliderSimulationResult;
+import de.jpx3.intave.player.collider.Colliders;
+import de.jpx3.intave.player.collider.complex.ColliderResult;
 import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.shade.ClientMathHelper;
 import de.jpx3.intave.shade.Motion;
@@ -38,7 +38,7 @@ public final class BoatSimulator extends Simulator {
     movement.boatGlide = boatGlide(user);
     updateMotion(user, motion);
     controlBoat(user, motion);
-    ColliderSimulationResult collision = Collider.collision(
+    ColliderResult collision = Colliders.collision(
       user, motion, movement.inWeb, movement.verifiedPositionX, movement.verifiedPositionY, movement.verifiedPositionZ
     );
     return Simulation.of(user, configuration, collision);

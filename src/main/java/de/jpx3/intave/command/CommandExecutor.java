@@ -51,20 +51,15 @@ public final class CommandExecutor {
     description = subCommand.description();
     permission = subCommand.permission();
     hideInHelp = subCommand.hideInHelp();
-
     Forward forward = targetMethod.getDeclaredAnnotation(Forward.class);
     if (forward != null) {
       forwardClass = forward.target();
     }
-
     Annotation[][] parameterAnnotations = targetMethod.getParameterAnnotations();
-
     List<Class<?>> requiredTypes = new ArrayList<>();
     List<Class<?>> allTypes = new ArrayList<>();
-
     int i = 0;
     boolean optionalBefore = false;
-
     for (Class<?> parameterType : targetMethod.getParameterTypes()) {
       if (i == 0) {
         requiresUserParameter = parameterType == User.class;
@@ -75,7 +70,6 @@ public final class CommandExecutor {
         i++;
         continue;
       }
-
       Annotation[] parameterAnnotation = parameterAnnotations[i];
       boolean isOptional = Arrays.stream(parameterAnnotation).anyMatch(annotation -> annotation.annotationType() == Optional.class);
       if (!isOptional && optionalBefore) {
@@ -88,7 +82,6 @@ public final class CommandExecutor {
       allTypes.add(parameterType);
       i++;
     }
-
     this.requiredTypes = requiredTypes.toArray(new Class<?>[0]);
     this.allTypes = allTypes.toArray(new Class<?>[0]);
   }
@@ -99,8 +92,7 @@ public final class CommandExecutor {
   public CommandStage execute(CommandSender sender, String executedCommand) {
     String prefix = IntavePlugin.prefix();
     String[] args = executedCommand.split(" ");
-
-    if (permission.equalsIgnoreCase("sibyl")) {
+    if ("sibyl".equalsIgnoreCase(permission)) {
       if (sender instanceof Player) {
         if (!IntavePlugin.singletonInstance().sibylIntegrationService().isAuthenticated(((Player) sender).getPlayer())) {
           sender.sendMessage(NO_PERMISSION_MESSAGE);
@@ -110,15 +102,13 @@ public final class CommandExecutor {
         sender.sendMessage(NO_PERMISSION_MESSAGE);
         return null;
       }
-    } else if (sender instanceof Player && !permission.equals("none") && !permission.equalsIgnoreCase("sibyl") && !BukkitPermissionCheck.permissionCheck(sender, permission)) {
+    } else if (sender instanceof Player && !"none".equals(permission) && !"sibyl".equalsIgnoreCase(permission) && !BukkitPermissionCheck.permissionCheck(sender, permission)) {
       sender.sendMessage(NO_PERMISSION_MESSAGE);
       return null;
     }
-
     if (args.length == 1 && args[0].isEmpty()) {
       args = new String[0];
     }
-
     if (args.length < requiredTypes.length) {
       List<String> commandPath = new ArrayList<>();
       CommandStage currentStage = stage;
@@ -131,7 +121,6 @@ public final class CommandExecutor {
       sender.sendMessage(prefix + "Usage: " + commandPathAsString + usage);
       return null;
     }
-
     List<Object> parameterTypes = new ArrayList<>();
     if (requiresCommandSenderParameter) {
       parameterTypes.add(sender);
@@ -143,7 +132,6 @@ public final class CommandExecutor {
         return null;
       }
     }
-
     int i = 0;
     for (String arg : args) {
       if (allTypes.length <= i) {
@@ -165,11 +153,9 @@ public final class CommandExecutor {
       parameterTypes.add(output);
       i++;
     }
-
     while (parameterTypes.size() - 1 < allTypes.length) {
       parameterTypes.add(null);
     }
-
     try {
       Object output = targetMethod.invoke(stage, parameterTypes.toArray(new Object[0]));
       return output instanceof CommandStage ? (CommandStage) output : null;
@@ -181,15 +167,12 @@ public final class CommandExecutor {
 
   public List<String> tabComplete(CommandSender commandSender, String executedCommand) {
     String[] args = executedCommand.split(" ");
-
-    if (!permission.equals("none") && !BukkitPermissionCheck.permissionCheck(commandSender, permission)) {
+    if (!"none".equals(permission) && !BukkitPermissionCheck.permissionCheck(commandSender, permission)) {
       return null;
     }
-
     if (args.length == 1 && args[0].isEmpty()) {
       args = new String[0];
     }
-
     if (args.length < allTypes.length) {
       Class<?> clazz = allTypes[args.length];
       return TypeTranslators.findTabCompletes(commandSender, clazz, args.length > 0 ? args[args.length - 1] : "", executedCommand);

@@ -76,23 +76,19 @@ public final class AttackDispatcher extends Module {
     AttackMetadata attackData = meta.attack();
     ConnectionMetadata connectionData = meta.connection();
     MovementMetadata movementData = meta.movement();
-
     PacketContainer packet = event.getPacket();
     Integer entityId = packet.getIntegers().read(0);
     EnumWrappers.EntityUseAction action = packet.getEntityUseActions().readSafely(0);
     if (action == null) {
       action = packet.getEnumEntityUseActions().read(0).getAction();
     }
-
     InventoryMetadata inventoryData = user.meta().inventory();
     ItemStack itemStack = inventoryData.heldItem();
     boolean knockbackEnchantment = itemStack != null && itemStack.containsEnchantment(Enchantment.KNOCKBACK);
-
     EntityShade entity = connectionData.entityBy(entityId);
     if (entity == null) {
       return;
     }
-
     if (action == EnumWrappers.EntityUseAction.ATTACK) {
       attackData.setLastAttackedEntityID(entityId);
       if (entity.player) {

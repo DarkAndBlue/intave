@@ -29,9 +29,9 @@ import de.jpx3.intave.module.feedback.Superposition;
 import de.jpx3.intave.module.tracker.entity.EntityShade;
 import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.module.violation.ViolationContext;
-import de.jpx3.intave.player.collider.Collider;
-import de.jpx3.intave.player.collider.complex.ColliderSimulationResult;
-import de.jpx3.intave.player.collider.simple.SimpleColliderSimulationResult;
+import de.jpx3.intave.player.collider.Colliders;
+import de.jpx3.intave.player.collider.complex.ColliderResult;
+import de.jpx3.intave.player.collider.simple.SimpleColliderResult;
 import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.shade.Motion;
 import de.jpx3.intave.user.User;
@@ -106,7 +106,7 @@ public final class Physics extends Check {
       exception.printStackTrace();
       return;
     }
-    ColliderSimulationResult collider = simulation.collider();
+    ColliderResult collider = simulation.collider();
     movementData.onGround = collider.onGround();
     movementData.collidedHorizontally = collider.collidedHorizontally();
     movementData.collidedVertically = collider.collidedVertically();
@@ -197,7 +197,7 @@ public final class Physics extends Check {
     double motionX = physicsMotionX * 0.91f;
     double motionY = (physicsMotionY - 0.08) * 0.98f;
     double motionZ = physicsMotionZ * 0.91f;
-    SimpleColliderSimulationResult colliderResult = Collider.simplifiedCollision(
+    SimpleColliderResult colliderResult = Colliders.simplifiedCollision(
       user.player(),
       movementData.verifiedPositionX, movementData.verifiedPositionY, movementData.verifiedPositionZ,
       motionX, motionY, motionZ
@@ -214,7 +214,7 @@ public final class Physics extends Check {
     double motionY = (movementData.physicsMotionYBeforeVelocity - 0.08) * 0.98f;
     double motionZ = movementData.physicsMotionZBeforeVelocity * 0.91f;
     if (motionX != 0 && motionY != 0 && motionZ != 0) {
-      SimpleColliderSimulationResult colliderResult = Collider.simplifiedCollision(
+      SimpleColliderResult colliderResult = Colliders.simplifiedCollision(
         user.player(),
         movementData.verifiedPositionX, movementData.verifiedPositionY, movementData.verifiedPositionZ,
         motionX, motionY, motionZ
@@ -278,7 +278,7 @@ public final class Physics extends Check {
     AbilityMetadata abilityData = meta.abilities();
     BlockStateAccess blockStateAccess = user.blockStates();
 
-    ColliderSimulationResult expectedMovement = simulation.collider();
+    ColliderResult expectedMovement = simulation.collider();
     Motion context = expectedMovement.motion();
 
     int keyForward = movementData.keyForward;
@@ -335,6 +335,13 @@ public final class Physics extends Check {
           horizontalViolationIncrease *= 10.0;
         }
       }
+    }
+
+    // TODO: 05/28/22 check if this worked, and deal with adjustments
+    // trustfactor limit is just temporary
+    boolean suspectSafeWalk = !user.trustFactor().atLeast(TrustFactor.YELLOW);
+    if (distance > 0.008 && suspectSafeWalk && movementData.pastBlockPlacement <= 8 && horizontalViolationIncrease > 0.1 && !movementData.isSneaking()) {
+      horizontalViolationIncrease = Math.max(100, horizontalViolationIncrease * 75);
     }
 
     if (violationLevelData.physicsVelocityVL > 10) {

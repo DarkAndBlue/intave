@@ -11,9 +11,9 @@ import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.shade.Direction.Axis.*;
 
-public final class v14ColliderProcessor implements ColliderProcessor {
+public final class v14Collider implements Collider {
   @Override
-  public ColliderSimulationResult collide(User user, Motion motion, double positionX, double positionY, double positionZ, boolean inWeb) {
+  public ColliderResult collide(User user, Motion motion, double positionX, double positionY, double positionZ, boolean inWeb) {
     Player player = user.player();
     MetadataBundle meta = user.meta();
     MovementMetadata movement = meta.movement();
@@ -127,7 +127,7 @@ public final class v14ColliderProcessor implements ColliderProcessor {
     motion.motionX = newPositionX - positionX;
     motion.motionY = newPositionY - positionY;
     motion.motionZ = newPositionZ - positionZ;
-    return new ColliderSimulationResult(
+    return new ColliderResult(
       Motion.copyFrom(motion), onGround,
       collidedHorizontally, collidedVertically,
       moveResetX, moveResetZ, step

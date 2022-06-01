@@ -369,7 +369,6 @@ public final class SimulationEvaluator {
 //      Bukkit.broadcastMessage(user.player().getName() + " moved too quickly: vl+" + vl + " abuse:" + abuseHorizontally + " | un:" + movement.physicsUnpredictableVelocityExpected);
       return vl;
     }
-
     double multiplier = abuseHorizontally > 0.1 ? 20.0 : 10.0;
     return abuseHorizontally * multiplier;
   }

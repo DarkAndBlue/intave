@@ -159,7 +159,7 @@ public final class FeedbackSender extends Module {
     Player player, T obj, FeedbackCallback<T> callback
   ) {
     User user = UserRepository.userOf(player);
-    if (user == null || !user.hasPlayer()) {
+    if (!user.hasPlayer()) {
       return;
     }
     ConnectionMetadata synchronizeData = user.meta().connection();
@@ -182,10 +182,6 @@ public final class FeedbackSender extends Module {
       //noinspection unchecked
       obj = (T) FALLBACK_OBJECT;
     }
-//    if (synchronizeData.transactionShortKeyMap().size() > 15000) {
-//      callback.success(player, obj);
-//      return null;
-//    }
     short transactionKey = findAvailableTransactionIdFor(player);
     long transactionNumCounter = synchronizeData.transactionNumCounter++;
     FeedbackRequest<T> feedbackEntry = new FeedbackRequest<>(callback, tracker, obj, transactionKey, transactionNumCounter);
