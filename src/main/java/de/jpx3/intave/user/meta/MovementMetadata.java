@@ -27,12 +27,16 @@ import de.jpx3.intave.module.dispatch.MovementDispatcher;
 import de.jpx3.intave.module.feedback.Superposition;
 import de.jpx3.intave.module.tracker.entity.EntityShade;
 import de.jpx3.intave.player.Effects;
+import de.jpx3.intave.player.ItemProperties;
 import de.jpx3.intave.shade.BoundingBox;
 import de.jpx3.intave.shade.Motion;
 import de.jpx3.intave.shade.Rotation;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -50,66 +54,43 @@ import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_15;
 
 @Relocate
 public final class MovementMetadata implements SimulationEnvironment {
+  public static final WrappedAttributeModifier SPRINTING_MODIFIER = WrappedAttributeModifier.newBuilder(UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D")).amount(0.3F).operation(ADD_PERCENTAGE).name("Sprint Boost").build();
+  private static final boolean ELYTRA_ENABLED = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
   private final Player player;
   private final User user;
-  private volatile WeakReference<Object> nmsWorld;
-
-  private boolean hasJumpFactor;
-
+  // superposition
+  private final Superposition<Motion> velocitySuperposition;
+  private final List<Superposition<?>> superpositions;
   public boolean disabledFlying;
   public float width = 0.6f, height = 1.8f;
   public float stepHeight = 0.6f;
   public double widthRounded, heightRounded;
-  private double resetMotion, frictionPosSubtraction;
-
   public boolean elytraFlying;
   public int fireworkRocketsTicks = 100;
-
   public boolean onGround, lastOnGround, step;
   public boolean collidedHorizontally, collidedVertically;
   public float artificialFallDistance;
   public boolean allowFallDamage;
   public double gravity;
   public boolean outsideBorder = true;
-
   public Motion motionProcessorContext = new Motion();
   public Vector lookVector = new Vector();
   public double verifiedPositionX, verifiedPositionY, verifiedPositionZ;
   public double lastPositionX, lastPositionY, lastPositionZ;
   public double positionX, positionY, positionZ;
-  private double motionX, motionY, motionZ;
   public boolean sprinting, lastSprinting, hasSprintSpeed, sneaking, lastSneaking;
   public int sneakingTicks;
-  private boolean sprintingAllowed;
-  private float yawSine, yawCosine, friction;
   public float rotationYaw, rotationPitch;
   public float lastRotationYaw, lastRotationPitch;
   public long recordedMoves;
-  private Pose pose = Pose.STANDING;
-  private Simulator simulator = Simulators.PLAYER;
-  private Material blockOnPosition = Material.AIR;
-
-  // superposition
-  private final Superposition<Motion> velocitySuperposition;
-  private final List<Superposition<?>> superpositions;
-
   // Timestamps
   public long lastSneakingTimestamps, lastJump, lastMovement;
-
-  private volatile BoundingBox boundingBox = BoundingBox.fromBounds(0, 0, 0, 0, 0, 0);
-  private boolean boundingBoxSetup = false;
-
   public Vector emulationVelocity;
   public Vector sneakPatchVelocity;
   public Vector setbackOverrideVelocity = new Vector(0, 0, 0);
   public Vector lastVelocity = new Vector();
-  @Nullable
-  private Vector motionMultiplier = null;
   public boolean canResetMotion;
-  private double jumpMotion;
-  private int pastClientFlyingPacket, pastFlyingPacketAccurate;
   public int pastNearbyCollisionInaccuracy;
-  private float aiMoveSpeed, jumpMovementFactor;
   public float frictionMultiplier;
   public float genericMovementSpeedAttribute;
   public int lastPositionUpdate;
@@ -118,7 +99,6 @@ public final class MovementMetadata implements SimulationEnvironment {
   public boolean inWater;
   public boolean inWeb;
   public boolean checkWebStateAgainNextTick = false;
-  private boolean eyesInWater;
   public int pastPushedByWaterFlow = 100;
   public int pastElytraFlying = 100, pastVelocity = 100, pastExternalVelocity = 100, pastExternalVelocityResetCache, pastInWeb = 100, pastWaterMovement = 100;
   public int pastLongTeleport = 100;
@@ -128,7 +108,6 @@ public final class MovementMetadata implements SimulationEnvironment {
   public boolean aquaticUpdateInLava;
   public boolean sprintResetNextTick;
   public AtomicInteger pendingVelocityPackets = new AtomicInteger();
-
   public int physicsPacketRelinkFlyVL; // In Air
   public boolean invalidMovement, suspiciousMovement;
   public double physicsMotionX, physicsMotionY, physicsMotionZ;
@@ -141,14 +120,11 @@ public final class MovementMetadata implements SimulationEnvironment {
   public int keyForward, keyStrafe;
   public int lastKeyForward, lastKeyStrafe;
   public boolean ignoredAttackReduce = false;
-
   public int shulkerXToleranceRemaining;
   public int shulkerYToleranceRemaining;
   public int shulkerZToleranceRemaining;
-
   public List<BlockPosition> shulkers = new ArrayList<>();
   public Map<BlockPosition, ShulkerBox> shulkerData = new HashMap<>();
-
   // Will be set to true if the player sends a flying packet and receives server velocity later
   public boolean physicsUnpredictableVelocityExpected;
   // Jump prevention
@@ -158,23 +134,17 @@ public final class MovementMetadata implements SimulationEnvironment {
   // To prevent a slot switch if the player changes his slot by itself we have to check if the movement is 2x wrong
   // If the player does not have an active use-item this field will be set to 0
   public int physicsEatingSlotSwitchVL;
-
   // Phase prevention
   public List<BoundingBox> phaseIntersectingBoundingBoxes;
   public boolean currentlyInBlock;
   // Entity collision
   public boolean enforceBoatStep;
   public volatile Location nearestBoatLocation = null;
-  // Vehicle
-  private EntityShade vehicle;
-  private double attachMoveDistance;
   public int attachVehicleTicks = 100;
-
   public float boatGlide, momentum;
   public double waterLevel;
   public BoatSimulator.Status boatStatus = BoatSimulator.Status.ON_LAND,
     previousBoatStatus = BoatSimulator.Status.ON_LAND;
-
   public boolean isTeleportConfirmationPacket;
   public boolean dropPostTickMotionProcessing;
   public boolean willReceiveSetbackVelocity;
@@ -185,9 +155,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public volatile boolean transactionTeleportAllow = false;
   public Location teleportLocation = null;
   public Vector teleportOffset = null;
-  private volatile Location verifiedLocation;
   public int teleportResendCountdown = 10;
-
   public int speculativeTicks = 0;
   public Map<UUID, Integer> pendingSpeculativeMovementTicks = GarbageCollector.watch(new HashMap<>());
   public boolean inReceiveSpeculativePacketRoutine = false;
@@ -195,15 +163,34 @@ public final class MovementMetadata implements SimulationEnvironment {
   public double speculativePositionX, speculativePositionY, speculativePositionZ;
   public boolean speculationEnded = false;
   public boolean inSpeculation = false;
-
   // States if an external entity push onto the player is estimated
   public boolean pushedByEntity;
-
   // Key inputs sent by the client
   public boolean externalKeyApply = false;
   public int clientForwardKey = 0;
   public int clientStrafeKey = 0;
   public boolean clientPressedJump = false;
+  private volatile WeakReference<Object> nmsWorld;
+  private boolean hasJumpFactor;
+  private double resetMotion, frictionPosSubtraction;
+  private double motionX, motionY, motionZ;
+  private boolean sprintingAllowed;
+  private float yawSine, yawCosine, friction;
+  private Pose pose = Pose.STANDING;
+  private Simulator simulator = Simulators.PLAYER;
+  private Material blockOnPosition = Material.AIR;
+  private volatile BoundingBox boundingBox = BoundingBox.fromBounds(0, 0, 0, 0, 0, 0);
+  private boolean boundingBoxSetup = false;
+  @Nullable
+  private Vector motionMultiplier = null;
+  private double jumpMotion;
+  private int pastClientFlyingPacket, pastFlyingPacketAccurate;
+  private float aiMoveSpeed, jumpMovementFactor;
+  private boolean eyesInWater;
+  // Vehicle
+  private EntityShade vehicle;
+  private double attachMoveDistance;
+  private volatile Location verifiedLocation;
 
   public MovementMetadata(Player player, User user) {
     this.player = player;
@@ -347,6 +334,28 @@ public final class MovementMetadata implements SimulationEnvironment {
 //      updateElytra();
 //    }
     updatePose();
+    updateSlotSwitch();
+  }
+
+  private void updateSlotSwitch() {
+    InventoryMetadata.SlotSwitchData slotSwitchData = user.meta().inventory().slotSwitchData;
+    if (slotSwitchData != null) {
+      InventoryMetadata inventory = user.meta().inventory();
+
+      int slot = slotSwitchData.slot();
+      ItemStack item = slotSwitchData.item();
+
+      boolean handActive = ItemProperties.canItemBeUsed(player, item) &&
+        inventory.handActive();
+
+      if (handActive) {
+        inventory.activateHand();
+      } else {
+        inventory.deactivateHand();
+      }
+      inventory.setHeldItemSlot(slot);
+      inventory.pastHotBarSlotChange = 0;
+    }
   }
 
   private void recheckWebStateFromLastTick() {
@@ -482,8 +491,6 @@ public final class MovementMetadata implements SimulationEnvironment {
     updateSize();
   }
 
-  private static final boolean ELYTRA_ENABLED = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
-
   private boolean flyingWithElytra(Player player) {
     return ELYTRA_ENABLED && canUseElytra(player) && player.isGliding();
   }
@@ -596,24 +603,13 @@ public final class MovementMetadata implements SimulationEnvironment {
   private void updateMovementMetaData() {
     MetadataBundle meta = user.meta();
     AbilityMetadata abilityData = meta.abilities();
-//    UserMetaPotionData potionData = meta.potionData();
 
-//    aiMoveSpeed = abilityData.walkSpeed();
     jumpMovementFactor = 0.02f;
-//    float slowdownAmplifier = potionData.potionEffectSlownessAmplifier();
-//    float speedAmplifier = potionData.potionEffectSpeedAmplifier();
-//    aiMoveSpeed *= 1f + (-0.15f * slowdownAmplifier);
-//    aiMoveSpeed *= 1f + (0.2f * speedAmplifier);
-//    aiMoveSpeed += genericMovementSpeedAttribute;
     aiMoveSpeed = (float) abilityData.attributeValue("generic.movementSpeed", AbilityMetadata.EXCLUDE_SPRINT_MODIFIER);
 
     if (lastSprinting) {
       jumpMovementFactor = (float) ((double) jumpMovementFactor + (double) 0.02f * 0.3d);
     }
-//    if (abilityData.probablyFlying()) {
-//      // ?!
-//      this.jumpMovementFactor = abilityData.flySpeed() * (float) (lastSprinting ? 2 : 1);
-//    }
   }
 
   public void refreshFriction(boolean sprinting) {
@@ -713,8 +709,6 @@ public final class MovementMetadata implements SimulationEnvironment {
       sprintResetNextTick = true;
     }
   }
-
-  public static final WrappedAttributeModifier SPRINTING_MODIFIER = WrappedAttributeModifier.newBuilder(UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D")).amount(0.3F).operation(ADD_PERCENTAGE).name("Sprint Boost").build();
 
   public void setSprinting(boolean sprinting) {
     this.sprinting = sprinting;

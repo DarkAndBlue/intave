@@ -18,17 +18,10 @@ import java.util.List;
 @Relocate
 public final class InventoryMetadata {
   private final Player player;
-  private int handSlot;
-  private boolean handActive;
-
-  private Material activeItem;
-  private boolean foodItem;
-  private boolean inventoryOpen;
+  private final List<String> whitelistedItemIdRequests = new ArrayList<>();
   public int handActiveTicks, pastHandActiveTicks = 100;
   public int pastItemUsageTransition;
   public int pastHotBarSlotChange;
-  public int awaitingSlotSet = -1;
-
   public long lastWCCReset;
   public int windowClickCounter;
   public boolean forceInventoryOnClickOpen = true;
@@ -36,8 +29,12 @@ public final class InventoryMetadata {
   public boolean blockNextArrow = false;
   public boolean releaseItemNextTick = false;
   public Material releaseItemType = Material.AIR;
-
-  private final List<String> whitelistedItemIdRequests = new ArrayList<>();
+  public SlotSwitchData slotSwitchData;
+  private int handSlot;
+  private boolean handActive;
+  private Material activeItem;
+  private boolean foodItem;
+  private boolean inventoryOpen;
 
   public InventoryMetadata(Player player) {
     this.player = player;
@@ -45,10 +42,6 @@ public final class InventoryMetadata {
       this.handSlot = player.getInventory().getHeldItemSlot();
     }
     activeItem = Material.AIR;
-  }
-
-  private ItemStack resolveMaterialInHand() {
-    return player == null ? null : player.getItemInHand();
   }
 
   public boolean handActive() {
@@ -123,37 +116,6 @@ public final class InventoryMetadata {
     return activeItem;
   }
 
-//  @IdoNotBelongHere
-//  @Deprecated
-//  public void applySlotSwitch() {
-//    if (!necessarySlotSwitch(this.handSlot)) {
-//      return;
-//    }
-//    int previousItemSlot = this.handSlot;
-//    int newItemSlot = this.handSlot + 1;
-//    if (newItemSlot > 8) {
-//      newItemSlot = 7;
-//    }
-//    int finalNewItemSlot = newItemSlot;
-//    pastSlotSwitch = 0;
-//    Synchronizer.synchronize(() -> {
-//      pastSlotSwitch = 0;
-//      awaitingSlotSet = previousItemSlot;
-//      player.getInventory().setHeldItemSlot(finalNewItemSlot);
-//      player.updateInventory();
-//    });
-//  }
-
-//  @IdoNotBelongHere
-//  private boolean necessarySlotSwitch(int slot) {
-//    PlayerInventory inventory = player.getInventory();
-//    ItemStack item = inventory.getItem(slot);
-//    if (item == null) {
-//      return false;
-//    }
-//    return ItemProperties.canItemBeUsed(player, item);
-//  }
-
   public void releaseItemNextTick() {
     releaseItemNextTick = true;
     releaseItemType = heldItemType();
@@ -179,5 +141,23 @@ public final class InventoryMetadata {
 
   public boolean foodItem() {
     return foodItem;
+  }
+
+  public static class SlotSwitchData {
+    private final int slot;
+    private final ItemStack stack;
+
+    public SlotSwitchData(int slot, ItemStack stack) {
+      this.slot = slot;
+      this.stack = stack;
+    }
+
+    public int slot() {
+      return slot;
+    }
+
+    public ItemStack item() {
+      return stack;
+    }
   }
 }

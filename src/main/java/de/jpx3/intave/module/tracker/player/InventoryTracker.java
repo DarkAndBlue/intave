@@ -43,6 +43,8 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 
 public final class InventoryTracker extends Module {
+  private final boolean NEW_ITEM_REQUEST = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
+
   @BukkitEventSubscription
   public void entityFoodChange(FoodLevelChangeEvent event) {
     HumanEntity entity = event.getEntity();
@@ -118,16 +120,6 @@ public final class InventoryTracker extends Module {
       inventory.registerSkullRequest(name);
     }
   }
-//
-//  private Field profileField;
-//  {
-//    try {
-//      profileField = Lookup.craftBukkitClass("inventory.CraftMetaSkull").getDeclaredField("profile");
-//      profileField.setAccessible(true);
-//    } catch (NoSuchFieldException exception) {
-//      exception.printStackTrace();
-//    }
-//  }
 
   private String ownerFromSkull(ItemStack skull) {
     ItemMeta meta = skull.getItemMeta();
@@ -325,14 +317,7 @@ public final class InventoryTracker extends Module {
     Integer slot = packet.getIntegers().read(0);
     ItemStack item = player.getInventory().getItem(slot);
 
-    boolean handActive = ItemProperties.canItemBeUsed(player, item) && inventoryData.handActive();
-    if (handActive) {
-      inventoryData.activateHand();
-    } else {
-      inventoryData.deactivateHand();
-    }
-    inventoryData.setHeldItemSlot(slot);
-    inventoryData.pastHotBarSlotChange = 0;
+    inventoryData.slotSwitchData = new InventoryMetadata.SlotSwitchData(slot, item);
   }
 
   @PacketSubscription(
@@ -348,27 +333,6 @@ public final class InventoryTracker extends Module {
       user.meta().inventory().setHeldItemSlot(slot);
     });
   }
-
-//  @PacketSubscription(
-//    priority = ListenerPriority.HIGH,
-//    packetsOut = {
-//      COLLECT
-//    }
-//  )
-//  public void receiveHandUpdate(PacketEvent event) {
-//    Player player = event.getPlayer();
-//    PacketContainer packet = event.getPacket();
-//
-//    User user = UserRepository.userOf(player);
-//    InventoryMetadata inventoryData = user.meta().inventory();
-//    Integer entityID = packet.getIntegers().read(0);
-//
-//    if (entityID == player.getEntityId()) {
-//      // sure this is correct? getItemInHand() might needs to be synchronized
-////      ItemStack itemInHand = player.getItemInHand();
-////      inventoryData.heldItemType(itemInHand);
-//    }
-//  }
 
   @PacketSubscription(
 //    priority = ListenerPriority.HIGH,
@@ -402,8 +366,6 @@ public final class InventoryTracker extends Module {
       inventoryData.activateHand();
     }
   }
-
-  private final boolean NEW_ITEM_REQUEST = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
 
   private boolean requestedItemUse(PacketContainer packet) {
     if (NEW_ITEM_REQUEST) {
