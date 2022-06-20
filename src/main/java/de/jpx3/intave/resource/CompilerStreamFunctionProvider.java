@@ -4,17 +4,17 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.resource.legacy.LegacyResource;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.function.Function;
 
 public interface CompilerStreamFunctionProvider<O> extends Function<List<String>, O> {
-  default O fromFile(File file) throws FileNotFoundException {
-    return fromStream(new FileInputStream(file));
+  default O fromFile(File file) throws IOException {
+    return fromStream(Files.newInputStream(file.toPath()));
   }
 
   default O fromLegacyResource(LegacyResource legacyResource) {
@@ -37,10 +37,10 @@ public interface CompilerStreamFunctionProvider<O> extends Function<List<String>
   }
 
   default O fromStream(InputStream inputStream) {
-    return apply(lineExtraction(inputStream));
+    return apply(linesFromStream(inputStream));
   }
 
-  static List<String> lineExtraction(InputStream inputStream) {
+  static List<String> linesFromStream(InputStream inputStream) {
     Scanner scanner = new Scanner(inputStream);
     List<String> strings = new ArrayList<>();
     while (scanner.hasNextLine()) {

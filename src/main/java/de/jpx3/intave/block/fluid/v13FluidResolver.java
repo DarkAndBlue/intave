@@ -3,10 +3,13 @@ package de.jpx3.intave.block.fluid;
 import de.jpx3.intave.klass.rewrite.PatchyAutoTranslation;
 import de.jpx3.intave.klass.rewrite.PatchyTranslateParameters;
 import de.jpx3.intave.shade.NativeVector;
-import de.jpx3.intave.shade.link.WrapperLinkage;
+import de.jpx3.intave.shade.link.WrapperConverter;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MovementMetadata;
-import net.minecraft.server.v1_13_R2.*;
+import net.minecraft.server.v1_13_R2.BlockPosition;
+import net.minecraft.server.v1_13_R2.IWorldReader;
+import net.minecraft.server.v1_13_R2.TagsFluid;
+import net.minecraft.server.v1_13_R2.World;
 
 @PatchyAutoTranslation
 final class v13FluidResolver extends FluidResolver {
@@ -24,7 +27,7 @@ final class v13FluidResolver extends FluidResolver {
       return Fluid.empty();
     }
     float height = fluid.getHeight();
-    return Fluid.construct(fluidTag, fluid.d(), height);
+    return Fluid.of(fluidTag, fluid.d(), height);
   }
 
   @PatchyAutoTranslation
@@ -33,15 +36,9 @@ final class v13FluidResolver extends FluidResolver {
     if (fluid.e()) {
       return FluidTag.EMPTY;
     }
-    //noinspection unchecked
-    if (fluid.a((Tag<FluidType>) FluidTag.WATER.nativeTag())) {
-      return FluidTag.WATER;
-    }
-    //noinspection unchecked
-    if (fluid.a((Tag<FluidType>) FluidTag.LAVA.nativeTag())) {
-      return FluidTag.LAVA;
-    }
-    return FluidTag.EMPTY;
+    boolean water = fluid.a(TagsFluid.WATER);
+    boolean lava = !water && fluid.a(TagsFluid.LAVA);
+    return FluidTag.select(water, lava);
   }
 
   @Override
@@ -50,6 +47,6 @@ final class v13FluidResolver extends FluidResolver {
     MovementMetadata movementData = user.meta().movement();
     IWorldReader world = (World) movementData.nmsWorld();
     BlockPosition blockPosition = new BlockPosition(x, y, z);
-    return WrapperLinkage.vectorOf(world.getFluid(blockPosition).a(world, blockPosition));
+    return WrapperConverter.vectorFromVec3D(world.getFluid(blockPosition).a(world, blockPosition));
   }
 }

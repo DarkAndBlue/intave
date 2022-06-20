@@ -5,7 +5,7 @@ import de.jpx3.intave.lib.asm.tree.AnnotationNode;
 import java.util.List;
 import java.util.Map;
 
-public final class VersionFieldReference {
+final class VersionFieldReference {
   private final String version;
   private final String owner;
   private final String name;

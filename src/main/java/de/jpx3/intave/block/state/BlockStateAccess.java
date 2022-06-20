@@ -1,6 +1,8 @@
 package de.jpx3.intave.block.state;
 
+import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.user.User;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A block state access  merges

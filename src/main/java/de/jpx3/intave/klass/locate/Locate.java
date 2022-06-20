@@ -48,7 +48,7 @@ public final class Locate {
     }
   }
 
-  public static String classPathByKey(String name) {
+  private static String classPathByKey(String name) {
     return classLocationByKey(name).compiledLocation();
   }
 
@@ -87,7 +87,7 @@ public final class Locate {
     return methodLocation.access();
   }
 
-  public static String methodNameByKey(String classKey, String methodKey) {
+  private static String methodNameByKey(String classKey, String methodKey) {
     String key = classKey + "." + methodKey;
     MethodLocation methodLocation = methodLocationCache.computeIfAbsent(key, s -> methodLookupByKey(classKey, methodKey));
     return methodLocation.targetMethodName();
@@ -117,7 +117,7 @@ public final class Locate {
     return fieldLocation.access();
   }
 
-  public static String fieldNameByKey(String classKey, String fieldKey) {
+  private static String fieldNameByKey(String classKey, String fieldKey) {
     String key = classKey + "." + fieldKey;
     FieldLocation fieldLocation = fieldLocationCache.computeIfAbsent(key, s -> fieldLookupByKey(classKey, fieldKey));
     return fieldLocation.targetName();

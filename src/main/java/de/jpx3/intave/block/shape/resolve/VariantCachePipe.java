@@ -14,7 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 final class VariantCachePipe implements ShapeResolverPipeline {
   private final ShapeResolverPipeline forward;
-  private final Map<Material, /*(SoftReference)*/Map<Integer, BlockShape>> cache = MemoryWatchdog.watch("variant-cache", new ConcurrentHashMap<>());
+  private final Map<Material, /*(SoftReference)*/Map<Integer, BlockShape>> collisionShapeCache = MemoryWatchdog.watch("variant-collide-cache", new ConcurrentHashMap<>());
+  private final Map<Material, /*(SoftReference)*/Map<Integer, BlockShape>> outlierShapeCache = MemoryWatchdog.watch("variant-outlier-cache", new ConcurrentHashMap<>());
 
   public VariantCachePipe(ShapeResolverPipeline forward) {
     this.forward = forward;
@@ -28,16 +29,25 @@ final class VariantCachePipe implements ShapeResolverPipeline {
   }
 
   @Override
-  public BlockShape resolve(World world, Player player, Material type, int variantIndex, int posX, int posY, int posZ) {
-    Map<Integer, BlockShape> variantCache = cache.computeIfAbsent(type, material -> ReferenceMap.soft(new ConcurrentHashMap<>()));
+  public BlockShape collisionShapeOf(World world, Player player, Material type, int variantIndex, int posX, int posY, int posZ) {
+    Map<Integer, BlockShape> variantCache = collisionShapeCache.computeIfAbsent(type, material -> ReferenceMap.soft(new ConcurrentHashMap<>()));
     return variantCache.computeIfAbsent(variantIndex, integer ->
-      forward.resolve(world, player, type, variantIndex, posX, posY, posZ).normalized(posX, posY, posZ)
+      forward.collisionShapeOf(world, player, type, variantIndex, posX, posY, posZ).normalized(posX, posY, posZ)
+    ).contextualized(posX, posY, posZ);
+  }
+
+  @Override
+  public BlockShape outlineShapeOf(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
+    Map<Integer, BlockShape> variantCache = outlierShapeCache.computeIfAbsent(type, material -> ReferenceMap.soft(new ConcurrentHashMap<>()));
+    return variantCache.computeIfAbsent(blockState, integer ->
+      forward.outlineShapeOf(world, player, type, blockState, posX, posY, posZ).normalized(posX, posY, posZ)
     ).contextualized(posX, posY, posZ);
   }
 
   @Override
   public void downstreamTypeReset(Material type) {
-    cache.remove(type);
+    collisionShapeCache.remove(type);
+    outlierShapeCache.remove(type);
     forward.downstreamTypeReset(type);
   }
 }

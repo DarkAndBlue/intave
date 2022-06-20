@@ -1,11 +1,7 @@
 package de.jpx3.intave.block.state;
 
-import de.jpx3.intave.shade.Position;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-
-import java.util.Map;
 
 /**
  * The {@link BlockStateOverrides} extends the {@link BlockStateLookup} in the definition of additional functions for overrides.
@@ -47,21 +43,9 @@ public interface BlockStateOverrides extends BlockStateLookup {
    */
   void invalidateOverride(int posX, int posY, int posZ);
 
-  /**
-   * Retrieve all overrides/replacements as a {@link Location} to {@link BlockState} {@link Map}.
-   * The {@link Location} is the of the block
-   *
-   * @return the located replacements
-   */
-  Map<Position, BlockState> locatedReplacements();
+  int numOfIndexedReplacements();
 
-  /**
-   * Retrieve all overrides/replacements as a {@link Long} key to {@link BlockState} {@link Map}.
-   * The {@link Long} key can not be (re-)interpreted as a players position.
-   *
-   * @return the indexed replacements
-   */
-  Map<Long, BlockState> indexedReplacements();
+  int numOfLocatedReplacements();
 
   /**
    * Override a block at a specific position with a custom type and variant.

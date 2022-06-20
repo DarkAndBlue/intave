@@ -2,7 +2,7 @@ package de.jpx3.intave.shade;
 
 import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.math.MathHelper;
-import de.jpx3.intave.shade.link.WrapperLinkage;
+import de.jpx3.intave.shade.link.WrapperConverter;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
@@ -201,7 +201,7 @@ public class NativeVector {
   }
 
   public static NativeVector fromNative(Object vec3d) {
-    return WrapperLinkage.vectorOf(vec3d);
+    return WrapperConverter.vectorFromVec3D(vec3d);
   }
 
   public String toString() {

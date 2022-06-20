@@ -11,7 +11,6 @@ import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import io.netty.buffer.ByteBuf;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.function.BiConsumer;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.CUSTOM_PAYLOAD_IN;

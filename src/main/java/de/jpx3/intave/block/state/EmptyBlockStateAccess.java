@@ -2,17 +2,18 @@ package de.jpx3.intave.block.state;
 
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.shape.BlockShapes;
-import de.jpx3.intave.shade.Position;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.Map;
-
 public final class EmptyBlockStateAccess implements BlockStateAccess {
   @Override
-  public @NotNull BlockShape shapeAt(int posX, int posY, int posZ) {
+  public @NotNull BlockShape outlineShapeAt(int posX, int posY, int posZ) {
+    return BlockShapes.emptyShape();
+  }
+
+  @Override
+  public @NotNull BlockShape collisionShapeAt(int posX, int posY, int posZ) {
     return BlockShapes.emptyShape();
   }
 
@@ -61,12 +62,12 @@ public final class EmptyBlockStateAccess implements BlockStateAccess {
   }
 
   @Override
-  public Map<Position, BlockState> locatedReplacements() {
-    return Collections.emptyMap();
+  public int numOfIndexedReplacements() {
+    return 0;
   }
 
   @Override
-  public Map<Long, BlockState> indexedReplacements() {
-    return Collections.emptyMap();
+  public int numOfLocatedReplacements() {
+    return 0;
   }
 }

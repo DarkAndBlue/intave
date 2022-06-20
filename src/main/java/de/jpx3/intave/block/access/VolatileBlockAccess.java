@@ -37,13 +37,15 @@ public final class VolatileBlockAccess {
       } catch (IllegalStateException exception) {
         // problems with async chunk loading
         exception.printStackTrace();
-        return fallbackBlock(blockAccess);
+        return fallbackBlock(blockAccess, 0);
       }
     }
-    return fallbackBlock(blockAccess);
+    return fallbackBlock(blockAccess, 0);
   }
 
-  private static Block fallbackBlock(World world) {
+  private final static int MAX_ATTEMPTS = 10;
+
+  private static Block fallbackBlock(World world, int attempts) {
     Location spawnLocation = world.getSpawnLocation();
     if (!world.isChunkLoaded(spawnLocation.getBlockX(), spawnLocation.getBlockZ())) {
       try {
@@ -53,10 +55,9 @@ public final class VolatileBlockAccess {
           return world.getBlockAt(anyChunk.getX() << 4, LOWER_WORLD_LIMIT - 1, anyChunk.getZ() << 4);
         }
       } catch (ConcurrentModificationException exception) {
-        Chunk[] loadedChunks = world.getLoadedChunks();
-        if (loadedChunks.length > 0) {
-          Chunk anyChunk = loadedChunks[0];
-          return world.getBlockAt(anyChunk.getX() << 4, LOWER_WORLD_LIMIT - 1, anyChunk.getZ() << 4);
+        if (attempts < MAX_ATTEMPTS) {
+          exception.getStackTrace(); // takes some time...
+          return fallbackBlock(world, attempts + 1);
         }
       }
       // well.. xd

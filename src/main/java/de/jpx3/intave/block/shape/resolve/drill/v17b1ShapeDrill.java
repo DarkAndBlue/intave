@@ -5,6 +5,7 @@ import de.jpx3.intave.block.shape.BlockShapes;
 import de.jpx3.intave.block.variant.BlockVariantRegister;
 import de.jpx3.intave.klass.rewrite.PatchyAutoTranslation;
 import net.minecraft.core.BlockPosition;
+import net.minecraft.server.level.ChunkProviderServer;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.level.IBlockAccess;
 import net.minecraft.world.level.block.state.IBlockData;
@@ -22,7 +23,7 @@ import java.util.List;
 public final class v17b1ShapeDrill extends AbstractShapeDrill {
   @Override
   @PatchyAutoTranslation
-  public BlockShape resolve(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
+  public BlockShape collisionShapeOf(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
     WorldServer handle = ((CraftWorld) world).getHandle();
     BlockPosition blockPosition = new BlockPosition(posX, posY, posZ);
     IBlockData blockData = (IBlockData) BlockVariantRegister.rawVariantOf(type, blockState);
@@ -44,6 +45,33 @@ public final class v17b1ShapeDrill extends AbstractShapeDrill {
     }
     // convert complex blocks to native BBs
     List<AxisAlignedBB> nativeBoxes = collisionShape.toList();
+    return translateWithOffset(nativeBoxes, posX, posY, posZ);
+  }
+
+  @Override
+  @PatchyAutoTranslation
+  public BlockShape outlineShapeOf(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
+    ChunkProviderServer chunkProvider = ((CraftWorld) world).getHandle().getChunkProvider();
+    BlockPosition blockPosition = new BlockPosition(posX, posY, posZ);
+    IBlockData blockData = (IBlockData) BlockVariantRegister.rawVariantOf(type, blockState);
+    if (blockData == null) {
+      return BlockShapes.emptyShape();
+    }
+    IBlockAccess blockAccess = chunkProvider.c(posX >> 4, posZ >> 4);
+    if (blockAccess == null) {
+      return BlockShapes.emptyShape();
+    }
+    VoxelShape shape = blockData.getShape(blockAccess, blockPosition);
+    // check if shape is static empty
+    if (VoxelShapes.a() == shape) {
+      return BlockShapes.emptyShape();
+    }
+    // check if shape is static cube
+    if (VoxelShapes.b() == shape) {
+      return BlockShapes.cubeAt(posX, posY, posZ);
+    }
+    // convert complex blocks to native BBs
+    List<AxisAlignedBB> nativeBoxes = shape.toList();
     return translateWithOffset(nativeBoxes, posX, posY, posZ);
   }
 }

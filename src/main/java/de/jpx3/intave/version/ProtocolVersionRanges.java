@@ -2,10 +2,7 @@ package de.jpx3.intave.version;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Spliterator;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -20,10 +17,9 @@ public final class ProtocolVersionRanges implements Iterable<ProtocolVersionRang
     return versionRanges.stream();
   }
 
-  public ProtocolVersionRange newest() {
+  public Optional<ProtocolVersionRange> newest() {
     return versionRanges.stream()
-      .max(ProtocolVersionRange::compareTo)
-      .orElseThrow(() -> new IllegalStateException("No max version range found"));
+      .max(ProtocolVersionRange::compareTo);
   }
 
   public String byProtocolVersion(int version) {
@@ -31,7 +27,10 @@ public final class ProtocolVersionRanges implements Iterable<ProtocolVersionRang
       versionRanges.stream()
         .filter(range -> range.includes(version))
         .findFirst()
-        .orElseGet(this::newest);
+        .orElseGet(() -> {
+          Optional<ProtocolVersionRange> newest = newest();
+          return newest.orElseGet(() -> new ProtocolVersionRange(Integer.MIN_VALUE, Integer.MAX_VALUE, "error"));
+        });
     return protocolVersionRange.version();
   }
 

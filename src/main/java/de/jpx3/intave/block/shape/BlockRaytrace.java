@@ -21,7 +21,7 @@ public final class BlockRaytrace {
     return direction;
   }
 
-  public double lengthFactor() {
+  public double lengthOffset() {
     return lengthOffset;
   }
 

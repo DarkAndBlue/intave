@@ -17,8 +17,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.InvocationTargetException;
-
 public final class SibylPacketTransmitter {
   private final SibylAuthentication authentication;
 

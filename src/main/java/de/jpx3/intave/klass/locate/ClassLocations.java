@@ -9,11 +9,12 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public final class ClassLocations implements Iterable<ClassLocation> {
+final class ClassLocations implements Iterable<ClassLocation> {
   private final Iterable<ClassLocation> classLocations;
 
   public ClassLocations(Iterable<ClassLocation> classLocations) {
@@ -32,6 +33,10 @@ public final class ClassLocations implements Iterable<ClassLocation> {
   private int currentMinecraftVersion() {
     MinecraftVersion version = MinecraftVersion.getCurrentVersion();
     return version.getMinor() * 10 + version.getBuild();
+  }
+
+  public <C, R> R collect(Collector<ClassLocation, C, R> collector) {
+    return stream().collect(collector);
   }
 
   public Optional<ClassLocation> findAny() {

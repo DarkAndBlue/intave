@@ -4,7 +4,6 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.annotate.Native;
-import de.jpx3.intave.block.state.BlockState;
 import de.jpx3.intave.block.state.BlockStateAccess;
 import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.CheckStatistics;
@@ -357,7 +356,7 @@ public final class RootStage extends CommandStage {
   public void outputReplacements(User user) {
     Player player = user.player();
     BlockStateAccess bba = user.blockStates();
-    player.sendMessage(ChatColor.RED + "You have " + bba.locatedReplacements().size() + "/" + bba.indexedReplacements().size() + " replacements");
+    player.sendMessage(ChatColor.RED + "You have " + bba.numOfLocatedReplacements() + "/" + bba.numOfIndexedReplacements() + " replacements");
   }
 
   @SubCommand(
@@ -508,7 +507,7 @@ public final class RootStage extends CommandStage {
 
   static {
     CLASS_NAME.put(BoundingBox.class, "BoundingBoxes");
-    CLASS_NAME.put(BlockState.class, "BlockStates");
+//    CLASS_NAME.put(BlockState.class, "BlockStates");?
 //    CLASS_NAME.put(CubeShape.class, "CubeShape");
 //    CLASS_NAME.put(ArrayBlockShape.class, "ArrayBlockShape");
   }

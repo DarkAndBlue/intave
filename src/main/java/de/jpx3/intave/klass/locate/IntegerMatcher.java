@@ -2,7 +2,7 @@ package de.jpx3.intave.klass.locate;
 
 import java.util.function.BinaryOperator;
 
-public abstract class IntegerMatcher {
+abstract class IntegerMatcher {
   public abstract boolean matches(int integer);
 
   public static IntegerMatcher any() {

@@ -3,7 +3,6 @@ package de.jpx3.intave.check.combat.heuristics.detect.experimental;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.check.combat.heuristics.Anomaly;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
-import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.user.User;
 
 import java.util.List;

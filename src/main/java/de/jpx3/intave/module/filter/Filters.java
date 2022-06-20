@@ -6,7 +6,6 @@ import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.Modules;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 

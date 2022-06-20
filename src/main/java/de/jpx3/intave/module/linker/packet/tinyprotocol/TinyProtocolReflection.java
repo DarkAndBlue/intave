@@ -1,5 +1,6 @@
 package de.jpx3.intave.module.linker.packet.tinyprotocol;
 
+import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.klass.locate.Locate;
 import org.bukkit.Bukkit;
 
@@ -264,7 +265,7 @@ final class TinyProtocolReflection {
    * @throws IllegalArgumentException If the class doesn't exist.
    */
   public static Class<?> getMinecraftClass(String name) {
-    return Locate.classByKey(name);//getCanonicalClass(NMS_PREFIX + "." + name);
+    return Lookup.serverClass(name);//getCanonicalClass(NMS_PREFIX + "." + name);
   }
 
   /**

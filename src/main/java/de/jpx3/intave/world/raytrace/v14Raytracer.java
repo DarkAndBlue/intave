@@ -14,8 +14,6 @@ import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @PatchyAutoTranslation
@@ -145,51 +143,35 @@ public final class v14Raytracer implements Raytracer {
     IBlockData blockVariant = (IBlockData) BlockVariantRegister.rawVariantOf(type, variantIndex);
     Vec3D var4 = var0x.b();
     Vec3D var5 = var0x.a();
-    VoxelShape var6 = voxelShapeAt(user, var1);//var0x.a(blockVariant, blockAccess, var1);
-    //    VoxelShape var8 = VoxelShapes.a();//var0x.a(fluid, blockAccess, var1);
-//    MovingObjectPositionBlock var9 = var8.rayTrace(var4, var5, var1);
-//    double var10 = var7 == null ? 1.7976931348623157E308D : var0x.b().distanceSquared(var7.getPos());
-//    double var12 = var9 == null ? 1.7976931348623157E308D : var0x.b().distanceSquared(var9.getPos());
-    return this.blockTrace(var4, var5, blockAccess, var1, var6, blockVariant);//var10 <= var12 ? var7 : var9;
+    VoxelShape var6 = voxelShapeAt(user, var1);
+    return this.blockTrace(var4, var5, blockAccess, var1, var6, blockVariant);
   }
 
   @PatchyAutoTranslation
   @PatchyTranslateParameters
   private VoxelShape voxelShapeAt(User user, BlockPosition position) {
     // resolve native boxes
-    List<AxisAlignedBB> boxes = translateBoxes(user.blockStates().shapeAt(
+    List<BoundingBox> boxes = user.blockStates().collisionShapeAt(
       position.getX(), position.getY(), position.getZ()
-    ).boundingBoxes());
+    ).boundingBoxes();
     return voxelShapeOf(boxes);
   }
 
   @PatchyAutoTranslation
   @PatchyTranslateParameters
-  private List<AxisAlignedBB> translateBoxes(List<BoundingBox> wrapped) {
-    if (wrapped.isEmpty()) {
-      return Collections.emptyList();
-    }
-    List<AxisAlignedBB> axisAlignedBBS = new ArrayList<>();
-    for (BoundingBox wrap : wrapped) {
-      axisAlignedBBS.add(new AxisAlignedBB(
-        wrap.minX, wrap.minY, wrap.minZ,
-        wrap.maxX, wrap.maxY, wrap.maxZ
-      ));
-    }
-    return axisAlignedBBS;
-  }
-
-  @PatchyAutoTranslation
-  @PatchyTranslateParameters
-  private VoxelShape voxelShapeOf(List<AxisAlignedBB> bbs) {
+  private VoxelShape voxelShapeOf(List<BoundingBox> bbs) {
     if (bbs.isEmpty()) {
       return VoxelShapes.a();
     }
-    VoxelShape voxelShape = VoxelShapes.a(bbs.get(0));
-    for (int i = 1; i < bbs.size(); i++) {
-      voxelShape = VoxelShapes.a(voxelShape, VoxelShapes.a(bbs.get(0)));
+    VoxelShape voxelShape = VoxelShapes.a();
+    for (BoundingBox bb : bbs) {
+      voxelShape = VoxelShapes.a(voxelShape, VoxelShapes.create(
+        bb.minX, bb.minY, bb.minZ,
+        bb.maxX, bb.maxY, bb.maxZ
+      ));
     }
     return voxelShape;
+//    return bbs.stream().map(VoxelShapes::a).reduce(VoxelShapes.a(), VoxelShapes::a);
   }
 
   @PatchyAutoTranslation

@@ -2,7 +2,7 @@ package de.jpx3.intave.block.variant;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.klass.locate.Locate;
+import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.klass.rewrite.PatchyAutoTranslation;
 import de.jpx3.intave.klass.rewrite.PatchyLoadingInjector;
 import net.minecraft.server.v1_14_R1.*;
@@ -169,7 +169,7 @@ final class BlockVariantConverter {
       Map<Setting<?>, Comparable<?>> configuration = new HashMap<>();
       try {
         if (getStateListMethod == null) {
-          getStateListMethod = Locate.classByKey("Block").getDeclaredMethod("getStateList");
+          getStateListMethod = Lookup.serverClass("Block").getDeclaredMethod("getStateList");
           getStateListMethod.setAccessible(true);
         }
         Collection<net.minecraft.server.v1_8_R3.IBlockState> states = ((BlockStateList) getStateListMethod.invoke(block)).d();

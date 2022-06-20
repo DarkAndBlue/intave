@@ -69,15 +69,7 @@ public class ItemCrashTracker extends Module {
   }
 
   private String ownerFromSkullMeta(SkullMeta meta) {
-//    try {
-//      GameProfile profile = (GameProfile) profileField.get(meta);
-//      System.out.println(profile);
-//      return profile.getName();
     return meta.getOwner();
-//    } catch (Exception exception) {
-//      exception.printStackTrace();
-//    }
-//    return null;
   }
 
   @PacketSubscription(

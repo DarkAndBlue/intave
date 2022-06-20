@@ -4,7 +4,7 @@ import de.jpx3.intave.block.shape.BlockRaytrace;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.diagnostic.MemoryTraced;
 import de.jpx3.intave.math.MathHelper;
-import de.jpx3.intave.shade.link.WrapperLinkage;
+import de.jpx3.intave.shade.link.WrapperConverter;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
@@ -568,7 +568,7 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
   }
 
   public static BoundingBox fromNative(Object nativeBB) {
-    return WrapperLinkage.boundingBoxOf(nativeBB);
+    return WrapperConverter.boundingBoxFromAABB(nativeBB);
   }
 
   // just assuming defaults - please remove

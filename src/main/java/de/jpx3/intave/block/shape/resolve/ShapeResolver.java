@@ -8,6 +8,7 @@ import de.jpx3.intave.block.state.BlockStateAccess;
 import de.jpx3.intave.block.state.MultiChunkKeyBlockStateAccess;
 import de.jpx3.intave.klass.rewrite.PatchyLoadingInjector;
 
+import static de.jpx3.intave.adapter.MinecraftVersions.VER1_13_0;
 import static de.jpx3.intave.adapter.MinecraftVersions.VER1_14_0;
 
 /**
@@ -54,7 +55,7 @@ public final class ShapeResolver {
       drillClassName = "de.jpx3.intave.block.shape.resolve.drill.v17b1ShapeDrill";
     } else if (MinecraftVersions.VER1_14_0.atOrAbove()) {
       drillClassName = "de.jpx3.intave.block.shape.resolve.drill.v14ShapeDrill";
-    } else if (MinecraftVersions.VER1_13_0.atOrAbove()) {
+    } else if (VER1_13_0.atOrAbove()) {
       drillClassName = "de.jpx3.intave.block.shape.resolve.drill.v13ShapeDrill";
     } else if (MinecraftVersions.VER1_11_0.atOrAbove()) {
       drillClassName = "de.jpx3.intave.block.shape.resolve.drill.v11ShapeDrill";
@@ -73,6 +74,10 @@ public final class ShapeResolver {
 
     // server resolver
     resolver = instanceOf(drillClassName);
+    // drill failure subroutine
+    if (!VER1_13_0.atOrAbove()) {
+      resolver = new DrillRescuePipe(resolver);
+    }
     if (VER1_14_0.atOrAbove()) {
       // cache
       resolver = new VariantCachePipe(resolver);

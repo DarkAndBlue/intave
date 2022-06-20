@@ -257,7 +257,7 @@ public final class InteractionEmulator implements EventProcessor {
     Material clickedType = BlockTypeAccess.typeAccess(block, player);
 
     if (DUMP_BLOCK_HITBOX_ON_RIGHT_CLICK) {
-      player.sendMessage(String.valueOf(blockStateAccess.shapeAt(block.getX(), block.getY(), block.getZ())));
+      player.sendMessage(String.valueOf(blockStateAccess.collisionShapeAt(block.getX(), block.getY(), block.getZ())));
     }
 
     switch (clickedType) {

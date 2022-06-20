@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public final class FieldLocations implements Iterable<FieldLocation> {
+final class FieldLocations implements Iterable<FieldLocation> {
   private final Iterable<FieldLocation> fieldLocations;
 
   public FieldLocations(Iterable<FieldLocation> fieldLocations) {

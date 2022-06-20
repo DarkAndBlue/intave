@@ -1,40 +1,18 @@
 package de.jpx3.intave.block.fluid;
 
-import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.annotate.KeepEnumInternalNames;
-import de.jpx3.intave.klass.Lookup;
 
 @KeepEnumInternalNames
 enum FluidTag {
-  WATER(true),
-  LAVA(true),
-  EMPTY(false);
+  WATER,
+  LAVA,
+  EMPTY;
 
-  private final boolean real;
-
-  FluidTag(boolean real) {
-    this.real = real;
-  }
-
-  private Object nativeTag;
-
-  @Deprecated
-  public Object nativeTag() {
-    if (!this.real) {
-      throw new IntaveInternalException("Cannot resolve actual fluid tag");
-    }
-    if (this.nativeTag == null) {
-      this.nativeTag = resolveNativeTag();
-    }
-    return this.nativeTag;
-  }
-
-  @Deprecated
-  private Object resolveNativeTag() {
-    try {
-      return Lookup.serverField("TagsFluid", name()).get(null);
-    } catch (IllegalAccessException exception) {
-      throw new IntaveInternalException("Cannot access fluid tag", exception);
-    }
+  public static FluidTag select(
+    boolean water, boolean lava
+  ) {
+    if (water) return WATER;
+    if (lava) return LAVA;
+    return EMPTY;
   }
 }

@@ -8,7 +8,7 @@ import de.jpx3.intave.shade.NativeVector;
 import net.minecraft.server.v1_8_R3.Vec3D;
 
 public final class Vec3DLinkage {
-  static ClassLinker<NativeVector> resolveVec3DLinker() {
+  static ClassConverter<NativeVector> resolveVec3DConverter() {
     boolean atLeastCombatUpdate = MinecraftVersions.VER1_9_0.atOrAbove();
     String vec3DResolverClass = atLeastCombatUpdate
       ? "de.jpx3.intave.shade.link.Vec3DLinkage$Vec3DCombatUpdateResolver"
@@ -18,20 +18,20 @@ public final class Vec3DLinkage {
   }
 
   @PatchyAutoTranslation
-  public static final class Vec3DLegacyResolver implements ClassLinker<NativeVector> {
+  public static final class Vec3DLegacyResolver implements ClassConverter<NativeVector> {
     @PatchyAutoTranslation
     @Override
-    public NativeVector link(Object obj) {
+    public NativeVector convert(Object obj) {
       Vec3D vec3D = (Vec3D) obj;
       return new NativeVector(vec3D.a, vec3D.b, vec3D.c);
     }
   }
 
   @PatchyAutoTranslation
-  public static final class Vec3DCombatUpdateResolver implements ClassLinker<NativeVector> {
+  public static final class Vec3DCombatUpdateResolver implements ClassConverter<NativeVector> {
     @PatchyAutoTranslation
     @Override
-    public NativeVector link(Object obj) {
+    public NativeVector convert(Object obj) {
       net.minecraft.server.v1_9_R2.Vec3D vec3D = (net.minecraft.server.v1_9_R2.Vec3D) obj;
       return new NativeVector(vec3D.x, vec3D.y, vec3D.z);
     }

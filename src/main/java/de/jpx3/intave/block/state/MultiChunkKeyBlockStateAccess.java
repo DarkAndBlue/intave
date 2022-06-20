@@ -13,7 +13,6 @@ import de.jpx3.intave.diagnostic.ShapeAccessFlowStudy;
 import de.jpx3.intave.math.Hypot;
 import de.jpx3.intave.shade.Position;
 import de.jpx3.intave.world.WorldHeight;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -29,7 +28,7 @@ public final class MultiChunkKeyBlockStateAccess implements BlockStateAccess {
   private final Player player;
   private final ShapeResolverPipeline shapeResolver;
   private final Map<Long, BlockState> blockCache = Maps.newConcurrentMap();
-  private final FastBlockStateExpiryCache replacementCache;
+  private final FastBlockStateExpiryCache<Long> replacementCache;
   private int originChunkX, originChunkZ;
   private int chunkX, chunkZ;
 
@@ -38,11 +37,11 @@ public final class MultiChunkKeyBlockStateAccess implements BlockStateAccess {
   ) {
     this.player = player;
     this.shapeResolver = resolver;
-    this.replacementCache = new FastBlockStateExpiryCache(player);
+    this.replacementCache = new FastBlockStateExpiryCache<>(player, this::bigKey);
   }
 
   @Override
-  public @NotNull BlockShape shapeAt(int posX, int posY, int posZ) {
+  public @NotNull BlockShape collisionShapeAt(int posX, int posY, int posZ) {
     if (posY < WorldHeight.LOWER_WORLD_LIMIT || WorldHeight.UPPER_WORLD_LIMIT < posY) {
       return BlockShapes.emptyShape();
     }
@@ -62,7 +61,7 @@ public final class MultiChunkKeyBlockStateAccess implements BlockStateAccess {
     long key = bigKey(posX, posY, posZ);
     BlockState blockState = replacementCache.byKey(key);
     if (blockState != null) {
-      return blockState.shape();
+      return blockState.collisionShape();
     }
     blockState = blockCache.get(key);
     if (blockState == null) {
@@ -73,7 +72,42 @@ public final class MultiChunkKeyBlockStateAccess implements BlockStateAccess {
         blockCache.put(key, blockState);
       }
     }
-    return blockState.shape();
+    return blockState.collisionShape();
+  }
+
+  @Override
+  public @NotNull BlockShape outlineShapeAt(int posX, int posY, int posZ) {
+    if (posY < WorldHeight.LOWER_WORLD_LIMIT || WorldHeight.UPPER_WORLD_LIMIT < posY) {
+      return BlockShapes.emptyShape();
+    }
+    int chunkX = posX >> 4, chunkZ = posZ >> 4;
+    ShapeAccessFlowStudy.requests++;
+    if ((chunkX != this.chunkX || chunkZ != this.chunkZ)) {
+      this.chunkX = chunkX;
+      this.chunkZ = chunkZ;
+      double distance = Hypot.fast(chunkX - originChunkX, chunkZ - originChunkZ);
+      if (distance > 2 || blockCache.size() > 4096) {
+        this.originChunkX = chunkX;
+        this.originChunkZ = chunkZ;
+        blockCache.clear();
+      }
+      purgeOverrides();
+    }
+    long key = bigKey(posX, posY, posZ);
+    BlockState blockState = replacementCache.byKey(key);
+    if (blockState != null) {
+      return blockState.outlineShape();
+    }
+    blockState = blockCache.get(key);
+    if (blockState == null) {
+      World world = player.getWorld();
+      Block block = VolatileBlockAccess.blockAccess(world, posX, posY, posZ);
+      blockState = lookup(world, block, posX, posY, posZ);
+      if (!DISABLE_BLOCK_CACHING_ENTIRELY && block.getY() >= 0) {
+        blockCache.put(key, blockState);
+      }
+    }
+    return blockState.outlineShape();
   }
 
   @Override
@@ -156,8 +190,9 @@ public final class MultiChunkKeyBlockStateAccess implements BlockStateAccess {
     } else {
       ShapeAccessFlowStudy.incremLookups();
       int variant = BlockVariantAccess.variantAccess(block);
-      BlockShape shape = shapeResolver.resolve(world, player, type, variant, posX, posY, posZ);
-      return new BlockState(shape, type, variant);
+      BlockShape outlineShape = shapeResolver.outlineShapeOf(world, player, type, variant, posX, posY, posZ);
+      BlockShape collisionShape = shapeResolver.collisionShapeOf(world, player, type, variant, posX, posY, posZ);
+      return new BlockState(outlineShape, collisionShape, type, variant);
     }
   }
 
@@ -190,8 +225,8 @@ public final class MultiChunkKeyBlockStateAccess implements BlockStateAccess {
     if (type == Material.AIR) {
       blockState = BlockState.empty();
     } else {
-      BlockShape shape = shapeResolver.resolve(world, player, type, variant, posX, posY, posZ);
-      blockState = new BlockState(shape, type, variant);
+      BlockShape shape = shapeResolver.collisionShapeOf(world, player, type, variant, posX, posY, posZ);
+      blockState = new BlockState(shape, shape, type, variant);
     }
     Position position = new Position(posX, posY, posZ);
     replacementCache.insert(position, blockState);
@@ -232,23 +267,29 @@ public final class MultiChunkKeyBlockStateAccess implements BlockStateAccess {
   }
 
   @Override
-  @Deprecated
-  public Map<Position, BlockState> locatedReplacements() {
-    return replacementCache.located();
+  public int numOfIndexedReplacements() {
+    return replacementCache.indexed().size();
   }
 
   @Override
-  @Deprecated
-  public Map<Long, BlockState> indexedReplacements() {
-    return replacementCache.indexed();
+  public int numOfLocatedReplacements() {
+    return replacementCache.located().size();
   }
 
-  private long bigKey(Location location) {
+  private long bigKey(Position location) {
     return bigKey(location.getBlockX(), location.getBlockY(), location.getBlockZ());
   }
 
   private long bigKey(int posX, int posY, int posZ) {
     return (posX & 0x3fffffL) << 42 | (posY & 0xfffffL) | (posZ & 0x3fffffL) << 20;
+  }
+
+  private int smallKey(Position position) {
+    return smallKey(position.getBlockX(), position.getBlockY(), position.getBlockZ());
+  }
+
+  private int smallKey(int posX, int posY, int posZ) {
+    return (posX & 0x3fff) << 20 | (posY & 0x3ff) << 8 | (posZ & 0x3fff);
   }
 
   public static MultiChunkKeyBlockStateAccess forPlayer(Player player) {

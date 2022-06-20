@@ -19,14 +19,24 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface BlockStateLookup {
   /**
-   * Resolve-if-not-cached and retrieve the bounding boxes of the specified block.
+   * Resolve-if-not-cached and retrieve the outlier shape of the specified block.
    *
    * @param posX the blocks x coordinate
    * @param posY the blocks y coordinate
    * @param posZ the blocks z coordinate
    * @return the blocks bounding boxes
    */
-  @NotNull BlockShape shapeAt(int posX, int posY, int posZ);
+  @NotNull BlockShape outlineShapeAt(int posX, int posY, int posZ);
+
+  /**
+   * Resolve-if-not-cached and retrieve the collision shape of the specified block.
+   *
+   * @param posX the blocks x coordinate
+   * @param posY the blocks y coordinate
+   * @param posZ the blocks z coordinate
+   * @return the blocks bounding boxes
+   */
+  @NotNull BlockShape collisionShapeAt(int posX, int posY, int posZ);
 
   /**
    * Resolve-if-not-cached and retrieve the type of the specified block.

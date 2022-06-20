@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public final class MethodLocation extends Location {
+final class MethodLocation extends Location {
   private static final Reference<Method> EMPTY_CLASS_REFERENCE = new WeakReference<>(null);
   private final String classKey;
   private final String target;

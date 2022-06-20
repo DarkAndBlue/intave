@@ -31,8 +31,8 @@ import java.util.UUID;
 
 import static de.jpx3.intave.math.MathHelper.minmax;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
-import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION;
-import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.REL_ENTITY_MOVE;
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.REL_ENTITY_MOVE_LOOK;
 import static de.jpx3.intave.shade.Direction.Axis.*;
 import static de.jpx3.intave.user.UserRepository.userOf;
 

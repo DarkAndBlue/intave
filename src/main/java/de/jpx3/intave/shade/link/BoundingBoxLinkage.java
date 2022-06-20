@@ -8,7 +8,7 @@ import de.jpx3.intave.shade.BoundingBox;
 import net.minecraft.server.v1_8_R3.AxisAlignedBB;
 
 public final class BoundingBoxLinkage {
-  static ClassLinker<BoundingBox> resolveBoundingBoxLinker() {
+  static ClassConverter<BoundingBox> resolveBoundingBoxConverter() {
     boolean atLeastAquaticUpdate = MinecraftVersions.VER1_13_0.atOrAbove();
     String boundingBoxResolverClass = atLeastAquaticUpdate
       ? "de.jpx3.intave.shade.link.BoundingBoxLinkage$BoundingBoxAquaticResolver"
@@ -18,10 +18,10 @@ public final class BoundingBoxLinkage {
   }
 
   @PatchyAutoTranslation
-  public static final class BoundingBoxLegacyResolver implements ClassLinker<BoundingBox> {
+  public static final class BoundingBoxLegacyResolver implements ClassConverter<BoundingBox> {
     @PatchyAutoTranslation
     @Override
-    public BoundingBox link(Object obj) {
+    public BoundingBox convert(Object obj) {
       AxisAlignedBB boundingBox = (AxisAlignedBB) obj;
       return new BoundingBox(
         boundingBox.a, boundingBox.b, boundingBox.c,
@@ -31,10 +31,10 @@ public final class BoundingBoxLinkage {
   }
 
   @PatchyAutoTranslation
-  public static final class BoundingBoxAquaticResolver implements ClassLinker<BoundingBox> {
+  public static final class BoundingBoxAquaticResolver implements ClassConverter<BoundingBox> {
     @PatchyAutoTranslation
     @Override
-    public BoundingBox link(Object obj) {
+    public BoundingBox convert(Object obj) {
       net.minecraft.server.v1_13_R2.AxisAlignedBB boundingBox = (net.minecraft.server.v1_13_R2.AxisAlignedBB) obj;
       return new BoundingBox(
         boundingBox.minX, boundingBox.minY, boundingBox.minZ,

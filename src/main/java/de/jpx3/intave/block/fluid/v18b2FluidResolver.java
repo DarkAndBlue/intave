@@ -5,7 +5,7 @@ import de.jpx3.intave.klass.locate.MethodSearchBySignature;
 import de.jpx3.intave.klass.rewrite.PatchyAutoTranslation;
 import de.jpx3.intave.klass.rewrite.PatchyTranslateParameters;
 import de.jpx3.intave.shade.NativeVector;
-import de.jpx3.intave.shade.link.WrapperLinkage;
+import de.jpx3.intave.shade.link.WrapperConverter;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import net.minecraft.core.BlockPosition;
@@ -52,7 +52,7 @@ final class v18b2FluidResolver extends FluidResolver {
       return Fluid.empty();
     }
     float height = fluid.d();
-    return Fluid.construct(fluidTag, fluid.isSource(), height);
+    return Fluid.of(fluidTag, fluid.isSource(), height);
   }
 
   @PatchyAutoTranslation
@@ -65,12 +65,9 @@ final class v18b2FluidResolver extends FluidResolver {
   @PatchyTranslateParameters
   private FluidTag tagKeyResolve(Object fluid) {
     try {
-      if ((boolean) resolveTagKey.invoke(fluid, TAG_KEY_WATER)) {
-        return FluidTag.WATER;
-      }
-      if ((boolean) resolveTagKey.invoke(fluid, TAG_KEY_LAVA)) {
-        return FluidTag.LAVA;
-      }
+      boolean water = (boolean) resolveTagKey.invoke(fluid, TAG_KEY_WATER);
+      boolean lava = !water && (boolean) resolveTagKey.invoke(fluid, TAG_KEY_LAVA);
+      return FluidTag.select(water, lava);
     } catch (Throwable exception) {
       exception.printStackTrace();
     }
@@ -87,6 +84,6 @@ final class v18b2FluidResolver extends FluidResolver {
       return NativeVector.ZERO;
     }
     BlockPosition blockPosition = new BlockPosition(x, y, z);
-    return WrapperLinkage.vectorOf(blockAccess.getFluid(blockPosition).c(blockAccess, blockPosition));
+    return WrapperConverter.vectorFromVec3D(blockAccess.getFluid(blockPosition).c(blockAccess, blockPosition));
   }
 }

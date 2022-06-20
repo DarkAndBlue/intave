@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public final class CustomFieldTranslation {
+final class CustomFieldTranslation {
   private PatchyUnknownVersionPolicy versionPolicy;
   private List<VersionFieldReference> versionFieldReferences = new ArrayList<>();
 

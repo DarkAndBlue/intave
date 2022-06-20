@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public final class MethodLocations implements Iterable<MethodLocation> {
+final class MethodLocations implements Iterable<MethodLocation> {
   private final Iterable<MethodLocation> methodLocations;
 
   public MethodLocations(Iterable<MethodLocation> methodLocations) {

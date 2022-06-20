@@ -3,7 +3,7 @@ package de.jpx3.intave.shade;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.klass.Lookup;
-import de.jpx3.intave.shade.link.WrapperLinkage;
+import de.jpx3.intave.shade.link.WrapperConverter;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -106,7 +106,7 @@ public class MovingObjectPosition {
         if (!movingObjectPositionBaseField.isAccessible())
           movingObjectPositionBaseField.setAccessible(true);
         Object pos = movingObjectPositionBaseField.get(movingObjectPosition);
-        NativeVector wrappedPos = WrapperLinkage.vectorOf(pos);
+        NativeVector wrappedPos = WrapperConverter.vectorFromVec3D(pos);
         Field bField = movingObjectPositionBlock.getDeclaredField("b");
         if (!bField.isAccessible())
           bField.setAccessible(true);
@@ -117,7 +117,7 @@ public class MovingObjectPosition {
         if (!cField.isAccessible())
           cField.setAccessible(true);
         Object blockPosition = cField.get(movingObjectPosition);
-        BlockPosition wrappedBlockPosition = WrapperLinkage.blockPositionOf(blockPosition);
+        BlockPosition wrappedBlockPosition = WrapperConverter.blockPositionFromNativeBlockPosition(blockPosition);
         return new MovingObjectPosition(movingObjectType, wrappedPos, wrappedDirection, wrappedBlockPosition);
       }
     } catch (Exception exception) {
@@ -135,9 +135,9 @@ public class MovingObjectPosition {
       Object direction = movingObjectPositionClass.getField("direction").get(movingObjectPosition);
       Object pos = movingObjectPositionClass.getField("pos").get(movingObjectPosition);
       Object entity = movingObjectPositionClass.getField("entity").get(movingObjectPosition);
-      NativeVector wrappedPos = WrapperLinkage.vectorOf(pos);
+      NativeVector wrappedPos = WrapperConverter.vectorFromVec3D(pos);
       if (entity == null) {
-        BlockPosition wrappedBlockPosition = WrapperLinkage.blockPositionOf(blockPosition);
+        BlockPosition wrappedBlockPosition = WrapperConverter.blockPositionFromNativeBlockPosition(blockPosition);
         String typeName = (String) Enum.class.getMethod("name").invoke(type);
         MovingObjectType movingObjectType = MovingObjectType.valueOf(typeName);
         String directionName = (String) Enum.class.getMethod("name").invoke(direction);

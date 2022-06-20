@@ -21,25 +21,34 @@ import java.util.Objects;
  * @see BlockVariantRegister
  */
 public final class BlockState extends MemoryTraced {
-  private static final BlockState EMPTY = new BlockState(BlockShapes.emptyShape(), Material.AIR, 0);
-  private final BlockShape shape;
+  private static final BlockState EMPTY = new BlockState(BlockShapes.emptyShape(), BlockShapes.emptyShape(), Material.AIR, 0);
+  private final BlockShape outlineShape;
+  private final BlockShape collisionShape;
   private final Material type;
   private final int variantIndex;
   private final long creation = System.currentTimeMillis();
 
-  public BlockState(BlockShape shape, Material type, int variantIndex) {
-    this.shape = shape;
+  public BlockState(BlockShape outlineShape, BlockShape collisionShape, Material type, int variantIndex) {
+    this.outlineShape = outlineShape;
+    this.collisionShape = collisionShape;
     this.type = type;
     this.variantIndex = variantIndex;
   }
 
   /**
+   * Returns the bounding box of this block state.
+   * @return the bounding box of this block state
+   */
+  public BlockShape outlineShape() {
+    return outlineShape;
+  }
+
+  /**
    * Retrieve the blocks bounding boxes
-   *
    * @return the blocks bounding boxes
    */
-  public BlockShape shape() {
-    return shape;
+  public BlockShape collisionShape() {
+    return collisionShape;
   }
 
   /**
@@ -81,13 +90,13 @@ public final class BlockState extends MemoryTraced {
     BlockState that = (BlockState) o;
     if (variantIndex != that.variantIndex) return false;
     if (creation != that.creation) return false;
-    if (!Objects.equals(shape, that.shape)) return false;
+    if (!Objects.equals(collisionShape, that.collisionShape)) return false;
     return type == that.type;
   }
 
   @Override
   public int hashCode() {
-    int result = shape != null ? shape.hashCode() : 0;
+    int result = collisionShape != null ? collisionShape.hashCode() : 0;
     result = 31 * result + (type != null ? type.hashCode() : 0);
     result = 31 * result + variantIndex;
     result = 31 * result + (int) (creation ^ (creation >>> 32));

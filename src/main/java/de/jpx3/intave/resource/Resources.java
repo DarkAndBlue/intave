@@ -125,8 +125,8 @@ public final class Resources {
     random.nextInt(Math.abs(lastInt) + 1);
     random.nextInt(IntavePlugin.version().hashCode());
     UUID uuid = new UUID(
-      (long) (identifier.hashCode() ^ Math.abs(random.nextInt(Byte.MAX_VALUE))) | versionResourceKey(),
-      (long) ((IntavePlugin.version().hashCode()) ^ Math.abs(random.nextInt(Short.MAX_VALUE))) << 32 | random.nextInt()
+      ((long)identifier.hashCode() ^ Math.abs(random.nextInt(Byte.MAX_VALUE))) | versionResourceKey(),
+      (((long)IntavePlugin.version().hashCode()) ^ Math.abs(random.nextInt(Short.MAX_VALUE))) << 32 | random.nextInt()
     );
     return uuid.toString().replace("-", "")
       .replace("f", "r")

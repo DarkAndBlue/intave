@@ -7,10 +7,7 @@ import de.jpx3.intave.security.LicenseAccess;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.SocketTimeoutException;
-import java.net.URL;
-import java.net.URLConnection;
+import java.net.*;
 
 public final class WebResource implements Resource {
   private final URL url;
@@ -70,6 +67,11 @@ public final class WebResource implements Resource {
     } catch (SocketTimeoutException timeout) {
       if (IntaveControl.DISABLE_LICENSE_CHECK) {
         System.out.println("[debug] Timeout reading " + url);
+      }
+      return new ByteArrayInputStream(new byte[0]);
+    } catch (UnknownHostException host) {
+      if (IntaveControl.DISABLE_LICENSE_CHECK) {
+        System.out.println("[debug] Unable to connect to " + url);
       }
       return new ByteArrayInputStream(new byte[0]);
     } catch (Exception exception) {

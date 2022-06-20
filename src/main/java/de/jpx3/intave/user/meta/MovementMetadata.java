@@ -214,9 +214,8 @@ public final class MovementMetadata implements SimulationEnvironment {
 
   public void setup() {
     if (player != null) {
-      Synchronizer.synchronize(() -> {
-        this.elytraFlying = flyingWithElytra(player);
-      });
+      Synchronizer.synchronize(() ->
+        this.elytraFlying = flyingWithElytra(player));
     }
     applyPlayerStats();
     updateWorld();

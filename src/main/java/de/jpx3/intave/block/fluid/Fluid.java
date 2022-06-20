@@ -1,7 +1,9 @@
 package de.jpx3.intave.block.fluid;
 
+import static de.jpx3.intave.block.fluid.FluidTag.*;
+
 public final class Fluid {
-  private static final Fluid EMPTY = new Fluid(FluidTag.EMPTY, true, 0);
+  private static final Fluid EMPTY_FLUID = new Fluid(FluidTag.EMPTY, true, 0);
 
   private final FluidTag fluidTag;
   private final boolean empty;
@@ -12,15 +14,15 @@ public final class Fluid {
     this.fluidTag = fluidTag;
     this.source = source;
     this.height = height;
-    this.empty = fluidTag == FluidTag.EMPTY;
+    this.empty = fluidTag == EMPTY;
   }
 
   public boolean isOfWater() {
-    return isOf(FluidTag.WATER);
+    return isOf(WATER);
   }
 
   public boolean isOfLava() {
-    return isOf(FluidTag.LAVA);
+    return isOf(LAVA);
   }
 
   private boolean isOf(FluidTag fluidTag) {
@@ -40,13 +42,31 @@ public final class Fluid {
   }
 
   public static Fluid empty() {
-    return EMPTY;
+    return EMPTY_FLUID;
   }
 
-  public static Fluid construct(FluidTag fluidTag, boolean source, float height) {
+  private static final Fluid[] FLUID_UNIVERSE = new Fluid[(1 << 5) + 1];
+
+  public static Fluid of(FluidTag fluidTag, boolean source, float height) {
     if (fluidTag == FluidTag.EMPTY) {
-      return EMPTY;
+      return EMPTY_FLUID;
     }
-    return new Fluid(fluidTag, source, height);
+    int index = cacheIndex(fluidTag, source, height);
+    Fluid fluid = FLUID_UNIVERSE[index];
+    if (fluid == null) {
+      fluid = new Fluid(fluidTag, source, height);
+      FLUID_UNIVERSE[index] = fluid;
+    }
+    return fluid;
+  }
+
+  private static int cacheIndex(FluidTag fluidTag, boolean source, float height) {
+    if (fluidTag == FluidTag.EMPTY || height == 0) {
+      return 1 << 5;
+    }
+    int index = 0;
+    index |= (fluidTag == WATER ? 0 : 1);
+    index |= (source || height == 1 ? 0 : (int) (height * 9)) << 1;
+    return index;
   }
 }

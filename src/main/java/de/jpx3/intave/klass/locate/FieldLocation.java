@@ -6,7 +6,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
-public final class FieldLocation extends Location {
+final class FieldLocation extends Location {
   private static final Reference<Field> EMPTY_FIELD_REFERENCE = new WeakReference<>(null);
   private final String classKey;
   private final String target;

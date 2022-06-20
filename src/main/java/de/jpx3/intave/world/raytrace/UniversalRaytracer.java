@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 import static de.jpx3.intave.shade.ClientMathHelper.floor;
 import static de.jpx3.intave.shade.Direction.*;
 
-public final class CustomRaytracer implements Raytracer {
+public final class UniversalRaytracer implements Raytracer {
   @Override
   public MovingObjectPosition raytrace(World world, Player player, NativeVector eyeVector, NativeVector targetVector) {
     return raytrace(player, eyeVector.toPosition(), targetVector.toPosition());
@@ -35,7 +35,7 @@ public final class CustomRaytracer implements Raytracer {
     int lookY = floor(observerPosition.getY());
     int lookZ = floor(observerPosition.getZ());
     BlockPosition blockposition = observerPosition.toBlockPosition();
-    BlockShape currentShape = blockStateAccess.shapeAt(lookX, lookY, lookZ);
+    BlockShape currentShape = blockStateAccess.collisionShapeAt(lookX, lookY, lookZ);
     Material material = blockStateAccess.typeAt(lookX, lookY, lookZ);
     movingObjectPosition = innerBlockRaytrace(material, currentShape, blockposition, initialPosition, observerPosition, targetPosition);
     if (movingObjectPosition != MovingObjectPosition.none()) {
@@ -112,11 +112,11 @@ public final class CustomRaytracer implements Raytracer {
         observerPosition = new Position(observerPosition.getX() + finalDistanceX * stepScaleZ, observerPosition.getY() + finalDistanceY * stepScaleZ, lookZStep);
       }
 //      player.playEffect(observerPosition.toLocation(player.getWorld()), Effect.HAPPY_VILLAGER, 1);
-      lookX = floor(observerPosition.getX() - (direction == EAST ? 1 : 0));
+      lookX = floor(observerPosition.getX()) - (direction == EAST ? 1 : 0);
       lookY = floor(observerPosition.getY()) - (direction == UP ? 1 : 0);
       lookZ = floor(observerPosition.getZ()) - (direction == SOUTH ? 1 : 0);
       blockposition = new BlockPosition(lookX, lookY, lookZ);
-      currentShape = blockStateAccess.shapeAt(lookX, lookY, lookZ);
+      currentShape = blockStateAccess.collisionShapeAt(lookX, lookY, lookZ);
       material = blockStateAccess.typeAt(lookX, lookY, lookZ);
       movingObjectPosition = innerBlockRaytrace(material, currentShape, blockposition, initialPosition, observerPosition, targetPosition);
       if (movingObjectPosition != MovingObjectPosition.none()) {
@@ -139,7 +139,7 @@ public final class CustomRaytracer implements Raytracer {
       System.out.println("No raytrace");
       return MovingObjectPosition.none();
     }
-    double lengthFactor = raytrace.lengthFactor();
+    double lengthFactor = raytrace.lengthOffset();
     double differenceX = (targetPosition.getX() - initialObserverPosition.getX()) * lengthFactor;
     double differenceY = (targetPosition.getY() - initialObserverPosition.getY()) * lengthFactor;
     double differenceZ = (targetPosition.getZ() - initialObserverPosition.getZ()) * lengthFactor;

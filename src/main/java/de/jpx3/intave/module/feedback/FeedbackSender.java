@@ -87,7 +87,7 @@ public final class FeedbackSender extends Module {
       return;
     }
     User user = UserRepository.userOf(player);
-    if (user == null || !user.hasPlayer()) {
+    if (!user.hasPlayer()) {
       return;
     }
     tracedSingleSynchronize(player, target, firstCallback, firstTracker, options);
@@ -132,7 +132,7 @@ public final class FeedbackSender extends Module {
       return;
     }
     User user = UserRepository.userOf(player);
-    if (user == null || !user.hasPlayer()) {
+    if (!user.hasPlayer()) {
       return;
     }
     boolean append = false;

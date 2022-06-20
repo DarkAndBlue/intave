@@ -3,9 +3,12 @@ package de.jpx3.intave.block.shape.resolve.drill;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.shape.BlockShapes;
 import de.jpx3.intave.block.shape.resolve.drill.acbbs.v9AlwaysCollidingBoundingBox;
+import de.jpx3.intave.block.variant.BlockVariantRegister;
 import de.jpx3.intave.klass.rewrite.PatchyAutoTranslation;
 import de.jpx3.intave.shade.BoundingBox;
+import de.jpx3.intave.shade.link.WrapperConverter;
 import net.minecraft.server.v1_9_R2.*;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_9_R2.CraftWorld;
 import org.bukkit.entity.Player;
@@ -19,7 +22,7 @@ public final class v9ShapeDrill extends AbstractShapeDrill {
 
   @Override
   @PatchyAutoTranslation
-  public BlockShape resolve(World world, Player player, org.bukkit.Material type, int blockState, int posX, int posY, int posZ) {
+  public BlockShape collisionShapeOf(World world, Player player, org.bukkit.Material type, int blockState, int posX, int posY, int posZ) {
     BlockPosition blockposition = new BlockPosition(posX, posY, posZ);
     IBlockData blockData = Block.getByCombinedId(type.getId() | (blockState & 0xF) << 12);
     if (blockData == null) {
@@ -27,15 +30,21 @@ public final class v9ShapeDrill extends AbstractShapeDrill {
     }
     List<AxisAlignedBB> bbs = new ArrayList<>();
     WorldServer worldServer = ((CraftWorld) world).getHandle();
-    try {
-      blockData.getBlock().a(blockData, worldServer, blockposition, ALWAYS_COLLIDING_BOX, bbs, null);
-      return translate(bbs);
-    } catch (IllegalArgumentException exception) {
-      // we catch irregularities here elsewhere
-      return BoundingBox
-        // anything but a full or empty box
-        .originFrom(0.25, 0.25, 0.25, 0.75, 0.75, 0.75)
-        .contextualized(posX, posY, posZ);
+    blockData.getBlock().a(blockData, worldServer, blockposition, ALWAYS_COLLIDING_BOX, bbs, null);
+    return translate(bbs);
+  }
+
+  @Override
+  @PatchyAutoTranslation
+  public BlockShape outlineShapeOf(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
+    BlockPosition blockposition = new BlockPosition(posX, posY, posZ);
+    IBlockData blockData = (IBlockData) BlockVariantRegister.rawVariantOf(type, blockState);
+    if (blockData == null) {
+      return BlockShapes.emptyShape();
     }
+    WorldServer worldServer = ((CraftWorld) world).getHandle();
+    Block block = blockData.getBlock();
+    AxisAlignedBB bb = block.a(blockData, worldServer, blockposition);
+    return bb == null ? BlockShapes.emptyShape() : WrapperConverter.boundingBoxFromAABB(bb);
   }
 }

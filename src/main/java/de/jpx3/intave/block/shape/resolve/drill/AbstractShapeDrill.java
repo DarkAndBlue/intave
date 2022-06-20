@@ -4,7 +4,7 @@ import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.shape.BlockShapes;
 import de.jpx3.intave.block.shape.ShapeResolverPipeline;
 import de.jpx3.intave.shade.BoundingBox;
-import de.jpx3.intave.shade.link.WrapperLinkage;
+import de.jpx3.intave.shade.link.WrapperConverter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ abstract class AbstractShapeDrill implements ShapeResolverPipeline {
     }
     List<BoundingBox> list = new ArrayList<>();
     for (Object bb : bbs) {
-      list.add(WrapperLinkage.boundingBoxOf(bb));
+      list.add(WrapperConverter.boundingBoxFromAABB(bb));
     }
     return BlockShapes.shapeOf(list);
   }

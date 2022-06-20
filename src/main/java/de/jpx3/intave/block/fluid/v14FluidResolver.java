@@ -3,10 +3,13 @@ package de.jpx3.intave.block.fluid;
 import de.jpx3.intave.klass.rewrite.PatchyAutoTranslation;
 import de.jpx3.intave.klass.rewrite.PatchyTranslateParameters;
 import de.jpx3.intave.shade.NativeVector;
-import de.jpx3.intave.shade.link.WrapperLinkage;
+import de.jpx3.intave.shade.link.WrapperConverter;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.MovementMetadata;
-import net.minecraft.server.v1_14_R1.*;
+import net.minecraft.server.v1_14_R1.BlockPosition;
+import net.minecraft.server.v1_14_R1.IBlockAccess;
+import net.minecraft.server.v1_14_R1.TagsFluid;
+import net.minecraft.server.v1_14_R1.World;
 
 @PatchyAutoTranslation
 final class v14FluidResolver extends FluidResolver {
@@ -25,7 +28,7 @@ final class v14FluidResolver extends FluidResolver {
       return Fluid.empty();
     }
     float height = fluid.f();
-    return Fluid.construct(fluidTag, fluid.isSource(), height);
+    return Fluid.of(fluidTag, fluid.isSource(), height);
   }
 
   @PatchyAutoTranslation
@@ -34,15 +37,9 @@ final class v14FluidResolver extends FluidResolver {
     if (fluid.isEmpty()) {
       return FluidTag.EMPTY;
     }
-    //noinspection unchecked
-    if (fluid.a((Tag<FluidType>) FluidTag.WATER.nativeTag())) {
-      return FluidTag.WATER;
-    }
-    //noinspection unchecked
-    if (fluid.a((Tag<FluidType>) FluidTag.LAVA.nativeTag())) {
-      return FluidTag.LAVA;
-    }
-    return FluidTag.EMPTY;
+    boolean water = fluid.a(TagsFluid.WATER);
+    boolean lava = !water && fluid.a(TagsFluid.LAVA);
+    return FluidTag.select(water, lava);
   }
 
   @Override
@@ -55,6 +52,8 @@ final class v14FluidResolver extends FluidResolver {
       return NativeVector.ZERO;
     }
     BlockPosition blockPosition = new BlockPosition(x, y, z);
-    return WrapperLinkage.vectorOf(blockAccess.getFluid(blockPosition).c(blockAccess, blockPosition));
+    return WrapperConverter.vectorFromVec3D(
+      blockAccess.getFluid(blockPosition).c(blockAccess, blockPosition)
+    );
   }
 }

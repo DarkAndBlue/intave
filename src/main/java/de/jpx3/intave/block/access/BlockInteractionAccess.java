@@ -74,8 +74,8 @@ public final class BlockInteractionAccess {
     }
   }
 
-  private static boolean hasInteractMethod(Class<?> clazz) {
-    for (Method method : allMethodsIn(clazz)) {
+  private static boolean hasInteractMethod(Class<?> blockClass) {
+    for (Method method : allMethodsIn(blockClass)) {
       String methodName = method.getName();
       if (methodName.equalsIgnoreCase("interact")) {
         String declaringClassName = method.getDeclaringClass().getSimpleName();

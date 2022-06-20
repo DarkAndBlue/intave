@@ -1,6 +1,6 @@
 package de.jpx3.intave.klass.locate;
 
-public final class Locations {
+final class Locations {
   private final ClassLocations classLocations;
   private final FieldLocations fieldLocations;
   private final MethodLocations methodLocations;

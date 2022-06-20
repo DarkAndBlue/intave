@@ -59,7 +59,7 @@ import de.jpx3.intave.resource.legacy.EncryptedLegacyResource;
 import de.jpx3.intave.security.*;
 import de.jpx3.intave.security.blacklist.BlackListService;
 import de.jpx3.intave.security.letis.Letis;
-import de.jpx3.intave.shade.link.WrapperLinkage;
+import de.jpx3.intave.shade.link.WrapperConverter;
 import de.jpx3.intave.trustfactor.TrustFactorService;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.version.DurationTranslator;
@@ -575,7 +575,7 @@ public final class IntavePlugin extends JavaPlugin {
       EntityShade.setup();
       HitboxSizeAccess.setup();
       UserRepository.setup();
-      WrapperLinkage.setup();
+      WrapperConverter.setup();
       Raytracing.setup();
       Fluids.setup();
       VolatileBlockAccess.setup();
@@ -914,7 +914,7 @@ public final class IntavePlugin extends JavaPlugin {
   private List<String> randomExitMessages = new ArrayList<>();
 
   private String randomExitMessage() {
-    return randomExitMessages.get(ThreadLocalRandom.current().nextInt(randomExitMessages.size()));
+    return randomExitMessages.isEmpty() ? "No jokes? :(" : randomExitMessages.get(ThreadLocalRandom.current().nextInt(randomExitMessages.size()));
   }
 
   private void deleteIntegrityCache() {

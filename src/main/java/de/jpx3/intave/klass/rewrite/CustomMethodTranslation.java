@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public final class CustomMethodTranslation {
+final class CustomMethodTranslation {
   private PatchyUnknownVersionPolicy versionPolicy;
   private List<VersionMethodReference> versionMethodReferences = new ArrayList<>();
   private VersionMethodReference compiledTranslation;

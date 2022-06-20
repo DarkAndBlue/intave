@@ -27,7 +27,10 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.LongPredicate;
+import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -94,7 +97,7 @@ public final class Collision {
           if (collisionChecksRemaining-- <= 0) {
             break exit;
           }
-          BlockShape resolve = stateAccess.shapeAt(x, y, z);
+          BlockShape resolve = stateAccess.collisionShapeAt(x, y, z);
           Material material = stateAccess.typeAt(x, y, z);
           if (CollisionModifiers.isModified(material)) {
             // this should not happen too often
@@ -150,7 +153,7 @@ public final class Collision {
           if (blocksRemaining-- <= 0) {
             break exit;
           }
-          BlockShape resolve = stateAccess.shapeAt(x, y, z);
+          BlockShape resolve = stateAccess.collisionShapeAt(x, y, z);
           if (resolve.intersectsWith(playerBox)) {
             accumulator.accept(container, new Position(x, y, z));
             if (--collisionsRemaining <= 0) {
@@ -188,7 +191,7 @@ public final class Collision {
           Block block = VolatileBlockAccess.blockAccess(world, x, y, z);
           Material type = BlockTypeAccess.typeAccess(block, player);
           int variant = BlockVariantAccess.variantAccess(block);
-          BlockShape shape = SHAPE_RESOLVER.resolve(world, player, type, variant, x, y, z);
+          BlockShape shape = SHAPE_RESOLVER.collisionShapeOf(world, player, type, variant, x, y, z);
           if (shape.intersectsWith(playerBox)) {
             return false;
           }
@@ -244,7 +247,7 @@ public final class Collision {
                 if (blockRemaining-- <= 0) {
                   break exit;
                 }
-                BlockShape blockShape = stateAccess.shapeAt(x, y, z);
+                BlockShape blockShape = stateAccess.collisionShapeAt(x, y, z);
 //                List<BoundingBox> resolve = blockShape.boundingBoxes();
                 Material material = stateAccess.typeAt(x, y, z);
                 if (CollisionModifiers.isModified(material)) {
@@ -319,7 +322,7 @@ public final class Collision {
   }
 
   public static boolean playerInImaginaryBlock(User user, World world, int posX, int posY, int posZ, Material type, int data) {
-    BlockShape boundingBoxes = SHAPE_RESOLVER.resolve(world, user.player(), type, data, posX, posY, posZ);
+    BlockShape boundingBoxes = SHAPE_RESOLVER.collisionShapeOf(world, user.player(), type, data, posX, posY, posZ);
     if (boundingBoxes == null || boundingBoxes.isEmpty()) {
       return false;
     }

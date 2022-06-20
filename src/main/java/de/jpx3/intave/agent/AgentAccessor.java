@@ -4,8 +4,9 @@ package de.jpx3.intave.agent;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.lib.asm.*;
 
-import java.lang.instrument.*;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.instrument.ClassDefinition;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
 import java.security.ProtectionDomain;
 

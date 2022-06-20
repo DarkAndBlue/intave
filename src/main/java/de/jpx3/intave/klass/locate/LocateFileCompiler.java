@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class LocateFileCompiler implements CompilerStreamFunctionProvider<Locations> {
+final class LocateFileCompiler implements CompilerStreamFunctionProvider<Locations> {
   public Locations apply(List<String> lines) {
     List<ClassLocation> classLocations = new ArrayList<>();
     List<FieldLocation> fieldLocations = new ArrayList<>();

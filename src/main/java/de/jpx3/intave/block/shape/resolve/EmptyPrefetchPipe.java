@@ -17,12 +17,17 @@ final class EmptyPrefetchPipe implements ShapeResolverPipeline {
   }
 
   @Override
-  public BlockShape resolve(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
+  public BlockShape collisionShapeOf(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
     if (isEmpty(type)) {
       ShapeAccessFlowStudy.incremDynamic();
       return BlockShapes.emptyShape();
     }
-    return forward.resolve(world, player, type, blockState, posX, posY, posZ);
+    return forward.collisionShapeOf(world, player, type, blockState, posX, posY, posZ);
+  }
+
+  @Override
+  public BlockShape outlineShapeOf(World world, Player player, Material type, int blockState, int posX, int posY, int posZ) {
+    return forward.outlineShapeOf(world, player, type, blockState, posX, posY, posZ);
   }
 
   @Override

@@ -3,38 +3,40 @@ package de.jpx3.intave.block.state;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import de.jpx3.intave.shade.Position;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
-final class FastBlockStateExpiryCache {
+final class FastBlockStateExpiryCache<K> {
   private final Map<Position, BlockState> located = Maps.newConcurrentMap();
-  private final Map<Long, BlockState> indexed = Maps.newConcurrentMap();
+  private final Map<K, BlockState> indexed = Maps.newConcurrentMap();
   private final Set<Position> locations = Sets.newConcurrentHashSet();
 
   private final Player player;
+  private final Function<Position, K> keyer;
 
-  FastBlockStateExpiryCache(Player player) {
+  FastBlockStateExpiryCache(Player player, Function<Position, K> keyer) {
     this.player = player;
+    this.keyer = keyer;
   }
 
-  public BlockState byKey(long index) {
+  public BlockState byKey(K index) {
     return indexed.get(index);
   }
 
   public void insert(Position position, BlockState blockState) {
     located.put(position, blockState);
     locations.add(position);
-    indexed.put(bigKey(position), blockState);
+    indexed.put(keyer.apply(position), blockState);
   }
 
-  public void remove(long key) {
+  public void remove(K key) {
     indexed.remove(key);
   }
 
-  public boolean replaced(long key) {
+  public boolean replaced(K key) {
     return indexed.containsKey(key);
   }
 
@@ -45,7 +47,7 @@ final class FastBlockStateExpiryCache {
 //        player.sendMessage("Refreshed " + location + " " + (blockState == null ? "null" : blockState.age()));
         locations.remove(location);
         located.remove(location);
-        indexed.remove(bigKey(location));
+        indexed.remove(keyer.apply(location));
       }
     }
   }
@@ -54,7 +56,7 @@ final class FastBlockStateExpiryCache {
     for (Position location : located.keySet()) {
       if (location.getX() >= chunkXMinPos && location.getX() < chunkXMaxPos &&
         location.getZ() >= chunkZMinPos && location.getZ() < chunkZMaxPos) {
-        long key = bigKey(location);
+        K key = keyer.apply(location);
         located.remove(location);
         locations.remove(location);
         indexed.remove(key);
@@ -72,23 +74,11 @@ final class FastBlockStateExpiryCache {
     return located;
   }
 
-  public Map<Long, BlockState> indexed() {
+  public Map<K, BlockState> indexed() {
     return indexed;
   }
 
   public Set<Position> locations() {
     return locations;
-  }
-
-  private long bigKey(Position position) {
-    return bigKey(position.getBlockX(), position.getBlockY(), position.getBlockZ());
-  }
-
-  private long bigKey(Location location) {
-    return bigKey(location.getBlockX(), location.getBlockY(), location.getBlockZ());
-  }
-
-  private long bigKey(int posX, int posY, int posZ) {
-    return (posX & 0x3fffffL) << 42 | (posY & 0xfffffL) | (posZ & 0x3fffffL) << 20;
   }
 }
