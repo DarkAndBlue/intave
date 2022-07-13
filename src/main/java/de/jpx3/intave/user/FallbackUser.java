@@ -70,6 +70,11 @@ public final class FallbackUser implements User {
   }
 
   @Override
+  public UUID id() {
+    return UUID.randomUUID();
+  }
+
+  @Override
   public Object playerHandle() {
     throw UnsupportedFallbackOperationException.INSTANCE;//new UnsupportedFallbackOperationException("Can't locate a player here");
   }

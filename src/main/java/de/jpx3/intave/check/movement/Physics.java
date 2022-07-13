@@ -26,6 +26,8 @@ import de.jpx3.intave.check.CheckConfiguration.CheckSettings;
 import de.jpx3.intave.check.CheckStatistics;
 import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.movement.physics.*;
+import de.jpx3.intave.diagnostic.message.DebugBroadcast;
+import de.jpx3.intave.diagnostic.message.MessageSeverity;
 import de.jpx3.intave.diagnostic.timings.Timings;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.math.Hypot;
@@ -56,6 +58,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static de.jpx3.intave.diagnostic.message.MessageCategory.SIMFLT;
+import static de.jpx3.intave.diagnostic.message.MessageCategory.SIMFUL;
 import static de.jpx3.intave.math.MathHelper.formatDouble;
 import static de.jpx3.intave.math.MathHelper.formatPosition;
 import static de.jpx3.intave.share.ClientMathHelper.floor;
@@ -594,7 +598,11 @@ public final class Physics extends Check {
 //    recorder.recordMovement();
     recorder.recordBlockMoved(Hypot.fast(movementData.motionX(), movementData.motionZ()));
 
-    if (IntaveControl.DEBUG_MOVEMENT) {
+    boolean faultDebugRequested = DebugBroadcast.anyoneListeningTo(SIMFLT, player);
+    boolean fullDebugRequested = DebugBroadcast.anyoneListeningTo(SIMFUL, player);
+    boolean anyDebugRequested = !IntaveControl.DEBUG_MOVEMENT && (faultDebugRequested || fullDebugRequested);
+
+    if (IntaveControl.DEBUG_MOVEMENT || anyDebugRequested) {
       ChatColor chatColor = violationLevelIncrease == 0 ? ChatColor.GRAY : ChatColor.YELLOW;
 //      String poseName = movementData.pose().name();
       String displayPhysicsVL = formatDouble(violationLevelData.physicsVL, 4);
@@ -652,8 +660,20 @@ public final class Physics extends Check {
 //      tags.add("riding:" + movementData.hasRidingEntity());
 
       debug += " " + String.join(" ", tags);
+      if (debug.startsWith(" ")) {
+        debug = debug.substring(1);
+      }
       String finalDebug = debug;
-      player.sendMessage(finalDebug);
+      if (!anyDebugRequested) {
+        player.sendMessage(finalDebug);
+      } else {
+        finalDebug = ChatColor.stripColor(finalDebug);
+        if (faultDebugRequested && violationLevelIncrease > 0) {
+          DebugBroadcast.broadcast(player, SIMFLT, MessageSeverity.MEDIUM, finalDebug, finalDebug);
+        } else if (fullDebugRequested) {
+          DebugBroadcast.broadcast(player, SIMFUL, MessageSeverity.LOW, finalDebug, finalDebug);
+        }
+      }
 //      Synchronizer.synchronize(() -> player.sendMessage(finalDebug));
     }
   }

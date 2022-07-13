@@ -26,6 +26,7 @@ import de.jpx3.intave.user.storage.Storage;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
 import java.util.function.Predicate;
 
 /**
@@ -39,6 +40,8 @@ import java.util.function.Predicate;
  * @see FallbackUser
  */
 public interface User {
+  UUID id();
+
   /**
    * Retrieve the player's "handle", the NMS-container-object of a player entity
    *

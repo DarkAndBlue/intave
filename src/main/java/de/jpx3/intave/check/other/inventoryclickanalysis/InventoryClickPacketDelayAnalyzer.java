@@ -31,7 +31,7 @@ public final class InventoryClickPacketDelayAnalyzer extends MetaCheckPart<Inven
       String message = ChatColor.RED + "[InvAnalysis] " + player.getName() + " is clicking suspiciously on items: "
         + difference + " pd, " + averageMovementPacketTimestamp + " md";
 //      Synchronizer.synchronize(() -> processSibylDebug(message));
-      SibylBroadcast.broadcast(message);
+//      SibylBroadcast.broadcast(message);
     }
   }
 

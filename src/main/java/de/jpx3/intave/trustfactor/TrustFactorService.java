@@ -6,6 +6,9 @@ import de.jpx3.intave.access.player.trust.DefaultForwardingPermissionTrustFactor
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.access.player.trust.TrustFactorResolver;
 import de.jpx3.intave.annotate.HighOrderService;
+import de.jpx3.intave.diagnostic.message.DebugBroadcast;
+import de.jpx3.intave.diagnostic.message.MessageCategory;
+import de.jpx3.intave.diagnostic.message.MessageSeverity;
 import de.jpx3.intave.executor.BackgroundExecutor;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriber;
@@ -13,6 +16,7 @@ import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -54,20 +58,30 @@ public final class TrustFactorService implements BukkitEventSubscriber {
     User user = UserRepository.userOf(player);
     user.setTrustFactor(defaultTrustFactor);
     if (IntaveControl.APPLY_GLOBAL_LOW_TRUSTFACTOR) {
-      user.setTrustFactor(TrustFactor.RED);
+      trustfactorApply(player, TrustFactor.RED, "Global low trustfactor setting");
       return;
     }
     if (trustFactorResolver == null) {
       trustFactorResolver = DEFAULT_RESOLVER;
     }
     trustFactorResolver.resolve(
-      player,
-      trustFactor -> {
-        String trustFactorOutput = trustFactor.chatColor() + "" + trustFactor + IntavePlugin.defaultColor();
-        IntavePlugin.singletonInstance().logger().info("Assigned trust factor " + trustFactorOutput + " to " + (user.hasPlayer() ? user.player().getName() : "null"));
-        user.setTrustFactor(trustFactor);
-      }
+      player, (trustFactor) -> trustfactorApply(player, trustFactor, trustFactorResolver.getClass().getSimpleName())
     );
+  }
+
+  private void trustfactorApply(Player player, TrustFactor trustFactor, String source) {
+    String playerName = player.getName();
+    String message = source + " assigned trust factor " + trustFactor.coloredBaseName() + IntavePlugin.defaultColor() + " to " + ChatColor.RED + playerName;
+    String shortMessage = playerName + " now " + trustFactor.coloredBaseName();
+    DebugBroadcast.broadcast(
+      player,
+      MessageCategory.TRUSTSET,
+      MessageSeverity.LOW,
+      message,
+      shortMessage
+    );
+    User user = UserRepository.userOf(player);
+    user.setTrustFactor(trustFactor);
   }
 
   public int trustFactorSetting(String key, Player player) {

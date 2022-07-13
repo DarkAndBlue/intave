@@ -12,6 +12,7 @@ import de.jpx3.intave.check.combat.heuristics.Anomaly;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
 import de.jpx3.intave.check.combat.heuristics.MiningStrategy;
 import de.jpx3.intave.command.CommandStage;
+import de.jpx3.intave.command.Forward;
 import de.jpx3.intave.command.Optional;
 import de.jpx3.intave.command.SubCommand;
 import de.jpx3.intave.diagnostic.*;
@@ -131,6 +132,17 @@ public final class RootStage extends CommandStage {
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
       });
     }
+  }
+
+  @SubCommand(
+    selectors = "debug",
+    usage = "",
+    description = "Output diagnostic messages",
+    permission = "sibyl"
+  )
+  @Forward(target = DebugStage.class)
+  public void debugStage() {
+
   }
 
   @SubCommand(

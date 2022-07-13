@@ -11,8 +11,10 @@ import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.check.CheckStatistics;
 import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.MetaCheck;
-import de.jpx3.intave.connect.sibyl.SibylBroadcast;
 import de.jpx3.intave.diagnostic.LatencyStudy;
+import de.jpx3.intave.diagnostic.message.DebugBroadcast;
+import de.jpx3.intave.diagnostic.message.MessageCategory;
+import de.jpx3.intave.diagnostic.message.MessageSeverity;
 import de.jpx3.intave.math.Hypot;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.Modules;
@@ -28,7 +30,6 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.*;
 import de.jpx3.intave.world.raytrace.Raytrace;
 import de.jpx3.intave.world.raytrace.Raytracing;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -158,7 +159,10 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         boolean blocked = !user.trustFactor().atLeast(TrustFactor.ORANGE);
 
         if (pendingOverAverage) {
-          SibylBroadcast.broadcast(ChatColor.RED + "[R] " + player.getName() + " attack latency (" + (blocked ? "blocked, " : "") + pendingFeedbackPackets + "/" + historyBasedTransactionLimit + "p with " + transactionPingAverage + "ms tra-ping, " + entity.immediateDistanceToClientPosition() + " dist)");
+          String message = player.getName() + " attack latency (" + (blocked ? "blocked, " : "") + pendingFeedbackPackets + "/" + historyBasedTransactionLimit + "p with " + transactionPingAverage + "ms tra-ping, " + entity.immediateDistanceToClientPosition() + " dist)";
+          String shortMessage = player.getName() + " attacked " + pendingFeedbackPackets + " > " + historyBasedTransactionLimit + " @ " + transactionPingAverage + "ms";
+          MessageSeverity severity = Math.abs(pendingFeedbackPackets - historyBasedTransactionLimit) < 4 ? MessageSeverity.LOW : MessageSeverity.MEDIUM;
+          DebugBroadcast.broadcast(player, MessageCategory.ATLALI, severity, message, shortMessage);
           if (blocked) {
             entityHasNotTimedOut = false;
           }
@@ -200,11 +204,12 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
           cancelHit = true;
         }
       } else {
+        String attackedNullEntityMessage = player.getName() + " attacked a null entity";
         if (IntaveControl.DISABLE_LICENSE_CHECK) {
-          IntaveLogger.logger().error(player.getName() + " attacked a null entity");
+          IntaveLogger.logger().error(attackedNullEntityMessage);
         }
 
-        SibylBroadcast.broadcast(ChatColor.RED + "[R] " + player.getName() + " attacked a null entity");
+        DebugBroadcast.broadcast(player, MessageCategory.ATRAFLT, MessageSeverity.MEDIUM, attackedNullEntityMessage, attackedNullEntityMessage);
 //        Synchronizer.synchronize(new Runnable() {
 //          @Native
 //          @Override
@@ -324,7 +329,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         message = "attacked " + resolveArticle(entityName) + " " + entityName.toLowerCase() + " out of sight";
         details = "";
         thresholdKey = "applicable-thresholds.hitbox";
-        special = ChatColor.RED + "[R] " + player.getName() + " missed hit on " + entityName.toLowerCase();
+        special = player.getName() + " missed hit on " + entityName.toLowerCase();
         reach = -1;
         break;
       }
@@ -333,7 +338,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         message = "attacked " + resolveArticle(entityName) + " " + entityName.toLowerCase() + " from too far away";
         details = displayReach + " blocks";
         thresholdKey = "applicable-thresholds.reach";
-        special = ChatColor.RED + "[R] " + player.getName() + " attacked " + entityName.toLowerCase() + " from " + displayReach;
+        special = player.getName() + " attacked " + entityName.toLowerCase() + " from " + displayReach;
         reach = raytrace.reach();
         break;
       }
@@ -355,7 +360,8 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
 //
 //      }
 //    });
-    SibylBroadcast.broadcast(special);
+//    SibylBroadcast.broadcast(special);
+    DebugBroadcast.broadcast(player, MessageCategory.ATRAFLT, MessageSeverity.HIGH, special, special);
 
 //    player.sendMessage(attackRaytraceResult + " " + raytrace.reach);
 

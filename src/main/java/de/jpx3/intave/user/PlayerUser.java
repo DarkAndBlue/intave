@@ -48,6 +48,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -131,6 +132,11 @@ final class PlayerUser implements User {
       string += " (behind)";
     }
     IntaveLogger.logger().printLine(string);
+  }
+
+  @Override
+  public UUID id() {
+    return player().getUniqueId();
   }
 
   @Override

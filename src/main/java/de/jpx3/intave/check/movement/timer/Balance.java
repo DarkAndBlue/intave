@@ -100,7 +100,7 @@ public final class Balance extends MetaCheckPart<Timer, Balance.BalanceMeta> {
       timerData.timerBalance += timerData.timerBalance < -400 ? 45 : 15;
     }
     statisticApply(user, CheckStatistics::increaseTotal);
-    int overflowLimit = highToleranceMode ? 750 : 100;
+    int overflowLimit = highToleranceMode ? 750 : 250;
 
     if (timerData.timerBalance > overflowLimit && !user.meta().movement().isInVehicle()) {
       String balanceAsString = MathHelper.formatDouble(timerData.timerBalance / 50, 2);

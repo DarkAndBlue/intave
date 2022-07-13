@@ -4,11 +4,12 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.check.movement.Timer;
-import de.jpx3.intave.connect.sibyl.SibylBroadcast;
 import de.jpx3.intave.diagnostic.LatencyStudy;
+import de.jpx3.intave.diagnostic.message.DebugBroadcast;
+import de.jpx3.intave.diagnostic.message.MessageCategory;
+import de.jpx3.intave.diagnostic.message.MessageSeverity;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
@@ -150,11 +151,14 @@ public final class PacketDelayer extends Module {
       }
       if (connection.lastBufferNotification + 30000 < System.currentTimeMillis()) {
         connection.lastBufferNotification = System.currentTimeMillis();
-        String message = "[AYCN] " + player.getName() + " got " + enqueuedPacketAmount + " packets buffered.";
-        SibylBroadcast.broadcast(message);
-        if (IntaveControl.GOMME_MODE) {
-          System.out.println(message);
-        }
+        String message = player.getName() + " got " + enqueuedPacketAmount + " packets buffered.";
+        String shortMessage = player.getName() + " " + enqueuedPacketAmount + " packets halted";
+        MessageSeverity severity = enqueuedPacketAmount > 1000 ? MessageSeverity.MEDIUM : MessageSeverity.LOW;
+        DebugBroadcast.broadcast(player, MessageCategory.PKBF, severity, message, shortMessage);
+//        SibylBroadcast.broadcast(message);
+//        if (IntaveControl.GOMME_MODE) {
+//          System.out.println(message);
+//        }
       }
       connection.lastBufferEnqueue = System.currentTimeMillis();
     } else if (!delayedPackets.isEmpty()) {
@@ -176,11 +180,11 @@ public final class PacketDelayer extends Module {
       event.setCancelled(true);
       if (connection.lastDelayNotification + 30000 < System.currentTimeMillis()) {
         connection.lastDelayNotification = System.currentTimeMillis();
-        String message = "[AYCN] " + player.getName() + " is being delayed by " + requestedDelay + "ms.";
-        SibylBroadcast.broadcast(message);
-        if (IntaveControl.GOMME_MODE) {
-          System.out.println(message);
-        }
+        String message = player.getName() + " is being delayed by " + requestedDelay + "ms.";
+//        SibylBroadcast.broadcast(message);
+        String shortMessage = player.getName() + " " + requestedDelay + "ms delayed";
+        MessageSeverity severity = requestedDelay > 50 ? MessageSeverity.MEDIUM : MessageSeverity.LOW;
+        DebugBroadcast.broadcast(player, MessageCategory.PKDL, severity, message, shortMessage);
       }
     } else {
       connection.delayedPackets = 0;
