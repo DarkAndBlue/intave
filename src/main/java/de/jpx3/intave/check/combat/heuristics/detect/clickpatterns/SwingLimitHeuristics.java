@@ -26,10 +26,10 @@ public final class SwingLimitHeuristics extends SwingBlueprint<SwingLimitBluepri
         parentCheck().saveAnomaly(user.player(), anomaly);
         //dmc29
         if (meta.vl >= 3) {
-          user.applyAttackNerfer(AttackNerfStrategy.CANCEL, "29");
+//          user.applyAttackNerfer(AttackNerfStrategy.CANCEL, "29");
         }
+//        user.applyAttackNerfer(AttackNerfStrategy.DMG_MEDIUM, "29");
         user.applyAttackNerfer(AttackNerfStrategy.GARBAGE_HITS, "29");
-        user.applyAttackNerfer(AttackNerfStrategy.DMG_MEDIUM, "29");
         user.applyAttackNerfer(AttackNerfStrategy.BLOCKING, "29");
       }
     } else {
