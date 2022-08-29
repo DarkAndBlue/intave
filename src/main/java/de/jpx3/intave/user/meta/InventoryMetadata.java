@@ -59,7 +59,7 @@ public final class InventoryMetadata {
 
   @Nullable
   public ItemStack heldItem() {
-    return player == null ? null : player.getInventory().getItem(handSlot);//heldItem;
+    return player == null ? null : player.getInventory().getItem(handSlot); // heldItem;
   }
 
   @Nullable
@@ -94,7 +94,9 @@ public final class InventoryMetadata {
     User user = UserRepository.userOf(player);
     MovementMetadata movementData = user.meta().movement();
     ItemStack heldItem = heldItem();
-    if (heldItem != null && Enchantments.tridentRiptideEnchanted(heldItem)) {
+    ItemStack offhandItem = offhandItem();
+    if (heldItem != null && Enchantments.tridentRiptideEnchanted(heldItem)
+        || offhandItem != null && Enchantments.tridentRiptideEnchanted(offhandItem)) {
       movementData.pastRiptideSpin = 0;
     }
     this.handActive = false;
