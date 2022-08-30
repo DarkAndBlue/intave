@@ -7,7 +7,6 @@ import de.jpx3.intave.executor.BackgroundExecutor;
 import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.HWIDVerification;
 import de.jpx3.intave.security.LicenseAccess;
-import org.apache.commons.io.output.CountingOutputStream;
 import org.bukkit.Bukkit;
 
 import javax.crypto.Cipher;
@@ -221,8 +220,7 @@ public final class ScheduledUploadService {
       connection.setRequestProperty("Hardware", HWIDVerification.publicHardwareIdentifier());
       connection.setRequestProperty("User-Agent", "Intave/" + IntavePlugin.version());
       OutputStream outputStream = connection.getOutputStream();
-      CountingOutputStream filterOutputStream = new CountingOutputStream(outputStream);
-      try (ZipOutputStream zipOut = new ZipOutputStream(filterOutputStream)) {
+      try (ZipOutputStream zipOut = new ZipOutputStream(outputStream)) {
         File[] files = workingFolder.listFiles();
         if (files != null) {
           for (File file : files) {
@@ -240,7 +238,6 @@ public final class ScheduledUploadService {
           }
         }
       }
-      long bytes = filterOutputStream.getByteCount();
       InputStream inputStream = connection.getInputStream();
       StringBuilder response = new StringBuilder();
       Scanner scanner = new Scanner(inputStream);
