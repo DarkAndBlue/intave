@@ -6,6 +6,7 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public final class Interaction {
   private final PacketContainer thePacket;
@@ -15,6 +16,7 @@ public final class Interaction {
   private final int targetDirection;
   private final InteractionType type;
   private final Material itemTypeInHand;
+  private final ItemStack itemInHand;
   private final EnumWrappers.Hand hand;
   private final EnumWrappers.PlayerDigType digType;
   private boolean entered = false;
@@ -24,8 +26,8 @@ public final class Interaction {
     World world, Player player,
     BlockPosition targetBlock, int targetDirection,
     InteractionType type,
-    Material itemTypeInHand, EnumWrappers.Hand hand,
-    EnumWrappers.PlayerDigType digType
+    Material itemTypeInHand, ItemStack itemInHand,
+    EnumWrappers.Hand hand, EnumWrappers.PlayerDigType digType
   ) {
     this.thePacket = thePacket;
     this.world = world;
@@ -34,6 +36,7 @@ public final class Interaction {
     this.targetDirection = targetDirection;
     this.type = type;
     this.itemTypeInHand = itemTypeInHand;
+    this.itemInHand = itemInHand;
     this.hand = hand;
     this.digType = digType;
   }
@@ -56,6 +59,10 @@ public final class Interaction {
 
   public Material itemTypeInHand() {
     return itemTypeInHand;
+  }
+
+  public ItemStack itemInHand() {
+    return itemInHand;
   }
 
   public EnumWrappers.Hand hand() {

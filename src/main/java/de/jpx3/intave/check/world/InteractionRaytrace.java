@@ -114,11 +114,20 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
         && !clickableInteraction
         && !abilityMetadata.inGameMode(GameMode.ADVENTURE);
 
-      Interaction interaction = new Interaction(
-        packet.deepClone(), player.getWorld(), player, blockPosition, enumDirection,
-        interactionIsPlacement ? InteractionType.PLACE : InteractionType.INTERACT,
-        interactedBlockType, handSlot, null
-      );
+      Interaction interaction =
+          new Interaction(
+              packet.deepClone(),
+              player.getWorld(),
+              player,
+              blockPosition,
+              enumDirection,
+              interactionIsPlacement ? InteractionType.PLACE : InteractionType.INTERACT,
+              interactedBlockType,
+              handSlot == EnumWrappers.Hand.MAIN_HAND
+                  ? heldItem
+                  : user.meta().inventory().offhandItem(),
+              handSlot,
+              null);
 
       boolean mustPostValidate = interactionMeta.remainingBlockStart > 0;
       if (!mustPostValidate && preprocessInteraction(interaction)) {
@@ -128,7 +137,12 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
         }
       } else {
         interactionMeta.interactionList.add(interaction);
-        event.setCancelled(true);
+        // For items which require longer consume time, the cancellation should be done after double checking
+        boolean usable = ItemProperties.canItemBeUsed(player, heldItem)
+               && interaction.itemTypeInHand() != Material.SPLASH_POTION;
+        if (!usable) {
+          event.setCancelled(true);
+        }
       }
     } finally {
       reader.release();
@@ -195,7 +209,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     Interaction interaction = new Interaction(
       packet.deepClone(), player.getWorld(), player, blockPosition, enumDirection,
       breakBlock ? InteractionType.BREAK : InteractionType.INTERACT,
-      inventoryData.heldItemType(), EnumWrappers.Hand.MAIN_HAND, playerDigType
+      inventoryData.heldItemType(), heldItemStack, EnumWrappers.Hand.MAIN_HAND, playerDigType
     );
 
     boolean mustPostValidate = interactionMeta.remainingBlockStart > 0;
@@ -301,6 +315,8 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     Player player = interaction.player();
     User user = userOf(player);
     InteractionMeta interactionMeta = metaOf(player);
+    boolean usable = ItemProperties.canItemBeUsed(player, interaction.itemInHand())
+           && interaction.itemTypeInHand() != Material.SPLASH_POTION;
 
     if (interaction.digType() == START_DESTROY_BLOCK) {
       interactionMeta.remainingBlockStart--;
@@ -361,8 +377,14 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       boolean isAbortDestroyBlock = interaction.digType() == ABORT_DESTROY_BLOCK;
       flag = enabled() && !isAbortDestroyBlock && performFlag(interaction, raycastResult, targetLocation, raycastLocation, hitMiss, atLeastLookingAtBlock);
       mustCancelPacket = false;
+      // As the interaction was not canceled for consumables, we have to do it now as the raytrace failed
+      if (usable && interaction.type() == InteractionType.INTERACT) {
+        user.meta().inventory().releaseItemNextTick();
+      }
     }
-    forwardInteractionToServer(interaction, raycastResult, targetLocation, raycastLocation, hitMiss, flag, mustCancelPacket);
+    if (!usable || interaction.type() != InteractionType.INTERACT) {
+      forwardInteractionToServer(interaction, raycastResult, targetLocation, raycastLocation, hitMiss, flag, mustCancelPacket);
+    }
   }
 
   private void forwardInteractionToServer(
