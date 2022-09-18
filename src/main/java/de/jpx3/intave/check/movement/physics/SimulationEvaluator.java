@@ -71,9 +71,9 @@ public final class SimulationEvaluator {
     }
 
     // Firework
-    if (movement.fireworkRocketsTicks < 10) {
+    if (movement.fireworkRocketsTicks < 10 * movement.fireworkRocketsPower) {
       vecticalLegitimateDeviation = Math.max(vecticalLegitimateDeviation, 1);
-    } else if (movement.fireworkRocketsTicks < 30) {
+    } else if (movement.fireworkRocketsTicks < 30 * movement.fireworkRocketsPower) {
       vecticalLegitimateDeviation = Math.max(vecticalLegitimateDeviation, 0.5);
     }
 
@@ -282,7 +282,7 @@ public final class SimulationEvaluator {
     }
 
     // Firework
-    if (movement.fireworkRocketsTicks < 30) {
+    if (movement.fireworkRocketsTicks < 30 * movement.fireworkRocketsPower) {
       // srsly who cares
       horizontalLegitimateDeviation = Math.max(horizontalLegitimateDeviation, 3);
     }

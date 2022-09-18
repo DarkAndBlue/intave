@@ -32,17 +32,19 @@ import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.Vector;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.OptionalInt;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -700,8 +702,11 @@ public final class EntityTracker extends Module {
       }
       int entityId = (int) value;
       MovementMetadata movement = user.meta().movement();
+      InventoryMetadata inventory = user.meta().inventory();
       if (movement.pose() == Pose.FALL_FLYING && entityId == player.getEntityId()) {
+        int power = calculateFireworkPower(inventory);
         movement.fireworkRocketsTicks = 0;
+        movement.fireworkRocketsPower = power;
       }
       return true;
     }
@@ -719,12 +724,36 @@ public final class EntityTracker extends Module {
       }
       int entityId = optionalId.getAsInt();
       MovementMetadata movement = user.meta().movement();
+      InventoryMetadata inventory = user.meta().inventory();
       if ((movement.pose() == Pose.FALL_FLYING || movement.elytraFlying) && entityId == player.getEntityId()) {
+        int power = calculateFireworkPower(inventory);
         movement.fireworkRocketsTicks = 0;
+        movement.fireworkRocketsPower = power;
       }
       return true;
     }
     return false;
+  }
+
+  private static final String FIREWORK_IDENTIFIER = "FIREWORK";
+
+  private int calculateFireworkPower(InventoryMetadata inventory) {
+    ItemStack firework = null;
+    // Get the players firework item, can either be offhand or main hand
+    if (inventory.heldItemType().name().contains(FIREWORK_IDENTIFIER)) {
+      firework = inventory.heldItem();
+    } else if (inventory.offhandItemType().name().contains(FIREWORK_IDENTIFIER)) {
+      firework = inventory.offhandItem();
+    }
+    // Get the power of the rocket
+    if (firework != null) {
+      ItemMeta itemMeta = firework.getItemMeta();
+      if (itemMeta instanceof FireworkMeta) {
+        FireworkMeta fireworkMeta = (FireworkMeta) itemMeta;
+        return fireworkMeta.getPower();
+      }
+    }
+    return 1;
   }
 
   private void processHealthMetaData(

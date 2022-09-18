@@ -73,7 +73,7 @@ public final class InventoryMetadata {
   @Nullable
   public Material offhandItemType() {
     ItemStack item = offhandItem();
-    return item == null ? null : item.getType();
+    return item == null || item.getAmount() == 0 ? Material.AIR : item.getType();
   }
 
   public int handSlot() {

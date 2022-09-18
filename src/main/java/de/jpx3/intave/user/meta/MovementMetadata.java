@@ -64,6 +64,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public double widthRounded, heightRounded;
   public boolean elytraFlying;
   public int fireworkRocketsTicks = 100;
+  public int fireworkRocketsPower = 1;
   public boolean onGround, lastOnGround, step, onGroundWithRiptide;
   public boolean collidedHorizontally, collidedVertically;
   public float artificialFallDistance;
@@ -142,7 +143,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public float boatGlide, momentum;
   public double waterLevel;
   public BoatSimulator.Status boatStatus = BoatSimulator.Status.ON_LAND,
-    previousBoatStatus = BoatSimulator.Status.ON_LAND;
+  previousBoatStatus = BoatSimulator.Status.ON_LAND;
   public boolean isTeleportConfirmationPacket;
   public boolean dropPostTickMotionProcessing;
   public boolean willReceiveSetbackVelocity;
