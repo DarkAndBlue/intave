@@ -75,9 +75,9 @@ class BaseSimulator extends Simulator {
 
     forward = ((int) forward) * 0.98f;
     strafe = ((int) strafe) * 0.98f;
+
     if ((pose == Pose.CROUCHING) || (!clientData.beeUpdate() && environment.isSneaking())) {
-      double sneakingModifier =
-        clamp_double(0.3 + Enchantments.resolveSwiftSpeedModifier(user.player()) * 0.15f, 0.0f, 1.0f);
+      double sneakingModifier = clamp_double(0.3 + Enchantments.resolveSwiftSpeedModifier(user.player()) * 0.15f, 0.0f, 1.0f);
       forward = (float) ((double) forward * sneakingModifier);
       strafe = (float) ((double) strafe * sneakingModifier);
     }
@@ -110,8 +110,7 @@ class BaseSimulator extends Simulator {
         motion.motionY += 0.03999999910593033D;
       } else {
         motion.motionY = environment.jumpMotion();
-        if (
-          /*movementData.sprintingAllowed()*/ sprinting) {
+        if (/*movementData.sprintingAllowed()*/ sprinting) {
           motion.motionX -= yawSine * 0.2F;
           motion.motionZ += yawCosine * 0.2F;
         }
@@ -127,34 +126,27 @@ class BaseSimulator extends Simulator {
       }
     }
     if (inWater) {
-      performSimulationInWaterOfState(
-        user, motion, environment, sprinting, forward, strafe, yawSine, yawCosine);
+      performSimulationInWaterOfState(user, motion, environment, sprinting, forward, strafe, yawSine, yawCosine);
     } else if (inLava) {
       performLavaSimulationOfState(user, motion, forward, strafe, yawSine, yawCosine);
     } else {
-      performDefaultMoveSimulationOfState(
-        user, motion, environment, forward, strafe, yawSine, yawCosine);
+      performDefaultMoveSimulationOfState(user, motion, environment, forward, strafe, yawSine, yawCosine);
     }
-
     if (!inWater && !elytraFlying && !inLava) {
       tryRelinkFlyingPosition(user, motion, environment);
     }
-
-    ColliderResult collisionResult =
-      Colliders.collision(user, motion, environment.inWeb(), positionX, positionY, positionZ);
+    ColliderResult collisionResult = Colliders.collision(user, motion, environment.inWeb(), positionX, positionY, positionZ);
     notePossibleFlyingPacket(user, collisionResult);
     return Simulation.of(user, configuration, collisionResult);
   }
 
   private void performSimulationInWaterOfState(
-    User user,
-    Motion context,
+    User user, Motion context,
     SimulationEnvironment environment,
     boolean sprinting,
-    float moveForward,
-    float moveStrafe,
-    float yawSine,
-    float yawCosine) {
+    float moveForward, float moveStrafe,
+    float yawSine, float yawCosine
+  ) {
     Player player = user.player();
     float friction = 0.02F;
     float depthStrider = Enchantments.resolveDepthStriderModifier(player);
@@ -177,10 +169,10 @@ class BaseSimulator extends Simulator {
     float moveForward,
     float moveStrafe,
     float yawSine,
-    float yawCosine) {
+    float yawCosine
+  ) {
     float friction = 0.02f;
-    performRelativeMoveSimulationOfState(
-      context, friction, yawSine, yawCosine, moveForward, moveStrafe);
+    performRelativeMoveSimulationOfState(context, friction, yawSine, yawCosine, moveForward, moveStrafe);
   }
 
   private void performDefaultMoveSimulationOfState(
@@ -191,8 +183,7 @@ class BaseSimulator extends Simulator {
     float moveStrafe,
     float yawSine,
     float yawCosine) {
-    performRelativeMoveSimulationOfState(
-      context, environment.friction(), yawSine, yawCosine, moveForward, moveStrafe);
+    performRelativeMoveSimulationOfState(context, environment.friction(), yawSine, yawCosine, moveForward, moveStrafe);
     if (MovementCharacteristics.isOnLadder(
       user,
       environment.verifiedPositionX(),
@@ -216,7 +207,8 @@ class BaseSimulator extends Simulator {
     float yawSine,
     float yawCosine,
     float moveForward,
-    float moveStrafe) {
+    float moveStrafe
+  ) {
     float f = moveStrafe * moveStrafe + moveForward * moveForward;
     if (f >= 0.0001f) {
       f = (float) Math.sqrt(f);
@@ -239,11 +231,9 @@ class BaseSimulator extends Simulator {
     double positionZ = environment.verifiedPositionZ();
 
     boolean onGround;
-    double slipperiness =
-      environment.lastOnGround()
-        ? MovementCharacteristics.currentSlipperiness(
-        user, player.getWorld(), positionX, positionY, positionZ)
-        : 0.91f;
+    double slipperiness = environment.lastOnGround()
+      ? MovementCharacteristics.currentSlipperiness(user, player.getWorld(), positionX, positionY, positionZ)
+      : 0.91f;
     double resetMotion = environment.resetMotion();
     double jumpUpwardsMotion = environment.jumpMotion();
 
@@ -277,7 +267,8 @@ class BaseSimulator extends Simulator {
         break;
       } else if (jump
         && flyingPacket(diffX * 0.05, 0.0, diffZ * 0.05)
-        && !movementData.denyJump()) {
+        && !movementData.denyJump()
+      ) {
         context.motionY = jumpUpwardsMotion;
         movementData.artificialFallDistance = 0f;
         movementData.physicsPacketRelinkFlyVL = 0;
@@ -360,7 +351,7 @@ class BaseSimulator extends Simulator {
     return distance <= FLYING_DISTANCE;
   }
 
-  private final static Material POWDER_SNOW = MaterialSearch.findBy(material -> material.name().equals("POWDER_SNOW"));
+  private static final Material POWDER_SNOW = MaterialSearch.materialThatIsNamed("POWDER_SNOW");
 
   @Override
   public void prepareNextTick(
@@ -596,7 +587,7 @@ class BaseSimulator extends Simulator {
     if (f3 > 0.0F) {
       f1 += (0.54600006F - f1) * f3 / 3.0F;
     }
-    if (Effects.isPotionDolphinActive(player)) {
+    if (Effects.dolphinEffectActive(player)) {
       f1 = 0.96F;
     }
     motionVector.motionX *= f1;
@@ -648,7 +639,7 @@ class BaseSimulator extends Simulator {
 
   private void simulateNormalAfter(User user, Motion context, double gravity, double slipperiness) {
     Player player = user.player();
-    if (Effects.isPotionLevitationActive(player)) {
+    if (Effects.levitationEffectActive(player)) {
       int levitationAmplifier = Effects.effectAmplifier(player, Effects.EFFECT_LEVITATION);
       context.motionY += (0.05D * (double) (levitationAmplifier + 1) - context.motionY) * 0.2D;
       user.meta().movement().artificialFallDistance = 0f;

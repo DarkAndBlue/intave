@@ -21,7 +21,7 @@ public final class IntaveDomains {
     serviceDomains.removeIf(String::isEmpty);
   }
 
-  public static String firstBaseDomain() {
+  public static String primaryBaseDomain() {
     return baseDomains.isEmpty() ? "intave.de" : baseDomains.get(0);
   }
 

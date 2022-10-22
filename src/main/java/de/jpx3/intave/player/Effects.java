@@ -23,7 +23,7 @@ public final class Effects {
     return 0;
   }
 
-  public static boolean isPotionLevitationActive(Player player) {
+  public static boolean levitationEffectActive(Player player) {
     User user = UserRepository.userOf(player);
     ProtocolMetadata clientData = user.meta().protocol();
     if (EFFECT_LEVITATION == null || clientData.protocolVersion() < 107) {
@@ -32,7 +32,7 @@ public final class Effects {
     return isPotionActive(player, EFFECT_LEVITATION);
   }
 
-  public static boolean isPotionDolphinActive(Player player) {
+  public static boolean dolphinEffectActive(Player player) {
     User user = UserRepository.userOf(player);
     ProtocolMetadata clientData = user.meta().protocol();
     if (EFFECT_DOLPHIN == null || clientData.protocolVersion() < VER_1_13) {
@@ -41,7 +41,7 @@ public final class Effects {
     return isPotionActive(player, EFFECT_DOLPHIN);
   }
 
-  public static boolean isPotionSlowFallingActive(Player player) {
+  public static boolean slowFallingEffectActive(Player player) {
     User user = UserRepository.userOf(player);
     ProtocolMetadata clientData = user.meta().protocol();
     if (EFFECT_SLOW_FALLING == null || clientData.protocolVersion() < 393) {

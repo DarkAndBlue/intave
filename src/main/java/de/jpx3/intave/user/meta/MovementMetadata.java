@@ -52,7 +52,7 @@ import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_15;
 @Relocate
 public final class MovementMetadata implements SimulationEnvironment {
   public static final WrappedAttributeModifier SPRINTING_MODIFIER = WrappedAttributeModifier.newBuilder(UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D")).amount(0.3F).operation(ADD_PERCENTAGE).name("Sprint Boost").build();
-  private static final boolean ELYTRA_ENABLED = ProtocolLibraryAdapter.serverVersion().isAtLeast(MinecraftVersions.VER1_9_0);
+  private static final boolean ELYTRA_ENABLED = MinecraftVersions.VER1_9_0.atOrAbove();
   private final Player player;
   private final User user;
   // superposition
@@ -296,7 +296,7 @@ public final class MovementMetadata implements SimulationEnvironment {
       motionY = positionY - verifiedPositionY;
       motionZ = positionZ - verifiedPositionZ;
       boolean falling = motionY() <= 0.0D;
-      if (falling && Effects.isPotionSlowFallingActive(player)) {
+      if (falling && Effects.slowFallingEffectActive(player)) {
         artificialFallDistance = 0f;
         gravity = 0.01D;
       } else {
@@ -397,7 +397,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   }
 
   private void updateElytra() {
-    if (elytraFlying && !this.onGround /*&& !this.inWater*/ && !Effects.isPotionLevitationActive(player)) {
+    if (elytraFlying && !this.onGround /*&& !this.inWater*/ && !Effects.levitationEffectActive(player)) {
       elytraFlying = hasElytraEquipped();
     } else if (elytraFlying) {
 //      player.sendMessage(ChatColor.RED + "Deactivated elytra flying");

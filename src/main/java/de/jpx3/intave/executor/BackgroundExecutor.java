@@ -40,8 +40,7 @@ public final class BackgroundExecutor {
     if (executorService == null || executorService.isShutdown() || executorService.isTerminated()) {
       return;
     }
-    runnable = wrapTask(runnable);
-    executorService.execute(runnable);
+    executorService.execute(wrapTask(runnable));
   }
 
   private static Runnable wrapTask(Runnable runnable) {

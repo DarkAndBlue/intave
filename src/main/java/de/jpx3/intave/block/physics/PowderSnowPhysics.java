@@ -26,11 +26,10 @@ final class PowderSnowPhysics implements BlockPhysic {
   public Motion entityCollidedWithBlock(User user, Location location, Location from, double motionX, double motionY, double motionZ) {
     MovementMetadata movementData = user.meta().movement();
     Material block = VolatileBlockAccess.typeAccess(
-            user,
-            user.player().getWorld(),
-            movementData.positionX,
-            movementData.positionY,
-            movementData.positionZ
+      user, user.player().getWorld(),
+      movementData.positionX,
+      movementData.positionY,
+      movementData.positionZ
     );
     if (materials.contains(block)) {
       movementData.setMotionMultiplier(new Vector(0.9f, 1.5f, 0.9f));

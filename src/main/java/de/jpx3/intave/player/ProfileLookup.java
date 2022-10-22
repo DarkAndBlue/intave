@@ -26,9 +26,7 @@ public final class ProfileLookup {
       return;
     }
     BackgroundExecutor.execute(() ->
-      lazyReturn.accept(
-        requestCache.computeIfAbsent(name, ProfileLookup::loadIfFromName)
-      )
+      lazyReturn.accept(requestCache.computeIfAbsent(name, ProfileLookup::loadIfFromName))
     );
   }
 

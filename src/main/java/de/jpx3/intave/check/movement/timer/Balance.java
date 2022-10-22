@@ -107,7 +107,8 @@ public final class Balance extends MetaCheckPart<Timer, Balance.BalanceMeta> {
       statisticApply(user, CheckStatistics::increaseFails);
       Violation violation = Violation.builderFor(Timer.class).forPlayer(player)
         .withMessage("moved too frequently").withDetails(balanceAsString + " ticks ahead")
-        .withVL(System.currentTimeMillis() - timerData.lastTimerFlag < 1000 || violationLevelOf(user) > 16 ? 0.25 : 1).build();
+        .withVL(System.currentTimeMillis() - timerData.lastTimerFlag < 1000 || violationLevelOf(user) > 16 ? 0.25 : 1)
+        .build();
       ViolationContext violationContext = Modules.violationProcessor().processViolation(violation);
       if (violationContext.shouldCounterThreat()) {
         MovementMetadata movementData = user.meta().movement();
@@ -212,5 +213,7 @@ public final class Balance extends MetaCheckPart<Timer, Balance.BalanceMeta> {
     public long lastRespawn;
     public long nextConfirmedBalance;
     public long confirmedBalance;
+    public int balanceUnderflowVL;
+    public boolean currentUnderflow;
   }
 }

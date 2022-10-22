@@ -7,3 +7,10 @@ config-identifier: "file"
 # Enter "online" for the online mapping file
 # Enter a file name - "myserver.ilm" for example - to use a custom mapping file.
 server-mappings: "online"
+
+# Selected server mapping file in ILM format
+# Enter "online" for the online mapping file
+# Enter a file name - "myserver.tfm" for example - to use a custom mapping file.
+trustfactor-mappings: "online"
+
+

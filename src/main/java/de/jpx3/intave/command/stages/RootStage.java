@@ -83,7 +83,7 @@ public final class RootStage extends CommandStage {
           outputColor + "" + largeNumberFormat((long) timing.averageCallDurationInNanos()),
           "ns"
         );
-        if (!fullSpecifier.isEmpty() && !fullSpecifier.equals("ns") && !timing.name().toLowerCase(Locale.ROOT).contains(fullSpecifier)) {
+        if (!fullSpecifier.isEmpty() && !"ns".equals(fullSpecifier) && !timing.name().toLowerCase(Locale.ROOT).contains(fullSpecifier)) {
           message = IntavePlugin.defaultColor() + ChatColor.stripColor(message);
         }
         player.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
@@ -537,7 +537,6 @@ public final class RootStage extends CommandStage {
       player.sendMessage(ChatColor.RED + "Please enable PERFORMANCE_RECORD to perform a type 1 memory trace");
       return;
     }
-
 
     Map<Class<?>, AtomicLong> traces = MemoryTraced.tracedClasses();
     Map<Class<?>, Long> memoryUsage = MemoryTraced.memoryUsage();

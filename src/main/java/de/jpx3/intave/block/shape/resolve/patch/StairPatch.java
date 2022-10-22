@@ -21,42 +21,36 @@ public class StairPatch extends BoundingBoxPatch {
   private static final boolean AQUATIC_UPDATE = MinecraftVersions.VER1_13_0.atOrAbove();
   private static final boolean COLOR_UPDATE = MinecraftVersions.VER1_12_0.atOrAbove();
 
-  private static final BoundingBox AABB_SLAB_TOP =
-    BoundingBox.fromBounds(0.0D, 0.5D, 0.0D, 1.0D, 1.0D, 1.0D);
-  private static final BoundingBox AABB_QTR_TOP_WEST =
-    BoundingBox.fromBounds(0.0D, 0.5D, 0.0D, 0.5D, 1.0D, 1.0D);
-  private static final BoundingBox AABB_QTR_TOP_EAST =
-    BoundingBox.fromBounds(0.5D, 0.5D, 0.0D, 1.0D, 1.0D, 1.0D);
-  private static final BoundingBox AABB_QTR_TOP_NORTH =
-    BoundingBox.fromBounds(0.0D, 0.5D, 0.0D, 1.0D, 1.0D, 0.5D);
-  private static final BoundingBox AABB_QTR_TOP_SOUTH =
-    BoundingBox.fromBounds(0.0D, 0.5D, 0.5D, 1.0D, 1.0D, 1.0D);
-  private static final BoundingBox AABB_OCT_TOP_NW =
-    BoundingBox.fromBounds(0.0D, 0.5D, 0.0D, 0.5D, 1.0D, 0.5D);
+  private static final BoundingBox AABB_SLAB_TOP = BoundingBox.originFrom(0.0D, 0.5D, 0.0D, 1.0D, 1.0D, 1.0D);
+  private static final BoundingBox AABB_QTR_TOP_WEST = BoundingBox.originFrom(0.0D, 0.5D, 0.0D, 0.5D, 1.0D, 1.0D);
+  private static final BoundingBox AABB_QTR_TOP_EAST = BoundingBox.originFrom(0.5D, 0.5D, 0.0D, 1.0D, 1.0D, 1.0D);
+  private static final BoundingBox AABB_QTR_TOP_NORTH = BoundingBox.originFrom(0.0D, 0.5D, 0.0D, 1.0D, 1.0D, 0.5D);
+  private static final BoundingBox AABB_QTR_TOP_SOUTH = BoundingBox.originFrom(0.0D, 0.5D, 0.5D, 1.0D, 1.0D, 1.0D);
+  private static final BoundingBox AABB_OCT_TOP_NW = BoundingBox.originFrom(0.0D, 0.5D, 0.0D, 0.5D, 1.0D, 0.5D);
   private static final BoundingBox AABB_OCT_TOP_NE =
-    BoundingBox.fromBounds(0.5D, 0.5D, 0.0D, 1.0D, 1.0D, 0.5D);
+    BoundingBox.originFrom(0.5D, 0.5D, 0.0D, 1.0D, 1.0D, 0.5D);
   private static final BoundingBox AABB_OCT_TOP_SW =
-    BoundingBox.fromBounds(0.0D, 0.5D, 0.5D, 0.5D, 1.0D, 1.0D);
+    BoundingBox.originFrom(0.0D, 0.5D, 0.5D, 0.5D, 1.0D, 1.0D);
   private static final BoundingBox AABB_OCT_TOP_SE =
-    BoundingBox.fromBounds(0.5D, 0.5D, 0.5D, 1.0D, 1.0D, 1.0D);
+    BoundingBox.originFrom(0.5D, 0.5D, 0.5D, 1.0D, 1.0D, 1.0D);
   private static final BoundingBox AABB_SLAB_BOTTOM =
-    BoundingBox.fromBounds(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
+    BoundingBox.originFrom(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
   private static final BoundingBox AABB_QTR_BOT_WEST =
-    BoundingBox.fromBounds(0.0D, 0.0D, 0.0D, 0.5D, 0.5D, 1.0D);
+    BoundingBox.originFrom(0.0D, 0.0D, 0.0D, 0.5D, 0.5D, 1.0D);
   private static final BoundingBox AABB_QTR_BOT_EAST =
-    BoundingBox.fromBounds(0.5D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
+    BoundingBox.originFrom(0.5D, 0.0D, 0.0D, 1.0D, 0.5D, 1.0D);
   private static final BoundingBox AABB_QTR_BOT_NORTH =
-    BoundingBox.fromBounds(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 0.5D);
+    BoundingBox.originFrom(0.0D, 0.0D, 0.0D, 1.0D, 0.5D, 0.5D);
   private static final BoundingBox AABB_QTR_BOT_SOUTH =
-    BoundingBox.fromBounds(0.0D, 0.0D, 0.5D, 1.0D, 0.5D, 1.0D);
+    BoundingBox.originFrom(0.0D, 0.0D, 0.5D, 1.0D, 0.5D, 1.0D);
   private static final BoundingBox AABB_OCT_BOT_NW =
-    BoundingBox.fromBounds(0.0D, 0.0D, 0.0D, 0.5D, 0.5D, 0.5D);
+    BoundingBox.originFrom(0.0D, 0.0D, 0.0D, 0.5D, 0.5D, 0.5D);
   private static final BoundingBox AABB_OCT_BOT_NE =
-    BoundingBox.fromBounds(0.5D, 0.0D, 0.0D, 1.0D, 0.5D, 0.5D);
+    BoundingBox.originFrom(0.5D, 0.0D, 0.0D, 1.0D, 0.5D, 0.5D);
   private static final BoundingBox AABB_OCT_BOT_SW =
-    BoundingBox.fromBounds(0.0D, 0.0D, 0.5D, 0.5D, 0.5D, 1.0D);
+    BoundingBox.originFrom(0.0D, 0.0D, 0.5D, 0.5D, 0.5D, 1.0D);
   private static final BoundingBox AABB_OCT_BOT_SE =
-    BoundingBox.fromBounds(0.5D, 0.0D, 0.5D, 1.0D, 0.5D, 1.0D);
+    BoundingBox.originFrom(0.5D, 0.0D, 0.5D, 1.0D, 0.5D, 1.0D);
 
   @Override
   protected BlockShape collisionPatch(
@@ -66,27 +60,26 @@ public class StairPatch extends BoundingBoxPatch {
     int posY,
     int posZ,
     Material type,
-    int blockState,
-    BlockShape shape) {
+    int variantIndex,
+    BlockShape shape
+  ) {
     // Only apply on 1.12.X
     if (!COLOR_UPDATE || AQUATIC_UPDATE) {
       return shape;
     }
-    org.bukkit.block.Block bukkitBlock =
-      VolatileBlockAccess.blockAccess(
-        world, new de.jpx3.intave.share.BlockPosition(posX, posY, posZ));
+    org.bukkit.block.Block bukkitBlock = VolatileBlockAccess.blockAccess(world, posX, posY, posZ);
     IBlockData data = (IBlockData) BlockVariantAccess.nativeVariantAccess(bukkitBlock);
     Block block = data.getBlock();
     // Only apply if stairs are really at this position
     if (block instanceof BlockStairs) {
-    World serverWorld = ((CraftWorld) world).getHandle();
-    BlockPosition pos = new BlockPosition(posX, posY, posZ);
+      World serverWorld = ((CraftWorld) world).getHandle();
+      BlockPosition pos = new BlockPosition(posX, posY, posZ);
       BlockStairs stairs = (BlockStairs) block;
-      List<BoundingBox> shapes = calcualteCollisionShapes(serverWorld, stairs.getBlockData(), blockState, pos);
+      List<BoundingBox> shapes = calcualteCollisionShapes(serverWorld, stairs.getBlockData(), variantIndex, pos);
       // Contextualize corrected collision boxes to position
-      List<BoundingBox> contextualizedShapes = new ArrayList<>();
+      List<BlockShape> contextualizedShapes = new ArrayList<>();
       for (BoundingBox boundingBox : shapes) {
-        contextualizedShapes.add(boundingBox.offset(posX, posY, posZ));
+        contextualizedShapes.add(boundingBox.contextualized(posX, posY, posZ));
       }
       return BlockShapes.merge(contextualizedShapes);
     }

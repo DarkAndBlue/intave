@@ -95,7 +95,8 @@ public final class PacketDelayer extends Module {
     long lagTolerance = user.trustFactorSetting("timer.lt");
     boolean transactionTimeout = oldestTransactionPacket > connection.transactionPingAverage() + LatencyStudy.transactionPingAverage() / 2 + lagTolerance;
     boolean riding = movement.isInVehicle();
-    boolean positionTimeout = !riding && lastMovementPacket > connection.transactionPingAverage() + LatencyStudy.transactionPingAverage() / 2 + lagTolerance + positionTimeoutTolerance;
+    long positionBlockTolerance = connection.transactionPingAverage() + LatencyStudy.transactionPingAverage() / 2 + lagTolerance + positionTimeoutTolerance;
+    boolean positionTimeout = !riding && lastMovementPacket > positionBlockTolerance;
 
     boolean idAddressed = packetType == PacketType.Play.Server.ANIMATION ||
       packetType == PacketType.Play.Server.ENTITY_STATUS ||

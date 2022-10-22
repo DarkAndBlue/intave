@@ -353,7 +353,7 @@ public final class SetbackSimulator extends Module {
           motionY = lastMotion.getY() * 0.8f;
           motionY -= 0.02;
         } else {
-          if (Effects.isPotionLevitationActive(player)) {
+          if (Effects.levitationEffectActive(player)) {
             int levitationAmplifier = Effects.effectAmplifier(player, Effects.EFFECT_LEVITATION);
             motionY += (0.05D * (double) (levitationAmplifier + 1) - motionY) * 0.2D;
             user.meta().movement().artificialFallDistance = 0f;

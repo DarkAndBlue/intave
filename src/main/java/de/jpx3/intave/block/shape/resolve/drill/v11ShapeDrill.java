@@ -23,7 +23,7 @@ public final class v11ShapeDrill extends AbstractShapeDrill {
   @PatchyAutoTranslation
   public BlockShape collisionShapeOf(World world, Player player, org.bukkit.Material type, int blockState, int posX, int posY, int posZ) {
     BlockPosition blockposition = new BlockPosition(posX, posY, posZ);
-    IBlockData blockData = Block.getByCombinedId(type.getId() | (blockState & 0xF) << 12);
+    IBlockData blockData = Block.getByCombinedId(type.getId() | (blockState & 0xf) << 12);
     if (blockData == null) {
       return BlockShapes.emptyShape();
     }

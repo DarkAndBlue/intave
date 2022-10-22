@@ -57,12 +57,12 @@ final class ModulePool {
     return (T) moduleClassMappings.get(moduleClass);
   }
 
-  private void forEach(Consumer<Module> moduleConsumer) {
+  private void forEach(Consumer<? super Module> moduleConsumer) {
     moduleClassMappings.values().forEach(moduleConsumer);
   }
 
   private Collection<Module> modulePick(
-    Predicate<Module> predicate
+    Predicate<? super Module> predicate
   ) {
     return moduleClassMappings.values()
       .stream().filter(predicate)

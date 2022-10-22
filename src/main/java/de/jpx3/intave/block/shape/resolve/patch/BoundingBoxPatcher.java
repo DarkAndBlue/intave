@@ -31,7 +31,7 @@ public final class BoundingBoxPatcher {
     add(CarpetPatch.class);
     add(HopperPatch.class);
     add(CobbleStoneWallPatch.class);
-    add(StairPatch.class);
+//    add(StairPatch.class);
 //    add(BlockDoorPatch.class);
   }
 

@@ -312,7 +312,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     anomalies.removeIf(Anomaly::expired);
     anomalies = new ArrayList<>(anomalies);
     if (delay) {
-      // filter non active (delay)
+      // filter non-active (delay)
       anomalies.removeIf(anomaly -> !anomaly.active());
     }
     if (!trust) {

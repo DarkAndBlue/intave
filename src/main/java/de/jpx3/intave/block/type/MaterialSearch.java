@@ -7,6 +7,10 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 public final class MaterialSearch {
+  public static Material materialThatIsNamed(String name) {
+    return findBy(material -> material.name().equals(name));
+  }
+
   public static Material findBy(Predicate<? super Material> predicate) {
     for (Material material : Material.values()) {
       if (predicate.test(material)) {
@@ -14,6 +18,10 @@ public final class MaterialSearch {
       }
     }
     return null;
+  }
+
+  public static Set<Material> materialsThatContain(String search) {
+    return filterBy(material -> material.name().toLowerCase().contains(search.toLowerCase()));
   }
 
   public static Set<Material> filterBy(Predicate<? super Material> predicate) {
@@ -24,9 +32,5 @@ public final class MaterialSearch {
       }
     }
     return materials;
-  }
-
-  public static Set<Material> materialsThatContain(String search) {
-    return filterBy(material -> material.name().toLowerCase().contains(search.toLowerCase()));
   }
 }

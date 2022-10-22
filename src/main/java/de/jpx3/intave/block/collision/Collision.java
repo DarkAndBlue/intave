@@ -57,25 +57,27 @@ public final class Collision {
 
   public static BlockShape collisionShape(Player player, BoundingBox playerBoundingBox) {
     return collectCollisionShapes(
-        player, playerBoundingBox, false, COLLISION_CHECK_LIMIT, SHAPE_COMPILATION);
+      player, playerBoundingBox, COLLISION_CHECK_LIMIT, false, SHAPE_COMPILATION
+    );
   }
 
   public static boolean present(Player player, BoundingBox playerBox) {
-    return collectCollisionShapes(player, playerBox, true, 1, EXISTS_ANY_SHAPE);
+    return collectCollisionShapes(player, playerBox, 1, true, EXISTS_ANY_SHAPE);
   }
 
   public static boolean nonePresent(Player player, BoundingBox playerBox) {
-    return collectCollisionShapes(player, playerBox, true, 1, EXISTS_NO_SHAPE);
+    return collectCollisionShapes(player, playerBox, 1, true, EXISTS_NO_SHAPE);
   }
 
   public static <C, R> R collectCollisionShapes(
       Player player,
       BoundingBox playerBox,
-      boolean enforceContainer,
       int collisionLimit,
-      Collector<BlockShape, C, R> collector) {
+      boolean enforceContainer,
+      Collector<BlockShape, C, R> collector
+  ) {
     Supplier<C> containerSupplier = collector.supplier();
-    C container = enforceContainer ? containerSupplier.get() : null;
+    C container = null;
     BiConsumer<C, BlockShape> accumulator = collector.accumulator();
     Function<C, R> finisher = collector.finisher();
     int minX = floor(playerBox.minX);
@@ -116,7 +118,7 @@ public final class Collision {
           if (blockOutsideBorder && !movementData.outsideBorder) {
             BoundingBox borderShape = BoundingBox.fromBounds(x, y, z, x + 1, y, z + 1);
             if (borderShape.intersectsWith(playerBox)) {
-              if (!enforceContainer && container == null) {
+              if (container == null) {
                 container = containerSupplier.get();
               }
               accumulator.accept(container, borderShape);
@@ -126,7 +128,7 @@ public final class Collision {
             }
           }
           if (resolve.intersectsWith(playerBox)) {
-            if (!enforceContainer && container == null) {
+            if (container == null) {
               container = containerSupplier.get();
             }
             accumulator.accept(container, resolve);
@@ -137,6 +139,9 @@ public final class Collision {
         }
       }
     }
+    if (container == null && enforceContainer) {
+      container = containerSupplier.get();
+    }
     return finisher.apply(container);
   }
 
@@ -144,7 +149,8 @@ public final class Collision {
       Player player,
       BoundingBox playerBox,
       int collisionLimit,
-      Collector<Position, C, R> collector) {
+      Collector<Position, C, R> collector
+  ) {
     C container = collector.supplier().get();
     BiConsumer<C, Position> accumulator = collector.accumulator();
     Function<C, R> finisher = collector.finisher();

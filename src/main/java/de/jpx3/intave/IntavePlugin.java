@@ -694,6 +694,10 @@ public final class IntavePlugin extends JavaPlugin {
       logger.info(ChatColor.YELLOW + "This version sets the latency ping as the player's xp level");
     }
 
+    if (IntaveControl.APPLY_GLOBAL_LOW_TRUSTFACTOR) {
+      logger.info(ChatColor.YELLOW + "This version assigns only the red trustfactor for debugging purposes");
+    }
+
     registerNativeCheck();
 
     Modules.linker().packetEvents().refreshLinkages();
