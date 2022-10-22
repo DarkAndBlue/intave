@@ -704,7 +704,7 @@ public final class EntityTracker extends Module {
       MovementMetadata movement = user.meta().movement();
       InventoryMetadata inventory = user.meta().inventory();
       if (movement.pose() == Pose.FALL_FLYING && entityId == player.getEntityId()) {
-        int power = calculateFireworkPower(inventory);
+        int power = Math.max(calculateFireworkPower(inventory), 1);
         movement.fireworkRocketsTicks = 0;
         movement.fireworkRocketsPower = power;
       }
@@ -726,7 +726,7 @@ public final class EntityTracker extends Module {
       MovementMetadata movement = user.meta().movement();
       InventoryMetadata inventory = user.meta().inventory();
       if ((movement.pose() == Pose.FALL_FLYING || movement.elytraFlying) && entityId == player.getEntityId()) {
-        int power = calculateFireworkPower(inventory);
+        int power = Math.max(calculateFireworkPower(inventory), 1);
         movement.fireworkRocketsTicks = 0;
         movement.fireworkRocketsPower = power;
       }
