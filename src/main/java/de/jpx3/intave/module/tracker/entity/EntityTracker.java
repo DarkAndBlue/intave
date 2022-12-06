@@ -352,17 +352,18 @@ public final class EntityTracker extends Module {
   )
   public void receiveEntityTeleport(PacketEvent event) {
     Player player = event.getPlayer();
+    User user = UserRepository.userOf(player);
     PacketContainer packet = event.getPacket();
     EntityShade entity = wrappedEntityByEntityTeleportPacket(event);
 
     if (entity == null) {
       return;
     }
-    entity.immediateEntityTeleport(packet);
+    entity.immediateEntityTeleport(user, packet);
     if (entity.typeData().isLivingEntity() && entity.tracingEnabled()) {
       FeedbackCallback<PacketEvent> task = (player1, event1) -> {
         entity.verifiedPosition = false;
-        entity.handleEntityTeleport(packet);
+        entity.handleEntityTeleport(user, packet);
         entity.clientSynchronized = true;
         nayoroEntityPositionUpdate(player, entity);
       };
@@ -374,7 +375,7 @@ public final class EntityTracker extends Module {
       Modules.feedback().tracedSingleSynchronize(player, event, task, feedbackTracker);
 //      }
     } else {
-      entity.handleEntityTeleport(packet);
+      entity.handleEntityTeleport(user, packet);
       entity.clientSynchronized = false;
     }
   }

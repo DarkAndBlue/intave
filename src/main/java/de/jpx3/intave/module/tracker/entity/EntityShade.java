@@ -12,6 +12,7 @@ import de.jpx3.intave.module.feedback.PendingCountingFeedbackTracker;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.ClientMathHelper;
 import de.jpx3.intave.share.Position;
+import de.jpx3.intave.user.User;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
@@ -168,7 +169,7 @@ public class EntityShade {
     }
   }
 
-  public void immediateEntityTeleport(PacketContainer packet) {
+  public void immediateEntityTeleport(User user, PacketContainer packet) {
     double newPosX;
     double newPosY;
     double newPosZ;
@@ -187,11 +188,12 @@ public class EntityShade {
       newPosY = immServerPosY / 32.0;
       newPosZ = immServerPosZ / 32.0;
     }
-    if (
-      Math.abs(immediateServerPosition.getX() - newPosX) < 0.03125d &&
-        Math.abs(immediateServerPosition.getY() - newPosY) < 0.015625d &&
-        Math.abs(immediateServerPosition.getZ() - newPosZ) < 0.03125d
-    ) {
+    // Always set on 1.16+ as they removed the threshold
+    boolean requiresPositionUpdate =
+        Math.abs(immediateServerPosition.getX() - newPosX) < 0.03125d &&
+            Math.abs(immediateServerPosition.getY() - newPosY) < 0.015625d &&
+            Math.abs(immediateServerPosition.getZ() - newPosZ) < 0.03125d;
+    if (!requiresPositionUpdate && user.protocolVersion() < 735 /* 1.16 protocol version */) {
       return;
     }
     immediateServerPosition.setX(newPosX);
@@ -202,9 +204,10 @@ public class EntityShade {
   /**
    * Handles a teleportation. Packets: ENTITY_TELEPORT
    *
+   * @param user user which received the packet
    * @param packet contains information about the entity teleportation
    */
-  public void handleEntityTeleport(PacketContainer packet) {
+  public void handleEntityTeleport(User user, PacketContainer packet) {
     double newPosX;
     double newPosY;
     double newPosZ;
@@ -225,11 +228,12 @@ public class EntityShade {
       newPosZ = serverPosZ / 32.0;
     }
 
-    if (
-      Math.abs(position.posX - newPosX) < 0.03125d &&
-        Math.abs(position.posY - newPosY) < 0.015625d &&
-        Math.abs(position.posZ - newPosZ) < 0.03125d
-    ) {
+    // Always set on 1.16+ as they removed the threshold
+    boolean requiresPositionUpdate =
+        Math.abs(position.posX - newPosX) < 0.03125d
+            && Math.abs(position.posY - newPosY) < 0.015625d
+            && Math.abs(position.posZ - newPosZ) < 0.03125d;
+    if (requiresPositionUpdate || user.protocolVersion() >= 735 /* 1.16 protocol version */) {
       setPositionAndRotationEntityLiving(position.posX, position.posY, position.posZ, 3);
     } else {
       setPositionAndRotationEntityLiving(newPosX, newPosY, newPosZ, 3);

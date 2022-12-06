@@ -7,6 +7,7 @@ import de.jpx3.intave.check.CheckStatistics;
 import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.movement.Timer;
+import de.jpx3.intave.math.Hypot;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
@@ -102,19 +103,37 @@ public final class Balance extends MetaCheckPart<Timer, Balance.BalanceMeta> {
     statisticApply(user, CheckStatistics::increaseTotal);
     boolean suspicious = /*violationLevelOf(user) > 10 && */!user.trustFactor().atLeast(TrustFactor.ORANGE) /*&& System.currentTimeMillis() - timerData.lastTimerFlag < 2000*/;
     int overflowLimit = highToleranceMode ? 750 : (suspicious ? 100 : 250);
+    List<Double> safeTimerBalanceHistory = timerData.safeTimerBalanceHistory;
     List<Double> timerBalanceHistory = timerData.timerBalanceHistory;
 
-    timerBalanceHistory.add(timerData.timerBalance);
+    MovementMetadata movementData = user.meta().movement();
+    boolean flyingPackets = user.protocolVersion() == 47;
+    boolean moving = Hypot.fast(movementData.motionX(), movementData.motionZ()) + Math.abs(movementData.motionY()) >= 0.0625 && movementData.pastFlyingPacketAccurate() > 6;
+    boolean checkAllowed = moving || flyingPackets;
+    if (checkAllowed) {
+      safeTimerBalanceHistory.add(Math.min(timerData.timerBalance, timerData.confirmedBalance));
+      timerBalanceHistory.add(timerData.timerBalance);
+    }
+    if (safeTimerBalanceHistory.size() > 30) {
+      safeTimerBalanceHistory.remove(0);
+    }
     if (timerBalanceHistory.size() > 40) {
       timerBalanceHistory.remove(0);
     }
-
+    int safeMean = mean(safeTimerBalanceHistory);
     int mean = mean(timerBalanceHistory);
-    double vl = timerData.timerBalance - mean < -8 ? timerData.timerBalance - mean < -10 ? timerData.timerBalance - mean < -50 ? 8 : 3 : 1 : -0.5;
+    double absoluteBalance = Math.abs(timerData.timerBalance);
+    double safeAbsoluteMean = Math.abs(safeMean);
+    double absoluteMean = Math.abs(mean);
+    double safeDiff = safeAbsoluteMean - absoluteBalance;
+    double diff = absoluteMean - absoluteBalance;
+    boolean safeVl = checkAllowed && safeDiff < -15;
+    double vl = checkAllowed ? (diff < -10 ? diff < -50 ? 16 : 8 : -0.5) : -0.5;
     boolean combatMicroLag = parentCheck().combatMicroLag();
-    timerData.balanceUnderflowVL += vl;
-    timerData.balanceUnderflowVL = MathHelper.minmax(0, timerData.balanceUnderflowVL, 30);
-
+    if (safeVl || vl < 0) {
+      timerData.balanceUnderflowVL += vl;
+    }
+    timerData.balanceUnderflowVL = MathHelper.minmax(-50, timerData.balanceUnderflowVL, 30);
     if (timerData.balanceUnderflowVL > 15 && combatMicroLag && !user.trustFactor().atLeast(TrustFactor.ORANGE)) {
       connection.lastAttackQueueRequest = System.currentTimeMillis();
     }
@@ -130,7 +149,6 @@ public final class Balance extends MetaCheckPart<Timer, Balance.BalanceMeta> {
         .build();
       ViolationContext violationContext = Modules.violationProcessor().processViolation(violation);
       if (violationContext.shouldCounterThreat()) {
-        MovementMetadata movementData = user.meta().movement();
         movementData.invalidMovement = true;
         Vector setback = new Vector(movementData.physicsMotionX, movementData.physicsMotionY, movementData.physicsMotionZ);
         Modules.mitigate().movement().emulationSetBack(player, setback, 12, false);
@@ -153,7 +171,7 @@ public final class Balance extends MetaCheckPart<Timer, Balance.BalanceMeta> {
     for (double d : list) {
       sum += d;
     }
-    return sum / list.size();
+    return sum / Math.max(list.size(), 1);
   }
 
   @BukkitEventSubscription
@@ -240,6 +258,7 @@ public final class Balance extends MetaCheckPart<Timer, Balance.BalanceMeta> {
 
   public static class BalanceMeta extends CheckCustomMetadata {
     public double timerBalance;
+    public List<Double> safeTimerBalanceHistory = new LinkedList<>();
     public List<Double> timerBalanceHistory = new LinkedList<>();
     public long lastFlyingPacket;
     public long lastTimerFlag;
