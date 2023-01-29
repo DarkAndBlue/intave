@@ -143,7 +143,7 @@ public final class PunishmentMetadata {
       nerferOfType(AttackNerfStrategy.BURN_LONGER).activatePermanently();
       nerferOfType(AttackNerfStrategy.CRITICALS).activatePermanently();
       nerferOfType(AttackNerfStrategy.BLOCKING).activatePermanently();
-      nerferOfType(AttackNerfStrategy.DMG_LIGHT).activatePermanently();
+      nerferOfType(AttackNerfStrategy.GARBAGE_HITS).activatePermanently();
     }
   }
 
@@ -222,6 +222,13 @@ public final class PunishmentMetadata {
     }
 
     public void activateUntil(long until) {
+      if (until < System.currentTimeMillis()) {
+        return;
+      }
+      if (until == Long.MAX_VALUE) {
+        activatePermanently();
+        return;
+      }
       limit = -1;
       activated = until - duration;
     }
@@ -234,6 +241,7 @@ public final class PunishmentMetadata {
 
     public void activatePermanently() {
       permanent = true;
+      activated = System.currentTimeMillis();
     }
 
     public boolean active() {

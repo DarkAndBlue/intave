@@ -114,10 +114,12 @@ public final class MovementMetadata implements SimulationEnvironment {
   public AtomicInteger pendingVelocityPackets = new AtomicInteger();
   public int physicsPacketRelinkFlyVL; // In Air
   public boolean invalidMovement, suspiciousMovement;
-  public double physicsMotionX, physicsMotionY, physicsMotionZ;
-  public double physicsMotionXBeforeVelocity, physicsMotionYBeforeVelocity, physicsMotionZBeforeVelocity;
-  public double physicsMotionXResetCache, physicsMotionYResetCache, physicsMotionZResetCache;
-  public double physicsMotionXBeforeVelocityResetCache, physicsMotionYBeforeVelocityResetCache, physicsMotionZBeforeVelocityResetCache;
+  public double baseMotionX, baseMotionY, baseMotionZ; // base or last motion, exclusively for the physics check
+  public double baseMotionXBeforeVelocity, baseMotionYBeforeVelocity, baseMotionZBeforeVelocity;
+  public double baseMotionXResetCache, baseMotionYResetCache, baseMotionZResetCache;
+  public double baseMotionXBeforeVelocityResetCache, baseMotionYBeforeVelocityResetCache, baseMotionZBeforeVelocityResetCache;
+  public boolean endMotionXOverride, endMotionYOverride, endMotionZOverride;
+  public double endMotionXOverrideValue, endMotionYOverrideValue, endMotionZOverrideValue;
   public int pastRiptideSpin = 100;
   public int highestLocalRiptideLevel = 0;
   public int pastPlayerAttackPhysics = 100;
@@ -200,7 +202,8 @@ public final class MovementMetadata implements SimulationEnvironment {
   @Nullable
   private Vector motionMultiplier = null;
   private double jumpMotion;
-  private int pastClientFlyingPacket, pastFlyingPacketAccurate;
+  private int pastClientFlyingPacket;
+  public int pastFlyingPacketAccurate;
   private float aiMoveSpeed, jumpMovementFactor;
   private boolean eyesInWater;
   // Vehicle
@@ -669,8 +672,8 @@ public final class MovementMetadata implements SimulationEnvironment {
   }
 
   public boolean recentlyEncounteredFlyingPacket(int ticks) {
-    ProtocolMetadata clientData = user.meta().protocol();
-    if (clientData.flyingPacketStream()) {
+    ProtocolMetadata protocol = user.meta().protocol();
+    if (protocol.flyingPacketStream()) {
       return pastClientFlyingPacket <= ticks && pastFlyingPacketAccurate <= ticks;
     } else {
       return pastFlyingPacketAccurate <= ticks;

@@ -151,6 +151,8 @@ storage:
 
 blacklist:
   apply: true
+  message-in-chat: false
+  message: "&cYou are on an anti-cheat blacklist and can't join this server"
 
 proxy:
   enable: false

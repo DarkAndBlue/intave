@@ -167,8 +167,8 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     MovementMetadata movementData = user.meta().movement();
     InventoryMetadata inventoryData = user.meta().inventory();
     Motion motionVector = movementData.motionProcessorContext;
-    double lastMotionX = movementData.physicsMotionX;
-    double lastMotionZ = movementData.physicsMotionZ;
+    double lastMotionX = movementData.baseMotionX;
+    double lastMotionZ = movementData.baseMotionZ;
     boolean jumped = false;
     boolean sprinting = movementData.sprintingAllowed() || movementData.hasSprintSpeed;
     if (movementData.lastOnGround && !movementData.denyJump()) {

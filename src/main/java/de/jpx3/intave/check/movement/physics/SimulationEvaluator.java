@@ -143,7 +143,7 @@ public final class SimulationEvaluator {
           verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, 10);
         }
         movement.enforceBoatStep = false;
-      } else if (movement.physicsMotionY < 0) {
+      } else if (movement.baseMotionY < 0) {
         verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, 10);
         if (movement.motionY() > movement.jumpMotion()) {
           movement.enforceBoatStep = true;

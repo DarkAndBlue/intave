@@ -21,22 +21,22 @@ import org.bukkit.entity.Player;
 
 import java.util.Deque;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.DelayQueue;
 
+import static de.jpx3.intave.access.player.trust.TrustFactor.RED;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 
 public final class PacketDelayer extends Module {
   private boolean reverseBlink;
   private boolean reverseLag;
-  private boolean microLag;
+  private boolean lowTolerance;
 
   @Override
   public void enable() {
     Timer timerCheck = plugin.checks().searchCheck(Timer.class);
     this.reverseBlink = timerCheck.reverseBlink();
     this.reverseLag = timerCheck.reverseLag();
-    this.microLag = timerCheck.lowToleranceMode();
+    this.lowTolerance = timerCheck.lowToleranceMode();
   }
 
 //  @PacketSubscription(
@@ -117,7 +117,8 @@ public final class PacketDelayer extends Module {
     }
 
     long playerLatencyGain = connection.transactionPingAverage() - LatencyStudy.transactionPingAverage();
-    boolean significantPingGain = playerLatencyGain > user.trustFactorSetting("timer.pg"); // ping gain
+    boolean lowToleranceMode = lowTolerance && user.trustFactor().atOrBelow(RED);
+    boolean significantPingGain = playerLatencyGain * (lowToleranceMode ? 1.5 : 1) > user.trustFactorSetting("timer.pg"); // ping gain
     boolean delayRequested = System.currentTimeMillis() - connection.lastDelayRequest < 60 * 1000;
     boolean delayPackets = significantPingGain || delayRequested;
 
@@ -126,7 +127,7 @@ public final class PacketDelayer extends Module {
     long positionTimeoutTolerance = user.meta().protocol().flyingPacketStream() ? 0 : 1050;
 
     long lagTolerance = user.trustFactorSetting("timer.lt");
-    boolean transactionTimeout = oldestTransactionPacket > connection.transactionPingAverage() + LatencyStudy.transactionPingAverage() / 2 + lagTolerance;
+    boolean transactionTimeout = oldestTransactionPacket * (lowToleranceMode ? 1.25 : 1) > connection.transactionPingAverage() + LatencyStudy.transactionPingAverage() / 2 + lagTolerance;
     boolean riding = movement.isInVehicle();
     long positionBlockTolerance = connection.transactionPingAverage() + LatencyStudy.transactionPingAverage() / 2 + lagTolerance + positionTimeoutTolerance;
     boolean positionTimeout = !riding && lastMovementPacket > positionBlockTolerance;

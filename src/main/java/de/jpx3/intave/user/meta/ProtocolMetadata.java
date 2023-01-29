@@ -27,6 +27,7 @@ public final class ProtocolMetadata {
   public static int VER_1_10 = 210;
   public static int VER_1_9 = 107; // 1.9
   public static int VERSION_DETAILS = 97; // secret integer for security - DO NOT MODIFY
+  public static int MARKED_FOR_PLAYER_REPORT = 78; // secret integer for security - DO NOT MODIFY
   public static int VER_1_8 = 47; // 1.8
 
   public static int VER_INVALID = 1000;
@@ -79,8 +80,8 @@ public final class ProtocolMetadata {
   }
 
   public float cameraSneakOffset() {
-    boolean override = user.customClientSupport().isLegacySneakHeight();
-    if (protocolVersion >= VER_1_13_2 && !override) {
+    boolean legacySneakHeight = user.customClientSupport().isLegacySneakHeight();
+    if (protocolVersion >= VER_1_13_2 && !legacySneakHeight) {
       return 0.35f;
     } else {
       return 0.08f;
