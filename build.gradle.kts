@@ -141,6 +141,7 @@ run {
   registerServerTask("1.18", 17)
   registerServerTask("1.18.2", 17)
   registerServerTask("1.19", 17)
+  registerServerTask("1.19.1", 17)
   registerServerTask("1.19.2", 17)
   registerServerTask("1.19.3", 17)
 }

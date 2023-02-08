@@ -72,7 +72,7 @@ public final class SibylPacketTransmitter {
     }
     PacketContainer packet = ProtocolLibrary.getProtocolManager().createPacket(CUSTOM_PAYLOAD);
     if (MinecraftVersions.VER1_13_0.atOrAbove()) {
-      packet.getSpecificModifier(MinecraftKey.class).write(0, new MinecraftKey("labymod3", "main"));
+      packet.getMinecraftKeys().write(0, new MinecraftKey("labymod3", "main"));
     } else {
       packet.getStrings().write(0, "labymod3:main");
     }

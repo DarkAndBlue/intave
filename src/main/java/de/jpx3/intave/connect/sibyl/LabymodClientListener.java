@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.klass.Lookup;
+import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.packet.PacketEventSubscriber;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import io.netty.buffer.ByteBuf;
@@ -26,7 +27,7 @@ public final class LabymodClientListener implements PacketEventSubscriber {
     this.plugin = plugin;
     this.channel = channel;
     this.elementConsumer = elementConsumer;
-    plugin.packetSubscriptionLinker().linkSubscriptionsIn(this);
+    Modules.linker().packetEvents().linkSubscriptionsIn(this);
   }
 
   @PacketSubscription(
