@@ -3,6 +3,7 @@ package de.jpx3.intave.check.combat;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
+import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.annotate.Relocate;
@@ -45,6 +46,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
   private static final char[] VOCALS = "aeiou".toCharArray();
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer hitboxDecrementer, reachDecrementer;
+  private final boolean zeroNetworkTolerance;
   private final double VL_DECREMENT_PER_ATTACK = 0.125;
   private static final int MAX_ALLOWED_PENDING_ATTACKS = 5;
 
@@ -57,6 +59,11 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     this.reachDecrementer =
         new CheckViolationLevelDecrementer(
             this, "applicable-thresholds.reach", VL_DECREMENT_PER_ATTACK * 2);
+    this.zeroNetworkTolerance = plugin.getConfig().getBoolean("checks.timer.low-tolerance", false) && plugin.getConfig().getBoolean("checks.timer.block-stutter-hits", false);
+    // Send a notice message to the server owner if zero tolerance is enabled
+    if (zeroNetworkTolerance) {
+      IntaveLogger.logger().info("Zero network tolerance is enabled.");
+    }
   }
 
   @PacketSubscription(
@@ -116,6 +123,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     MovementMetadata movementData = user.meta().movement();
     ProtocolMetadata clientData = user.meta().protocol();
     List<Attack> pendingAttacks = attackRaytraceMeta.pendingAttacks;
+    int maximumPendingFeedbackPackets = trustFactorSetting("pending-allowance", player) + (int) MathHelper.minmax(0, LatencyStudy.cachedAverage(), 20);
     PacketContainer packet = event.getPacket();
     // Clear attacks if recently teleported
     if (movementData.lastTeleport == 0) {
@@ -137,14 +145,44 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
           || attackedEntity instanceof Entity.Destroyed) {
         return;
       }
+      long pendingFeedbacks = attackedEntity.pendingFeedbackPackets();
+      LatencyStudy.enterHit((short) pendingFeedbacks);
+      // Block any latency abusing cheats
+      boolean entityHasNotTimedOut = pendingFeedbacks < maximumPendingFeedbackPackets;
+      long transactionPingAverage = user.meta().connection().transactionPingAverage();
+      double transactionTickAverage = transactionPingAverage / 50d;
+      int absoluteLimit = zeroNetworkTolerance ? 2 : 12;
+      int historyBasedLimit = Math.min((int) ((LatencyStudy.cachedAverage() + transactionTickAverage + 0.5) * 0.6), absoluteLimit);
+      boolean pendingOverAverage = transactionPingAverage > 0 && pendingFeedbacks > historyBasedLimit;
+      double trustfactorBaseDistanceLimit = trustFactorSetting("pending-distance", player) * 0.8;
+      double actualDistance = attackedEntity.immediateDistanceToClientPosition();
+      boolean distanceOverLimit = actualDistance > trustfactorBaseDistanceLimit;
+      // If something malicious was detected, block the attack
+      if (pendingOverAverage || distanceOverLimit) {
+        boolean needsToBeBlocked = user.trustFactor().atOrBelow(TrustFactor.RED);
+        String message = player.getName() + " attack latency (" + (needsToBeBlocked ? "blocked, " : "") + pendingFeedbacks + "/"
+            + historyBasedLimit + "p @" + transactionPingAverage + "ms, " + MathHelper.formatDouble(actualDistance, 2) + "/"
+            + MathHelper.formatDouble(trustfactorBaseDistanceLimit, 2) + "blocks)";
+        String shortMessage = player.getName() + " attacked " + pendingFeedbacks + " > " + historyBasedLimit + " @ " + transactionPingAverage + "ms";
+        MessageSeverity severity = Math.abs(pendingFeedbacks - historyBasedLimit) < 4 ? MessageSeverity.LOW : MessageSeverity.MEDIUM;
+        DebugBroadcast.broadcast(player, MessageCategory.ATLALI, severity, message, shortMessage);
+        // Block entity hit if required
+        if (needsToBeBlocked) {
+          entityHasNotTimedOut = false;
+        }
+      }
       boolean entityOutOfSync =
           (!clientData.flyingPacketsAreSent() && movementData.recentlyEncounteredFlyingPacket(2))
               || !attackedEntity.clientSynchronized;
-      // This might seem confusing but this is definitely required! DO NOT TINKER
-      if (entityOutOfSync) {
-        processAttackRaytraceBruteforceFor(user, attackedEntity, pendingAttack);
-      } else {
-        processAttackRaytraceFor(user, attackedEntity, pendingAttack, computeExpansionFor(user));
+      // As entity attack redirections are processed inside this, we don't need to do anything extra to block hits besides
+      // just not raytracing
+      if (entityHasNotTimedOut) {
+        // This might seem confusing but this is definitely required! DO NOT TINKER
+        if (entityOutOfSync) {
+          processAttackRaytraceBruteforceFor(user, attackedEntity, pendingAttack);
+        } else {
+          processAttackRaytraceFor(user, attackedEntity, pendingAttack, computeExpansionFor(user));
+        }
       }
     }
     pendingAttacks.clear();
@@ -157,7 +195,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
    * <p>This is required when we don't know the exact position of the entity as the player either
    * didn't send flying packets or it's not synchronized yet
    *
-   * @param user The user which attacked
+   * @param user   The user which attacked
    * @param entity The attacked entity
    * @param attack The current attack
    * @since 14.5.8
@@ -184,7 +222,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
    * <p>Iteratively checks with both the previous and current player position to ensure false
    * positives are eliminated
    *
-   * @param user The user to check for
+   * @param user   The user to check for
    * @param entity The entity which was attacked by the user
    * @return The maximum reach possible
    * @since 14.6.0
@@ -209,7 +247,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
   /**
    * Calculates the highest possible reach using previous entity positions
    *
-   * @param user The user to check for
+   * @param user   The user to check for
    * @param entity The entity which was attacked by the user
    * @return The maximum reach possible
    * @since 14.6.0
@@ -261,11 +299,11 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
   /**
    * Processes the reach check for a given user
    *
-   * @param user The user which attacked
-   * @param entity The attacked entity
-   * @param attack The current attack
+   * @param user      The user which attacked
+   * @param entity    The attacked entity
+   * @param attack    The current attack
    * @param expansion The hit-box expansion applied for the player (this differs depending on the
-   *     client)
+   *                  client)
    * @since 14.5.8
    */
   private void processAttackRaytraceFor(User user, Entity entity, Attack attack, float expansion) {
@@ -277,10 +315,10 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
    * Processes the raytrace result and creates violations from it if calculations exceed legit
    * values
    *
-   * @param user The user to process the raytrace for
-   * @param raytrace The raytrace
-   * @param attacked The attacked entity
-   * @param attack The attack to be processed
+   * @param user      The user to process the raytrace for
+   * @param raytrace  The raytrace
+   * @param attacked  The attacked entity
+   * @param attack    The attack to be processed
    * @param expansion The hit-box expansion used while raytracing
    * @param estimated Whether the raytrace was estimated or not (will not give vl if it is)
    * @since 14.5.8
@@ -304,8 +342,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     double reach = 0;
     boolean resendAllowed = attack.shouldResend() && !violationMeta.isInActiveTeleportBundle;
     switch (result) {
-      case MISS:
-      {
+      case MISS: {
         message =
             String.format(
                 "attacked %s %s out of sight %s",
@@ -319,8 +356,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         reach = 10;
         break;
       }
-      case REACH:
-      {
+      case REACH: {
         String displayReach = MathHelper.formatDouble(raytrace.reach(), 4);
         message =
             String.format(
@@ -339,8 +375,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         reach = raytrace.reach();
         break;
       }
-      default:
-      {
+      default: {
         hitboxDecrementer.decrement(user, VL_DECREMENT_PER_ATTACK);
         reachDecrementer.decrement(user, VL_DECREMENT_PER_ATTACK);
         // Redirect if resend is allowed
@@ -394,10 +429,10 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
    * Computes violation points for an evaluated {@link Raytrace} which will get applied to a {@link
    * Player}
    *
-   * @param user The user to compute violation points for
-   * @param raytrace The raytrace
-   * @param result The raytrace result
-   * @param attacked The attacked entity
+   * @param user      The user to compute violation points for
+   * @param raytrace  The raytrace
+   * @param result    The raytrace result
+   * @param attacked  The attacked entity
    * @param expansion The hit-box expansion used
    * @param estimated Whether the raytrace was estimated or not
    * @return The computed violation points
@@ -433,9 +468,9 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
   /**
    * Fires an entity raytrace for the given user
    *
-   * @param user The user
-   * @param entity The entity
-   * @param expansion The hit-box expansion
+   * @param user            The user
+   * @param entity          The entity
+   * @param expansion       The hit-box expansion
    * @param currentPosition Defines whether the current or past position should be used
    * @return The raytrace result
    * @since 14.5.8
@@ -571,7 +606,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
      * Evaluates a {@link RaytraceResult} based off a given {@link Raytrace} and block reach limit
      *
      * @param raytrace The raytrace
-     * @param limit The reach limit
+     * @param limit    The reach limit
      * @return The result
      * @since 14.5.8
      */
