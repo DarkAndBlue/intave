@@ -184,7 +184,7 @@ public final class SimulationEvaluator {
     }
 
     // Sometimes shit happens
-    if (movement.sneakingTicks <= 1 && (movement.onGround() || movement.lastOnGround()) && movement.motionY() <= movement.jumpMotion() + 0.001) {
+    if (movement.sneakingTicks <= 1 && (movement.onGround() || movement.lastOnGround()) && movement.motionY() <= 0 && movement.lastSneaking) {
       verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, 0.08f);
     }
 
@@ -362,7 +362,7 @@ public final class SimulationEvaluator {
 //      player.sendMessage("Gave you " + (velocityDistance * 1.2 - distanceMoved) + " tolerance for velocity, plus extra " + velocityDistance + " for distance, " + distanceMoved + " for distance moved");
     }
 
-    if (movement.sneakingTicks <= 1) {
+    if (movement.sneakingTicks <= 1 && movement.sneaking || movement.lastSneaking) {
       double limit = 0;
       if ((abs(movement.motionX()) < 0.08 || abs(movement.motionZ()) < 0.08) || (movement.sprinting && protocol.cavesAndCliffsUpdate())) {
         boolean smallMovement = abs(movement.motionX()) < 0.08 && abs(movement.motionZ()) < 0.08 && movement.onGround();
@@ -371,7 +371,7 @@ public final class SimulationEvaluator {
           limit = 0.3;
         }
         if (abs(movement.motionY()) < 0.001) {
-          limit = 0.07;
+          limit = 0.08;
         }
         if (movement.pastEdgeSneak <= 3 && !protocol.flyingPacketsAreSent()) {
           limit = Math.max(limit, 0.07);
