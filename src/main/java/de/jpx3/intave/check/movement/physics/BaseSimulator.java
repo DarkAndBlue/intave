@@ -673,7 +673,7 @@ class BaseSimulator extends Simulator {
       // Entity#getOnPos(float)
       boolean requiresBlockBelow = !block.name().contains("FENCE") && !block.name().contains("WALL");
       if (requiresBlockBelow) {
-        block = VolatileBlockAccess.typeAccess(user, world, blockX, blockY - 0.5, blockZ);
+        block = VolatileBlockAccess.typeAccess(user, world, blockX, blockY - 0.2, blockZ);
       }
     }
 
