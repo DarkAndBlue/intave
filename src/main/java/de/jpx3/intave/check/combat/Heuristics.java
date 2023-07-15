@@ -118,6 +118,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
           appendCheckPart(new LabyModsHeuristic(this));
           appendCheckPart(new PacketOrderHeuristic(this));
           appendCheckPart(new BaritoneRotationCheck(this));
+          appendCheckPart(new ToolSwitchHeuristic(this));
         }
         // for testing
         if (!IntaveControl.GOMME_MODE && IntaveControl.DISABLE_LICENSE_CHECK) {
@@ -146,7 +147,6 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     appendCheckPart(new JumpVelocityHeuristic(this));
     appendCheckPart(new CivbreakHeuristic(this));
     appendCheckPart(new InvalidFlyingPacketHeuristic(this));
-    appendCheckPart(new ToolSwitchHeuristic(this));
 //    appendCheckPart(new TestHeuristic(this));
   }
 
