@@ -31,6 +31,7 @@ public final class DynamicStorageTrustfactorResolver implements TrustFactorResol
   private final KNN<double[]> classifier;
 
   {
+    KNN<double[]> classifier;
     try {
       DataFrame frame = new Arff(new InputStreamReader(TREE_ARFF.read())).read();
 
@@ -47,13 +48,18 @@ public final class DynamicStorageTrustfactorResolver implements TrustFactorResol
 
       classifier = KNN.fit(x, y, 3);
     } catch (IOException | ParseException e) {
-      throw new RuntimeException(e);
+      classifier = null;
+      e.printStackTrace();
     }
+    this.classifier = classifier;
   }
 
   @Override
   @Native
   public void resolve(Player player, Consumer<TrustFactor> callback) {
+    if (classifier == null) {
+      return;
+    }
     User user = UserRepository.userOf(player);
     user.onStorageReady(storage -> callback.accept(calculateTrustfactorFor(storage)));
   }

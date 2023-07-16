@@ -217,7 +217,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
       configuration = configuration.withActiveHand();
     }
     // reducing
-    if (!AttackDispatcher.REDUCING_DISABLED && movementData.sprintingAllowed() && movementData.pastPlayerAttackPhysics == 0) {
+    if (!AttackDispatcher.REDUCING_DISABLED /*&& movementData.sprintingAllowed()*/ && movementData.pastPlayerAttackPhysics == 0) {
       configuration = configuration.withReducing();
     }
     // block omnisprint
@@ -310,7 +310,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
     configuration = configuration.withKeyPress(keyForward, keyStrafe);
     // reducing
 //    boolean sprintRequirement = user.protocolVersion() > VER_1_8 ? movementData.sprintingAllowed() : movementData.isSprinting();
-    if (!AttackDispatcher.REDUCING_DISABLED && movementData.sprintingAllowed() && user.meta().movement().pastPlayerAttackPhysics == 0) {
+    if (!AttackDispatcher.REDUCING_DISABLED/* && movementData.sprintingAllowed()*/ && user.meta().movement().pastPlayerAttackPhysics == 0) {
       configuration = configuration.withReducing();
     }
     boolean sprinting = movementData.sprintingAllowed();
