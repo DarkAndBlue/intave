@@ -5,6 +5,7 @@ import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.klass.rewrite.PatchyLoadingInjector;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.ClientMath;
+import de.jpx3.intave.share.Position;
 import de.jpx3.intave.user.User;
 import org.bukkit.Location;
 
@@ -56,5 +57,9 @@ public final class Fluids {
 
   public static boolean fluidStateEmpty(User user, double x, double y, double z) {
     return engine != null && fluidAt(user, x, y, z).isEmpty();
+  }
+
+  public static boolean fluidStateEmpty(User user, Position lastPosition) {
+    return fluidStateEmpty(user, lastPosition.getX(), lastPosition.getY(), lastPosition.getZ());
   }
 }
