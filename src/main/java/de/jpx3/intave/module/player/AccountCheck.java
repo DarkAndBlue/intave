@@ -11,7 +11,6 @@ import de.jpx3.intave.executor.BackgroundExecutor;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
-import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.storage.AccountDataStorage;
@@ -86,10 +85,10 @@ public final class AccountCheck extends Module {
     if (!IntaveControl.GOMME_MODE) {
       return;
     }
-    isMicrosoftAccount(id, isMicrosoftAccount -> {
-      if (!IntaveControl.GOMME_MODE) {
-        return;
-      }
+//    isMicrosoftAccount(id, isMicrosoftAccount -> {
+//      if (!IntaveControl.GOMME_MODE) {
+//        return;
+//      }
 //      if (!isMicrosoftAccount) {
 //        callback.accept(false);
 //        return;
@@ -113,7 +112,7 @@ public final class AccountCheck extends Module {
           callback.accept(true);
         });
       });
-    });
+//    });
   }
 
   @Native
@@ -143,10 +142,10 @@ public final class AccountCheck extends Module {
      */
     if (IntaveControl.GOMME_MODE) {
       SibylBroadcast.broadcast(ChatColor.RED + player.getName() + " is a newly created account");
-      User user = UserRepository.userOf(player);
-      user.nerfPermanently(AttackNerfStrategy.BLOCKING, "86");
-      user.nerfPermanently(AttackNerfStrategy.GARBAGE_HITS, "86");
-      user.nerfPermanently(AttackNerfStrategy.BURN_LONGER, "86");
+//      User user = UserRepository.userOf(player);
+//      user.nerfPermanently(AttackNerfStrategy.BLOCKING, "86");
+//      user.nerfPermanently(AttackNerfStrategy.GARBAGE_HITS, "86");
+//      user.nerfPermanently(AttackNerfStrategy.BURN_LONGER, "86");
     }
   }
 

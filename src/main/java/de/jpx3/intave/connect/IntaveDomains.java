@@ -16,9 +16,9 @@ import java.util.stream.Collectors;
 
 public final class IntaveDomains {
   private static final Resource DOMAIN_CACHE_RESOURCE = Resources.fileCache("domains");
-  private final static DomainCache DOMAIN_CACHE = DOMAIN_CACHE_RESOURCE.collectLines(DomainCache.lineCollector());
+  private static final DomainCache DOMAIN_CACHE = DOMAIN_CACHE_RESOURCE.collectLines(DomainCache.lineCollector());
   private static final Resource BASE_DOMAIN_RESOURCE = Resources.cacheResourceChain("https://raw.githubusercontent.com/intave/domains/main/base", "bdomains", TimeUnit.DAYS.toMillis(1));
-  private static final Resource SERVICE_DOMAIN_RESOURCE = Resources.cacheResourceChain("https://raw.githubusercontent.com/intave/domains/main/service", "sdomains", TimeUnit.DAYS.toMillis(1));
+  private static final Resource SERVICE_DOMAIN_RESOURCE = Resources.cacheResourceChain("https://raw.githubusercontent.com/intave/domains/main/service2", "sdomains", TimeUnit.DAYS.toMillis(1));
 
   public static void setup() {
     if (!DOMAIN_CACHE.valid()) {
@@ -39,8 +39,8 @@ public final class IntaveDomains {
     try {
       long start = System.currentTimeMillis();
       URLConnection connection = new URL(url).openConnection();
-      connection.setConnectTimeout(800);
-      connection.setReadTimeout(800);
+      connection.setConnectTimeout(1600);
+      connection.setReadTimeout(1600);
       connection.setRequestProperty("User-Agent", "Intave/" + IntavePlugin.version());
       connection.connect();
       Scanner scanner = new Scanner(connection.getInputStream());

@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class DomainCache {
-  private final static long CACHE_LIFETIME = 1000L * 60L * 60L * 24L; // 1 day
+  private static final long CACHE_LIFETIME = 1000L * 60L * 60L * 24L; // 1 day
 
   private long lastUpdate;
   private final Map<String, Long> baseLatencyMap = new HashMap<>();

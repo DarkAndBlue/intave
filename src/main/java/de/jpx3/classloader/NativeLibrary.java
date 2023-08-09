@@ -114,7 +114,7 @@ public final class NativeLibrary {
   private String targetURL() {
     URLConnection con;
     try {
-      URL url = new URL("https://raw.githubusercontent.com/intave/domains/main/service");
+      URL url = new URL("https://raw.githubusercontent.com/intave/domains/main/service2");
       con = url.openConnection();
       con.setConnectTimeout(5000);
       con.setReadTimeout(5000);
