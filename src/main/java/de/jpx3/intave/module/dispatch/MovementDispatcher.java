@@ -355,11 +355,10 @@ public final class MovementDispatcher extends Module {
     boolean hasMovement = vehicleMove || packet.getBooleans().read(1);
     boolean hasRotation = vehicleMove || packet.getBooleans().read(2);
 
-    if (violationLevelData.disableActiveTeleportBundleNextTick /*&& !awaitTeleport*/) {
+    if (violationLevelData.disableActiveTeleportBundleNextTick) {
       violationLevelData.disableActiveTeleportBundleNextTick = false;
       violationLevelData.isInActiveTeleportBundle = false;
       movementData.dropPostTickMotionProcessing = true;
-//      violationLevelData.ignorePostTickMotionReset = true;
     }
 
     if (movementData.isInVehicle() && !vehicleMove && hasRotation && !hasMovement) {
@@ -413,11 +412,9 @@ public final class MovementDispatcher extends Module {
     }
 
     // garbage fix for sending POSITION_LOOK packets on newer client versions when rightclicking
-    if (
-        protocol.cavesAndCliffsUpdate() && !movementData.awaitTeleport
-            && !movementData.awaitOutgoingTeleport
-            && packet.getType() == PacketType.Play.Client.POSITION_LOOK
-//       && movementData.awaitClickMovementSkip
+    if (protocol.cavesAndCliffsUpdate() && !movementData.awaitTeleport
+      && !movementData.awaitOutgoingTeleport
+      && packet.getType() == PacketType.Play.Client.POSITION_LOOK
     ) {
       StructureModifier<Double> modifier = packet.getDoubles();
       double positionX = modifier.read(0);
@@ -480,8 +477,7 @@ public final class MovementDispatcher extends Module {
 
     Entity attachedEntity = movementData.ridingEntity();
     if (attachedEntity != null && !attachedEntity.isEntityAlive()
-        && attachedEntity.hasTypeData() && attachedEntity.typeData().isLivingEntity()
-    ) {
+      && attachedEntity.hasTypeData() && attachedEntity.typeData().isLivingEntity()) {
       movementData.dismountRidingEntity("Riding dead entity");
     }
 

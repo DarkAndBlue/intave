@@ -89,10 +89,15 @@ public final class Balance extends MetaCheckPart<Timer, Balance.BalanceMeta> {
     long overflowLimit = TimeUnit.MILLISECONDS.toNanos(25);
     MovementMetadata movementData = user.meta().movement();
 
-//    player.setLevel((int) TimeUnit.NANOSECONDS.toMicros(timerData.timerBalance));
+//    player.setLevel((int) TimeUnit.NANOSECONDS.toMicros(timerData.timerBalance) + 1000000);
 
     if (timerData.timerBalance > overflowLimit && !user.meta().movement().isInVehicle()) {
-//      System.out.println(timerData.timerBalance + " > " + overflowLimit);
+      if (System.currentTimeMillis() - timerData.lastTimerFlag > 60 * 1000) {
+        timerData.lastTimerFlag = System.currentTimeMillis();
+        timerData.timerBalance = overflowLimit;
+        return;
+      }
+
       double value = TimeUnit.NANOSECONDS.toMillis(timerData.timerBalance) / 50d;
       if (value < 0.01) {
         value = 0.01;
@@ -157,7 +162,7 @@ public final class Balance extends MetaCheckPart<Timer, Balance.BalanceMeta> {
     }
   }
 
-  private static final long DEFAULT_DELAY = 250;
+  private static final long DEFAULT_DELAY = 500;
   private static final long DEFAULT_THRESHOLD = 5;
 
   private void cancelOnPacketOverflow(Player player, Cancellable cancellable) {
