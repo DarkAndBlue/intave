@@ -123,6 +123,67 @@ public final class DiagnosticsStage extends CommandStage {
   }
 
   @SubCommand(
+    selectors = "teleportspam",
+    usage = "",
+    description = "Spam teleport yourself",
+    permission = "intave.command.diagnostics.performance"
+  )
+  public void teleportSpam(User user) {
+    Player player = user.player();
+    player.sendMessage(ChatColor.RED + "Logout to stop");
+
+    int[] id = {0};
+    id [0] = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+      if (!player.isOnline()) {
+        Bukkit.getScheduler().cancelTask(id[0]);
+        return;
+      }
+      player.teleport(player.getLocation().add(0, 0, 0));
+    }, 20, 3);
+  }
+
+  @SubCommand(
+    selectors = "simnofeedback",
+    usage = "",
+    description = "Spam teleport yourself",
+    permission = "intave.command.diagnostics.performance"
+  )
+  public void simulateNoFeedback(User user) {
+    Player player = user.player();
+    UUID userId = player.getUniqueId();
+
+    player.sendMessage(ChatColor.RED + "You will need to wait one minute to get feedback again.");
+    PacketAdapter adapter = new PacketAdapter(
+      IntavePlugin.singletonInstance(),
+      PacketType.Play.Server.TRANSACTION,
+      PacketType.Play.Server.PING
+    ) {
+      final long timeout = System.currentTimeMillis() + 60000;
+
+      @Override
+      public void onPacketSending(PacketEvent event) {
+        if (System.currentTimeMillis() > timeout) {
+          ProtocolLibrary.getProtocolManager().removePacketListener(this);
+          adapterMap.remove(userId);
+
+          Player blayer = Bukkit.getPlayer(userId);
+          if (blayer.isOnline()) {
+            blayer.sendMessage(IntavePlugin.prefix() + ChatColor.GREEN + "You can now get feedback again.");
+          }
+          return;
+        }
+        event.setCancelled(true);
+      }
+
+      @Override
+      public void onPacketReceiving(PacketEvent event) {
+      }
+    };
+    adapterMap.put(userId, adapter);
+    ProtocolLibrary.getProtocolManager().addPacketListener(adapter);
+  }
+
+  @SubCommand(
     selectors = "resync",
     usage = "",
     permission = "intave.command.diagnostics.performance",

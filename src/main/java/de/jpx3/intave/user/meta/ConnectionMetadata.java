@@ -38,6 +38,9 @@ public final class ConnectionMetadata {
   private final Map<Integer, Integer> globalEntityIdsToLocalIds = Maps.newConcurrentMap();
   private final Set<Integer> globalEntityIdsForRemoval = new HashSet<>();
 
+  public boolean movementPassedForNFS = false;
+  public final Queue<Runnable> nextFeedbackSubscribers = new LinkedList<>();
+
   public final Map<Integer, Integer> duplicationOwners = new HashMap<>();
   public final Map<Integer, DecoySide> decoySides = new HashMap<>();
   public final Set<Integer> duplicatedEntityIds = new HashSet<>();
@@ -68,11 +71,13 @@ public final class ConnectionMetadata {
   public long lastDelayNotification = 0;
   public long lastDelaySlot = 0;
   public long lastBufferEnqueue = 0;
+  public long timestampRequiredForAttack = 0;
   public boolean ignorePacketEnqueue;
   public long delayedPackets = 0;
   public long lastDelayRequest = 0;
   public long blinkDeactivated = 0;
   public long lastRespawn = 0;
+  public long firstEnqueue = 0;
   public boolean lastBlinkState = false;
 
   // Client Synchronization
