@@ -141,7 +141,7 @@ public final class Snap extends MetaCheckPart<PlacementAnalysis, Snap.SnapMeta> 
         .withDefaultThreshold()
         .withMessage(COMMON_FLAG_MESSAGE)
         .withDetails(asWord(meta.degree) + "-tick block-aligned snap")
-        .withVL(25)
+        .withVL(5)
         .build();
       ViolationContext violationContext = Modules.violationProcessor().processViolation(violation);
       if (violationContext.shouldCounterThreat()) {
