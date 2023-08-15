@@ -94,6 +94,10 @@ public final class Interaction {
     return digType;
   }
 
+  public boolean hasFacing() {
+    return !(Float.isNaN(facingX) || Float.isNaN(facingY) || Float.isNaN(facingZ));
+  }
+
   public float facingX() {
     return facingX;
   }
