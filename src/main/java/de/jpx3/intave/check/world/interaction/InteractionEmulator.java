@@ -409,7 +409,7 @@ public final class InteractionEmulator implements EventProcessor {
         Material placementType = VolatileBlockAccess.typeAccess(user, placementLocation); // placementLocation.getBlock().getType();
 
         // remove liquid on location if exists
-        if (MaterialMagic.isLiquid(placementType) && type == InteractionType.INTERACT) {
+        if (MaterialMagic.isLavaOrWater(placementType) && type == InteractionType.INTERACT) {
           // emulate
           if (WorldPermission.bukkitActionPermission(
             player,

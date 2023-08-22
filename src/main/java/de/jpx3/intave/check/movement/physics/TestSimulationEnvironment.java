@@ -485,6 +485,11 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
   }
 
   @Override
+  public void resetPushedByWaterFlowTicks() {
+
+  }
+
+  @Override
   public void resetPhysicsPacketRelinkFlyVL() {
 
   }
@@ -501,11 +506,6 @@ public final class TestSimulationEnvironment implements SimulationEnvironment {
 
   @Override
   public void increaseEdgeSneakTickGrants() {
-
-  }
-
-  @Override
-  public void increaseVehicleTicks() {
 
   }
 

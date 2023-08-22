@@ -108,7 +108,7 @@ public final class LegacyWaterflow {
   private static boolean isBlockSolid(User user, BlockPosition pos, Direction side) {
     World world = user.player().getWorld();
     Material type = VolatileBlockAccess.typeAccess(user, world, pos.xCoord, pos.yCoord, pos.zCoord);
-    return !MaterialMagic.isLiquid(type) && (side == Direction.UP || (type != Material.ICE && MaterialMagic.blockSolid(type)));
+    return !MaterialMagic.couldContainLiquid(type) && (side == Direction.UP || (type != Material.ICE && MaterialMagic.blockSolid(type)));
   }
 
   public static float resolveLiquidHeightPercentage(int level) {

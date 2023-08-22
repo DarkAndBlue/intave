@@ -16,7 +16,7 @@ import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.annotate.refactoring.SplitMeUp;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.Collision;
-import de.jpx3.intave.block.fluid.old.Fluids;
+import de.jpx3.intave.block.fluid.next.Liquids;
 import de.jpx3.intave.block.fluid.old.LegacyWaterflow;
 import de.jpx3.intave.block.state.ExtendedBlockStateCache;
 import de.jpx3.intave.block.type.BlockTypeAccess;
@@ -311,12 +311,15 @@ public final class Physics extends Check {
     ProtocolMetadata clientData = meta.protocol();
     MovementMetadata movementData = meta.movement();
     if (clientData.waterUpdate()) {
-      movementData.inWater = Fluids.handleFluidAcceleration(user, movementData.boundingBox());
+      BoundingBox boundingBox = movementData.boundingBox().shrink(0.001D);
+      movementData.inWater = Liquids.liquidFlow().applyFlowTo(user, boundingBox);
+      //Fluids.handleFluidAcceleration(user, movementData.boundingBox());
     } else {
       BoundingBox boundingBox = movementData.boundingBox()
         .grow(0.0D, -0.4000000059604645D, 0.0D)
         .contract(0.001D, 0.001D, 0.001D);
-      movementData.inWater = LegacyWaterflow.handleMaterialAcceleration(user, boundingBox);
+      movementData.inWater = Liquids.liquidFlow().applyFlowTo(user, boundingBox);
+    //LegacyWaterflow.handleMaterialAcceleration(user, boundingBox);
     }
     if (movementData.inWater) {
       movementData.pastWaterMovement = 0;
@@ -451,18 +454,15 @@ public final class Physics extends Check {
       } else {
         otherSimulation = simulationProcessor.simulateWithoutKeyPress(user, selectSimulator(user));
       }
-
-      Vector lastVelocity = movementData.sneakPatchVelocity;
       Motion setbackMotion = otherSimulation.motion();
-      if (movementData.pastVehicleExitTicks < 10 && distance > 0.8) {
-        predictedX = predictedY = predictedZ = 0;
-      } else if (movementData.isSneaking() &&
+      /*
+       * This will patch the hit-player-sneaking-on-a-block-edge bug (https://youtu.be/ONGnOwhQyac)
+       */
+      Vector lastVelocity = movementData.sneakPatchVelocity;
+      if (movementData.isSneaking() &&
         !movementData.onGround() &&
         lastVelocity != null
       ) {
-        /*
-         * This will patch the hit-player-sneaking-on-a-block-edge bug (https://youtu.be/ONGnOwhQyac)
-         */
         predictedX = Math.abs(setbackMotion.motionX) < 0.05 ? setbackMotion.motionX + MathHelper.minmax(-0.05, lastVelocity.getX(), 0.05) : setbackMotion.motionX;
         predictedY = setbackMotion.motionY;
         predictedZ = Math.abs(setbackMotion.motionZ) < 0.05 ? setbackMotion.motionZ + MathHelper.minmax(-0.05, lastVelocity.getZ(), 0.05) : setbackMotion.motionZ;
@@ -549,12 +549,7 @@ public final class Physics extends Check {
       violationLevelIncrease = Math.min(200.0, violationLevelIncrease);
       violationLevelIncrease = Math.max(1, violationLevelIncrease);
       violationLevelData.physicsVL = MathHelper.minmax(0, violationLevelData.physicsVL + violationLevelIncrease, 200);
-      // if a player continuously flags smaller values, flag him after 2s
-      if (violationLevelData.physicsInvalidMovementsInRow > 40) {
-        violationLevelData.physicsVL += violationLevelData.physicsInvalidMovementsInRow;
-        violationLevelIncrease += violationLevelData.physicsInvalidMovementsInRow;
-      }
-      violationLevelData.physicsInvalidMovementsInRow = Math.min(50, violationLevelData.physicsInvalidMovementsInRow + 1);
+      violationLevelData.physicsInvalidMovementsInRow++;
       if (violationLevelData.physicsVL > 20) {
         if (!IntaveControl.IGNORE_CACHE_REFRESH_ON_SIMULATION_FAULT) {
           blockStateAccess.invalidateAll();
@@ -563,7 +558,7 @@ public final class Physics extends Check {
       // resend attributes
       statisticApply(user, CheckStatistics::increaseFails);
     } else {
-      violationLevelData.physicsInvalidMovementsInRow = Math.max(0, violationLevelData.physicsInvalidMovementsInRow - 0.25);
+      violationLevelData.physicsInvalidMovementsInRow = 0;
       statisticApply(user, CheckStatistics::increasePasses);
     }
 
@@ -781,9 +776,6 @@ public final class Physics extends Check {
       }
       if (movementData.step) {
         debug += ChatColor.ITALIC + " stp:" + formatDouble(movementData.stepHeightThisMove, 5) + chatColor;
-      }
-      if (movementData.inWater) {
-        debug += ChatColor.ITALIC + " wtr" + chatColor;
       }
 //      if (Math.abs(movementData.motionY()) > 0.01) {
 //        debug += simulation.configuration() + " ";

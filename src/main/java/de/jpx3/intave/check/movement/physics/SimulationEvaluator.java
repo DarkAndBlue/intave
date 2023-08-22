@@ -147,10 +147,10 @@ public final class SimulationEvaluator {
         && !movement.inWater
         && !movement.inLava()
         && movement.positionY % 1 > 0.1
-        && movement.pastExternalVelocity > 5;
+        && movement.pastExternalVelocity != 0;
 
     if (movement.inWeb) {
-      verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, criticalWeb ? 0.000001 : 0.13);
+      verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, /*criticalWeb ? 0.000001 : */0.13);
     }
 
     if (movement.pastInWeb < 10 && !movement.inWeb && differenceY < 0.1) {
@@ -174,7 +174,7 @@ public final class SimulationEvaluator {
       boolean offsetPositionInLiquid = MovementCharacteristics.isOffsetPositionInLiquid(
           player, movement.boundingBox(), receivedMotionX, liquidPositionY, receivedMotionZ
       );
-      boolean maybeCollidedHorizontally = Collision.nearSolidBlock(player.getWorld(), movement.boundingBox().grow(0.2));
+      boolean maybeCollidedHorizontally = Collision.nearSolidBlock(user, movement.boundingBox().grow(0.2));
       if (maybeCollidedHorizontally && offsetPositionInLiquid && receivedMotionY < 0.4) {
         verticalLegitimateDeviation = Math.max(verticalLegitimateDeviation, 0.7f);
       }
@@ -267,7 +267,7 @@ public final class SimulationEvaluator {
     } else {
       horizontalLegitimateDeviation = 0.0007;
       if (distance > 0.0007) {
-        boolean collides = Collision.nearSolidBlock(player.getWorld(), movement.boundingBox().growHorizontally(0.001));
+        boolean collides = Collision.nearSolidBlock(user, movement.boundingBox().growHorizontally(0.001));
         if (collides) {
           horizontalLegitimateDeviation = distanceMoved < 0.04 ? 0.04 : 0.002;
         }
@@ -408,10 +408,10 @@ public final class SimulationEvaluator {
       abuseHorizontally *= 0.1;
     }
 
-    boolean movedTooQuicklyInRow = (distanceMoved > 0.3 || violationLevelData.physicsInvalidMovementsInRow >= 8)
+    boolean movedTooQuicklyCheckable = (distanceMoved > 0.3 || violationLevelData.physicsInvalidMovementsInRow >= 8)
         && !flewWithElytra;
 
-    if (movedTooQuickly && movedTooQuicklyInRow && !movement.physicsUnpredictableVelocityExpected) {
+    if (movedTooQuickly && movedTooQuicklyCheckable && !movement.physicsUnpredictableVelocityExpected) {
       //noinspection UnnecessaryLocalVariable
       double vl = abuseHorizontally > 0.2 ? 1000 : Math.max(30, abuseHorizontally * 300);
 //      Bukkit.broadcastMessage(user.player().getName() + " moved too quickly: vl+" + vl + " abuse:" + abuseHorizontally + " | un:" + movement.physicsUnpredictableVelocityExpected);

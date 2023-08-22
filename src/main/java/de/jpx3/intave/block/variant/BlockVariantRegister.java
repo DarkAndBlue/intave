@@ -4,6 +4,7 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.block.variant.index.VariantIndex;
 import de.jpx3.intave.cleanup.ReferenceMap;
+import de.jpx3.intave.cleanup.StartupTasks;
 import org.bukkit.Material;
 
 import java.util.EnumMap;
@@ -31,6 +32,9 @@ public final class BlockVariantRegister {
     if (IntaveControl.DEBUG_VARIANT_COMPILATION) {
       System.out.println("[variant/debug] Indexed " + count + " variations of " + blockCount + " blocks");
     }
+    // After initialization, we usually don't need most of the cache anymore
+    // So we can clear it after startup to lower memory usage
+    StartupTasks.add(BlockVariantRegister::invalidateShadowedVariantCache);
   }
 
   static final BlockVariant EMPTY_ERROR = new EmptyBlockVariant();

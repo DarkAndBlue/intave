@@ -15,7 +15,6 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.InventoryMetadata;
 import de.jpx3.intave.user.meta.MovementMetadata;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.CLIENT_COMMAND;
@@ -103,9 +102,8 @@ public final class InventoryTracker extends Module {
    * @return whether the user is inside a nether portal
    */
   private boolean inNetherPortal(User user) {
-    World world = user.player().getWorld();
     MovementMetadata movementData = user.meta().movement();
-    return Collision.containsBlockInBB(world, movementData.boundingBox(), BlockTypeAccess.NETHER_PORTAL);
+    return Collision.rasterizedTypeSearch(user, movementData.boundingBox(), BlockTypeAccess.NETHER_PORTAL);
   }
 
   //////////////////////////////////////////////////////////////////////////////

@@ -24,7 +24,7 @@ final class Dry implements Liquid {
   }
 
   @Override
-  public boolean source() {
+  public boolean falling() {
     return false;
   }
 

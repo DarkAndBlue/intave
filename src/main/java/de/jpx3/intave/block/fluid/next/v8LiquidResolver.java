@@ -8,28 +8,16 @@ final class v8LiquidResolver implements LiquidResolver {
 
   @Override
   public Liquid liquidFrom(Material type, int variantIndex) {
-    if (type == STATIONARY_WATER) {
-      return StationaryWater.of();
-    } else if (type == STATIONARY_LAVA) {
-      return StationaryLava.of();
-    }
-    boolean isWater = type == Material.WATER;
-    boolean isLava = type == Material.LAVA;
+    boolean isWater = type == Material.WATER || type == STATIONARY_WATER;
+    boolean isLava = type == Material.LAVA || type == STATIONARY_LAVA;
     if (!isWater && !isLava) {
       return Dry.of();
     }
-    float height = liquidHeightFromLevel(variantIndex);
+    float height = heightFromLegacyLevel(variantIndex);
     if (isWater) {
-      return FlowingWater.ofHeight(height);
+      return FlowingWater.ofHeight(height, variantIndex >= 8);
     } else {
-      return FlowingLava.ofHeight(height);
+      return FlowingLava.ofHeight(height, variantIndex >= 8);
     }
-  }
-
-  private static float liquidHeightFromLevel(int level) {
-    if (level >= 8) {
-      level = 0;
-    }
-    return (float) (level + 1) / 9.0F;
   }
 }

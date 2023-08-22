@@ -5,6 +5,8 @@ import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.entity.StaticEntityCollisions;
 import de.jpx3.intave.block.collision.modifier.CollisionModifiers;
+import de.jpx3.intave.block.fluid.next.Liquid;
+import de.jpx3.intave.block.fluid.next.Liquids;
 import de.jpx3.intave.block.physics.MaterialMagic;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.shape.BlockShapes;
@@ -13,6 +15,7 @@ import de.jpx3.intave.block.shape.resolve.ShapeResolver;
 import de.jpx3.intave.block.state.ExtendedBlockStateCache;
 import de.jpx3.intave.block.type.BlockTypeAccess;
 import de.jpx3.intave.block.variant.BlockVariantNativeAccess;
+import de.jpx3.intave.share.BlockPosition;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Position;
 import de.jpx3.intave.user.User;
@@ -29,10 +32,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.LongPredicate;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -287,7 +287,8 @@ public final class Collision {
                 Material material = stateAccess.typeAt(x, y, z);
                 if (CollisionModifiers.isModified(material)) {
                   blockShape = CollisionModifiers.modified(
-                    user, playerBoundingBox, material, x, y, z, blockShape, CollisionOrigin.INTERSECTION_CHECK
+                    user, playerBoundingBox, material, x, y, z,
+                    blockShape, CollisionOrigin.INTERSECTION_CHECK
                   );
                 }
                 boolean blockOutsideBorder = !blockInsideBorder(world, x, z);
@@ -375,50 +376,112 @@ public final class Collision {
     return boundingBoxes.intersectsWith(playerBox);
   }
 
-  public static boolean nearSolidBlock(World world, BoundingBox boundingBox) {
+  public static boolean nearSolidBlock(User user, BoundingBox boundingBox) {
+    return rasterizedTypeSearch(user, boundingBox, material -> {
+      return !MaterialMagic.isLavaOrWater(material) && material != Material.AIR;
+    });
+  }
+
+  public static boolean rasterizedTypeSearch(
+    User user, BoundingBox boundingBox, Material material
+  ) {
+    return rasterizedTypeSearch(user, boundingBox, material::equals);
+  }
+
+  public static boolean rasterizedTypeSearch(
+    User user, BoundingBox boundingBox, Predicate<Material> typePredicate
+  ) {
+    return rasterizedSearch(
+      boundingBox, blockPosition -> typePredicate.test(VolatileBlockAccess.typeAccess(user, blockPosition))
+    );
+  }
+
+  public static boolean rasterizedTypeEnforcement(
+    User user, BoundingBox boundingBox, Predicate<Material> typePredicate
+  ) {
+    return rasterizedEnforcement(
+      boundingBox, blockPosition -> typePredicate.test(VolatileBlockAccess.typeAccess(user, blockPosition))
+    );
+  }
+
+  public static boolean rasterizedLiquidSearch(
+    User user, BoundingBox boundingBox, Predicate<? super Liquid> liquidPredicate
+  ) {
+    return rasterizedSearch(
+      boundingBox, blockPosition -> liquidPredicate.test(Liquids.liquidAt(user, blockPosition))
+    );
+  }
+
+  public static boolean rasterizedLiquidEnforcement(
+    User user, BoundingBox boundingBox, Predicate<? super Liquid> liquidPredicate
+  ) {
+    return rasterizedEnforcement(
+      boundingBox, blockPosition -> liquidPredicate.test(Liquids.liquidAt(user, blockPosition))
+    );
+  }
+
+  public static boolean rasterizedLiquidPresentSearch(
+    User user, BoundingBox boundingBox
+  ) {
+    return rasterizedSearch(
+      boundingBox, blockPosition -> Liquids.liquidPresentAt(user, blockPosition)
+    );
+  }
+
+  public static boolean rasterizedLiquidPresentEnforcement(
+    User user, BoundingBox boundingBox
+  ) {
+    return rasterizedEnforcement(
+      boundingBox, blockPosition -> Liquids.liquidPresentAt(user, blockPosition)
+    );
+  }
+
+  public static boolean rasterizedSearch(
+    BoundingBox boundingBox, Function<? super BlockPosition, Boolean> predicate
+  ) {
+    return collectRasterizedCollisions(
+      boundingBox,
+      predicate, Boolean::booleanValue,
+      Collectors.reducing(false, Boolean::logicalOr)
+    );
+  }
+
+  public static boolean rasterizedEnforcement(
+    BoundingBox boundingBox, Function<? super BlockPosition, Boolean> predicate
+  ) {
+    return collectRasterizedCollisions(
+      boundingBox,
+      predicate, Boolean::booleanValue,
+      Collectors.reducing(true, Boolean::logicalAnd)
+    );
+  }
+
+  public static <I, C, R> R collectRasterizedCollisions(
+    BoundingBox boundingBox,
+    Function<? super BlockPosition, ? extends I> input,
+    Predicate<? super I> isFinal,
+    Collector<I, C, R> collector
+  ) {
+    C container = collector.supplier().get();
+    BiConsumer<C, I> accumulator = collector.accumulator();
+    Function<C, R> finisher = collector.finisher();
     int minX = floor(boundingBox.minX);
-    int maxX = floor(boundingBox.maxX);
     int minY = floor(boundingBox.minY);
-    int maxY = floor(boundingBox.maxY);
     int minZ = floor(boundingBox.minZ);
+    int maxX = floor(boundingBox.maxX);
+    int maxY = floor(boundingBox.maxY);
     int maxZ = floor(boundingBox.maxZ);
     for (int x = minX; x <= maxX; x++) {
       for (int y = minY; y <= maxY; y++) {
         for (int z = minZ; z <= maxZ; z++) {
-          Block block = VolatileBlockAccess.blockAccess(world, x, y, z);
-          Material type = BlockTypeAccess.typeAccess(block);
-          if (!MaterialMagic.isLiquid(type) && BlockTypeAccess.typeAccess(block) != Material.AIR) {
-            return true;
+          I apply = input.apply(new BlockPosition(x, y, z));
+          accumulator.accept(container, apply);
+          if (isFinal.test(apply)) {
+            return finisher.apply(container);
           }
         }
       }
     }
-    return false;
-  }
-
-  public static boolean containsBlockInBB(
-    World world, BoundingBox playerBoundingBox, Material blockType) {
-    return containsBlockInBB(world, playerBoundingBox, material -> material == blockType);
-  }
-
-  public static boolean containsBlockInBB(
-    World world, BoundingBox playerBoundingBox, Function<Material, Boolean> blockTypeApplier) {
-    int minX = floor(playerBoundingBox.minX);
-    int maxX = floor(playerBoundingBox.maxX);
-    int minY = floor(playerBoundingBox.minY);
-    int maxY = floor(playerBoundingBox.maxY);
-    int minZ = floor(playerBoundingBox.minZ);
-    int maxZ = floor(playerBoundingBox.maxZ);
-    for (int x = minX; x <= maxX; x++) {
-      for (int y = minY; y <= maxY; y++) {
-        for (int z = minZ; z <= maxZ; z++) {
-          Block block = VolatileBlockAccess.blockAccess(world, x, y, z);
-          if (blockTypeApplier.apply(BlockTypeAccess.typeAccess(block))) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
+    return finisher.apply(container);
   }
 }

@@ -40,7 +40,7 @@ final class EmptyPrefetchPipe implements ShapeResolverPipeline {
   }
 
   private boolean isEmpty(Material type) {
-    if (MaterialMagic.isLiquid(type)) {
+    if (MaterialMagic.isLavaOrWater(type)) {
       return true;
     }
     switch (type) {

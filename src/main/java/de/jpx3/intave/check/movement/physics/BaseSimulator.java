@@ -136,7 +136,7 @@ class BaseSimulator extends Simulator {
 
   private static int levelOfLiquidAt(User user, Position position) {
     Material material = VolatileBlockAccess.typeAccess(user, user.player().getWorld(), position);
-    if (MaterialMagic.isLiquid(material)) {
+    if (MaterialMagic.isLavaOrWater(material)) {
       BlockVariant variant = VolatileBlockAccess.variantAccess(user, position);
       return variant == null ? -1 : variant.propertyOf("level");
     } else {

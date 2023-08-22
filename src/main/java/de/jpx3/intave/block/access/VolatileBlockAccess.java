@@ -132,6 +132,10 @@ public final class VolatileBlockAccess {
     return typeAccess(user, location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
   }
 
+  public static Material typeAccess(User user, BlockPosition position) {
+    return typeAccess(user, user.player().getWorld(), position.getBlockX(), position.getBlockY(), position.getBlockZ());
+  }
+
   public static Material typeAccess(User user, World world, Position position) {
     return typeAccess(user, world, position.getBlockX(), position.getBlockY(), position.getBlockZ());
   }
@@ -156,6 +160,10 @@ public final class VolatileBlockAccess {
     return variantAccess(user, location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
   }
 
+  public static BlockVariant variantAccess(User user, BlockPosition position) {
+    return variantAccess(user, user.player().getWorld(), position.getBlockX(), position.getBlockY(), position.getBlockZ());
+  }
+
   public static BlockVariant variantAccess(User user, World blockAccess, double x, double y, double z) {
     return variantAccess(user, blockAccess, floor(x), floor(y), floor(z));
   }
@@ -176,6 +184,10 @@ public final class VolatileBlockAccess {
 
   public static int variantIndexAccess(User user, Location location) {
     return variantIndexAccess(user, location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+  }
+
+  public static int variantIndexAccess(User user, BlockPosition position) {
+    return variantIndexAccess(user, user.player().getWorld(), position.getBlockX(), position.getBlockY(), position.getBlockZ());
   }
 
   public static int variantIndexAccess(User user, World blockAccess, double x, double y, double z) {

@@ -13,6 +13,7 @@ import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.Collision;
+import de.jpx3.intave.block.fluid.next.Liquid;
 import de.jpx3.intave.block.fluid.old.Fluid;
 import de.jpx3.intave.block.fluid.old.Fluids;
 import de.jpx3.intave.block.physics.BlockProperties;
@@ -677,7 +678,7 @@ public final class MovementMetadata implements SimulationEnvironment {
         -0.4000000059604645D,
         -0.1f
       );
-      return MovementCharacteristics.isLavaInBB(user, player.getWorld(), lavaBoundingBox);
+      return Collision.rasterizedLiquidSearch(user, lavaBoundingBox, Liquid::isOfLava);
     }
   }
 

@@ -9,34 +9,23 @@ final class v12LiquidResolver implements LiquidResolver {
 
   @Override
   public Liquid liquidFrom(Material type, int variantIndex) {
-    if (type == STATIONARY_WATER) {
-      return StationaryWater.of();
-    } else if (type == STATIONARY_LAVA) {
-      return StationaryLava.of();
-    }
-    boolean isWater = type == Material.WATER;
-    boolean isLava = type == Material.LAVA;
+    boolean isWater = type == Material.WATER || type == STATIONARY_WATER;
+    boolean isLava = type == Material.LAVA || type == STATIONARY_LAVA;
     if (!isWater && !isLava) {
       return Dry.of();
     }
-    float height = liquidHeightFromLevel(levelOfLiquidAt(type, variantIndex));
+    int level = levelOf(type, variantIndex);
+    float height = heightFromLegacyLevel(level);
     if (isWater) {
-      return FlowingWater.ofHeight(height);
+      return FlowingWater.ofHeight(height, level >= 8);
     } else {
-      return FlowingLava.ofHeight(height);
+      return FlowingLava.ofHeight(height, level >= 8);
     }
   }
 
-  private static int levelOfLiquidAt(Material material, int variantIndex) {
+  private static int levelOf(Material material, int variantIndex) {
     return BlockVariantRegister
       .variantOf(material, variantIndex)
       .propertyOf("level");
-  }
-
-  private static float liquidHeightFromLevel(int level) {
-    if (level >= 8) {
-      level = 0;
-    }
-    return (float) (level + 1) / 9.0F;
   }
 }

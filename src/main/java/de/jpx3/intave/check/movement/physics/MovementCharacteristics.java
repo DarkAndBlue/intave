@@ -4,6 +4,7 @@ import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.annotate.refactoring.WhyMustIExist;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.Collision;
+import de.jpx3.intave.block.fluid.next.Liquid;
 import de.jpx3.intave.block.physics.BlockProperties;
 import de.jpx3.intave.block.physics.MaterialMagic;
 import de.jpx3.intave.block.variant.BlockVariant;
@@ -101,68 +102,24 @@ public final class MovementCharacteristics {
   @IdoNotBelongHere
   @WhyMustIExist
   public static boolean isAnyLiquid(World world, User user, BoundingBox boundingBox) {
-    int minX = floor(boundingBox.minX);
-    int minY = floor(boundingBox.minY);
-    int minZ = floor(boundingBox.minZ);
-    int maxX = floor(boundingBox.maxX);
-    int maxY = floor(boundingBox.maxY);
-    int maxZ = floor(boundingBox.maxZ);
-    for (int x = minX; x <= maxX; ++x) {
-      for (int y = minY; y <= maxY; ++y) {
-        for (int z = minZ; z <= maxZ; ++z) {
-          Material material = VolatileBlockAccess.typeAccess(user, world, x, y, z);
-          if (MaterialMagic.isLiquidOrSeaBlock(material)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-
-  @Deprecated
-  @IdoNotBelongHere
-  @WhyMustIExist
-  public static boolean isAllLiquid(User user, World world, BoundingBox boundingBox) {
-    int minX = floor(boundingBox.minX);
-    int minY = floor(boundingBox.minY);
-    int minZ = floor(boundingBox.minZ);
-    int maxX = floor(boundingBox.maxX);
-    int maxY = floor(boundingBox.maxY);
-    int maxZ = floor(boundingBox.maxZ);
-    for (int x = minX; x <= maxX; ++x) {
-      for (int y = minY; y <= maxY; ++y) {
-        for (int z = minZ; z <= maxZ; ++z) {
-          Material material = VolatileBlockAccess.typeAccess(user, world, x, y, z);
-          if (!MaterialMagic.isLiquid(material)) {
-            return false;
-          }
-        }
-      }
-    }
-    return true;
-  }
-
-  @Deprecated
-  @IdoNotBelongHere
-  @WhyMustIExist
-  public static boolean isLavaInBB(User user, World world, BoundingBox boundingBox) {
-    int minX = floor(boundingBox.minX);
-    int minY = floor(boundingBox.minY);
-    int minZ = floor(boundingBox.minZ);
-    int maxX = floor(boundingBox.maxX + 1.0D);
-    int maxY = floor(boundingBox.maxY + 1.0D);
-    int maxZ = floor(boundingBox.maxZ + 1.0D);
-    for (int x = minX; x < maxX; ++x) {
-      for (int y = minY; y < maxY; ++y) {
-        for (int z = minZ; z < maxZ; ++z) {
-          if (MaterialMagic.isLava(VolatileBlockAccess.typeAccess(user, world, x, y, z))) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
+//    int minX = floor(boundingBox.minX);
+//    int minY = floor(boundingBox.minY);
+//    int minZ = floor(boundingBox.minZ);
+//    int maxX = floor(boundingBox.maxX);
+//    int maxY = floor(boundingBox.maxY);
+//    int maxZ = floor(boundingBox.maxZ);
+//    for (int x = minX; x <= maxX; ++x) {
+//      for (int y = minY; y <= maxY; ++y) {
+//        for (int z = minZ; z <= maxZ; ++z) {
+//          Material material = VolatileBlockAccess.typeAccess(user, world, x, y, z);
+//          if (MaterialMagic.isLiquidOrSeaBlock(material)) {
+//            return true;
+//          }
+//        }
+//      }
+//    }
+//    return false;
+    return Collision.rasterizedLiquidPresentEnforcement(user, boundingBox);
   }
 
   @Deprecated

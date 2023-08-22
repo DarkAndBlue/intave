@@ -2,9 +2,16 @@ package de.jpx3.intave.block.fluid.next;
 
 class FlowingLava implements Liquid {
   private final float height;
+  private final boolean falling;
 
-  private FlowingLava(float height) {
+  private FlowingLava(float height, boolean falling) {
     this.height = height;
+    this.falling = falling;
+  }
+
+  @Override
+  public boolean isDry() {
+    return false;
   }
 
   @Override
@@ -18,28 +25,24 @@ class FlowingLava implements Liquid {
   }
 
   @Override
-  public boolean isDry() {
-    return false;
-  }
-
-  @Override
   public float height() {
     return height;
   }
 
   @Override
-  public boolean source() {
-    return false;
+  public boolean falling() {
+    return falling;
   }
 
   @Override
   public String toString() {
     return "FlowingLava{" +
       "height=" + height +
+      ", falling=" + falling +
       '}';
   }
 
-  static FlowingLava ofHeight(float height) {
-    return new FlowingLava(height);
+  public static FlowingLava ofHeight(float height, boolean falling) {
+    return new FlowingLava(height, falling);
   }
 }

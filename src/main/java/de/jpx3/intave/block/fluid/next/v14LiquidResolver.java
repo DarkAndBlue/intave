@@ -1,5 +1,6 @@
 package de.jpx3.intave.block.fluid.next;
 
+import de.jpx3.intave.block.variant.BlockVariant;
 import de.jpx3.intave.block.variant.BlockVariantRegister;
 import de.jpx3.intave.klass.rewrite.PatchyAutoTranslation;
 import net.minecraft.server.v1_14_R1.Fluid;
@@ -20,11 +21,13 @@ final class v14LiquidResolver implements LiquidResolver {
     if (fluid == null) {
       return Dry.of();
     }
+    BlockVariant variant = BlockVariantRegister.variantOf(type, variantIndex);
     boolean dry = fluid.isEmpty();
     boolean isWater = fluid.a(TagsFluid.WATER);
     boolean isLava = fluid.a(TagsFluid.LAVA);
     boolean source = fluid.isSource();
+    boolean falling = variant.propertyOf("falling");
     float height = fluid.f();
-    return select(isWater, isLava, dry, height, source);
+    return select(isWater, isLava, dry, falling, height, source);
   }
 }
