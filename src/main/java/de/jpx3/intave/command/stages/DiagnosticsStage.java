@@ -25,6 +25,10 @@ import de.jpx3.intave.resource.Resource;
 import de.jpx3.intave.resource.ResourceRegistry;
 import de.jpx3.intave.security.HashAccess;
 import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.UserRepository;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -53,6 +57,42 @@ public final class DiagnosticsStage extends CommandStage {
   private DiagnosticsStage() {
     super(BaseStage.singletonInstance(), "diagnostics");
     plugin = IntavePlugin.singletonInstance();
+  }
+
+  @SubCommand(
+    selectors = "environment",
+    usage = "",
+    description = "Dumps environment infos to a players chat",
+    permission = "intave.command.diagnostics.performance"
+  )
+  @Native
+  public void environment(CommandSender sender) {
+    Player player = null;
+    String playerVersion = "";
+    if (sender instanceof Player) {
+      player = ((Player) sender);
+      User user = UserRepository.userOf(player);
+      ProtocolMetadata protocol = user.meta().protocol();
+      playerVersion = protocol.versionString() + "@" + protocol.protocolVersion();
+      sender.sendMessage(ChatColor.GRAY + "Player is " + ChatColor.WHITE + playerVersion);
+    } else {
+      sender.sendMessage(ChatColor.GRAY + "Run this command in-game to display client version");
+    }
+    String intaveVersion = IntavePlugin.version();
+    String serverVersion = Bukkit.getName() + "@" + Bukkit.getVersion();
+    String protocolLibVersion = ProtocolLibrary.getPlugin().getDescription().getVersion();
+    sender.sendMessage(ChatColor.GRAY + "Spigot is " + ChatColor.WHITE + serverVersion);
+    sender.sendMessage(ChatColor.GRAY + "ProtocolLib is " + ChatColor.WHITE + protocolLibVersion);
+    sender.sendMessage(ChatColor.GRAY + "Intave is " + ChatColor.WHITE + intaveVersion);
+
+    TextComponent message = new TextComponent("[Copy report message to chat]");
+    message.setColor(net.md_5.bungee.api.ChatColor.GRAY);
+    message.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "Environment: `" +playerVersion + "`,`" + serverVersion + "`,`" + protocolLibVersion + "`,`" + intaveVersion + "`"));
+
+    if (player != null) {
+      // Send the message to the player
+      player.spigot().sendMessage(message);
+    }
   }
 
   @SubCommand(
@@ -136,7 +176,7 @@ public final class DiagnosticsStage extends CommandStage {
     player.sendMessage(ChatColor.RED + "Logout to stop");
 
     int[] id = {0};
-    id [0] = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
+    id[0] = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
       if (!player.isOnline()) {
         Bukkit.getScheduler().cancelTask(id[0]);
         return;
@@ -193,7 +233,7 @@ public final class DiagnosticsStage extends CommandStage {
   @SubCommand(
     selectors = "simnofeedback",
     usage = "",
-    description = "Spam teleport yourself",
+    description = "Temporarily ignore feedback packets",
     permission = "intave.command.diagnostics.performance"
   )
   public void simulateNoFeedback(User user) {
@@ -453,7 +493,7 @@ public final class DiagnosticsStage extends CommandStage {
       .map(o -> o == null ? "null" : o.toString())
       .filter(s -> !s.isEmpty())
       .collect(Collectors.joining(", "));
-    return "{"+ contents + "}";
+    return "{" + contents + "}";
   }
 
   private static final DateTimeFormatter FILE_MESSAGE_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-mm-ss");
