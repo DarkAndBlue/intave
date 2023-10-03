@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.annotate.DispatchTarget;
 import de.jpx3.intave.annotate.Relocate;
+import de.jpx3.intave.executor.RateLimiter;
 import de.jpx3.intave.math.Occurrences;
 import de.jpx3.intave.module.feedback.DelayedPacket;
 import de.jpx3.intave.module.feedback.FeedbackQueue;
@@ -20,6 +21,7 @@ import org.bukkit.entity.Player;
 import java.util.*;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 @Relocate
 public final class ConnectionMetadata {
@@ -47,6 +49,8 @@ public final class ConnectionMetadata {
   public final Set<Integer> shouldNotBeAttacked = new HashSet<>();
   @Deprecated
   public boolean markAttackInvalid;
+
+  public RateLimiter refreshBlockRatelimit = new RateLimiter(400, 2, TimeUnit.SECONDS);
 
   public int windowClickId;
 
