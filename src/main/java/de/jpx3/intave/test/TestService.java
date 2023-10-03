@@ -7,6 +7,7 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.annotate.HighOrderService;
 import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.block.access.BlockAccessTests;
+import de.jpx3.intave.block.fluid.FluidTests;
 import de.jpx3.intave.block.shape.BlockShapeTests;
 import de.jpx3.intave.block.shape.resolve.BlockShapeDrillTests;
 import de.jpx3.intave.block.shape.resolve.BlockShapePipelineTests;
@@ -164,6 +165,7 @@ public final class TestService implements EventProcessor {
       performTest(BlockShapeTests.class);
       performTest(StorageTests.class);
       performTest(ReaderTests.class);
+      performTest(FluidTests.class);
 
       // checks
       performTest(SimulatorBasicTests.class);

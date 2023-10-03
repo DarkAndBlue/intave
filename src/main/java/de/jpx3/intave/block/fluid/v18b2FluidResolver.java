@@ -12,7 +12,7 @@ import org.bukkit.Material;
 import java.lang.invoke.MethodHandle;
 
 @PatchyAutoTranslation
-final class v18B2FluidResolver implements FluidResolver {
+final class v18b2FluidResolver implements FluidResolver {
   private static Object TAG_KEY_WATER = null;
   private static Object TAG_KEY_LAVA = null;
 
@@ -42,7 +42,7 @@ final class v18B2FluidResolver implements FluidResolver {
       net.minecraft.world.level.material.Fluid fluid = blockData.getBlock().c_(blockData);
       boolean dry = fluid.isEmpty();
       boolean isWater = !dry && (boolean) resolveTagKey.invoke(fluid, TAG_KEY_WATER);
-      boolean isLava = !dry && (boolean) resolveTagKey.invoke(fluid, TAG_KEY_WATER);
+      boolean isLava = !dry && (boolean) resolveTagKey.invoke(fluid, TAG_KEY_LAVA);
       boolean source = fluid.isSource();
       float height = fluid.d();
       BlockVariant variant = BlockVariantRegister.variantOf(type, variantIndex);

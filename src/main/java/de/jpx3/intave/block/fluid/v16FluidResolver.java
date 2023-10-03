@@ -25,10 +25,13 @@ final class v16FluidResolver implements FluidResolver {
     boolean isWater = fluid.a(TagsFluid.WATER);
     boolean isLava = fluid.a(TagsFluid.LAVA);
     boolean source = fluid.isSource();
-    boolean falling = variant.propertyOf("falling");
+    Boolean fallingProperty = dry ? null : variant.propertyOf("falling");
+    if (fallingProperty == null) {
+      fallingProperty = false;
+    }
     int level = fluid.e();
     float height = level / 9f;
-    return select(isWater, isLava, dry, falling, height, level);
+    return select(isWater, isLava, dry, fallingProperty, height, level);
   }
 }
 

@@ -240,7 +240,7 @@ public final class Collision {
       && boundingBox.minZ < maxZ);
   }
 
-  private static final ShapeResolverPipeline SHAPE_RESOLVER = ShapeResolver.globalPipeline();
+  private static final ShapeResolverPipeline SHAPE_RESOLVER = ShapeResolver.pipelineHead();
 
   @Deprecated
   // I suck, please remove
@@ -389,7 +389,7 @@ public final class Collision {
   }
 
   public static boolean rasterizedTypeSearch(
-    User user, BoundingBox boundingBox, Predicate<Material> typePredicate
+    User user, BoundingBox boundingBox, Predicate<? super Material> typePredicate
   ) {
     return rasterizedSearch(
       boundingBox, blockPosition -> typePredicate.test(VolatileBlockAccess.typeAccess(user, blockPosition))
@@ -397,7 +397,7 @@ public final class Collision {
   }
 
   public static boolean rasterizedTypeEnforcement(
-    User user, BoundingBox boundingBox, Predicate<Material> typePredicate
+    User user, BoundingBox boundingBox, Predicate<? super Material> typePredicate
   ) {
     return rasterizedEnforcement(
       boundingBox, blockPosition -> typePredicate.test(VolatileBlockAccess.typeAccess(user, blockPosition))
@@ -440,8 +440,7 @@ public final class Collision {
     BoundingBox boundingBox, Function<? super BlockPosition, Boolean> predicate
   ) {
     return collectRasterizedCollisions(
-      boundingBox,
-      predicate, Boolean::booleanValue,
+      boundingBox, predicate, Boolean::booleanValue,
       Collectors.reducing(false, Boolean::logicalOr)
     );
   }
@@ -450,8 +449,7 @@ public final class Collision {
     BoundingBox boundingBox, Function<? super BlockPosition, Boolean> predicate
   ) {
     return collectRasterizedCollisions(
-      boundingBox,
-      predicate, Boolean::booleanValue,
+      boundingBox, predicate, Boolean::booleanValue,
       Collectors.reducing(true, Boolean::logicalAnd)
     );
   }

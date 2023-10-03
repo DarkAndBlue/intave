@@ -4,12 +4,12 @@ import de.jpx3.intave.block.physics.MaterialMagic;
 import de.jpx3.intave.block.variant.BlockVariant;
 import de.jpx3.intave.block.variant.BlockVariantRegister;
 import de.jpx3.intave.klass.rewrite.PatchyAutoTranslation;
-import net.minecraft.server.v1_14_R1.IBlockData;
-import net.minecraft.server.v1_14_R1.TagsFluid;
+import net.minecraft.server.v1_15_R1.IBlockData;
+import net.minecraft.server.v1_15_R1.TagsFluid;
 import org.bukkit.Material;
 
 @PatchyAutoTranslation
-final class v14FluidResolver implements FluidResolver {
+public final class v15FluidResolver implements FluidResolver {
   @Override
   @PatchyAutoTranslation
   public Fluid liquidFrom(Material type, int variantIndex) {
@@ -17,7 +17,7 @@ final class v14FluidResolver implements FluidResolver {
     if (blockData == null) {
       return Dry.of();
     }
-    net.minecraft.server.v1_14_R1.Fluid fluid = blockData.p();
+    net.minecraft.server.v1_15_R1.Fluid fluid = blockData.getFluid();
     if (fluid == null) {
       return Dry.of();
     }

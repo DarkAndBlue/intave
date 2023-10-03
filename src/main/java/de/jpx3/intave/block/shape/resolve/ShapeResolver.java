@@ -19,7 +19,7 @@ import static de.jpx3.intave.adapter.MinecraftVersions.VER1_13_0;
  * </ul>
  * in the given order.
  * <br>
- * Use {@link ShapeResolver#globalPipeline()} to retrieve the pipelines head.
+ * Use {@link ShapeResolver#pipelineHead()} to retrieve the pipelines head.
  *
  * @see ShapeResolverPipeline
  * @see ExtendedBlockStateCache
@@ -48,7 +48,11 @@ public final class ShapeResolver {
     return resolver;
   }
 
-  public static ShapeResolverPipeline globalPipeline() {
+  public static ShapeResolverPipeline pipelineHead() {
     return GLOBAL;
+  }
+
+  public static ShapeResolverPipeline pipelineDrill() {
+    return DrillResolver.selectedDrill();
   }
 }

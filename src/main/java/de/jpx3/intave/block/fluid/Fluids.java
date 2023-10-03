@@ -5,6 +5,7 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.block.state.BlockStateCache;
 import de.jpx3.intave.block.state.ExtendedBlockStateCache;
+import de.jpx3.intave.block.variant.BlockVariant;
 import de.jpx3.intave.block.variant.BlockVariantRegister;
 import de.jpx3.intave.klass.rewrite.PatchyLoadingInjector;
 import de.jpx3.intave.share.BlockPosition;
@@ -16,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static de.jpx3.intave.adapter.MinecraftVersions.*;
 
@@ -27,15 +29,17 @@ public class Fluids {
   public static void setup() {
     String className;
     if (VER1_18_2.atOrAbove()) {
-      className = "de.jpx3.intave.block.fluid.next.v18b2LiquidResolver";
+      className = "de.jpx3.intave.block.fluid.v18b2FluidResolver";
     } else if (VER1_16_0.atOrAbove()) {
-      className = "de.jpx3.intave.block.fluid.next.v16LiquidResolver";
+      className = "de.jpx3.intave.block.fluid.v16FluidResolver";
+    } else if (VER1_15_0.atOrAbove()) {
+      className = "de.jpx3.intave.block.fluid.v15FluidResolver";
     } else if (VER1_14_0.atOrAbove()) {
-      className = "de.jpx3.intave.block.fluid.next.v14LiquidResolver";
+      className = "de.jpx3.intave.block.fluid.v14FluidResolver";
     } else if (VER1_13_0.atOrAbove()) {
-      className = "de.jpx3.intave.block.fluid.next.v13LiquidResolver";
+      className = "de.jpx3.intave.block.fluid.v13FluidResolver";
     } else {
-      className = "de.jpx3.intave.block.fluid.next.v12LiquidResolver";
+      className = "de.jpx3.intave.block.fluid.v12FluidResolver";
     }
     PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), className);
     try {
@@ -46,30 +50,27 @@ public class Fluids {
 
     waterflow = new WaterFlow();
 
-    int variantCount = 0;
-    int liquidCount = 0;
     for (Material value : Material.values()) {
       if (value.isBlock()) {
         boolean anyLiquid = false;
         Map<Integer, Fluid> variants = new HashMap<>();
         for (int variantIndex : BlockVariantRegister.variantIdsOf(value)) {
-          Fluid currentFluid = resolver.liquidFrom(value, variantIndex);
-          if (!currentFluid.isDry()) {
-//            BlockVariant properties = BlockVariantRegister.uncachedVariantOf(value, variantIndex);
-//            String propertyString = "{"+properties.propertyNames().stream().map(s -> s + ": " + properties.propertyOf(s)).collect(Collectors.joining(", ")) +"}";
-//            System.out.println("Found liquid " + currentLiquid + " at " + value + ":" + propertyString);
-            anyLiquid = true;
-            liquidCount++;
+          try {
+            Fluid currentFluid = resolver.liquidFrom(value, variantIndex);
+            variants.put(variantIndex, currentFluid);
+            anyLiquid |= !currentFluid.isDry();
+          } catch (Exception exception) {
+            BlockVariant properties = BlockVariantRegister.uncachedVariantOf(value, variantIndex);
+            String propertyString = "{"+properties.propertyNames().stream().map(s -> s + ": " + properties.propertyOf(s)).collect(Collectors.joining(", ")) +"}";
+            IntaveLogger.logger().error("Failed to index fluid " + value + ":" + variantIndex + " " + propertyString);
+            exception.printStackTrace();
           }
-          variants.put(variantIndex, currentFluid);
-          variantCount++;
         }
         if (anyLiquid) {
           liquidData.put(value, variants);
         }
       }
     }
-    IntaveLogger.logger().info("Indexed " + liquidCount + " fluids from " + variantCount + " block variants");
   }
 
   public static FluidFlow waterflow() {

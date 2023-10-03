@@ -100,23 +100,6 @@ public final class MovementCharacteristics {
   @IdoNotBelongHere
   @WhyMustIExist
   public static boolean isAnyLiquid(World world, User user, BoundingBox boundingBox) {
-//    int minX = floor(boundingBox.minX);
-//    int minY = floor(boundingBox.minY);
-//    int minZ = floor(boundingBox.minZ);
-//    int maxX = floor(boundingBox.maxX);
-//    int maxY = floor(boundingBox.maxY);
-//    int maxZ = floor(boundingBox.maxZ);
-//    for (int x = minX; x <= maxX; ++x) {
-//      for (int y = minY; y <= maxY; ++y) {
-//        for (int z = minZ; z <= maxZ; ++z) {
-//          Material material = VolatileBlockAccess.typeAccess(user, world, x, y, z);
-//          if (MaterialMagic.isLiquidOrSeaBlock(material)) {
-//            return true;
-//          }
-//        }
-//      }
-//    }
-//    return false;
     return Collision.rasterizedLiquidPresentEnforcement(user, boundingBox);
   }
 
