@@ -375,8 +375,7 @@ public final class MovementMetadata implements SimulationEnvironment {
     ProtocolMetadata clientData = meta.protocol();
     if (clientData.trailsAndTailsUpdate()) {
       Position block;
-      BoundingBox boundingBox = BoundingBox.fromPosition(user, this, positionX, positionY, positionZ);
-//      BoundingBox boundingBox = boundingBox();
+      BoundingBox boundingBox = BoundingBox.fromPosition(user, this, verifiedPositionX, verifiedPositionY, verifiedPositionZ);
       BoundingBox secondBoundingBox = new BoundingBox(
         boundingBox.minX, boundingBox.minY - 0.000001, boundingBox.minZ,
         boundingBox.maxX, boundingBox.minY, boundingBox.maxZ
@@ -424,9 +423,7 @@ public final class MovementMetadata implements SimulationEnvironment {
           mainSupportingBlockPos.getBlockZ()
         );
       } else {
-        return VolatileBlockAccess.typeAccess(
-          user, player.getWorld(), mainSupportingBlockPos
-        );
+        return blockType;
       }
     } else {
       // 1.8 - 1.19

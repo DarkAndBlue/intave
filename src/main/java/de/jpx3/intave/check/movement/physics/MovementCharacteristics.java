@@ -1,7 +1,5 @@
 package de.jpx3.intave.check.movement.physics;
 
-import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
-import de.jpx3.intave.annotate.refactoring.WhyMustIExist;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.physics.BlockProperties;
@@ -14,19 +12,13 @@ import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.EffectMetadata;
 import de.jpx3.intave.user.meta.MovementMetadata;
 import de.jpx3.intave.user.meta.ProtocolMetadata;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.share.ClientMath.floor;
 
-@Deprecated
-@WhyMustIExist
 public final class MovementCharacteristics {
-  @Deprecated
-  @IdoNotBelongHere
-  @WhyMustIExist
   public static double jumpMotionFor(Player player, float jumpUpwardsMotion) {
     User user = UserRepository.userOf(player);
     boolean infiniteEffectsAllowed = user.protocolVersion() >= 763;
@@ -39,9 +31,6 @@ public final class MovementCharacteristics {
     return jumpUpwardsMotion;
   }
 
-  @Deprecated
-  @IdoNotBelongHere
-  @WhyMustIExist
   public static float resolveFriction(User user, boolean sprinting, double positionX, double positionY, double positionZ) {
     MovementMetadata movementData = user.meta().movement();
     World world = user.player().getWorld();
@@ -62,25 +51,19 @@ public final class MovementCharacteristics {
     return speed;
   }
 
-  @Deprecated
-  @IdoNotBelongHere
-  @WhyMustIExist
-  public static float currentSlipperiness(User user, Location location) {
-    Material type = VolatileBlockAccess.typeAccess(user, location);
-    return BlockProperties.of(type).slipperiness() * 0.91f;
-  }
-
-  @Deprecated
-  @IdoNotBelongHere
-  @WhyMustIExist
   public static float currentSlipperiness(User user, World world, double blockPositionX, double blockPositionY, double blockPositionZ) {
-    Material type = VolatileBlockAccess.typeAccess(user, world, blockPositionX, blockPositionY, blockPositionZ);
+    Material type;
+
+    boolean improvedSlipperiness = user.meta().protocol().trailsAndTailsUpdate();
+    if (improvedSlipperiness) {
+      type = user.meta().movement().frictionMaterial();
+    } else {
+      type = VolatileBlockAccess.typeAccess(user, world, blockPositionX, blockPositionY, blockPositionZ);
+    }
+
     return BlockProperties.of(type).slipperiness() * 0.91f;
   }
 
-  @Deprecated
-  @IdoNotBelongHere
-  @WhyMustIExist
   public static boolean isOffsetPositionInLiquid(
     Player player,
     BoundingBox entityBoundingBox,
@@ -89,23 +72,14 @@ public final class MovementCharacteristics {
     return isLiquidPresentInAABB(player, entityBoundingBox.offset(x, y, z));
   }
 
-  @Deprecated
-  @IdoNotBelongHere
-  @WhyMustIExist
   private static boolean isLiquidPresentInAABB(Player player, BoundingBox boundingBox) {
     return Collision.nonePresent(player, boundingBox) && !isAnyLiquid(player.getWorld(), UserRepository.userOf(player), boundingBox);
   }
 
-  @Deprecated
-  @IdoNotBelongHere
-  @WhyMustIExist
   public static boolean isAnyLiquid(World world, User user, BoundingBox boundingBox) {
     return Collision.rasterizedLiquidPresentEnforcement(user, boundingBox);
   }
 
-  @Deprecated
-  @IdoNotBelongHere
-  @WhyMustIExist
   public static boolean onClimbable(User user, double positionX, double positionY, double positionZ) {
     Player player = user.player();
     ProtocolMetadata clientData = user.meta().protocol();
@@ -121,9 +95,6 @@ public final class MovementCharacteristics {
     return BlockProperties.of(type).climbable();
   }
 
-  @Deprecated
-  @IdoNotBelongHere
-  @WhyMustIExist
   private static boolean canGoThroughTrapDoorOnLadder(User user, double positionX, double positionY, double positionZ) {
     BlockVariant variant = VolatileBlockAccess.variantAccess(user, user.player().getWorld(), positionX, positionY, positionZ);
     boolean isOpen = variant.propertyOf("open");
