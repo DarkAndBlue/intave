@@ -165,14 +165,14 @@ public final class SimulationEvaluator {
 
     // Jump out of water
     if (movement.pastWaterMovement <= 3) {
-      double liquidPositionY;
+      double liquidMotionY;
       if (protocol.waterUpdate()) {
-        liquidPositionY = receivedMotionY + 0.6f - movement.positionY + movement.verifiedPositionY;
+        liquidMotionY = receivedMotionY + 0.6f /*- movement.positionY + movement.verifiedPositionY*/;
       } else {
-        liquidPositionY = receivedMotionY + 0.3f;
+        liquidMotionY = receivedMotionY + 0.3f;
       }
       boolean offsetPositionInLiquid = MovementCharacteristics.isOffsetPositionInLiquid(
-          player, movement.boundingBox(), receivedMotionX, liquidPositionY, receivedMotionZ
+        player, movement.boundingBox(), receivedMotionX, liquidMotionY, receivedMotionZ
       );
       boolean maybeCollidedHorizontally = Collision.nearSolidBlock(user, movement.boundingBox().grow(0.2));
       if (maybeCollidedHorizontally && offsetPositionInLiquid && receivedMotionY < 0.4) {

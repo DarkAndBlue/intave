@@ -39,8 +39,10 @@ public class Fluids {
       className = "de.jpx3.intave.block.fluid.v14FluidResolver";
     } else if (VER1_13_0.atOrAbove()) {
       className = "de.jpx3.intave.block.fluid.v13FluidResolver";
-    } else {
+    } else if (VER1_12_0.atOrAbove()) {
       className = "de.jpx3.intave.block.fluid.v12FluidResolver";
+    } else {
+      className = "de.jpx3.intave.block.fluid.v8FluidResolver";
     }
     PatchyLoadingInjector.loadUnloadedClassPatched(IntavePlugin.class.getClassLoader(), className);
     try {

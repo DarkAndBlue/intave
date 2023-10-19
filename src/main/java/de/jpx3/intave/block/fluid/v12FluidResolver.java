@@ -15,7 +15,7 @@ final class v12FluidResolver implements FluidResolver {
       return Dry.of();
     }
     int level = levelOf(type, variantIndex);
-    float height = heightFromLegacyLevel(level);
+    float height = 1 - heightFromLegacyLevel(level);
     if (isWater) {
       return Water.ofHeight(height, level, level >= 8);
     } else {

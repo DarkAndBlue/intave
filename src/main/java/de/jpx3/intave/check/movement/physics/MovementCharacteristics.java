@@ -16,6 +16,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import static de.jpx3.intave.block.collision.Collision.rasterizedLiquidPresentEnforcement;
 import static de.jpx3.intave.share.ClientMath.floor;
 
 public final class MovementCharacteristics {
@@ -69,15 +70,8 @@ public final class MovementCharacteristics {
     BoundingBox entityBoundingBox,
     double x, double y, double z
   ) {
-    return isLiquidPresentInAABB(player, entityBoundingBox.offset(x, y, z));
-  }
-
-  private static boolean isLiquidPresentInAABB(Player player, BoundingBox boundingBox) {
-    return Collision.nonePresent(player, boundingBox) && !isAnyLiquid(player.getWorld(), UserRepository.userOf(player), boundingBox);
-  }
-
-  public static boolean isAnyLiquid(World world, User user, BoundingBox boundingBox) {
-    return Collision.rasterizedLiquidPresentEnforcement(user, boundingBox);
+    BoundingBox boundingBox = entityBoundingBox.offset(x, y, z);
+    return Collision.nonePresent(player, boundingBox) && !rasterizedLiquidPresentEnforcement(UserRepository.userOf(player), boundingBox);
   }
 
   public static boolean onClimbable(User user, double positionX, double positionY, double positionZ) {

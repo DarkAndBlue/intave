@@ -16,6 +16,7 @@ import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.annotate.refactoring.SplitMeUp;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.Collision;
+import de.jpx3.intave.block.fluid.Fluid;
 import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.state.ExtendedBlockStateCache;
 import de.jpx3.intave.block.type.BlockTypeAccess;
@@ -777,6 +778,10 @@ public final class Physics extends Check {
       }
       if (movementData.inWeb) {
         debug += ChatColor.ITALIC + " web" + chatColor;
+      }
+      if (movementData.inWater) {
+        Fluid fluid = Fluids.fluidAt(user, positionX, positionY, positionZ);
+        debug += ChatColor.ITALIC + " water@" + MathHelper.formatDouble(fluid.height(),2) + "/"+fluid.level() + chatColor;
       }
 //      debug += " fric:" + formatDouble(movementData.friction(), 2) + "@" + movementData.frictionMaterial();
 
