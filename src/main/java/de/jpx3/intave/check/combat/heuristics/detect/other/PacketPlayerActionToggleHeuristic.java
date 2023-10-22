@@ -71,6 +71,10 @@ public final class PacketPlayerActionToggleHeuristic extends MetaCheckPart<Heuri
       return;
     }
 
+    if (movementData.lastTeleport < 10) {
+      return;
+    }
+
     boolean flag = sprint
       ? heuristicMeta.sprintTogglesInTick++ >= 1
       : heuristicMeta.sneakTogglesInTick++ >= 1;
@@ -93,7 +97,7 @@ public final class PacketPlayerActionToggleHeuristic extends MetaCheckPart<Heuri
           parentCheck().saveAnomaly(player, anomaly);
         }
 
-        boolean cancel = flyingPacketStream || Hypot.fast(movementData.motionX(), movementData.motionZ()) > 0.1 && heuristicMeta.threshold++ > 3;
+        boolean cancel = (flyingPacketStream || Hypot.fast(movementData.motionX(), movementData.motionZ()) > 0.2) && heuristicMeta.threshold++ > 3;
         if (cancel) {
           if (sprint) {
             //dmc12

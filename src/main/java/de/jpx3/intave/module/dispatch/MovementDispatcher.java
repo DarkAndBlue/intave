@@ -377,9 +377,12 @@ public final class MovementDispatcher extends Module {
         Float pitch = packet.getFloat().read(1);
         movementData.rotationYaw = yaw;
         movementData.rotationPitch = pitch;
+
+        double yawDifference = MathHelper.noAbsDistanceInDegrees(movementData.lastRotationYaw, yaw);
+        double pitchDifference = MathHelper.noAbsDistanceInDegrees(movementData.lastRotationPitch, pitch);
         if (DEBUG_MOVEMENT_IGNORE) {
           Synchronizer.synchronize(() -> {
-            player.sendMessage("Click movement ignore distance: " + distance);
+            player.sendMessage("Click movement ignore distance: " + distance + " yaw: " + yawDifference + " pitch: " + pitchDifference);
           });
         }
         Synchronizer.synchronize(() -> {
@@ -387,8 +390,8 @@ public final class MovementDispatcher extends Module {
             Object playerHandle = user.playerHandle();
             Field yawField = Lookup.serverField("Entity", "yaw");
             Field pitchField = Lookup.serverField("Entity", "pitch");
-            yawField.set(playerHandle, yaw % 360.0F);
-            pitchField.set(playerHandle, MathHelper.minmax(-90.0F, pitch, 90.0F) % 360.0F);
+            yawField.set(playerHandle, (float)yaw % 360.0F);
+            pitchField.set(playerHandle, (float)MathHelper.minmax(-90.0F, pitch, 90.0F) % 360.0F);
           } catch (Exception exception) {
             exception.printStackTrace();
           }

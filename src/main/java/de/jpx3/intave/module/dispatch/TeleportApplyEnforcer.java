@@ -119,9 +119,8 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
     movementData.setVerifiedLocation(teleportLocation.clone(), "Teleportation to " + teleportLocation);
     if (NEW_TELEPORTATION) {
       movementData.teleportId = packet.getIntegers().read(0);
-    } else {
-      movementData.lastTeleport = 0;
     }
+    movementData.lastTeleport = 0;
 
     if (IntaveControl.DEBUG_TELEPORT_LOCKS) {
       IntaveLogger.logger().printLine("[Intave] Sent teleportation request to " + player.getName() + ": " + MathHelper.formatPosition(movementData.teleportLocation));

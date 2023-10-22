@@ -170,7 +170,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public boolean dropPostTickMotionProcessing;
   public boolean willReceiveSetbackVelocity;
   public boolean willReceiveSetbackVelocityResetCache;
-  public int lastTeleport;
+  public int lastTeleport = 100;
   public int teleportId;
   public volatile boolean awaitTeleport = false, expectTeleport = false, awaitOutgoingTeleport = false;
   public volatile boolean expectTeleportWithRotation = false;
