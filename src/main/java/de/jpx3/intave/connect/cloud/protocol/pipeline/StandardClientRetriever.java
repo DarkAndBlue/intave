@@ -98,6 +98,7 @@ public final class StandardClientRetriever extends ChannelInboundHandlerAdapter 
     Check check = checks.searchCheck(packet.check());
     Violation violation = Violation.builderFor(check.getClass())
       .forPlayer(player)
+      .withCustomThreshold(packet.threshold())
       .withMessage(packet.message())
       .withDetails(packet.details())
       .withVL(packet.vl())

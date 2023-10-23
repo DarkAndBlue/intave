@@ -11,6 +11,7 @@ import static de.jpx3.intave.connect.cloud.protocol.Direction.CLIENTBOUND;
 public final class ClientboundViolation extends JsonPacket<Clientbound> {
   private Identity id;
   private String check;
+  private String threshold;
   private String message;
   private String details;
   private int vl;
@@ -19,10 +20,11 @@ public final class ClientboundViolation extends JsonPacket<Clientbound> {
     super(CLIENTBOUND, "VIOLATION", "1");
   }
 
-  public ClientboundViolation(Identity id, String check, String message, String details, int vl) {
+  public ClientboundViolation(Identity id, String check, String threshold, String message, String details, int vl) {
     super(CLIENTBOUND, "VIOLATION", "1");
     this.id = id;
     this.check = check;
+    this.threshold = threshold;
     this.message = message;
     this.details = details;
     this.vl = vl;
@@ -35,6 +37,7 @@ public final class ClientboundViolation extends JsonPacket<Clientbound> {
       writer.name("id");
       id.serialize(writer);
       writer.name("check").value(check);
+      writer.name("threshold").value(threshold);
       writer.name("message").value(message);
       writer.name("details").value(details);
       writer.name("vl").value(vl);
@@ -56,6 +59,9 @@ public final class ClientboundViolation extends JsonPacket<Clientbound> {
             break;
           case "check":
             check = reader.nextString();
+            break;
+          case "threshold":
+            threshold = reader.nextString();
             break;
           case "message":
             message = reader.nextString();
@@ -80,6 +86,10 @@ public final class ClientboundViolation extends JsonPacket<Clientbound> {
 
   public String check() {
     return check;
+  }
+
+  public String threshold() {
+    return threshold;
   }
 
   public String message() {
