@@ -27,7 +27,10 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -78,12 +81,16 @@ public final class Cloud {
       } else {
         // called on failure or connection closure
         int attempts = reconnectAttempts.getOrDefault(shard, 0);
-        IntaveLogger.logger().warning("Unable to connect to " + shard + ", retrying in 5 seconds, attempt " + attempts + "/3");
-        if (attempts < 3) {
+        int retryingIn = (int) (Math.pow(2, attempts) * 2);
+
+        IntaveLogger.logger().warning("Unable to connect to " + shard + ", retrying in " + retryingIn + " seconds, attempt " + attempts + "/10");
+        if (attempts < 10) {
           reconnectAttempts.put(shard, attempts + 1);
-          Synchronizer.synchronizeDelayed(() -> openSession(shard), 20 * 5);
+          Synchronizer.synchronizeDelayed(() -> {
+            BackgroundExecutors.executeWhenever(() -> openSession(shard));
+          }, 20 * retryingIn);
         } else {
-          IntaveLogger.logger().warning("Unable to connect to " + shard + " after 3 attempts");
+          IntaveLogger.logger().warning("Unable to connect to " + shard + " after 10 attempts");
         }
         sessions.remove(shard);
       }
