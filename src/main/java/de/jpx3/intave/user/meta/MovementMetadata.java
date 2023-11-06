@@ -1400,7 +1400,8 @@ public final class MovementMetadata implements SimulationEnvironment {
     this.vehicle = ridingEntity;
 
     String entityName = ridingEntity.entityName();
-    this.vehicleCanBeRidden = entityName.contains("Boat") || entityName.contains("Minecart") || entityName.contains("Pig") || entityName.contains("Horse");
+    List<String> rideableVehicleNames = Arrays.asList("Boat", "Minecart", "Pig", "Horse", "Camel", "Llama");
+    this.vehicleCanBeRidden = rideableVehicleNames.stream().anyMatch(s -> entityName.toLowerCase().contains(s.toLowerCase()));
 
     if (IntaveControl.DEBUG_MOUNTING) {
       player.sendMessage(ChatColor.RED + "Mounting " + ridingEntity.entityName() + " " + MathHelper.formatDouble(attachMoveDistance, 4) + " blocks away");

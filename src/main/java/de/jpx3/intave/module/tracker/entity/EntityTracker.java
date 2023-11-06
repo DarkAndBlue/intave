@@ -52,7 +52,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static de.jpx3.intave.module.feedback.FeedbackOptions.APPEND_ON_OVERFLOW;
-import static de.jpx3.intave.module.feedback.FeedbackOptions.SELF_SYNCHRONIZATION;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
@@ -396,11 +395,15 @@ public final class EntityTracker extends Module {
 
     connection.markForDeletion(entityId);
 
-    user.tickFeedback(() -> {
+    Synchronizer.synchronize(() -> {
       user.tickFeedback(() -> {
-        connection.removeEntityIfMarked(entityId);
-      }, APPEND_ON_OVERFLOW | SELF_SYNCHRONIZATION);
-    }, APPEND_ON_OVERFLOW | SELF_SYNCHRONIZATION);
+        Synchronizer.synchronize(() -> {
+          user.tickFeedback(() -> {
+            connection.removeEntityIfMarked(entityId);
+          }, APPEND_ON_OVERFLOW);
+        });
+      }, APPEND_ON_OVERFLOW);
+    });
 
     if (entity != null) {
       StaticEntityCollisions.enterEntityDespawn(user, entity);
