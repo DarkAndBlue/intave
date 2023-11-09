@@ -373,13 +373,13 @@ public class Entity {
   private synchronized void updatePositionHistory() {
     if (!temporaryCopy) {
       try {
-        positionHistoryLock.lock();
+//        positionHistoryLock.lock();
         if (positionHistory.size() > 25) {
           positionHistory.remove(0);
         }
         positionHistory.add(position.clone());
       } finally {
-        positionHistoryLock.unlock();
+//        positionHistoryLock.unlock();
       }
     }
   }

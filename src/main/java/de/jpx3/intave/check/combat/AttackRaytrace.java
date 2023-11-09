@@ -354,7 +354,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     MetadataBundle meta = user.meta();
     double minReach = 10;
     try {
-      entity.positionHistoryLock.lock();
+//      entity.positionHistoryLock.lock();
       List<Entity.EntityPositionContext> history = entity.positionHistory;
       int maximumPendingFeedbackPackets =
           trustFactorSetting("pending-allowance", player)
@@ -392,7 +392,7 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         minReach = Math.min(minReach, minReachInItr);
       }
     } finally {
-      entity.positionHistoryLock.unlock();
+//      entity.positionHistoryLock.unlock();
     }
     return minReach;
   }

@@ -200,12 +200,12 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
 
       for (Entity tracedEntity : user.meta().connection().tracedEntities()) {
         if (tracedEntity != null && !(tracedEntity instanceof Entity.Destroyed)) {
-          try {
-            tracedEntity.positionHistoryLock.lock();
+//          try {
+//            tracedEntity.positionHistoryLock.lock();
             meta.entityPositions.put(tracedEntity.entityId(), tracedEntity.positionHistory.get(Math.max(tracedEntity.positionHistory.size() - 1, 0)));
-          } finally {
-            tracedEntity.positionHistoryLock.unlock();
-          }
+//          } finally {
+//            tracedEntity.positionHistoryLock.unlock();
+//          }
         }
       }
     }
