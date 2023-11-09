@@ -79,7 +79,7 @@ public final class Session {
     try {
       boolean connected = bootstrap.connect(shard.domain(), shard.port()).await().addListener(future -> {
         if (!future.isSuccess()) {
-          IntaveLogger.logger().info("Failure connecting to cloud");
+//          IntaveLogger.logger().info("Failure connecting to cloud");
 //          future.cause().printStackTrace();
           onFinal.accept(false);
           return;

@@ -88,7 +88,7 @@ public final class LogTransmittor implements BukkitEventSubscriber {
       }
       uploadLogOf(player, logIdCallback);
     } else {
-      logIdCallback.accept("unavailable");
+      logIdCallback.accept("No Log-Id");
     }
   }
 
