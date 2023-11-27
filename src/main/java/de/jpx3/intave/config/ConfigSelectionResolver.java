@@ -29,7 +29,11 @@ public class ConfigSelectionResolver {
     }
     YamlConfiguration config = YamlConfiguration.loadConfiguration(new InputStreamReader(configResource.read()));
     String configType = config.getString("config", "LEGACY");
-    return ConfigSelection.from(configType);
+    ConfigSelection from = ConfigSelection.from(configType);
+    if (from == null) {
+      throw new RuntimeException("Invalid config type: " + configType);
+    }
+    return from;
   }
 
 }

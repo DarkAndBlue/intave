@@ -14,7 +14,7 @@ kick-commands:
 
 ban-commands:
   - "intave internals kickip {player} &cYou have been kicked, as an account with your ip address was removed from the game"
-  - "ban {player} Cheating (#{log-id})"
+  - "ban {player} Cheating / {log-id}"
 
 # Movement setback sensitivity
 #   Choose between AGGRESSIVE, CAREFUL, LENIENT and SILENT

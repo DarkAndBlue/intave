@@ -42,6 +42,6 @@ public enum ConfigSelection {
         return value;
       }
     }
-    return SIMPLE;
+    return null;
   }
 }
