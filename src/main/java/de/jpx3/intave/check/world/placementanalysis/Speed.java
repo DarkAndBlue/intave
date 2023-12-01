@@ -5,7 +5,6 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.world.PlacementAnalysis;
 import de.jpx3.intave.cleanup.GarbageCollector;
@@ -33,7 +32,7 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Client.BLOCK_PLACE;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.USE_ITEM;
 import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_IN_ALL_VERBOSE_MODES;
 
-@Reserved
+//@Reserved
 public final class Speed extends MetaCheckPart<PlacementAnalysis, Speed.PlacementSpeedMeta> {
   private static final int CHECK_LENGTH = 8;
   private static final int DIRECTION_EVAL_LENGTH = 5;

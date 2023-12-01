@@ -75,7 +75,7 @@ class RecordEventSink extends EventSink {
       visit(new PropertiesEvent(environment.properties()));
       environment.mainPlayer().applyIfUserPresent(user -> {
         for (Entity tracedEntity : user.meta().connection().tracedEntities()) {
-          visit(new EntitySpawnEvent(tracedEntity.entityId(), tracedEntity.typeData().size(), tracedEntity.position.toPosition()));
+          visit(new EntitySpawnEvent(tracedEntity.entityId(), tracedEntity.entityName(), tracedEntity.typeData().size(), tracedEntity.position.toPosition()));
         }
       });
     }
@@ -150,5 +150,10 @@ class RecordEventSink extends EventSink {
     } finally {
       writeLock.unlock();
     }
+  }
+
+  @Override
+  public String name() {
+    return "RECORD";
   }
 }

@@ -30,6 +30,7 @@ public final class Sample {
   public Sample() {
   }
 
+  @Deprecated
   public Resource resource() {
     if (resource == null) {
       resource = writableSampleResource();
@@ -44,6 +45,7 @@ public final class Sample {
     return id;
   }
 
+  @Deprecated
   public long uploadAndDelete() throws IOException {
     if (resource == null) {
       return 0;
@@ -89,6 +91,7 @@ public final class Sample {
     }
   }
 
+  @Deprecated
   private Resource writableSampleResource() {
     File dataFolder = sampleFolder();
     File sampleFile;
@@ -98,10 +101,12 @@ public final class Sample {
     return Resources.resourceFromFile(sampleFile)/*.compressed()*/.locked(sampleFile);
   }
 
+  @Deprecated
   private static String randomId() {
     return UUID.randomUUID().toString().replace("-", "");
   }
 
+  @Deprecated
   private static File sampleFolder() {
     String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.ROOT);
     File workDirectory;

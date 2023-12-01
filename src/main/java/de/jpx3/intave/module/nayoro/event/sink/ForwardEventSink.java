@@ -15,4 +15,9 @@ public final class ForwardEventSink extends EventSink {
   public void visitAny(Event event) {
     Modules.linker().nayoroEvents().fireEvent(player, event);
   }
+
+  @Override
+  public String name() {
+    return "FES";
+  }
 }

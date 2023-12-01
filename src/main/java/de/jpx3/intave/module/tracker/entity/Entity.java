@@ -439,7 +439,7 @@ public class Entity {
   }
 
   public boolean isEntityAlive() {
-    return !this.dead && this.health > 0.0f;
+    return !this.dead && (this.health > 0.0f || Float.isNaN(this.health));
   }
 
   public void mountToEntity(Entity mountedOnEntity) {

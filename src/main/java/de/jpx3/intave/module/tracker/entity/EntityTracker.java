@@ -581,6 +581,7 @@ public final class EntityTracker extends Module {
     }
     EntitySpawnEvent event = new EntitySpawnEvent(
       entity.entityId(),
+      entity.entityName(),
       entity.typeData().size(),
       entity.position.toPosition()
     );

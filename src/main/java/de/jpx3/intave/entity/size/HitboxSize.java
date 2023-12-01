@@ -28,4 +28,9 @@ public final class HitboxSize {
   public float height() {
     return height;
   }
+
+  @Override
+  public String toString() {
+    return "(" + width + ", " + height + ")";
+  }
 }

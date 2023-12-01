@@ -232,6 +232,8 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
 
     long discrepancyInMs = Modules.feedbackAnalysis().entityLatencyDiscrepancy(user);
 
+//    player.sendMessage(discrepancyInMs + "ms");
+
     if (discrepancyInMs > 50 && ticksOverLimit >= 0) {
       String entityName = attackedEntity.entityName();
       Violation violation = Violation.builderFor(AttackRaytrace.class)
@@ -244,9 +246,9 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
         .build();
       ViolationContext violationContext = Modules.violationProcessor().processViolation(violation);
       double after = violationContext.violationLevelAfter();
-//      if (after > 25) {
-//        entityHasTimedOut = true;
-//      }
+      if (after > 25) {
+        entityHasTimedOut = true;
+      }
       if (IntaveControl.GOMME_MODE) {
         System.out.println("TIMEOUT_X: " + player.getName() + " attacked " + attackedEntity.entityName() + " with " + pendingFeedbacks + " pending feedbacks (" + pendingOverAverage + "|" + distanceOverLimit + " | " + maximumPendingFeedbackPackets + ")");
       }

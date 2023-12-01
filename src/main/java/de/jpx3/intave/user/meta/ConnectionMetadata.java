@@ -55,6 +55,8 @@ public final class ConnectionMetadata {
   @Deprecated
   public boolean markAttackInvalid;
 
+  public boolean debugEntityTracking = false;
+
   public RateLimiter refreshBlockRatelimit = new RateLimiter(400, 2, TimeUnit.SECONDS);
 
   public int windowClickId;

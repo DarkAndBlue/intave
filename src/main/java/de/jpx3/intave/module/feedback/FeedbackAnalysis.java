@@ -78,6 +78,9 @@ public final class FeedbackAnalysis extends Module {
     if (entityFarLatency > 0) {
       generalLatency = (generalLatency + entityFarLatency) / 2;
     }
+    if (generalLatency > 200) {
+      return -3;
+    }
     long entityNearLatency = entityNear.averageLatency();
 //    long entityNearCombatLatency = meta.latencyAnalysisMap.getOrDefault(ENTITY_NEAR_COMBAT, general).averageLatency();
 //    entityNearLatency = (entityNearLatency + entityNearCombatLatency) / 2;

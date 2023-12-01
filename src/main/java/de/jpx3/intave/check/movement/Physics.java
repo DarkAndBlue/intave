@@ -412,9 +412,13 @@ public final class Physics extends Check {
       }
     }
 
+    if (differenceY > 0.01/* && differenceY < 0.03*/ && (movementData.lastOnGround() || movementData.onGround())) {
+//      player.sendMessage(differenceY + " " + Math.abs(predictedX) + "/" + Math.abs(predictedZ) + " @" +Math.abs(predictedY - movementData.jumpMotion()) + " " + movementData.receivedFlyingPacketIn(6) + " " + movementData.pastFlyingPacketAccurate);
+    }
     boolean flyingJump = false;
-    if ((Math.abs(predictedX) < 0.04 && Math.abs(predictedZ) < 0.04) && Math.abs(predictedY - movementData.jumpMotion()) < 0.05 &&
-      differenceY > 0.01 && differenceY < 0.02 /* only allow positive differenceY */ && (movementData.lastOnGround() || movementData.onGround()) && movementData.receivedFlyingPacketIn(6)) {
+    if ((Math.abs(predictedX) < 0.1 && Math.abs(predictedZ) < 0.1) && Math.abs(predictedY - movementData.jumpMotion()) < 0.05 &&
+      differenceY > 0.01 && differenceY < 0.03 /* only allow positive differenceY */ && (movementData.lastOnGround() || movementData.onGround()) /*&& movementData.receivedFlyingPacketIn(6)*/) {
+//      player.sendMessage(ChatColor.RED + "Flying jump detected, " + movementData.pastFlyingPacketAccurate);
       flyingJump = true;
       verticalViolationIncrease = 0;
       movementData.endMotionYOverride = true;

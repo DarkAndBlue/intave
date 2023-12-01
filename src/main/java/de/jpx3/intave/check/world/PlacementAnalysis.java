@@ -1,16 +1,16 @@
 package de.jpx3.intave.check.world;
 
 import de.jpx3.intave.IntavePlugin;
+import de.jpx3.intave.annotate.DoNotFlowObfuscate;
 import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.world.placementanalysis.*;
-import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.meta.ProtocolMetadata;
 
 import static de.jpx3.intave.IntaveControl.DISABLE_LICENSE_CHECK;
 import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
+@DoNotFlowObfuscate
 public final class PlacementAnalysis extends Check {
   private final IntavePlugin plugin;
   public static final String COMMON_FLAG_MESSAGE = "suspicious block-placement";
@@ -24,16 +24,14 @@ public final class PlacementAnalysis extends Check {
   @Native
   public void setupSubChecks() {
     boolean useTimings = configuration().settings().boolBy("check-timings", configuration().settings().boolBy("check_timings", true));
-
     if (DISABLE_LICENSE_CHECK && !GOMME_MODE) {
       appendCheckPart(new Constraint(this));
       appendCheckPart(new SmartSpeed(this));
     }
-
-    boolean enterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
-    boolean partner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
+//    boolean enterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
+//    boolean partner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
     try {
-      if (enterprise || partner || DISABLE_LICENSE_CHECK) {
+//      if (enterprise || partner || DISABLE_LICENSE_CHECK) {
         if (useTimings) {
           appendCheckPart(new Speed(this));
           appendCheckPart(new Sneak(this));
@@ -42,7 +40,7 @@ public final class PlacementAnalysis extends Check {
         appendCheckPart(new SharpRotation(this));
         appendCheckPart(new BlockRotation(this));
         appendCheckPart(new SneakAndPlace(this));
-      }
+//      }
     } catch (Exception | Error e) {
       // classes might be missing
     }

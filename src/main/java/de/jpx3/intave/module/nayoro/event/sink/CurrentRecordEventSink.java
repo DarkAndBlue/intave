@@ -84,4 +84,9 @@ public final class CurrentRecordEventSink extends EventSink {
       return data;
     }
   }
+
+  @Override
+  public String name() {
+    return "CRES";
+  }
 }

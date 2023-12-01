@@ -21,4 +21,9 @@ public final class DebugForwardEventSink extends EventSink {
       sink.visitSelect(event);
     }
   }
+
+  @Override
+  public String name() {
+    return "DFES";
+  }
 }

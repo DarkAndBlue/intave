@@ -119,6 +119,7 @@ public final class DiagnosticsStage extends CommandStage {
 //    int tickedEntities = connection.tickedEntities().size();
     int tracedEntities = connection.tracedEntities().size();
     player.sendMessage(IntavePlugin.prefix() + "Monitoring " + ChatColor.RED + totalEntities + IntavePlugin.defaultColor() + " entities, tracing " + ChatColor.RED + tracedEntities + IntavePlugin.defaultColor() + " entities");
+    player.sendMessage(IntavePlugin.prefix() + connection.tracedEntities().stream().map(entity -> entity.entityName() +"/"+entity.entityId()).collect(Collectors.toList()));
   }
 
   @SubCommand(
@@ -140,7 +141,24 @@ public final class DiagnosticsStage extends CommandStage {
       public void visit(AttackEvent event) {
         player.sendMessage("AttackEvent");
       }
+
+      @Override
+      public String name() {
+        return "ntrace/anonymous";
+      }
     });
+  }
+
+  @SubCommand(
+    selectors = "etxtrace",
+    usage = "",
+    description = "Sample click/attack trace",
+    permission = "intave.command.diagnostics.performance"
+  )
+  public void etxTraceCommand(User user) {
+    Player player = user.player();
+    player.sendMessage(ChatColor.DARK_PURPLE + "Toggled tracing entity trackings");
+    user.meta().connection().debugEntityTracking = !user.meta().connection().debugEntityTracking;
   }
 
   @SubCommand(

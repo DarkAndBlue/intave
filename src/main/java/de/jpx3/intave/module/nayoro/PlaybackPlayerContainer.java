@@ -285,4 +285,9 @@ final class PlaybackPlayerContainer extends SinkPlayerContainer {
     }
     visitAny(event);
   }
+
+  @Override
+  public String name() {
+    return "PPC";
+  }
 }

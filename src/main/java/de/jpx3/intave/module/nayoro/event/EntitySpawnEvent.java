@@ -11,14 +11,16 @@ import java.io.IOException;
 
 public final class EntitySpawnEvent extends Event {
   private int id;
+  private String name; // NOT TRANSMITTED - FOR DEBUGGING ONLY
   private HitboxSize size;
   private Position position;
 
   public EntitySpawnEvent() {
   }
 
-  public EntitySpawnEvent(int id, HitboxSize size, Position position) {
+  public EntitySpawnEvent(int id, String name, HitboxSize size, Position position) {
     this.id = id;
+    this.name = name;
     this.size = size;
     this.position = position;
   }
@@ -47,6 +49,10 @@ public final class EntitySpawnEvent extends Event {
 
   public int id() {
     return id;
+  }
+
+  public String name() {
+    return name;
   }
 
   public HitboxSize size() {

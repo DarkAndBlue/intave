@@ -13,6 +13,8 @@ public final class UserLocal<T> {
   private final Function<? super User, ? extends T> initializer;
   private final Consumer<? super User> finalizer;
 
+  private boolean finalizerSet;
+
   private final Map<UUID, T> map = GarbageCollector.watch(new ConcurrentHashMap<>());
 
   private UserLocal(Function<? super User, ? extends T> initializer, Consumer<? super User> finalizer) {
@@ -28,8 +30,9 @@ public final class UserLocal<T> {
       return initializer.apply(user);
     }
     UUID id = user.player().getUniqueId();
-    if (finalizer != null) {
+    if (finalizer != null && !finalizerSet) {
       GarbageCollector.subscribeToRemoval(id, () -> finalizer.accept(user));
+      finalizerSet = true;
     }
     return map.computeIfAbsent(id, uuid -> initializer.apply(user));
   }

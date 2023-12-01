@@ -7,6 +7,7 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.meta.ConnectionMetadata;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
@@ -73,7 +74,7 @@ public final class PeriodicEntityCoverageSelector {
     List<Entity> validEntities = new ArrayList<>();
     for (Entity entity : connection.entities()) {
       boolean firstSurvive = false;
-      if (entity.typeData() != null) {
+      if (entity.typeData() != null && entity.typeData().isLivingEntity()) {
         double distance = entity.distanceTo(playerLocation);
         if (distance <= requiredDistance) {
           validEntities.add(entity);
@@ -83,29 +84,37 @@ public final class PeriodicEntityCoverageSelector {
         }
       }
       if (entity.tracingEnabled() && !firstSurvive) {
-//        nayoroEntityDespawn(user, entity);
-        entityRemovalListener.accept(user, entity);
+        entity.setResponseTracingEnabled(false);
       }
-      entity.setResponseTracingEnabled(firstSurvive);
     }
-    validEntities.sort(Comparator.comparingDouble(entity -> entity.distanceToPlayerCache));
+    validEntities.sort(Comparator.comparingDouble(entity -> entity.distanceToPlayerCache * (entity.isPlayer ? 0.5 : 1)));
     int count = 0;
+    List<Entity> lastTraced = new ArrayList<>(connection.tracedEntities());
     connection.tracedEntities().clear();
     for (Entity entity : validEntities) {
       boolean trace = count < maxTracedEntities;
       if (trace) {
         connection.tracedEntities().add(entity);
       }
-      if (trace && !entity.wasTracedLastCycle()) {
-//        nayoroEntitySpawn(user, entity);
-        entityAdditionListener.accept(user, entity);
-      } else if (!trace && entity.wasTracedLastCycle()) {
-//        nayoroEntityDespawn(user, entity);
-        entityRemovalListener.accept(user, entity);
-      }
       entity.setResponseTracingEnabled(trace);
       entity.doubleVerification = trace && count < maxDoubleTracedEntities;
       count++;
+    }
+
+    for (Entity entity : lastTraced) {
+      if (!connection.tracedEntities().contains(entity)) {
+        entityRemovalListener.accept(user, entity);
+        if (user.meta().connection().debugEntityTracking) {
+          player.sendMessage(ChatColor.LIGHT_PURPLE + "Removed " + entity.entityName()+"/"+entity.entityId() + " from " + user.player().getName());
+        }
+      }
+    }
+
+    for (Entity entity : connection.tracedEntities()) {
+      if (!lastTraced.contains(entity)) {
+        entityAdditionListener.accept(user, entity);
+        player.sendMessage(ChatColor.LIGHT_PURPLE + "Added " + entity.entityName()+"/"+entity.entityId() + " to " + user.player().getName());
+      }
     }
   }
 

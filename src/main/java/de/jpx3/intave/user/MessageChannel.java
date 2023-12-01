@@ -7,7 +7,10 @@ package de.jpx3.intave.user;
 
 public enum MessageChannel {
   VERBOSE("intave.command.verbose", false),
-  NOTIFY("intave.command.notify", true);
+  NOTIFY("intave.command.notify", true),
+  COMBAT_MODIFIERS("intave.command.combatmodifiers", true),
+
+  ;
 
   final String permission;
   final boolean enabledByDefault;

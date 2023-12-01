@@ -483,6 +483,18 @@ public final class BaseStage extends CommandStage {
   }
 
   @SubCommand(
+    selectors = "sample",
+    usage = "",
+    permission = "sibyl",
+    hideInHelp = true
+  )
+  @Forward(
+    target = SampleStage.class
+  )
+  public void sampleCommand(User user) {
+  }
+
+  @SubCommand(
     selectors = {"performance", "timings"},
     usage = "",
     description = "Performance data output"
@@ -516,7 +528,6 @@ public final class BaseStage extends CommandStage {
     }
   }
 
-  @Native
   private void sendVersionMessage(CommandSender player) {
     boolean hasVersionViewPermission = BukkitPermissionCheck.permissionCheck(player, "intave.command");
 
@@ -545,7 +556,7 @@ public final class BaseStage extends CommandStage {
       player.sendMessage(prefix + "Certified for GommeHDnet (trusted)");
     } else if (IntavePlugin.isInOfflineMode()) {
       player.sendMessage(prefix + "Certification failed, Intave servers down?");
-    } else if (LicenseAccess.network().equals("~bypass")) {
+    } else if (LicenseAccess.network().equals("~bypass") && IntaveControl.DISABLE_LICENSE_CHECK) {
       player.sendMessage(prefix + "Certification disabled, trust release");
     } else {
       player.sendMessage(prefix + "Certified for " + LicenseAccess.network() + (enterprise && !partner ? " (verified)" : (partner ? " (trusted)" : "")));

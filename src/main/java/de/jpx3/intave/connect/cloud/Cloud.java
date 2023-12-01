@@ -94,14 +94,19 @@ public final class Cloud {
           reconnectAttempts.remove(shard);
 //          IntaveLogger.logger().info("Connected to " + shard);
           setTrustAndStorage();
+          askForGlobalSampleTransmission();
         });
       } else {
         // called on failure or connection closure
         int attempts = reconnectAttempts.getOrDefault(shard, 0);
         int retryingIn = (int) (Math.pow(2, attempts) * 2);
 
+        // add random 25% jitter
+        retryingIn += (int) (retryingIn * (Math.random() * 0.25));
+
         try {
           Nayoro nayoro = Modules.nayoro();
+          int delay = 0;
           for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
             nayoro.disableRecordingFor(UserRepository.userOf(onlinePlayer));
           }
@@ -141,6 +146,21 @@ public final class Cloud {
     if (features.cloudStorageEnabled()) {
       access.setStorageGateway(new CloudStorageGateaway(this));
     }
+  }
+
+  private void askForGlobalSampleTransmission() {
+    try {
+      int delay = 0;
+      for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+        Nayoro nayoro = Modules.nayoro();
+        if (!nayoro.recordingActiveFor(UserRepository.userOf(onlinePlayer))) {
+          Synchronizer.synchronizeDelayed(() -> {
+            nayoro.askForSampleTransmission(onlinePlayer);
+          }, delay);
+          delay++;
+        }
+      }
+    } catch (Exception ignored) {}
   }
 
   public void setMasterShard(
@@ -210,6 +230,10 @@ public final class Cloud {
 
   public void requestSampleTransmission(Player player,  Consumer<Classifier> callbackIfAccepted) {
     if (!cloudConfig.isEnabled() || !cloudConfig.features().sampleTransmission()) {
+      return;
+    }
+    Nayoro nayoro = Modules.nayoro();
+    if (nayoro.recordingActiveFor(UserRepository.userOf(player))) {
       return;
     }
     UUID id = player.getUniqueId();

@@ -38,7 +38,7 @@ public final class EntityTypeData {
   }
 
   public boolean isLivingEntity() {
-    return isLivingEntity;
+    return isLivingEntity && !"Egg".equalsIgnoreCase(entityName);
   }
 
   public boolean isBoat() {

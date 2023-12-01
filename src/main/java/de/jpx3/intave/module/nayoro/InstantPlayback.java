@@ -51,4 +51,9 @@ public final class InstantPlayback extends Playback implements Runnable {
   public long currentTime() {
     return passedTime;
   }
+
+  @Override
+  public String name() {
+    return "IP";
+  }
 }

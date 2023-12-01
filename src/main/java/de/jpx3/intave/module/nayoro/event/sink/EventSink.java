@@ -76,4 +76,6 @@ public abstract class EventSink implements Closeable {
     close();
     super.finalize();
   }
+
+  public abstract String name();
 }

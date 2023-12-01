@@ -12,7 +12,7 @@ plugins {
 
 val simpleName = "Intave"
 group = "de.jpx3"
-version = "14.7.0"
+version = "14.7.0-b4"
 description = "Automated cheat detection and prevention"
 
 /*
@@ -26,7 +26,7 @@ repositories {
 
 dependencies {
   // Spigot
-  implementation("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
+  compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
   // It is important to explicitly define the .jar dependency order, since the order of fileTree
   // is  file system dependent and may lead to compilation errors. If issues occur in the future,
   // it may be needed to create the list explicitly instead of just sorting.
