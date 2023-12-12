@@ -4,6 +4,7 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.cleanup.ShutdownTasks;
 import de.jpx3.intave.diagnostic.MemoryWatchdog;
+import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.mitigate.HurttimeModifier;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -30,14 +31,18 @@ public final class UserRepository {
   public static void registerUser(Player player) {
     repository.put(player.getUniqueId(), UserFactory.createUserFor(player));
     if (IntaveControl.RESET_HURT_TIME_ON_JOIN) {
-      HurttimeModifier.setNoDamageTicksOf(player, 20);
+      Synchronizer.synchronizeDelayed(() -> {
+        HurttimeModifier.setNoDamageTicksOf(player, 20);
+      }, 20);
     }
     if (IntaveControl.GIVE_RIPTIDE_V_TRIDENT_ON_JOIN && MinecraftVersions.VER1_14_0.atOrAbove()) {
-      if (!player.getInventory().contains(Material.getMaterial("TRIDENT"))) {
-        ItemStack trident = new ItemStack(Material.getMaterial("TRIDENT"));
-        trident.addUnsafeEnchantment(Enchantment.getByName("RIPTIDE"), 5);
-        player.getInventory().addItem(trident);
-      }
+      Synchronizer.synchronizeDelayed(() -> {
+        if (!player.getInventory().contains(Material.getMaterial("TRIDENT"))) {
+          ItemStack trident = new ItemStack(Material.getMaterial("TRIDENT"));
+          trident.addUnsafeEnchantment(Enchantment.getByName("RIPTIDE"), 5);
+          player.getInventory().addItem(trident);
+        }
+      }, 20);
     }
   }
 

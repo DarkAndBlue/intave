@@ -7,6 +7,7 @@ import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.CheckConfiguration.CheckSettings;
 import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.movement.timer.Balance;
+import de.jpx3.intave.check.movement.timer.PlayerTime;
 
 public final class Timer extends Check {
   private final CheckViolationLevelDecrementer decrementer;
@@ -16,7 +17,7 @@ public final class Timer extends Check {
   private final boolean reverseLag;
   private final boolean lowTolerance;
   private final boolean stutterPatch;
-  private final Balance balance;
+  private final PlayerTime playerTime;
 
   public Timer() {
     super("Timer", "timer");
@@ -39,13 +40,12 @@ public final class Timer extends Check {
       IntaveLogger.logger().info("Enabled stutter hits prevention");
     }
 
-    this.balance = new Balance(this);
-    appendCheckPart(balance);
-    //  appendCheckPart(new MovementFrequency(this));
+    this.playerTime = new PlayerTime(this);
+    appendCheckPart(playerTime);
   }
 
   public void receiveMovement(PacketEvent event) {
-    balance.receiveMovement(event);
+    playerTime.receiveMovement(event);
   }
 
   @Override

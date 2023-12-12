@@ -1,8 +1,11 @@
 package de.jpx3.intave.module.player;
 
+import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
+import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.Bukkit;
@@ -10,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+
+import static de.jpx3.intave.module.linker.packet.PacketId.Server.LOGIN;
 
 public final class UserLifetimeService extends Module {
   public void enable() {
@@ -22,12 +27,22 @@ public final class UserLifetimeService extends Module {
     }
   }
 
-  @BukkitEventSubscription(priority = EventPriority.LOWEST)
-  public void receiveJoin(PlayerJoinEvent event) {
+  @PacketSubscription(
+      priority = ListenerPriority.LOWEST,
+      packetsOut = {
+          LOGIN
+      }
+  )
+  public void receiveLogin(PacketEvent event) {
     Player player = event.getPlayer();
     UserRepository.registerUser(player);
     User user = UserRepository.userOf(player);
     Synchronizer.synchronizeDelayed(user::delayedSetup, 20);
+  }
+
+  @BukkitEventSubscription(priority = EventPriority.LOWEST)
+  public void receiveJoin(PlayerJoinEvent event) {
+
   }
 
   @BukkitEventSubscription(priority = EventPriority.HIGHEST)

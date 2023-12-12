@@ -353,6 +353,10 @@ public final class ConnectionMetadata {
     }
   }
 
+  public void queueToNextTransaction(Runnable runnable) {
+    nextFeedbackSubscribers.add(runnable);
+  }
+
   public DelayQueue<DelayedPacket> delayedPackets() {
     return delayQueue;
   }

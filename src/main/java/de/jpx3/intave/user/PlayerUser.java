@@ -205,7 +205,7 @@ final class PlayerUser implements User {
 
   @Override
   public boolean hasPlayer() {
-    return isOnline(player.get());
+    return true;
   }
 
   private boolean isOnline(OfflinePlayer player) {

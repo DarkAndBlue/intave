@@ -98,7 +98,8 @@ public final class FilteringPacketAdapter extends WeakReferencePacketAdapter imp
         return false;
       }
     }
-    return event.getPlayer() != null && (ignoreCancelled || !event.isCancelled()) && UserRepository.hasUser(event.getPlayer());
+    return event.getPlayer() != null && (ignoreCancelled || !event.isCancelled())
+        && (UserRepository.hasUser(event.getPlayer()) || event.getPacketType() == PacketType.Play.Server.LOGIN);
   }
 
   public PacketEventSubscriber subscriber() {

@@ -161,17 +161,17 @@ public final class FeedbackReceiver extends Module {
     connection.receivedTransactionAfter(passedTime);
     Modules.feedbackAnalysis().receivedTransaction(user, response);
 
-    Balance.BalanceMeta balanceMeta = (Balance.BalanceMeta) user.checkMetadata(Balance.BalanceMeta.class);
+//    Balance.BalanceMeta balanceMeta = (Balance.BalanceMeta) user.checkMetadata(Balance.BalanceMeta.class);
+//
+//    if (balanceMeta.confirmedBalance != Integer.MAX_VALUE) {
+//      balanceMeta.timerBalance = Math.max(balanceMeta.timerBalance, balanceMeta.confirmedBalance);
+//      balanceMeta.confirmedBalance = Integer.MAX_VALUE;
+//    }
 
-    if (balanceMeta.confirmedBalance != Integer.MAX_VALUE) {
-      balanceMeta.timerBalance = Math.max(balanceMeta.timerBalance, balanceMeta.confirmedBalance);
-      balanceMeta.confirmedBalance = Integer.MAX_VALUE;
-    }
-
-    long nextConfirmedBalance = -passedTimeNs;
-    connection.nextFeedbackSubscribers.add(() -> {
-      balanceMeta.nextConfirmedBalance = nextConfirmedBalance - TimeUnit.MILLISECONDS.toNanos(1);
-    });
+//    long nextConfirmedBalance = -passedTimeNs;
+//    connection.nextFeedbackSubscribers.add(() -> {
+//      balanceMeta.nextConfirmedBalance = nextConfirmedBalance - TimeUnit.MILLISECONDS.toNanos(1);
+//    });
 
     LatencyStudy.receivedTransactionAfter(passedTime);
     event.setCancelled(true);

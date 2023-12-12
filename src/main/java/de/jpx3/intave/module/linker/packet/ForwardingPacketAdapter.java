@@ -43,10 +43,13 @@ public final class ForwardingPacketAdapter extends WeakReferencePacketAdapter {
     if (player == null) {
       return;
     }
-    User user = UserRepository.userOf(player);
-    if (user.shouldIgnoreNextOutboundPacket()) {
+    // There will not be a user on login packet send
+    if (event.getPacketType() != PacketType.Play.Server.LOGIN) {
+      User user = UserRepository.userOf(player);
+      if (user.shouldIgnoreNextOutboundPacket()) {
 //      user.receiveNextOutboundPacketAgain();
-      return;
+        return;
+      }
     }
     for (PacketAdapter filteringPacketAdapter : targetList) {
       filteringPacketAdapter.onPacketSending(event);
