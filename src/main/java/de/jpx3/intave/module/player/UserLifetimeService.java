@@ -28,21 +28,28 @@ public final class UserLifetimeService extends Module {
   }
 
   @PacketSubscription(
-      priority = ListenerPriority.LOWEST,
-      packetsOut = {
-          LOGIN
-      }
+    priority = ListenerPriority.LOWEST,
+    packetsOut = {
+      LOGIN
+    }
   )
   public void receiveLogin(PacketEvent event) {
     Player player = event.getPlayer();
-    UserRepository.registerUser(player);
-    User user = UserRepository.userOf(player);
-    Synchronizer.synchronizeDelayed(user::delayedSetup, 20);
+    setupUser(player);
   }
 
   @BukkitEventSubscription(priority = EventPriority.LOWEST)
   public void receiveJoin(PlayerJoinEvent event) {
+    Player player = event.getPlayer();
+    if (!UserRepository.hasUser(player)) {
+      setupUser(player);
+    }
+  }
 
+  private void setupUser(Player player) {
+    UserRepository.registerUser(player);
+    User user = UserRepository.userOf(player);
+    Synchronizer.synchronizeDelayed(user::delayedSetup, 20);
   }
 
   @BukkitEventSubscription(priority = EventPriority.HIGHEST)

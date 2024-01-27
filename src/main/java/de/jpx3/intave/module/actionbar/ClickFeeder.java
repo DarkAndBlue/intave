@@ -48,6 +48,9 @@ public final class ClickFeeder implements EventProcessor {
       reader.release();
     } else if (type == PacketType.Play.Client.ARM_ANIMATION) {
       bufferData.clicks++;
+      if (System.currentTimeMillis() - bufferData.lastMove > 200) {
+        bufferData.desynchronizedClick = true;
+      }
     } else if (type == PacketType.Play.Client.BLOCK_DIG) {
       if (packet.getPlayerDigTypes().read(0) == DROP_ITEM && user.meta().inventory().heldItemType() == Material.AIR) {
         UUID actionTarget = user.actionTarget();
@@ -59,7 +62,6 @@ public final class ClickFeeder implements EventProcessor {
             otherBufferData.tab %= otherBufferData.totalTabs;
             otherBufferData.frontVisible = 0;
             otherBufferData.changeDisplayVisible = 0;
-
             Arrays.fill(otherBufferData.tabVisibility, 0);
           }
         }
@@ -147,16 +149,19 @@ public final class ClickFeeder implements EventProcessor {
     bufferData.attacks = 0;
     bufferData.clicks = 0;
     bufferData.places = 0;
+    bufferData.desynchronizedClick = false;
+    bufferData.lastMove = System.currentTimeMillis();
   }
 
   public static class ClickBufferData {
     private final User user;
     private final List<TickAction> tickActions = new LinkedList<>();
     private final List<Integer> tickIntensity = new LinkedList<>();
-    private final List<Boolean> inBlockBreak = new LinkedList<>();
+    private final List<Boolean> unreliableTicks = new LinkedList<>();
     private final List<Integer> streakLength = new LinkedList<>();
     private int clicks, attacks, places;
     private boolean breakingBlock;
+    private boolean desynchronizedClick;
     private int anyVisible = 0;
     private int frontVisible = 0;
     private int changeDisplayVisible = 0;
@@ -164,6 +169,7 @@ public final class ClickFeeder implements EventProcessor {
     private final int[] tabVisibility = new int[totalTabs];
     private final String[] tabNames = {"Basic", "History", "Streak", "Stats"};
     private int tab = 0;
+    private long lastMove;
 
     private int currentClickStreak;
 
@@ -171,7 +177,7 @@ public final class ClickFeeder implements EventProcessor {
       for (int i = 0; i < 40; i++) {
         tickActions.add(TickAction.NOTHING);
         tickIntensity.add(0);
-        inBlockBreak.add(false);
+        unreliableTicks.add(false);
         streakLength.add(0);
       }
     }
@@ -181,11 +187,12 @@ public final class ClickFeeder implements EventProcessor {
     }
 
     public synchronized void append(TickAction action, int intensity) {
+      boolean unreliable = breakingBlock || desynchronizedClick;
       if (action == TickAction.NOTHING) {
-        breakingBlock = false;
+        unreliable = false;
       }
-      Boolean inBlockBreak = this.inBlockBreak.remove(0);
-      this.inBlockBreak.add(breakingBlock);
+      Boolean inBlockBreak = this.unreliableTicks.remove(0);
+      this.unreliableTicks.add(unreliable);
       TickAction removed = tickActions.remove(0);
 
       if (removed == TickAction.NOTHING || inBlockBreak) {
@@ -218,7 +225,7 @@ public final class ClickFeeder implements EventProcessor {
         if (tickAction == TickAction.CLICK) {
           clickTicks += intensity;
         }
-        if (inBlockBreak.get(i)) {
+        if (unreliableTicks.get(i)) {
           whileBreaking += intensity;
         }
       }
@@ -265,7 +272,7 @@ public final class ClickFeeder implements EventProcessor {
           } else if (intensity >= 3) {
             builder.append("&c");
           }
-          if (inBlockBreak.get(i)) {
+          if (unreliableTicks.get(i)) {
             builder.append(ChatColor.STRIKETHROUGH);
           }
           builder.append(tickAction.repChar());
@@ -388,7 +395,7 @@ public final class ClickFeeder implements EventProcessor {
           } else if (intensity >= 3) {
             clickBuilder.append("&c");
           }
-          if (inBlockBreak.get(i)) {
+          if (unreliableTicks.get(i)) {
             clickBuilder.append(ChatColor.STRIKETHROUGH);
           }
           clickBuilder.append(tickAction.repChar());
