@@ -21,6 +21,7 @@ public final class Bursts extends TickAlignedHistoryBlueprint<Bursts.BurstMeta> 
     boolean doubleClickOccurred = false;
 
     List<TickAction> tickActions = meta.tickActions;
+
     for (int i = 0; i < tickActions.size(); i++) {
       TickAction tickAction = tickActions.get(i);
       if (tickAction == TickAction.CLICK || tickAction == TickAction.ATTACK) {
@@ -33,15 +34,19 @@ public final class Bursts extends TickAlignedHistoryBlueprint<Bursts.BurstMeta> 
         }
         consecutiveClicks = 0;
       }
+
       if (meta.tickIntensity.get(i) > 1) {
         doubleClickOccurred = true;
       }
+
       if (tickAction == TickAction.PLACE) {
         cancel = true;
       }
     }
+
     int vl = 0;
     boolean anyDoubleClick = false;
+
     for (int i = 0; i < streaks.size(); i++) {
       Integer streak = streaks.get(i);
       Boolean doubleClicked = doubleClick.get(i);
@@ -50,6 +55,8 @@ public final class Bursts extends TickAlignedHistoryBlueprint<Bursts.BurstMeta> 
         anyDoubleClick = true;
       }
     }
+
+    // If there
     if (!cancel && vl >= 12) {
       flag(user, "exhibits click bursts" + (!anyDoubleClick ? " without double clicks" : ""), 5);
     }

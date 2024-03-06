@@ -35,20 +35,29 @@ public final class Variance extends MetaCheckPart<ClickPatterns, Variance.Varian
     Player player = event.getPlayer();
     User user = userOf(player);
     VarianceMeta meta = metaOf(user);
+
+    // Calculating when the last swing was
     long lastSwing = meta.lastSwing;
     long swingDifference = System.currentTimeMillis() - lastSwing;
     meta.lastSwing = System.currentTimeMillis();
+
     Queue<Long> attacks = meta.attacks;
+
+    // When the check is disabled, there is no need to check
     if (checkDeactivated(user, swingDifference)) {
       attacks.clear();
       return;
     }
+
     if (attacks.isEmpty()) {
       meta.started = System.currentTimeMillis();
     }
     attacks.add(swingDifference);
+
+    // If the attacks queue reached the buffer length, Intave is going to check if the player clicks with a low variance
     if (attacks.size() >= BUFFER_LENGTH) {
       long length = System.currentTimeMillis() - meta.started;
+
       double standardDeviation = standardDeviation(attacks);
       if (standardDeviation < 166 && length < 4000) {
         int vlAdd = standardDeviation < 10 ? 2 : 1;
