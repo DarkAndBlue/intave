@@ -44,15 +44,14 @@ public class PlayerTime extends MetaCheckPart<Timer, PlayerTime.PlayerTimeMeta> 
   private static final long DEFAULT_THRESHOLD = 10;
   private final Map<UUID, Long> playerJoinTimeCache = GarbageCollector.watch(new HashMap<>());
   private final CheckViolationLevelDecrementer decrementer;
+  private final int blinkLimitTicks;
 
   public PlayerTime(Timer parentCheck) {
     super(parentCheck, PlayerTimeMeta.class);
     decrementer = parentCheck.decrementer();
+    blinkLimitTicks = parentCheck.blinkLimit();
   }
 
-  private void sendTransactionsToIdle() {
-
-  }
 
   @PacketSubscription(
     priority = ListenerPriority.HIGHEST,
@@ -111,7 +110,7 @@ public class PlayerTime extends MetaCheckPart<Timer, PlayerTime.PlayerTimeMeta> 
     AbilityMetadata abilityData = user.meta().abilities();
     user.tracedTickFeedback(() -> {
       connectionData.queueToNextTransaction(() -> {
-        checkMeta.time = Math.max(checkMeta.time, checkMeta.limitToBeApplied - 01_000_000);
+        checkMeta.time = Math.max(checkMeta.time, checkMeta.limitToBeApplied - 1_000_000);
         checkMeta.queuedLimit = checkMeta.lastSentTransaction;
       });
     }, new FeedbackObserver() {
@@ -141,8 +140,14 @@ public class PlayerTime extends MetaCheckPart<Timer, PlayerTime.PlayerTimeMeta> 
     long diff = checkMeta.time - System.nanoTime();
 //    ChatColor color = diff > 10_000_000 ? ChatColor.RED : ChatColor.GRAY;
 //    player.sendMessage(color + "" + ((double)diff / 1_000_000L) + "ms ");
-//    player.setLevel(Math.max(0, (int) (diff / 1_000_000L) + 100000));
+    player.setLevel(Math.max(0, (int) (diff / 1_000_000L) + 100000));
     statisticApply(user, CheckStatistics::increaseTotal);
+
+
+
+//    if (diff < -blinkLimitTicks * 50_000_000L) {
+//      player.sendMessage("diff: " + diff);
+//    }
 
     int limit = System.currentTimeMillis() - movementData.lastMovement > 30_000 ? 150_000_000 : 50_000_000;
     if ((diff > limit) && !user.meta().movement().isInVehicle()) {

@@ -108,7 +108,7 @@ public final class v20BlockAccessor implements BlockAccessor {
     Material material = VolatileBlockAccess.typeAccess(user, location);
     int variant = VolatileBlockAccess.variantIndexAccess(user, location);
     IBlockData rawVariant = (IBlockData) BlockVariantRegister.rawVariantOf(material, variant);
-    return rawVariant.getBlock().getDamage(rawVariant, ((org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer) player).getHandle(), worldServer, blockposition);
+    return rawVariant.getBlock().getDamage(rawVariant, ((CraftPlayer) player).getHandle(), worldServer, blockposition);
   }
 
   private static final Method isReplaceableMethod = Lookup.serverMethod("BlockData", "isReplaceable", boolean.class);
@@ -124,7 +124,7 @@ public final class v20BlockAccessor implements BlockAccessor {
     IBlockData blockData = (IBlockData) BlockVariantRegister.rawVariantOf(material, variant);
     Object heldItem;
     if (INVENTORY_VIA_GETTER) {
-      heldItem = ((org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer) player).getHandle().getInventory().getItem(heldSlot).getItem();
+      heldItem = ((CraftPlayer) player).getHandle().getInventory().getItem(heldSlot).getItem();
     } else {
       heldItem = ((CraftPlayer) player).getHandle().getInventory().getItem(heldSlot).getItem();
     }

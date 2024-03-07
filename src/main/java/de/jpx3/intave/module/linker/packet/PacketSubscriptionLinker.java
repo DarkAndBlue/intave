@@ -298,6 +298,9 @@ public final class PacketSubscriptionLinker extends Module {
       AtomicBoolean block = new AtomicBoolean(false);
 
       return (subscriber, event) -> {
+        if (block.get()) {
+          return;
+        }
         Player player = event.getPlayer();
 
         Map<Integer, Boolean> locks = argumentLocks.get();

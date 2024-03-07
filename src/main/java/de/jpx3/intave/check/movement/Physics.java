@@ -380,7 +380,7 @@ public final class Physics extends Check {
     int keyStrafe = movementData.keyStrafe;
 
     boolean flying = abilityData.probablyFlying() || abilityData.allowFlying();
-    String key = resolveKeysFromInput(keyForward, keyStrafe);
+    StringBuilder key = new StringBuilder(resolveKeysFromInput(keyForward, keyStrafe));
 
     double receivedMotionX = movementData.motionX();
     double receivedMotionY = movementData.motionY();
@@ -806,7 +806,7 @@ public final class Physics extends Check {
 
       boolean fly = movementData.receivedFlyingPacketIn(0);
       while (key.length() < 2) {
-        key += " ";
+        key.append(" ");
       }
       if (fly) {
         debug += ChatColor.STRIKETHROUGH;
@@ -913,10 +913,10 @@ public final class Physics extends Check {
 //      debug += " spr:" + (simulation.wasSprinting() ? 1 : 0);
 
 //      debug += " ai ?" + movementData.aiMoveSpeed();
-//      debug += " sprint " + shortenBoolean(movementData.sprinting) + "/" + shortenBoolean(movementData.hasSprintSpeed);
+//      debug += " sprint " + (movementData.sprinting) + "/" + (movementData.hasSprintSpeed);
 //      debug += " (sneak " + movementData.sneaking + "/"+movementData.actualSneaking()+")";
 //      debug += " (size:" + movementData.width + "," + movementData.height + ")";
-//      debug += " hand=" + shortenBoolean(meta.inventory().handActive());
+      debug += " hand=" + (meta.inventory().handActive());
 //      debug += inventoryData.heldItem().getType().name();
 //      debug += " flying:" + movementData.pastFlyingPacketAccurate;
 //      debug += " gliding:" + shortenBoolean(movementData.elytraFlying);
