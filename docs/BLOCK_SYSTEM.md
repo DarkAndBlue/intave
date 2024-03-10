@@ -61,7 +61,7 @@ BlockShape.normalized()     // to move the shape to the origin.
 
 ### How Patches work
 - Called everytime a shape is requested (make the performance not very bad please)
-- In the pipeline, the come after the shape caches, so they are not cached
+- In the pipeline, patches come after the shape caches, so they are not cached
 
 ```java
   @Override             // v---- Only patches outline shape
