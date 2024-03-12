@@ -761,6 +761,7 @@ public final class MovementDispatcher extends Module {
     movement.pastVelocity++;
     movement.pastStep++;
     movement.pastEdgeSneak++;
+    movement.pastSprintChange++;
     if (movement.inWater) {
       movement.waterTicks++;
     } else {

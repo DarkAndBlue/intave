@@ -405,12 +405,25 @@ public final class Physics extends Check {
 
     // Entity collision check
     boolean collidedWithBoat = movementData.collidedWithBoat();
-    boolean skipVLCalculation = distance <= 0.00001;
+    boolean skipVLCalculation = distance <= 0.00005;
     double verticalViolationIncrease = skipVLCalculation ? 0 : simulationEvaluator.calculateVerticalViolationLevelIncrease(user, predictedY, onLadder, collidedWithBoat);
     double horizontalViolationIncrease = skipVLCalculation ? 0 : simulationEvaluator.calculateHorizontalViolationIncrease(user, predictedX, predictedZ, onLadder, collidedWithBoat);
 
     if (onLadder) {
       movementData.artificialFallDistance = 0;
+    }
+
+    double biasedDistance = MathHelper.hypot3d(differenceX, differenceY * 2, differenceZ);
+    violationLevelData.physicsOffset += biasedDistance;
+    violationLevelData.physicsOffset -= movementData.receivedFlyingPacketIn(2) ? Math.min(0.03, biasedDistance) : 0;
+    violationLevelData.physicsOffset -= violationLevelData.physicsOffset > 0.5 ? 0.003 : 0.001;
+
+    // clamp the offset
+    if (violationLevelData.physicsOffset > 1.0) {
+      violationLevelData.physicsOffset = 1.0;
+    }
+    if (violationLevelData.physicsOffset < 0) {
+      violationLevelData.physicsOffset = 0;
     }
 
     boolean velocityDetected = false;
@@ -452,8 +465,24 @@ public final class Physics extends Check {
 //      player.sendMessage(ChatColor.RED + "Flying jump detected, " + movementData.pastFlyingPacketAccurate);
       flyingJump = true;
       verticalViolationIncrease = 0;
+
       movementData.endMotionYOverride = true;
       movementData.endMotionYOverrideValue = predictedY;
+    }
+
+    if (distance > 0.01 && (verticalViolationIncrease > 0.1 || horizontalViolationIncrease > 0.1)) {
+      if (Math.abs(receivedMotionX) > 0.15) {
+        movementData.endMotionXOverride = true;
+        movementData.endMotionXOverrideValue = predictedX;
+      }
+      if (Math.abs(receivedMotionY) > 0.1) {
+        movementData.endMotionYOverride = true;
+        movementData.endMotionYOverrideValue = predictedY;
+      }
+      if (Math.abs(receivedMotionZ) > 0.12) {
+        movementData.endMotionZOverride = true;
+        movementData.endMotionZOverrideValue = predictedZ;
+      }
     }
 
     // TODO: 05/28/22 check if this worked, and deal with adjustments
@@ -629,7 +658,10 @@ public final class Physics extends Check {
 
     boolean setback = false;
 
-    if (!spectator && violationLevelData.physicsVL > 50 && violationLevelIncrease > 0) {
+    double latantDistance = 0.5;
+    boolean offsetRequirement = violationLevelData.physicsOffset > latantDistance && distance > 0.001;
+    if (offsetRequirement && !spectator && violationLevelData.physicsVL > 50 && violationLevelIncrease > 0) {
+//      violationLevelData.physicsOffset -= 0.001;
       String received = formatPosition(receivedMotionX, receivedMotionY, receivedMotionZ);
       String expected = formatPosition(predictedX, predictedY, predictedZ);
       String message = "moved incorrectly";
@@ -737,6 +769,10 @@ public final class Physics extends Check {
       // Apply manual setback override when the deviation is greater than a certain amount of blocks
       if (distance > manualOverrideDistance) {
         setback = true;
+      }
+
+      if (violationLevelData.physicsOffset > latantDistance + 0.01) {
+        violationLevelData.physicsOffset -= 0.125;
       }
 
       if (user.trustFactor().atLeast(TrustFactor.BYPASS)) {
@@ -906,6 +942,11 @@ public final class Physics extends Check {
       }
       if (violationLevelData.physicsInvalidMovementsInRow > 0.1) {
         debug += ChatColor.ITALIC + " ivm:" + formatDouble(violationLevelData.physicsInvalidMovementsInRow, 2) + chatColor;
+      }
+      if (violationLevelData.physicsOffset > 0.5) {
+        debug += " off:" + ChatColor.YELLOW + formatDouble(violationLevelData.physicsOffset, 2) + chatColor;
+      } else if (violationLevelData.physicsOffset > 0.1) {
+        debug += " off:" + formatDouble(violationLevelData.physicsOffset, 2);
       }
 //      debug += " fric:" + formatDouble(movementData.friction(), 2) + "@" + movementData.frictionMaterial();
 
