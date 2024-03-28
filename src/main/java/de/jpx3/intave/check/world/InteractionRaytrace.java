@@ -163,8 +163,6 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
       boolean mustPostValidate = interactionMeta.remainingBlockStart > 0;
       PreprocessResult result = mustPostValidate ? PreprocessResult.ENFORCE_ROUTING : preprocessInteraction(interaction);
 
-//      player.sendMessage("receiveInteraction " + result + " " + interactionMeta.remainingBlockStart);
-
       switch (result) {
         case FAILED_MINOR:
           interactionMeta.interactionList.add(interaction);
@@ -403,8 +401,8 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
         Location playerLocationmdf = playerLocation.clone();
         playerLocationmdf.setYaw(movementData.lastRotationYaw);
 
-        double[] possibleXDisplacements = new double[] { 0, 0.03, -0.03, 0.06, -0.06 };
-        double[] possibleZDisplacements = new double[] { 0, 0.03, -0.03, 0.06, -0.06 };
+        double[] possibleXDisplacements = new double[] { 0, 0.01, -0.01, 0.03, -0.03, 0.06, -0.06 };
+        double[] possibleZDisplacements = new double[] { 0, 0.01, -0.01, 0.03, -0.03, 0.06, -0.06 };
         int numChecks = possibleXDisplacements.length * possibleZDisplacements.length;
 
         boolean estimateMouseDelayFix = interactionMeta.estimateMouseDelayFix;
@@ -564,7 +562,9 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     }
     if (!interaction.hasTargetBlock()) {
       interactionEmulator.emulate(interaction);
-//      player.sendMessage(ChatColor.GRAY + "No target block, interaction processed");
+      if (interaction.shouldSendPacket()) {
+        forwardInteractionToServer(interaction, null, null, null, false, false, false);
+      }
       return;
     }
 

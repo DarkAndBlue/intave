@@ -9,10 +9,7 @@ import de.jpx3.intave.module.feedback.Superposition;
 import de.jpx3.intave.player.ItemProperties;
 import de.jpx3.intave.share.Motion;
 import de.jpx3.intave.user.User;
-import de.jpx3.intave.user.meta.InventoryMetadata;
-import de.jpx3.intave.user.meta.MetadataBundle;
-import de.jpx3.intave.user.meta.MovementMetadata;
-import de.jpx3.intave.user.meta.ProtocolMetadata;
+import de.jpx3.intave.user.meta.*;
 import org.bukkit.Material;
 
 import java.util.List;
@@ -159,7 +156,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
       }
     }
 
-    boolean canExpectCorrectReduce = !protocol.combatUpdate() && movementData.pastVelocity > 1;
+    boolean canExpectCorrectReduce = !protocol.combatUpdate() && movementData.pastVelocity > 1 && movementData.motion().horizontalLength() > 0.2;
     boolean invalidReduceTicks = simulationStack.reduceTicks() != movementData.reduceTicks;
     if (canExpectCorrectReduce && invalidReduceTicks) {
       movementData.invalidReduceVL = Math.min(movementData.invalidReduceVL + 1, 10);
@@ -373,6 +370,7 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
   private SimulationStack simulateMovementIterative(User user, Simulator simulator) {
     Timings.CHECK_PHYSICS_PROC_ITR.start();
     MetadataBundle meta = user.meta();
+    AbilityMetadata abilities = meta.abilities();
     InventoryMetadata inventoryData = meta.inventory();
     MovementMetadata movementData = meta.movement();
     ProtocolMetadata protocol = meta.protocol();
@@ -436,9 +434,13 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
         if (protocol.combatUpdate()) {
           sprintSelector = movementData.sprintingAllowed() || movementData.hasSprintSpeed ? /* surprisingly pessimistic */ PESSIMISTIC : NEVER;
         } else {
-          sprintSelector = movementData.sprinting ? ALWAYS : NEVER;
+          boolean certain = movementData.pastSprintChange > 1;
+          sprintSelector = movementData.sprinting ? (certain ? ALWAYS : OPTIMISTIC) : (certain ? NEVER : PESSIMISTIC);
         }
         for (boolean sprinting : sprintSelector) {
+          if (sprinting && abilities.foodLevel < 6) {
+            continue;
+          }
           movementData.refreshFriction(sprinting);
           for (boolean useItemState : inventoryData.handActive() ? OPTIMISTIC : PESSIMISTIC) {
             if (skipUseItem && useItemState) {
@@ -447,8 +449,11 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
             if (requireUseItem && !useItemState) {
               continue;
             }
+            if (sprinting && useItemState) {
+              continue;
+            }
             IterativeStudy.USE_ITEM_ITERATOR.run();
-            boolean canExpectCorrectReduce = !protocol.combatUpdate() && movementData.pastVelocity > 2;
+            boolean canExpectCorrectReduce = !protocol.combatUpdate() && movementData.pastVelocity > 1 && movementData.motion().horizontalLength() > 0.2;
             boolean enforceCorrectReduction = movementData.forceCorrectReduce && canExpectCorrectReduce;
             for (int reduceIndex = 0; reduceIndex <= movementData.reduceTicks; reduceIndex++) {
               if (enforceCorrectReduction && reduceIndex != movementData.reduceTicks) {

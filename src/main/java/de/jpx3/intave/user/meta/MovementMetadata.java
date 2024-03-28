@@ -118,6 +118,7 @@ public final class MovementMetadata implements SimulationEnvironment {
   public int pastEdgeSneak = 100;
   public int pastStep = 100;
   public int pastEntityUse = 100;
+  public int pastSprintChange = 100;
   public int waterTicks = 0;
   public int reduceTicks = 0;
   public boolean onLadderLast;
@@ -956,6 +957,7 @@ public final class MovementMetadata implements SimulationEnvironment {
 
   public void setSprinting(boolean sprinting) {
     this.sprinting = sprinting;
+    pastSprintChange = 0;
 //    this.sprinting = false;
     AbilityMetadata abilities = user.meta().abilities();
     WrappedAttribute movementSpeed = abilities.findAttribute("generic.movementSpeed");

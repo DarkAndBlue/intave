@@ -7,6 +7,7 @@ import java.util.Map;
 
 @Relocate
 public final class ViolationMetadata {
+  public double physicsOffset;
   public double physicsVL;
   public double physicsInsignificantBufferVL;
   public double physicsVelocityVL;

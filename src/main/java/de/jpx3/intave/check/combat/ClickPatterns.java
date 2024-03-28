@@ -58,7 +58,7 @@ public final class ClickPatterns extends Check {
     if (user.protocolVersion() >= VER_1_13) {
       return;
     }
-    if (IntaveControl.CLICKPATTERNS_OUTPUT) {
+    if (IntaveControl.CLICKPATTERNS_OUTPUT || IntaveControl.GOMME_MODE) {
       details += " " + specifics.trim();
     }
     Violation violation = Violation.builderFor(ClickPatterns.class)

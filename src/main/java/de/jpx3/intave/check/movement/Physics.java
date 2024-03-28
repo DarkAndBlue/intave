@@ -26,6 +26,7 @@ import de.jpx3.intave.check.CheckConfiguration.CheckSettings;
 import de.jpx3.intave.check.CheckStatistics;
 import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.movement.physics.*;
+import de.jpx3.intave.check.movement.physics.eval.EvaluationTag;
 import de.jpx3.intave.connect.sibyl.SibylBroadcast;
 import de.jpx3.intave.diagnostic.message.DebugBroadcast;
 import de.jpx3.intave.diagnostic.message.MessageSeverity;
@@ -59,9 +60,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.jpx3.intave.diagnostic.message.MessageCategory.SIMFLT;
@@ -406,12 +405,30 @@ public final class Physics extends Check {
 
     // Entity collision check
     boolean collidedWithBoat = movementData.collidedWithBoat();
-    boolean skipVLCalculation = distance <= 0.00001;
-    double verticalViolationIncrease = skipVLCalculation ? 0 : simulationEvaluator.calculateVerticalViolationLevelIncrease(user, predictedY, onLadder, collidedWithBoat);
-    double horizontalViolationIncrease = skipVLCalculation ? 0 : simulationEvaluator.calculateHorizontalViolationIncrease(user, predictedX, predictedZ, onLadder, collidedWithBoat);
+    boolean skipVLCalculation = distance <= 0.00005;
+
+    Set<EvaluationTag> verticalTags = EnumSet.noneOf(EvaluationTag.class);
+    Set<EvaluationTag> horizontalTags = EnumSet.noneOf(EvaluationTag.class);
+
+    double verticalViolationIncrease = skipVLCalculation ? 0 : simulationEvaluator.calculateVerticalViolationLevelIncrease(user, predictedY, onLadder, collidedWithBoat, verticalTags);
+    double horizontalViolationIncrease = skipVLCalculation ? 0 : simulationEvaluator.calculateHorizontalViolationIncrease(user, predictedX, predictedZ, onLadder, collidedWithBoat, horizontalTags);
 
     if (onLadder) {
       movementData.artificialFallDistance = 0;
+    }
+
+    double biasedDistance = MathHelper.hypot3d(differenceX, differenceY * 2, differenceZ);
+    violationLevelData.physicsOffset += biasedDistance;
+    violationLevelData.physicsOffset -= movementData.receivedFlyingPacketIn(2) ? Math.min(0.03, biasedDistance) : 0;
+    violationLevelData.physicsOffset -= violationLevelData.physicsOffset > 0.5 ? 0.003 : 0.001;
+    violationLevelData.physicsOffset -= movementData.pastElytraFlying < 3 ? 0.025 : 0;
+
+    // clamp the offset
+    if (violationLevelData.physicsOffset > 1.0) {
+      violationLevelData.physicsOffset = 1.0;
+    }
+    if (violationLevelData.physicsOffset < 0) {
+      violationLevelData.physicsOffset = 0;
     }
 
     boolean velocityDetected = false;
@@ -453,8 +470,26 @@ public final class Physics extends Check {
 //      player.sendMessage(ChatColor.RED + "Flying jump detected, " + movementData.pastFlyingPacketAccurate);
       flyingJump = true;
       verticalViolationIncrease = 0;
+
       movementData.endMotionYOverride = true;
       movementData.endMotionYOverrideValue = predictedY;
+    }
+
+    boolean expectProblems = movementData.pastElytraFlying <= 2 || movementData.pastWaterMovement <= 2;
+
+    if (distance > 0.01 && !expectProblems && (verticalViolationIncrease > 5 || horizontalViolationIncrease > 5)) {
+      if (Math.abs(receivedMotionX) > 0.15 && differenceX > 0.025) {
+        movementData.endMotionXOverride = true;
+        movementData.endMotionXOverrideValue = predictedX * 0.98;
+      }
+      if (Math.abs(receivedMotionY) > 0.1 && differenceY > 0.1) {
+        movementData.endMotionYOverride = true;
+        movementData.endMotionYOverrideValue = (predictedY - 0.08) * 0.98;
+      }
+      if (Math.abs(receivedMotionZ) > 0.15 && differenceZ > 0.025) {
+        movementData.endMotionZOverride = true;
+        movementData.endMotionZOverrideValue = predictedZ * 0.98;
+      }
     }
 
     // TODO: 05/28/22 check if this worked, and deal with adjustments
@@ -630,7 +665,10 @@ public final class Physics extends Check {
 
     boolean setback = false;
 
-    if (!spectator && violationLevelData.physicsVL > 50 && violationLevelIncrease > 0) {
+    double latantDistance = 0.7;
+    boolean offsetRequirement = violationLevelData.physicsOffset > latantDistance && distance > 0.001;
+    if (offsetRequirement && !spectator && violationLevelData.physicsVL > 50 && violationLevelIncrease > 0) {
+//      violationLevelData.physicsOffset -= 0.001;
       String received = formatPosition(receivedMotionX, receivedMotionY, receivedMotionZ);
       String expected = formatPosition(predictedX, predictedY, predictedZ);
       String message = "moved incorrectly";
@@ -639,9 +677,19 @@ public final class Physics extends Check {
 //      if (violationLevelData.physicsInsignificantBufferVL > 2) {
 //        details += ", it:" + formatDouble(violationLevelData.physicsInsignificantBufferVL, 1);
 //      }
+      details += ", offset: " + formatDouble(violationLevelData.physicsOffset, 2);
 
       if (velocityDetected) {
-        details += ", strict";
+        details += " & strict";
+      }
+
+      if (IntaveControl.DISABLE_LICENSE_CHECK) {
+        if (!verticalTags.isEmpty()) {
+          details += ", V" + verticalTags.stream().map(EvaluationTag::toString).map(String::toLowerCase).distinct().collect(Collectors.joining(","));
+        }
+        if (!horizontalTags.isEmpty()) {
+          details += ", H" + horizontalTags.stream().map(EvaluationTag::toString).map(String::toLowerCase).distinct().collect(Collectors.joining(","));
+        }
       }
 
       Map<String, String> granularDebugs = new HashMap<>();
@@ -916,6 +964,20 @@ public final class Physics extends Check {
       if (violationLevelData.physicsInvalidMovementsInRow > 0.1) {
         debug += ChatColor.ITALIC + " ivm:" + formatDouble(violationLevelData.physicsInvalidMovementsInRow, 2) + chatColor;
       }
+      if (violationLevelData.physicsOffset > 0.5) {
+        debug += " off:" + ChatColor.YELLOW + formatDouble(violationLevelData.physicsOffset, 2) + chatColor;
+      } else if (violationLevelData.physicsOffset > 0.1) {
+        debug += " off:" + formatDouble(violationLevelData.physicsOffset, 2);
+      }
+
+      // display tags
+      if (!verticalTags.isEmpty()) {
+        debug += "; V" + verticalTags.stream().map(EvaluationTag::toString).map(String::toLowerCase).distinct().collect(Collectors.joining(","));
+      }
+      if (!horizontalTags.isEmpty()) {
+        debug += "; H" + horizontalTags.stream().map(EvaluationTag::toString).map(String::toLowerCase).distinct().collect(Collectors.joining(","));
+      }
+
 //      debug += " fric:" + formatDouble(movementData.friction(), 2) + "@" + movementData.frictionMaterial();
 
 //      if (Math.abs(movementData.motionY()) > 0.01) {
