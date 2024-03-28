@@ -171,7 +171,6 @@ public final class InteractionEmulator implements EventProcessor {
     User user = userOf(player);
     BlockCache blockStates = user.blockCache();
     World world = interaction.world();
-//    plugin.analytics().recorderOf(GlobalStatisticsRecorder.class).recordBlockPlaced();
     Location blockAgainstLocation = interaction.targetBlock().toLocation(world);
     Vector placementVector = Direction.getFront(interaction.targetDirectionIndex())
       .directionVector().convertToBukkitVec();
@@ -182,6 +181,10 @@ public final class InteractionEmulator implements EventProcessor {
     boolean replace = BlockInteractionAccess.replacedOnPlacement(
       world, player, new BlockPosition(blockAgainstLocation.toVector())
     );
+
+    if (System.currentTimeMillis() - user.meta().violationLevel().lastBlockPlaceDenyRequest < 1250) {
+      return EmulationResult.FAILED_CRITICAL;
+    }
 
     Material itemTypeInHand = interaction.itemTypeInHand();
 

@@ -59,6 +59,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -635,13 +636,21 @@ public final class Physics extends Check {
       String message = "moved incorrectly";
       String details = received + " actual: " + expected;
 
-      if (violationLevelData.physicsInsignificantBufferVL > 2) {
-        details += ", it:" + formatDouble(violationLevelData.physicsInsignificantBufferVL, 1);
-      }
+//      if (violationLevelData.physicsInsignificantBufferVL > 2) {
+//        details += ", it:" + formatDouble(violationLevelData.physicsInsignificantBufferVL, 1);
+//      }
 
       if (velocityDetected) {
         details += ", strict";
       }
+
+      Map<String, String> granularDebugs = new HashMap<>();
+      granularDebugs.put("received", received);
+      granularDebugs.put("expected", expected);
+      granularDebugs.put("distance", formatDouble(distance, 3));
+      granularDebugs.put("pose", movementData.pose().name());
+      granularDebugs.put("insig", formatDouble(violationLevelData.physicsInsignificantBufferVL, 1));
+
 
       double vl = violationLevelIncrease / (violationLevelData.physicsVL >= 100 && !highToleranceMode() ? 20 : 50);
       Violation violation = Violation.builderFor(Physics.class)

@@ -14,7 +14,6 @@ import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.ARM_ANIMATION;
 import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.BURN_LONGER;
-import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.DMG_LIGHT;
 import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_IN_ALL_VERBOSE_MODES;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_13;
 
