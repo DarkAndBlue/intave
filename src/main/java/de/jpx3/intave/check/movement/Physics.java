@@ -691,6 +691,7 @@ public final class Physics extends Check {
       if (movementData.forceCorrectReduce) {
         details += velocityDetected ? "&" : ",";
         details += " reduce force";
+        user.nerf(AttackNerfStrategy.BLOCKING, "46");
       }
 
       Map<String, String> granularDebugs = new LinkedHashMap<>();
