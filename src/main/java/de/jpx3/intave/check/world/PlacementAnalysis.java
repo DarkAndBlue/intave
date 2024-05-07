@@ -7,8 +7,10 @@ import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.world.placementanalysis.*;
+import de.jpx3.intave.check.world.placementanalysis.clicking.Stability;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.user.User;
+import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -36,10 +38,14 @@ public final class PlacementAnalysis extends Check {
       appendCheckPart(new Constraint(this));
       appendCheckPart(new SmartSpeed(this));
     }
-//    boolean enterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
-//    boolean partner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
+
+    boolean enterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
+
     try {
-//      if (enterprise || partner || DISABLE_LICENSE_CHECK) {
+        if (enterprise || DISABLE_LICENSE_CHECK) {
+          appendCheckPart(new Stability(this));
+        }
+
         if (useTimings) {
           appendCheckPart(new Speed(this));
           appendCheckPart(new Sneak(this));
