@@ -122,7 +122,7 @@ public final class SetbackSimulator extends Module {
       player.sendMessage(ChatColor.DARK_PURPLE + "[E+] " + motion  + " (" + ticks + " ticks, "+(!isOriginal ? "not ["+originalMotion+"] " : "")+" original)");
     }
 
-    proceedEmulationTick(player, motion, ticks, ticks, delay, cancellable);
+    proceedEmulationTick(player.getWorld(), player, motion, ticks, ticks, delay, cancellable);
   }
 
 //  public void emulationPushOutOfBlock(
@@ -193,6 +193,7 @@ public final class SetbackSimulator extends Module {
 //  }
 
   private void proceedEmulationTick(
+    World world,
     Player player,
     Vector motion,
     int ticks,
@@ -202,7 +203,7 @@ public final class SetbackSimulator extends Module {
   ) {
     if (!Bukkit.isPrimaryThread()) {
       Vector finalMotion1 = motion;
-      Synchronizer.synchronizeDelayed(() -> proceedEmulationTick(player, finalMotion1, ticks, startingTicks, delay, cancellable), 0);
+      Synchronizer.synchronizeDelayed(() -> proceedEmulationTick(world, player, finalMotion1, ticks, startingTicks, delay, cancellable), 0);
       return;
     }
 
@@ -242,7 +243,7 @@ public final class SetbackSimulator extends Module {
     futurePosition.setYaw(movementData.rotationYaw);
     futurePosition.setPitch(movementData.rotationPitch);
 
-    boolean exitBundle = (Math.abs(motion.getX()) < 0.01 && Math.abs(motion.getZ()) < 0.01 && motion.getY() == 0.0 && cancellable) || ticks <= 0;
+    boolean exitBundle = (Math.abs(motion.getX()) < 0.01 && Math.abs(motion.getZ()) < 0.01 && motion.getY() == 0.0 && cancellable) || ticks <= 0 || !player.getWorld().equals(world);
 
     if (exitBundle) {
       // velocity
@@ -307,7 +308,7 @@ public final class SetbackSimulator extends Module {
       //   s += " @" + movementData.entityBoundingBox();
 
       Vector finalMotion = motion.clone();
-      Synchronizer.synchronizeDelayed(() -> proceedEmulationTick(player, finalMotion, ticks - 1, startingTicks, delay, cancellable), delay);
+      Synchronizer.synchronizeDelayed(() -> proceedEmulationTick(world, player, finalMotion, ticks - 1, startingTicks, delay, cancellable), delay);
 
       // velocity
       Vector futureMotion = motionProceed(motion, user, boundingBox, true);
