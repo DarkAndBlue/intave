@@ -4,8 +4,11 @@ import java.util.concurrent.TimeUnit;
 
 public final class DurationTranslator {
   public static String translateMinutes(long duration) {
-    if (duration <= 0) {
+    if (duration < 0) {
       return "invalid";
+    }
+    if (duration == 0) {
+      return "0 minutes";
     }
     int minutes = (int) (duration / (1000 * 60));
     int hours = minutes / 60;

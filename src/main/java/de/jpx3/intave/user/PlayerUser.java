@@ -176,7 +176,7 @@ final class PlayerUser implements User {
       return disabledCache;
     }
     ConfigurationSection featuresSection = IntavePlugin.singletonInstance().settings().getConfigurationSection("cloud.features");
-    return disabledCache = !featuresSection.getBoolean("logs", featuresSection.getBoolean("cloud-logs", true));
+    return disabledCache = featuresSection != null && !featuresSection.getBoolean("logs", featuresSection.getBoolean("cloud-logs", true));
   }
 
   @Override

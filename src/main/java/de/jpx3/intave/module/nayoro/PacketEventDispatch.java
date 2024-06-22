@@ -164,7 +164,6 @@ public final class PacketEventDispatch implements PacketEventSubscriber {
       user.meta().connection().assumeWindowOpen = true;
       WindowActionEvent openEvent = WindowActionEvent.create(INFER_OPEN, user.player().getInventory().getArmorContents());
       reverseSink.accept(user, openEvent::accept);
-      return;
     }
     WindowClickEvent clickEvent = WindowClickEvent.create(
       reader.container(), reader.slot(), reader.clickType().ordinal(), reader.button(), reader.actionNumber()
@@ -195,7 +194,9 @@ public final class PacketEventDispatch implements PacketEventSubscriber {
   public void sentWindowOpen(
     User user, WindowOpenReader reader
   ) {
-    user.meta().connection().nextWindowOpenSlots = reader.slots();
+    int slots = reader.slots();
+    user.meta().connection().nextWindowOpenSlots = slots;
+    //user.player().sendMessage("Opened a window with " + slots + " slots");
   }
 
   @PacketSubscription(

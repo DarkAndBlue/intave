@@ -13,8 +13,8 @@ public final class WindowSingleItemReader extends AbstractPacketReader implement
 
   @Override
   public Map<Integer, ItemStack> itemMap() {
-    int slot = packet().getIntegers().read(1);
     ItemStack item = packet().getItemModifier().read(0);
+    int slot = packet().getIntegers().read(1);
     Map<Integer, ItemStack> map = new HashMap<>();
     map.put(slot, item);
     return map;

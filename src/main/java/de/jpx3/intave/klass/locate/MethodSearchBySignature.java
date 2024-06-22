@@ -135,6 +135,12 @@ public final class MethodSearchBySignature {
         }
       }
       if (methodHandles.isEmpty() && mustHaveResult) {
+        for (Method matchedMethod : targetClass.getDeclaredMethods()) {
+          System.out.println(matchedMethod.getName() + " " + Type.getType(matchedMethod) + " " + methodType + " " + filter.test(matchedMethod));
+          if (Type.getType(matchedMethod).equals(methodType) && filter.test(matchedMethod)) {
+            methodHandles.add(createMethodHandleFor(matchedMethod));
+          }
+        }
         throw new IllegalStateException("Method pattern " + methodType + " does not apply to any methods in " + targetClass);
       }
       return new MethodSearchBySignature(methodHandles.toArray(new MethodHandle[0]));
