@@ -38,9 +38,9 @@ public final class LegacyOutlinePatchPipe implements ShapeResolverPipeline {
     double zMidpoint = (outputBox.min(Direction.Axis.Z_AXIS) + outputBox.max(Direction.Axis.Z_AXIS)) / 2;
 
     boolean assumeIncorrectlyNormalized =
-      xMidpoint >= 0 && xMidpoint <= 1 && Math.abs(posX - xMidpoint) > 3 &&
-      yMidpoint >= 0 && yMidpoint <= 1 && Math.abs(posY - yMidpoint) > 3 &&
-      zMidpoint >= 0 && zMidpoint <= 1 && Math.abs(posZ - zMidpoint) > 3;
+      xMidpoint >= 0 && xMidpoint <= 1 &&
+      yMidpoint >= 0 && yMidpoint <= 1 &&
+      zMidpoint >= 0 && zMidpoint <= 1;
 
     if (assumeIncorrectlyNormalized) {
       if (outputBox instanceof BoundingBox) {
@@ -57,7 +57,9 @@ public final class LegacyOutlinePatchPipe implements ShapeResolverPipeline {
     "THIN_GLASS",
     "STAINED_GLASS_PANE",
     "IRON_FENCE",
-    "CAULDRON"
+    "CAULDRON",
+    "CHEST",
+    "TRAPPED_CHEST"
   );
 
   private boolean affected(Material type) {
