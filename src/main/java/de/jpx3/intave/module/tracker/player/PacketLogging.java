@@ -36,14 +36,30 @@ public class PacketLogging extends Module {
     });
   }
 
+  private static final boolean TEMP_PLAYER_CHECK;
+
+  static {
+    TEMP_PLAYER_CHECK = Arrays.stream(PacketEvent.class.getMethods())
+      .anyMatch(method -> method.getName().equalsIgnoreCase("isPlayerTemporary"));
+  }
+
+  private boolean isTemporary(PacketEvent event) {
+    return TEMP_PLAYER_CHECK && event.isPlayerTemporary();
+  }
+
   public void togglePacketLogging(CommandSender sender, Player target) {
     File logsFolder = IntaveControl.GOMME_MODE ? new File("logs") : new File(plugin.dataFolder(), "packetlogs");
     File packetLogFile = new File(logsFolder, packetLogFileName(target.getName()));
 
     UUID userId = target.getUniqueId();
     if (packetLoggers.containsKey(sender.getName())) {
-      sender.sendMessage(IntavePlugin.prefix() + ChatColor.GREEN + "Packetlogging stopped");
-//      sender.sendMessage(IntavePlugin.prefix() + "Type /intave diagnostics packetlogupload to upload the log");
+      if (!packetLoggers.get(sender.getName()).equals(userId)) {
+        sender.sendMessage(IntavePlugin.prefix() + ChatColor.GREEN + "You currently can only packetlog one player at the time, contact us if you need to log multiple players at the same time.");
+        sender.sendMessage(IntavePlugin.prefix() + ChatColor.GREEN + "We will stop packetlogging for " + packetLoggers.get(sender.getName()));
+        userId = packetLoggers.get(sender.getName());
+      } else {
+        sender.sendMessage(IntavePlugin.prefix() + ChatColor.GREEN + "Packetlogging stopped");
+      }
       PacketAdapter remove1 = adapterMap.remove(userId);
       ProtocolLibrary.getProtocolManager().removePacketListener(remove1);
       packetLoggers.remove(sender.getName());
@@ -68,10 +84,14 @@ public class PacketLogging extends Module {
       stream = new BufferedOutputStream(stream);
       PrintStream printStream = new PrintStream(stream);
 
+      UUID finalUserId = userId;
       PacketAdapter adapter = new PacketAdapter(IntavePlugin.singletonInstance(), ListenerPriority.MONITOR, PacketType.values(), ListenerOptions.SKIP_PLUGIN_VERIFIER) {
         @Override
         public void onPacketSending(PacketEvent event) {
-          if (event.getPlayer().getUniqueId().equals(userId)) {
+          if (isTemporary(event)) {
+            return;
+          }
+          if (event.getPlayer().getUniqueId().equals(finalUserId)) {
             synchronized (printStream) {
               printStream.println((System.currentTimeMillis() % 1000) + " --> " + event.getPacketType().name() + (event.isCancelled() ? " (cancelled)" : "") + " " + packetContent(event.getPacket()));
             }
@@ -80,7 +100,10 @@ public class PacketLogging extends Module {
 
         @Override
         public void onPacketReceiving(PacketEvent event) {
-          if (event.getPlayer().getUniqueId().equals(userId)) {
+          if (isTemporary(event)) {
+            return;
+          }
+          if (event.getPlayer().getUniqueId().equals(finalUserId)) {
             synchronized (printStream) {
               printStream.println((System.currentTimeMillis() % 1000) + " <-- " + event.getPacketType().name() + (event.isCancelled() ? " (cancelled)" : "") + " " + packetContent(event.getPacket()));
             }
