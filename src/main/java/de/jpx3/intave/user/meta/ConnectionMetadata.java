@@ -20,6 +20,7 @@ import de.jpx3.intave.module.tracker.entity.Entity;
 import de.jpx3.intave.packet.PacketSender;
 import org.bukkit.entity.Player;
 
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.DelayQueue;
@@ -60,6 +61,10 @@ public final class ConnectionMetadata {
   public boolean debugEntityTracing = false;
 
   public RateLimiter refreshBlockRatelimit = new RateLimiter(400, 2, TimeUnit.SECONDS);
+
+  public final Random feedbackUserKeyRandom = new SecureRandom();
+  public int lastFeedbackUserKey = Integer.MIN_VALUE;
+  public int generatorRunningNum = 0;
 
   public int windowClickId;
 

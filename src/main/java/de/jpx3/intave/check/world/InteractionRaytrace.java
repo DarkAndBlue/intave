@@ -865,7 +865,7 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
 
     if (response == ResponseType.RAYTRACE_CAST) {
       if (hitMiss || raycastResult == null) {
-        if (refreshBlocks) {
+        if (refreshBlocks && (targetLocation != null)) {
           refreshBlocksAround(player, targetLocation);
           blockStateAccess.invalidateOverride(targetLocation.getBlockX(), targetLocation.getBlockY(), targetLocation.getBlockZ());
         }

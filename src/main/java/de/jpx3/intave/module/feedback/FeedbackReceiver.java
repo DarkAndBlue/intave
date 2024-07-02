@@ -12,6 +12,7 @@ import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.module.Module;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
+import de.jpx3.intave.module.linker.packet.PacketId;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.player.FaultKicks;
 import de.jpx3.intave.user.User;
@@ -94,11 +95,30 @@ public final class FeedbackReceiver extends Module {
       return;
     }
 //    ConnectionMetadata connection = user.meta().connection();
-//    connection.
 //    connection.windowClickId++;
-//    connection.windowClickId %= 1000;
-//    int start = Short.MAX_VALUE - 1000;
+//    connection.windowClickId %= 250;
+//    int start = Short.MAX_VALUE - 250;
 //    packet.getShorts().writeSafely(0, (short) (connection.windowClickId + start));
+  }
+
+  @PacketSubscription(
+    packetsOut = {
+      PacketId.Server.TRANSACTION, PacketId.Server.PING
+    }
+  )
+  public void outgoingTransaction(PacketEvent event) {
+    Player player = event.getPlayer();
+    PacketContainer packet = event.getPacket();
+    if (!hasValidUserKey(packet) && activeGenerator != IdGeneratorMode.highestCompatibility()) {
+      short userKey = userKeyFrom(packet);
+      boolean couldBeWindowClick = userKey >= Short.MAX_VALUE - 250;
+      if (couldBeWindowClick) {
+        return;
+      }
+      activeGenerator = IdGeneratorMode.highestCompatibility();
+      IntaveLogger.logger().info("Detected foreign transaction id " + userKey + " for " + player.getName());
+      IntaveLogger.logger().info("Switching to highest compatibility transaction id selection mode");
+    }
   }
 
   @PacketSubscription(
@@ -118,14 +138,14 @@ public final class FeedbackReceiver extends Module {
     FeedbackQueue feedbackQueue = connection.feedbackQueue();
     PacketContainer packet = event.getPacket();
 
-    short userKey = userKeyFrom(packet);
-    if (userKey == -1) {
+    if (!hasValidUserKey(packet)) {
       if (IntaveControl.DEBUG_FEEDBACK_PACKETS) {
         System.out.println("Received " + packet.getIntegers().readSafely(0) + " from " + player.getName() + " but no user key was found");
       }
       return;
     }
 
+    short userKey = userKeyFrom(packet);
     FeedbackRequest<?> response = feedbackQueue.peek(userKey);
     if (response == null) {
       if (IntaveControl.DEBUG_FEEDBACK_PACKETS) {
@@ -136,6 +156,7 @@ public final class FeedbackReceiver extends Module {
 
     long expected = connection.lastReceivedTransactionNum + 1;
     long received = response.num();
+
     if (received != expected) {
       for (FeedbackRequest<?> missedRequest : feedbackQueue.pollUpTo(Math.max(expected, received))) {
         if (IntaveControl.DEBUG_FEEDBACK_PACKETS) {
@@ -163,7 +184,6 @@ public final class FeedbackReceiver extends Module {
 
     receiveRequest(user, response);
     long passedTime = response.passedTime();
-    long passedTimeNs = response.passedTimeAs(TimeUnit.NANOSECONDS);
     connection.receivedTransactionAfter(passedTime);
     Modules.feedbackAnalysis().receivedTransaction(user, response);
 
@@ -186,24 +206,24 @@ public final class FeedbackReceiver extends Module {
   private short userKeyFrom(PacketContainer packet) {
     if (USE_PING_PACKETS) {
       int inputInteger = packet.getIntegers().readSafely(0);
-      boolean hasIntavePingMask = (inputInteger & 0xffff0000) == PING_MASK;
-      boolean hasAnyPingMask = (inputInteger & 0xffff0000) != 0;
-      if (hasAnyPingMask && !hasIntavePingMask) {
-        return -1;
-      }
       return (short) (inputInteger & 0xffff);
     } else {
-      short shortInput = packet.getShorts().readSafely(0);
-      if (shortInput < 0) {
-        shortInput *= -1;
-      } else {
-        return -1;
-      }
-      if (shortInput > MAX_USER_KEY || shortInput < MIN_USER_KEY) {
-        return -1;
-      }
-      return shortInput;
+      return packet.getShorts().readSafely(0);
     }
+  }
+
+  private boolean hasValidUserKey(PacketContainer packet) {
+    short shortInput;
+    if (USE_PING_PACKETS) {
+      int inputInteger = packet.getIntegers().readSafely(0);
+      if ((inputInteger & 0xffff0000) != PING_MASK) {
+        return false;
+      }
+      shortInput = (short) (inputInteger & 0xffff);
+    } else {
+      shortInput = packet.getShorts().readSafely(0);
+    }
+    return shortInput <= MAX_USER_KEY && shortInput >= MIN_USER_KEY;
   }
 
   private void receiveRequest(User user, FeedbackRequest<?> feedbackRequest) {

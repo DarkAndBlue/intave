@@ -1,6 +1,10 @@
 package de.jpx3.intave.module.feedback;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -8,7 +12,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public final class FeedbackQueue {
   private static final int MAX_DIRECT_SIZE = 256;
   private final FeedbackEntry[] directLocalAccess = new FeedbackEntry[MAX_DIRECT_SIZE];
-  private final Map<Short, FeedbackEntry> fallbackLocalAccess = new HashMap<>();
+  private final Map<Short, FeedbackEntry> fallbackLocalAccess = new ConcurrentHashMap<>();
   private FeedbackEntry head, tail;
   private int size;
   private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -111,6 +115,10 @@ public final class FeedbackQueue {
         }
         size--;
         entry = head;
+        if (list.size() > 500 && list.size() % 100 == 0) {
+          writeLock.unlock();
+          writeLock.lock();
+        }
       }
       return list == null ? Collections.emptyList() : list;
     } finally {

@@ -236,6 +236,10 @@ compatibility:
   # Enable if scoreboards are sometimes not visible
   ignore-scoreboard-packets: false
 
+  # Enabling will have no security impact, but may make
+  # Intave more visible to cheaters debugging network traffic
+  no-transaction-obfuscation: false
+
 command:
   hide: true
   reroute:

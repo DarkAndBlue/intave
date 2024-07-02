@@ -19,10 +19,7 @@ import de.jpx3.intave.user.meta.ConnectionMetadata;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
@@ -31,12 +28,15 @@ import static com.comphenix.protocol.PacketType.Play.Server.*;
 import static de.jpx3.intave.module.feedback.FeedbackOptions.*;
 
 public final class FeedbackSender extends Module {
-  public static final short MIN_USER_KEY = 1;
-  public static final short MAX_USER_KEY = 24000;
+  public static final short MIN_USER_KEY = Short.MIN_VALUE + 2000;
+  public static final short MAX_USER_KEY = Short.MAX_VALUE - 2000;
   public static final int PING_MASK = 0xf5550000;
   private static final boolean USE_PING_PONG_PACKETS = MinecraftVersions.VER1_17_0.atOrAbove();
   private static final long OPTIONAL_PENDING_LIMIT = 20;
   private static final long OPTIONAL_SENT_LIMIT = 150;
+
+  private static final long bootTime = System.currentTimeMillis();
+  public static IdGeneratorMode activeGenerator = IdGeneratorMode.highestCompatibility();
 
   private final ProtocolManager protocol = ProtocolLibrary.getProtocolManager();
   private boolean dumpFeedback;
@@ -45,6 +45,17 @@ public final class FeedbackSender extends Module {
   public void enable() {
     dumpFeedback = plugin.settings().getBoolean("logging.feedback-dump", false);
     bundlingDisabled = plugin.settings().getBoolean("check.physics.no-bundling", false);
+    boolean disabledTransactionObfuscation = plugin.settings().getBoolean("compatibility.no-transaction-obfuscation", false);
+    if (!disabledTransactionObfuscation && !MinecraftVersions.VER1_17_1.atOrAbove() && !shouldRefrainFromObfuscation()) {
+      activeGenerator = IdGeneratorMode.modeOfTheDay();
+      System.out.println("Selected feedback id mode: " + activeGenerator.name());
+    }
+  }
+
+  private final List<String> compatibilityModePlugins = Arrays.asList("Vulcan", "Grim", "Verus", "Karhu", "Polar");
+
+  private boolean shouldRefrainFromObfuscation() {
+    return compatibilityModePlugins.stream().anyMatch(pluginName -> Bukkit.getPluginManager().isPluginEnabled(pluginName));
   }
 
   public <T> void doubleSynchronize(
@@ -253,35 +264,53 @@ public final class FeedbackSender extends Module {
     User user = UserRepository.userOf(player);
     ConnectionMetadata connection = user.meta().connection();
     FeedbackQueue feedbackQueue = connection.feedbackQueue();
-    int attempts = 1000;
-    short counter = MIN_USER_KEY;
+    Random selectedRandom = connection.feedbackUserKeyRandom;
     int pending = feedbackQueue.size();
-    if (pending > 500 && counter + pending < MAX_USER_KEY) {
-      counter += pending;
-    }
-    while (feedbackQueue.hasUserKey(counter) && counter >= MIN_USER_KEY && counter < MAX_USER_KEY && attempts-- > 0) {
-      counter++;
-    }
+    int attempts = 1000;
+    short counter = Short.MIN_VALUE;
+    // select a random seed every time to prevent players from predicting the user key in RAND mode
+    // predicted transactions could be a security issue, at least theoretically
+    selectedRandom.setSeed(System.currentTimeMillis() ^ System.nanoTime() ^ pending ^ player.getUniqueId().hashCode());
+    connection.generatorRunningNum = 0;
+
+    boolean recentlyBooted = System.currentTimeMillis() - bootTime < 120_000;
+    IdGeneratorMode selectedGenerator = recentlyBooted ? IdGeneratorMode.highestCompatibility() : activeGenerator;
+
+    int lastGeneration;
+    do {
+      lastGeneration = counter;
+      int generatedKey = selectedGenerator.generate(user, connection.lastFeedbackUserKey);
+      if (generatedKey <= MIN_USER_KEY || generatedKey >= MAX_USER_KEY) {
+        generatedKey = IdGeneratorMode.highestCompatibility().generate(user, connection.lastFeedbackUserKey);
+      }
+      counter = (short) generatedKey;
+    } while (feedbackQueue.hasUserKey(counter) && lastGeneration != counter && attempts-- > 0);
+    // if 1000 searches are not enough
     if (attempts <= 0) {
-      // should never ever happen, last resort
+      // try to go through all possible user keys randomly and find the first one that is not used
       attempts = 1000;
-      while (feedbackQueue.hasUserKey(counter) && counter >= MIN_USER_KEY && attempts-- > 0) {
-        if (MIN_USER_KEY + pending >= MAX_USER_KEY) {
-          break;
-        }
-        counter = (short) ThreadLocalRandom.current().nextInt(MIN_USER_KEY + pending, MAX_USER_KEY);
-      }
+      counter = MIN_USER_KEY;
+      do {
+        counter++;
+      } while (feedbackQueue.hasUserKey(counter) && attempts-- > 0);
+
+      // if that also fails, try to find a user key randomly again
       if (attempts <= 0) {
-        // should only happen when a player is not responding to any feedback requests
-        user.kick("Feedback response overdue");
-        return -1;
+        attempts = 1000;
+        while (feedbackQueue.hasUserKey(counter) && counter >= MIN_USER_KEY && attempts-- > 0) {
+          if (MIN_USER_KEY + pending >= MAX_USER_KEY) {
+            break;
+          }
+          counter = (short) ThreadLocalRandom.current().nextInt(MIN_USER_KEY + pending, MAX_USER_KEY);
+        }
+        if (attempts <= 0) {
+          // should only happen when a player is not responding to any feedback requests
+          user.kick("Feedback response overdue");
+          return -1;
+        }
       }
     }
-    if (counter < 0) {
-      user.kick("Error in feedback synchronization");
-      return -1;
-    }
-    return counter;
+    return (short) (connection.lastFeedbackUserKey = counter);
   }
 
   private void countTransactionPacket(Player receiver) {
@@ -317,7 +346,7 @@ public final class FeedbackSender extends Module {
       try {
         if (USE_PING_PONG_PACKETS) {
           packet = protocol.createPacket(PING);
-          int sentId = id;
+          int sentId = Short.toUnsignedInt(id);
           if (!noPingMask) {
             sentId = sentId | PING_MASK;
           }
@@ -325,7 +354,7 @@ public final class FeedbackSender extends Module {
         } else {
           packet = protocol.createPacket(TRANSACTION);
           packet.getIntegers().write(0, 0);
-          packet.getShorts().write(0, (short) -id);
+          packet.getShorts().write(0, id);
           packet.getBooleans().write(0, false);
         }
       } catch (Exception exception) {
