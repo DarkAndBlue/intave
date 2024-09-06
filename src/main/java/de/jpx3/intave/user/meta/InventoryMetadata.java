@@ -136,7 +136,6 @@ public final class InventoryMetadata {
         Synchronizer.synchronize(() -> {
           player.sendMessage("Item usage started: " + activeItem);
         });
-        System.out.println("Item usage started: " + this.activeItemType);
       }
     } finally {
       handActiveLock.unlock();
@@ -153,8 +152,8 @@ public final class InventoryMetadata {
       }
       ItemStack heldItem = heldItem();
       ItemStack offhandItem = offhandItem();
-      if (heldItem != null && Enchantments.tridentRiptideEnchanted(heldItem)
-        || offhandItem != null && Enchantments.tridentRiptideEnchanted(offhandItem)) {
+      if ((heldItem != null && Enchantments.tridentRiptideEnchanted(heldItem))
+        || (offhandItem != null && Enchantments.tridentRiptideEnchanted(offhandItem))) {
         movementData.pastRiptideSpin = 0;
         movementData.highestLocalRiptideLevel = Math.max(
           movementData.highestLocalRiptideLevel,

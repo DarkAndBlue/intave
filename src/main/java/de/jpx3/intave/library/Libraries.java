@@ -37,6 +37,9 @@ public final class Libraries {
     }
 
     loadLibrary(fromMavenGradle("com.mortennobel", "java-image-scaling", "0.8.6"));
+
+    // load fastutil
+    loadLibrary(fromMavenGradle("it.unimi.dsi", "fastutil", "8.5.6"));
   }
 
   public static void loadLibrary(Library library) {

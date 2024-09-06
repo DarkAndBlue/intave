@@ -1,10 +1,7 @@
 package de.jpx3.intave.player.collider;
 
 import de.jpx3.intave.check.movement.physics.SimulationEnvironment;
-import de.jpx3.intave.player.collider.complex.Collider;
-import de.jpx3.intave.player.collider.complex.ColliderResult;
-import de.jpx3.intave.player.collider.complex.v14Collider;
-import de.jpx3.intave.player.collider.complex.v8Collider;
+import de.jpx3.intave.player.collider.complex.*;
 import de.jpx3.intave.player.collider.simple.SimpleCollider;
 import de.jpx3.intave.player.collider.simple.SimpleColliderResult;
 import de.jpx3.intave.player.collider.simple.UniversalSimpleCollider;
@@ -23,6 +20,7 @@ public final class Colliders {
   private static final Collider V7_COMPLEX_COLLIDER;
   private static final Collider V8_COMPLEX_COLLIDER;
   private static final Collider V14_COMPLEX_COLLIDER;
+  private static final Collider V21_COMPLEX_COLLIDER;
   private static final SimpleCollider UNIVERSAL_SIMPLE_COLLIDER;
 
   private Colliders() {
@@ -32,12 +30,16 @@ public final class Colliders {
     V7_COMPLEX_COLLIDER = new v8Collider();
     V8_COMPLEX_COLLIDER = new v8Collider();
     V14_COMPLEX_COLLIDER = new v14Collider();
+    V21_COMPLEX_COLLIDER = new v21Collider();
     UNIVERSAL_SIMPLE_COLLIDER = new UniversalSimpleCollider();
   }
 
   public static Collider suitableComplexColliderProcessorFor(User user) {
     ProtocolMetadata clientData = user.meta().protocol();
-    if (clientData.applyModernCollider()) {
+    if (clientData.protocolVersion() >= ProtocolMetadata.VER_1_21) {
+      return V21_COMPLEX_COLLIDER;
+//      return V14_COMPLEX_COLLIDER;
+    } else if (clientData.applyModernCollider()) {
       return V14_COMPLEX_COLLIDER;
     } else if (clientData.protocolVersion() >= VER_1_8) {
       return V8_COMPLEX_COLLIDER;

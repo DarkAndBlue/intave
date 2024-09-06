@@ -87,6 +87,7 @@ public final class AbilityMetadata {
     setupAttribute("generic.maxHealth", 20.0D);
     setupAttribute("generic.knockbackResistance", 0.0D);
     setupAttribute("generic.attackDamage", 1.0D);
+    setupAttribute("generic.scale", 1.0D);
   }
 
   private void setupAttribute(String name, double baseValue) {

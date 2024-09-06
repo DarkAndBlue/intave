@@ -3,6 +3,7 @@ package de.jpx3.intave.block.shape;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Direction;
 import de.jpx3.intave.share.Position;
+import it.unimi.dsi.fastutil.doubles.DoubleSet;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +19,11 @@ final class EmptyBlockShape implements BlockShape {
   @Override
   public BlockShape normalized(int posX, int posY, int posZ) {
     return this;
+  }
+
+  @Override
+  public void appendUnsortedCoordsTo(Direction.Axis axis, DoubleSet appendTo) {
+
   }
 
   @Override

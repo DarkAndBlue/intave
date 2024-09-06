@@ -4,6 +4,7 @@ import de.jpx3.intave.diagnostic.MemoryTraced;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Direction;
 import de.jpx3.intave.share.Position;
+import it.unimi.dsi.fastutil.doubles.DoubleSet;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -62,6 +63,12 @@ final class CubeShape extends MemoryTraced implements BlockShape {
   @Override
   public BlockShape normalized(int posX, int posY, int posZ) {
     return new CubeShape(x - posX, y - posY, z - posZ);
+  }
+
+  @Override
+  public void appendUnsortedCoordsTo(Direction.Axis axis, DoubleSet appendTo) {
+    appendTo.add(this.min(axis));
+    appendTo.add(this.max(axis));
   }
 
   @Override

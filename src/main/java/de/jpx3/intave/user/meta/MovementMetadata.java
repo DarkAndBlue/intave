@@ -783,17 +783,28 @@ public final class MovementMetadata implements SimulationEnvironment {
   }
 
   public float eyeHeight(Pose pose) {
+    float output = 0;
     switch (pose) {
       case SWIMMING:
       case FALL_FLYING:
-        return 0.4f;
+        output = 0.4f;
+        break;
       case SLEEPING:
-        return 0.2f;
+        output = 0.2f;
+        break;
       case CROUCHING:
-        return 1.62f - user.meta().protocol().cameraSneakOffset();
+        output = 1.62f - user.meta().protocol().cameraSneakOffset();
+        break;
       default:
-        return 1.62f;
+        output = 1.62f;
+        break;
     }
+    double scale = user.meta().abilities().attributeValue("generic.scale");
+    if (Double.isNaN(scale)) {
+      scale = 1.0;
+    }
+    output *= scale;
+    return output;
   }
 
   @DispatchTarget

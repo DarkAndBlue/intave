@@ -270,7 +270,7 @@ public final class Cloud {
     long now = System.currentTimeMillis();
     long timeout = 1000 * 60 * 5;
     sampleTransmissionRequests.entrySet().removeIf(entry -> now - entry.getValue().lastUpdate() > timeout);
-    statusInquiryRequests.entrySet().removeIf(entry -> now - entry.getValue().lastUpdate() > timeout && entry.getValue().publish(Map.of()));
+    statusInquiryRequests.entrySet().removeIf(entry -> now - entry.getValue().lastUpdate() > timeout && entry.getValue().publish(new HashMap<>()));
     trustfactorRequests.entrySet().removeIf(entry -> now - entry.getValue().lastUpdate() > timeout);
     uploadLogRequests.entrySet().removeIf(entry -> now - entry.getValue().lastUpdate() > timeout);
     storageRequests.entrySet().removeIf(entry -> now - entry.getValue().lastUpdate() > timeout);
@@ -375,11 +375,11 @@ public final class Cloud {
     Consumer<Map<String, String>> callback
   ) {
     if (!available()) {
-      callback.accept(Map.of());
+      callback.accept(new HashMap<>());
       return;
     }
     if (statusInquiryRequests.size() > 100) {
-      callback.accept(Map.of());
+      callback.accept(new HashMap<>());
       return;
     }
     UUID id = UUID.randomUUID();
@@ -392,11 +392,11 @@ public final class Cloud {
     Player player, Consumer<Map<String, String>> callback
   ) {
     if (!available()) {
-      callback.accept(Map.of());
+      callback.accept(new HashMap<>());
       return;
     }
     if (statusInquiryRequests.size() > 100) {
-      callback.accept(Map.of());
+      callback.accept(new HashMap<>());
       return;
     }
     UUID id = player.getUniqueId();// hehe

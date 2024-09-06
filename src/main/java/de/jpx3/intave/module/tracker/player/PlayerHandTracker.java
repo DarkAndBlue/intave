@@ -143,7 +143,7 @@ public class PlayerHandTracker extends Module {
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,
     packetsIn = {
-      BLOCK_PLACE
+      BLOCK_PLACE, USE_ITEM
     }
   )
   public void receiveBlockPlace(PacketEvent event) {

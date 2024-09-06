@@ -450,7 +450,13 @@ final class PlayerUser implements User {
 
   @Override
   public HitboxSize sizeOf(Pose pose) {
-    return poseSizes.get(pose);
+    HitboxSize size = poseSizes.get(pose);
+    double scale = meta().abilities().attributeValue("generic.scale");
+    if (Double.isNaN(scale)) {
+      return size;
+    }
+    size = size.scaled(scale);
+    return size;
   }
 
   @Override

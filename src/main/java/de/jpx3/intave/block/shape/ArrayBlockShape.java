@@ -4,6 +4,7 @@ import de.jpx3.intave.diagnostic.MemoryTraced;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Direction;
 import de.jpx3.intave.share.Position;
+import it.unimi.dsi.fastutil.doubles.DoubleSet;
 
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
@@ -70,6 +71,13 @@ final class ArrayBlockShape extends MemoryTraced implements BlockShape {
       array[i] = contents[i].normalized(posX, posY, posZ);
     }
     return new ArrayBlockShape(array);
+  }
+
+  @Override
+  public void appendUnsortedCoordsTo(Direction.Axis axis, DoubleSet appendTo) {
+    for (BlockShape content : contents) {
+      content.appendUnsortedCoordsTo(axis, appendTo);
+    }
   }
 
   @Override

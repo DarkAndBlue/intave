@@ -14,6 +14,7 @@ import java.util.UUID;
 
 @Relocate
 public final class ProtocolMetadata {
+  public static int VER_1_21 = 767; // 1.21
   // final has been removed to disguise modified integer VERSION_DETAILS
   public static int VER_1_20 = 763; // 1.17
   public static int VER_1_19_4 = 756; // 1.19.4

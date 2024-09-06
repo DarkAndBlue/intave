@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Direction;
 import de.jpx3.intave.share.Position;
+import it.unimi.dsi.fastutil.doubles.DoubleSet;
 
 import java.util.List;
 
@@ -44,6 +45,12 @@ final class MergeBlockShape implements BlockShape {
       firstShape.normalized(posX, posY, posZ),
       secondShape.normalized(posX, posY, posZ)
     );
+  }
+
+  @Override
+  public void appendUnsortedCoordsTo(Direction.Axis axis, DoubleSet appendTo) {
+    firstShape.appendUnsortedCoordsTo(axis, appendTo);
+    secondShape.appendUnsortedCoordsTo(axis, appendTo);
   }
 
   @Override

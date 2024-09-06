@@ -2,15 +2,22 @@ package de.jpx3.intave.player.collider.complex;
 
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.shape.BlockShape;
+import de.jpx3.intave.block.shape.BlockShapes;
 import de.jpx3.intave.check.movement.physics.SimulationEnvironment;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Motion;
 import de.jpx3.intave.user.User;
+import it.unimi.dsi.fastutil.doubles.DoubleArrays;
+import it.unimi.dsi.fastutil.doubles.DoubleOpenHashSet;
+import it.unimi.dsi.fastutil.doubles.DoubleSet;
+import it.unimi.dsi.fastutil.floats.FloatArraySet;
+import it.unimi.dsi.fastutil.floats.FloatArrays;
+import it.unimi.dsi.fastutil.floats.FloatSet;
 import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.share.Direction.Axis.*;
 
-public final class v14Collider implements Collider {
+public final class v21Collider implements Collider {
   @Override
   public ColliderResult collide(
     User user,
@@ -113,29 +120,62 @@ public final class v14Collider implements Collider {
   }
 
   private Motion motionAfterCollision(User user, SimulationEnvironment environment, Motion motion, boolean[] stepped) {
-    BoundingBox aabb = environment.boundingBox();
-    BlockShape collisionShape = Collision.shape(user.player(), aabb.expand(motion));
-    Motion firstCollision = motion.length() == 0.0D ? motion : collideSingleBox(motion, aabb, collisionShape);
+    BoundingBox box = environment.boundingBox();
+    BlockShape collisionShape = Collision.shape(user.player(), box.expand(motion));
+    Motion firstCollision = motion.length() == 0.0D ? motion : collideSingleBox(motion, box, collisionShape);
     boolean xChange = motion.motionX != firstCollision.motionX;
     boolean yChange = motion.motionY != firstCollision.motionY;
     boolean zChange = motion.motionZ != firstCollision.motionZ;
-    boolean onGroundOrFalling = environment.onGround() || yChange && motion.motionY < 0.0D;
-    if (environment.stepHeight() > 0.0F && onGroundOrFalling && (xChange || zChange)) {
-      Motion firstStep = collideSingleBox(new Motion(motion.motionX, environment.stepHeight(), motion.motionZ), aabb, collisionShape);
-      Motion secondStep = collideSingleBox(new Motion(0.0D, environment.stepHeight(), 0.0D), aabb.expand(motion.motionX, 0.0D, motion.motionZ), collisionShape);
-
-      if (secondStep.motionY < environment.stepHeight()) {
-        Motion thirdStep = collideSingleBox(new Motion(motion.motionX, 0.0D, motion.motionZ), aabb.move(secondStep), collisionShape).add(secondStep);
-        if (thirdStep.horizontalLengthSqr() > firstStep.horizontalLengthSqr()) {
-          firstStep = thirdStep;
-        }
+    boolean yChangeAndFalling = yChange && motion.motionY < 0.0D;
+    if (environment.stepHeight() > 0.0F && (yChangeAndFalling || environment.onGround()) && (xChange || zChange)) {
+      BoundingBox box2 = yChangeAndFalling ? box.offset(0, firstCollision.motionY, 0) : box;
+      BoundingBox box3 = box2.offset(motion.motionX, environment.stepHeight(), motion.motionZ);
+      if (!yChangeAndFalling) {
+        box3 = box3.offset(0, -0.00001f, 0);
       }
-      if (firstStep.horizontalLengthSqr() > firstCollision.horizontalLengthSqr()) {
-        stepped[0] = true;
-        return firstStep.add(collideSingleBox(new Motion(0.0D, -firstStep.motionY + motion.motionY, 0.0D), aabb.move(firstStep), collisionShape));
+      BlockShape newCollisionShape = Collision.shape(user.player(), box3);
+      BlockShape combinedShape = BlockShapes.merge(collisionShape, newCollisionShape);
+      float[] floats = collectCandidateStepUpHeights(box2, combinedShape, (float) environment.stepHeight(), (float) firstCollision.motionY);
+      for (float step : floats) {
+        Motion simulatedStep = motion.copy();
+        simulatedStep.motionY = step;
+        Motion stepCappedMotion = collideSingleBox(simulatedStep, box2, combinedShape);
+        if (stepCappedMotion.horizontalLengthSqr() > firstCollision.horizontalLengthSqr()) {
+          double boxYShift = box.minY - box2.minY;
+          return stepCappedMotion.add(0.0D, -boxYShift, 0.0D);
+        }
       }
     }
     return firstCollision;
+  }
+
+  private float[] collectCandidateStepUpHeights(
+    BoundingBox box, BlockShape blockShape,
+    float stepHeight, float step
+  ) {
+    if (blockShape.isEmpty()) {
+      return FloatArrays.EMPTY_ARRAY;
+    }
+    DoubleSet coords = new DoubleOpenHashSet();
+    blockShape.appendUnsortedCoordsTo(Y_AXIS, coords);
+    double[] coordsArray = coords.toDoubleArray();
+    DoubleArrays.unstableSort(coordsArray);
+    FloatSet candidates = new FloatArraySet();
+    for (double coord : coordsArray) {
+      float requiredStep = (float) (coord - box.minY);
+      if (!(requiredStep < 0) && requiredStep != step) {
+        if (requiredStep > stepHeight) {
+          break;
+        }
+        candidates.add(requiredStep);
+      }
+    }
+    if (candidates.isEmpty()) {
+      return FloatArrays.EMPTY_ARRAY;
+    }
+    float[] result = candidates.toFloatArray();
+    FloatArrays.unstableSort(result);
+    return result;
   }
 
   private Motion collideSingleBox(Motion input, BoundingBox playerBox, BlockShape collision) {

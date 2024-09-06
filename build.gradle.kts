@@ -12,7 +12,7 @@ plugins {
 
 val simpleName = "Intave"
 group = "de.jpx3"
-version = "14.8.4-b1"
+version = "14.8.5"
 description = "Automated cheat detection and prevention"
 
 /*
@@ -51,8 +51,8 @@ dependencies {
   compileOnly("org.bytedeco:javacpp:1.5.9")
   compileOnly("org.bytedeco:javacpp-presets:1.5.9")
 
-  // java-image-scaling
-  compileOnly("com.mortennobel:java-image-scaling:0.8.6")
+  // pcap
+//  compileOnly("org.pcap4j:pcap4j-core:1.8.0")
 }
 
 /*
@@ -312,7 +312,7 @@ fun registerServerTask(serverVersion: String, javaVersion: Int) {
 /*
  * Gradle Task Configuration
  */
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
 
 tasks {
   build { dependsOn(shadowJar) }

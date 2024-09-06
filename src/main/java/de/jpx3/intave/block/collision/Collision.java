@@ -55,7 +55,8 @@ public final class Collision {
   }
 
   public static BlockShape shape(Player player, BoundingBox playerBoundingBox) {
-    return collectCollisionShapes(player, playerBoundingBox, COLLISION_CHECK_LIMIT, SHAPE_COMPILATION, BlockShapes::emptyShape);
+    int collisionLimit = scaleAdjustedCollisionLimitOf(UserRepository.userOf(player));
+    return collectCollisionShapes(player, playerBoundingBox, collisionLimit, SHAPE_COMPILATION, BlockShapes::emptyShape);
   }
 
   public static boolean present(Player player, BoundingBox playerBox) {
@@ -96,8 +97,9 @@ public final class Collision {
     } else if (!outsideBorderLast && !outsideBorderCurrent) {
       movementData.outsideBorder = true;
     }
-    int collisionChecksRemaining = COLLISION_CHECK_LIMIT;
-    int collisionsRemaining = Math.min(collisionLimit, COLLISION_CHECK_LIMIT);
+    int collisionLimitAdjusted = scaleAdjustedCollisionLimitOf(user);
+    int collisionChecksRemaining = collisionLimitAdjusted;
+    int collisionsRemaining = Math.min(collisionLimit, collisionLimitAdjusted);
     exit:
     for (int x = minX; x <= maxX; ++x) {
       for (int z = minZ; z <= maxZ; ++z) {
@@ -173,8 +175,9 @@ public final class Collision {
     int ystart = Math.max(minY - 1, WorldHeight.LOWER_WORLD_LIMIT);
     User user = UserRepository.userOf(player);
     BlockCache stateAccess = user.blockCache();
-    int blocksRemaining = COLLISION_CHECK_LIMIT;
-    int collisionsRemaining = Math.min(collisionLimit, COLLISION_CHECK_LIMIT);
+    int collisionLimitAdjusted = scaleAdjustedCollisionLimitOf(user);
+    int blocksRemaining = collisionLimitAdjusted;
+    int collisionsRemaining = Math.min(collisionLimit, collisionLimitAdjusted);
     exit:
     for (int x = minX; x <= maxX; ++x) {
       for (int z = minZ; z <= maxZ; ++z) {
@@ -195,6 +198,14 @@ public final class Collision {
     return finisher.apply(container);
   }
 
+  private static int scaleAdjustedCollisionLimitOf(User user) {
+    double scale = user.meta().abilities().attributeValue("generic.scale");
+    if (Double.isNaN(scale) || Double.isInfinite(scale)) {
+      return COLLISION_CHECK_LIMIT;
+    }
+    return scale <= 1 ? COLLISION_CHECK_LIMIT : (int) Math.ceil(COLLISION_CHECK_LIMIT * scale);
+  }
+
   @Deprecated
   public static boolean unsafePresent(World world, Player player, BoundingBox playerBox) {
     return !unsafeNonePresent(world, player, playerBox);
@@ -209,7 +220,8 @@ public final class Collision {
     int minZ = floor(playerBox.minZ);
     int maxZ = floor(playerBox.maxZ);
     int ystart = Math.max(minY - 1, WorldHeight.LOWER_WORLD_LIMIT);
-    int blockRemaining = COLLISION_CHECK_LIMIT;
+    User user = UserRepository.userOf(player);
+    int blockRemaining = scaleAdjustedCollisionLimitOf(user);
     exit:
     for (int x = minX; x <= maxX; ++x) {
       for (int z = minZ; z <= maxZ; ++z) {
@@ -265,7 +277,7 @@ public final class Collision {
     }
     BlockCache stateAccess = user.blockCache();
     World world = player.getWorld();
-    int blockRemaining = COLLISION_CHECK_LIMIT;
+    int blockRemaining = scaleAdjustedCollisionLimitOf(user);
     exit:
     // this looks 1000x slower than it actually is
     for (int chunkx = minX >> 4; chunkx <= maxX - 1 >> 4; ++chunkx) {

@@ -403,9 +403,23 @@ public final class IntavePlugin extends JavaPlugin {
             throw new Exception("Invalid domain");
           }
           String path = "https://" + domain + "/auth.php";
+          boolean first = true;
           if (!cloud.knowsMasterShard()) {
-            path += "?sendCloudCredentials=true";
+            if (first) {
+              path += "?";
+              first = false;
+            } else {
+              path += "&";
+            }
+            path += "sendCloudCredentials=true";
           }
+          if (first) {
+            path += "?";
+            first = false;
+          } else {
+            path += "&";
+          }
+          path += "hwidOutputOnErr=true";
           URL url = new URL(path);
           URLConnection connection = url.openConnection();
           connection.setUseCaches(false);
@@ -443,11 +457,37 @@ public final class IntavePlugin extends JavaPlugin {
         } catch (IOException exception) {
           response = "timeout";
         }
+
         String message = "";
         boolean bad = false;
         boolean clearReloCache = false;
         // VMProtect doesn't like JNICs switch-equivalent :(
         //noinspection IfCanBeSwitch
+
+        if (response.startsWith("hwidD")) {
+          Map<String, String> hwidProperties = new HashMap<>();
+          // hwidD#key1=value1#key2=value2 ...
+          String[] split = response.split("#");
+          for (String propertyPair : split) {
+            if (propertyPair.startsWith("hwidD")) {
+              continue;
+            }
+            String[] split1 = propertyPair.split("=");
+            try {
+              hwidProperties.put(split1[0], split1[1]);
+            } catch (Exception e) {
+              System.out.println("Unable to parse property pair: " + propertyPair);
+              e.printStackTrace();
+            }
+          }
+          // dump the properties
+          message = "Unable to boot: Hardware identification failed, additional information in console";
+          logger.error("Hardware identification failed: ");
+          for (Map.Entry<String, String> entry : hwidProperties.entrySet()) {
+            logger.error(entry.getKey() + ": " + entry.getValue());
+          }
+          bad = true;
+        }
         if ("banned".equals(response) || "invalid".equals(response) || "error".equals(response)) {
           message = "Unable to boot: Authentication failed";
           bad = true;

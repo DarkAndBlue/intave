@@ -515,9 +515,12 @@ public class Entity {
     double x = position.posX;
     double y = position.posY;
     double z = position.posZ;
-
-    double halfWidth = entity.typeData().size().width() / 2.0;
-    double length = entity.typeData().size().height();
+    if (entity == null) {
+      return new BoundingBox(x, y, z, x, y, z);
+    }
+    EntityTypeData typeData = entity.typeData();
+    double halfWidth = typeData.size().width() / 2.0;
+    double length = typeData.size().height();
     return new BoundingBox(
       x - halfWidth, y, z - halfWidth,
       x + halfWidth, y + length, z + halfWidth

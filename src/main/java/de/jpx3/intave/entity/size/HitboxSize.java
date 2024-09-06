@@ -33,4 +33,8 @@ public final class HitboxSize {
   public String toString() {
     return "(" + width + ", " + height + ")";
   }
+
+  public HitboxSize scaled(double scale) {
+    return new HitboxSize(width * (float) scale, height * (float) scale);
+  }
 }

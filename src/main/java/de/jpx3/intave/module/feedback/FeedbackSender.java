@@ -20,6 +20,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
@@ -135,7 +136,7 @@ public final class FeedbackSender extends Module {
     tracedSingleSynchronize(player, target, secondCallback, secondTracker, options);
   }
 
-  private final Map<String, Boolean> cache = new HashMap<>();
+  private final Map<String, Boolean> cache = new ConcurrentHashMap<>();
 
   private boolean isInInvalidThread() {
     return cache.computeIfAbsent(Thread.currentThread().getName(), s -> s.startsWith("Netty "));

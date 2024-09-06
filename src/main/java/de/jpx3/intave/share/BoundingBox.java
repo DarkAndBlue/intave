@@ -7,6 +7,7 @@ import de.jpx3.intave.diagnostic.MemoryTraced;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.share.link.WrapperConverter;
 import de.jpx3.intave.user.User;
+import it.unimi.dsi.fastutil.doubles.DoubleSet;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
@@ -295,6 +296,12 @@ public final class BoundingBox extends MemoryTraced implements BlockShape {
     BoundingBox normalized = offset(-posX, -posY, -posZ);
     normalized.makeOriginBox();
     return normalized;
+  }
+
+  @Override
+  public void appendUnsortedCoordsTo(Direction.Axis axis, DoubleSet appendTo) {
+    appendTo.add(min(axis));
+    appendTo.add(max(axis));
   }
 
   private List<BoundingBox> selfInListCache;
