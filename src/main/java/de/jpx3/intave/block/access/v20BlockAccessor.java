@@ -15,6 +15,7 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.level.WorldServer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.IBlockAccess;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.IBlockData;
 import net.minecraft.world.level.chunk.LightChunk;
 import org.bukkit.Location;
@@ -29,6 +30,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -85,14 +87,38 @@ public final class v20BlockAccessor implements BlockAccessor {
   public Object nativeVariantOf(Block block) {
     int blockY = block.getY();
     if (blockY < WorldHeight.LOWER_WORLD_LIMIT || blockY > WorldHeight.UPPER_WORLD_LIMIT) {
-      return net.minecraft.world.level.block.Blocks.a.getBlockData();
+      return airBlockData();
     }
     WorldServer worldServer = ((CraftWorld) block.getWorld()).getHandle();
     IBlockAccess blockAccess = findChunk(worldServer.getChunkProvider(), block.getX() >> 4, block.getZ() >> 4);
     if (blockAccess == null) {
-      return net.minecraft.world.level.block.Blocks.a.getBlockData();
+      return airBlockData();
     }
     return blockAccess.getType(positionOfBlock(block));
+  }
+
+  private Object airBlockDataCache;
+  private boolean airBlockDataFailed = false;
+
+  private Object airBlockData() {
+    if (airBlockDataFailed) {
+      return Blocks.a.getBlockData();
+    }
+    if (airBlockDataCache == null) {
+      try {
+        airBlockDataCache = Blocks.a.getBlockData();
+      } catch (Throwable e) {
+        try {
+          // haha
+          Field airField = Blocks.class.getField("AIR");
+          airBlockDataCache = ((net.minecraft.world.level.block.Block) airField.get(null)).getBlockData();
+        } catch (NoSuchFieldException | IllegalAccessException e1) {
+          airBlockDataFailed = true;
+          throw new RuntimeException(e1);
+        }
+      }
+    }
+    return airBlockDataCache;
   }
 
   @Override

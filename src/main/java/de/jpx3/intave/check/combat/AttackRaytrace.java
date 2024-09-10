@@ -28,6 +28,7 @@ import de.jpx3.intave.module.violation.ViolationContext;
 import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.packet.reader.EntityUseReader;
 import de.jpx3.intave.packet.reader.PacketReaders;
+import de.jpx3.intave.share.HistoryWindow;
 import de.jpx3.intave.share.Position;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.*;
@@ -470,42 +471,39 @@ public final class AttackRaytrace extends MetaCheck<AttackRaytrace.AttackRaytrac
     Player player = user.player();
     MetadataBundle meta = user.meta();
     double minReach = 10;
-    List<Entity.EntityPositionContext> history = entity.positionHistory;
+    HistoryWindow<Entity.EntityPositionContext> history = entity.positionHistory;
     int maximumPendingFeedbackPackets =
       trustFactorSetting("pending-allowance", player)
         + (int) MathHelper.minmax(0, LatencyStudy.cachedAverage(), 20);
     double blockReachDistance = Raytracing.reachDistanceOf(meta);
     boolean livingEntity = entity.typeData().isLivingEntity();
-    int from = history.size() - 1;
-    for (int i = from; i >= 0; i--) {
-      // If current position exceeds maximum pending packets skip this entity tick
-      if (from - i > maximumPendingFeedbackPackets) {
+
+    int availableHistory = history.size();
+    for (int ticksAgo = 0; ticksAgo < availableHistory; ticksAgo++) {
+      if (ticksAgo > maximumPendingFeedbackPackets) {
         continue;
       }
-      Entity.EntityPositionContext possiblePosition = history.get(i);
+      Entity.EntityPositionContext possiblePosition = history.back(ticksAgo);
       entity.position = possiblePosition.clone();
       Raytrace resultWithoutIncrement = fireRaytraceFor(user, entity, 0.13f, currentPosition);
-      // Stop if a valid reach was found
       if (resultWithoutIncrement.reach() < blockReachDistance) {
         return resultWithoutIncrement.reach();
       }
       double minReachInItr = resultWithoutIncrement.reach();
       int limit = 5;
       while (entity.position.newPosRotationIncrements > 0 && livingEntity) {
-        // If limit exceeded stop to save performance
         if (limit-- <= 0) {
           break;
         }
         entity.onUpdate();
         Raytrace result = fireRaytraceFor(user, entity, 0.13f, currentPosition);
-        // Stop if a valid reach was found
         if (result.reach() < blockReachDistance) {
           return result.reach();
         }
         minReachInItr = Math.min(minReachInItr, result.reach());
       }
-      minReach = Math.min(minReach, minReachInItr);
     }
+
     return minReach;
   }
 

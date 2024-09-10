@@ -79,7 +79,9 @@ public final class UserRepository {
   }
 
   public static void applyOnAll(Consumer<? super User> consumer) {
-    repository.values().forEach(consumer);
+    for (User user : repository.values()) {
+      consumer.accept(user);
+    }
   }
 
   public static void die() {

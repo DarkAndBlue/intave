@@ -24,6 +24,10 @@ public final class Position extends Vector implements Serializable {
     return new Position(x, y, z);
   }
 
+  public static Position of(Location location) {
+    return new Position(location.getX(), location.getY(), location.getZ());
+  }
+
   public static Position of(Vector vector) {
     return new Position(vector.getX(), vector.getY(), vector.getZ());
   }

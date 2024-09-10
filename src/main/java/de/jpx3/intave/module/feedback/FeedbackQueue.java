@@ -19,7 +19,7 @@ public final class FeedbackQueue {
   private final Lock readLock = lock.readLock();
   private final Lock writeLock = lock.writeLock();
 
-  public synchronized void add(FeedbackRequest<?> request) {
+  public void add(FeedbackRequest<?> request) {
     FeedbackEntry entry = new FeedbackEntry(request);
     writeLock.lock();
     try {
@@ -41,7 +41,7 @@ public final class FeedbackQueue {
     }
   }
 
-  public synchronized FeedbackRequest<?> peek() {
+  public FeedbackRequest<?> peek() {
     readLock.lock();
     try {
       return head == null ? null : head.request;
@@ -50,7 +50,7 @@ public final class FeedbackQueue {
     }
   }
 
-  public synchronized FeedbackRequest<?> peek(short userKey) {
+  public FeedbackRequest<?> peek(short userKey) {
     readLock.lock();
     try {
       FeedbackEntry entry;
@@ -65,7 +65,7 @@ public final class FeedbackQueue {
     }
   }
 
-  public synchronized FeedbackRequest<?> poll() {
+  public FeedbackRequest<?> poll() {
     writeLock.lock();
     try {
       if (head == null) {

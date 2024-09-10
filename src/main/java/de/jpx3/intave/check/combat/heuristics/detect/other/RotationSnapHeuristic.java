@@ -34,9 +34,6 @@ import de.jpx3.intave.world.raytrace.Raytracing;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static de.jpx3.intave.check.combat.heuristics.Anomaly.AnomalyOption.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
@@ -202,7 +199,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
         if (tracedEntity != null && !(tracedEntity instanceof Entity.Destroyed)) {
 //          try {
 //            tracedEntity.positionHistoryLock.lock();
-            meta.entityPositions.put(tracedEntity.entityId(), tracedEntity.positionHistory.get(Math.max(tracedEntity.positionHistory.size() - 1, 0)));
+//            meta.entityPositions.put(tracedEntity.entityId(), tracedEntity.immediateServerPosition);
 //          } finally {
 //            tracedEntity.positionHistoryLock.unlock();
 //          }
@@ -233,11 +230,11 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
         Entity entity = attackData.lastAttackedEntity();
 
         Tick tick = meta.movementAtTick[1];
-        Map<Integer, Entity.EntityPositionContext> entityPositions = meta.entityPositions;
-        Entity.EntityPositionContext lastEntityPosition = entityPositions.get(entity.entityId());
+//        Map<Integer, Entity.EntityPositionContext> entityPositions = meta.entityPositions;
+//        Entity.EntityPositionContext lastEntityPosition = entityPositions.get(entity.entityId());
 
-        if (lastEntityPosition != null && tick != null) {
-          BoundingBox lastBoundingBox = Entity.entityBoundingBoxFrom(lastEntityPosition, entity);
+        if (/*lastEntityPosition != null && */tick != null) {
+          BoundingBox lastBoundingBox = null;//Entity.entityBoundingBoxFrom(lastEntityPosition, entity);
           Raytrace last = Raytracing.entityRaytrace(
             player,
             lastBoundingBox,
@@ -279,7 +276,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
 
       handleConfidence(user, "102", (int) vl, description);
 
-      meta.entityPositions.clear();
+//      meta.entityPositions.clear();
     }
 
     if (liteFlag) {
@@ -403,7 +400,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
 
   public static final class RotationSnapHeuristicMeta extends CheckCustomMetadata {
     double lastLastPosX, lastLastPosY, lastLastPosZ;
-    Map<Integer, Entity.EntityPositionContext> entityPositions = new HashMap<>();
+//    Map<Integer, Po> entityPositions = new HashMap<>();
     private final Tick[] movementAtTick = new Tick[2];
     private final double[] yawMotions = new double[2];
     private final KeyStates[] silentMovements = new KeyStates[2];

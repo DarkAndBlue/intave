@@ -28,6 +28,7 @@ import de.jpx3.intave.resource.Resource;
 import de.jpx3.intave.resource.Resources;
 import de.jpx3.intave.security.HWIDVerification;
 import de.jpx3.intave.security.HashAccess;
+import de.jpx3.intave.share.ShareTests;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.world.WorldLoadEvent;
@@ -172,8 +173,9 @@ public final class TestService implements EventProcessor {
       performTest(FeedbackTests.class);
       performTest(ReaderTests.class);
       performTest(FluidTests.class);
-
+      performTest(ShareTests.class);
       performTest(MovementConfigurationTests.class);
+
 
       // checks
       performTest(SimulatorBasicTests.class);

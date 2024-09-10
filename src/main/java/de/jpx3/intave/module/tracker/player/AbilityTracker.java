@@ -133,7 +133,9 @@ public final class AbilityTracker extends Module {
         movementData.criticalFlyingDisallowStacks = 0;
       }
     } else if (movementData.criticalFlyingBlockMovementStacks > 0 && movementData.criticalTeleportRateLimiter.tryAcquire()) {
-      player.teleport(player.getLocation());
+      Synchronizer.synchronize(() -> {
+        player.teleport(player.getLocation());
+      });
       if (user.receives(MessageChannel.DEBUG_TELEPORT)) {
         player.sendMessage(IntavePlugin.prefix() + "Teleport to " + player.getLocation().getBlockX() + " " + player.getLocation().getBlockY() + " " + player.getLocation().getBlockZ() + " " + " for " + ChatColor.RED + " critical flying disallow protection (movement block)");
       }

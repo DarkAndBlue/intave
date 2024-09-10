@@ -382,7 +382,7 @@ public final class FeedbackSender extends Module {
     if (MinecraftVersions.VER1_19_4.atOrAbove() && !bundlingDisabled && toBundle != null) {
       PacketContainer bundle = new PacketContainer(BUNDLE);
       StructureModifier<Iterable<PacketContainer>> containingPackets = bundle.getPacketBundles();
-      containingPackets.write(0, Arrays.asList(packet, toBundle.getPacket().shallowClone()));
+      containingPackets.write(0, Arrays.asList(packet, toBundle.getPacket()/*.shallowClone()*/));
       if (toBundle.isReadOnly()) {
         toBundle.setReadOnly(false);
       }

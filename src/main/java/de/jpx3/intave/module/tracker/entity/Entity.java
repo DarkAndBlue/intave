@@ -11,14 +11,11 @@ import de.jpx3.intave.module.feedback.FeedbackObserver;
 import de.jpx3.intave.module.feedback.PendingCountingFeedbackObserver;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.ClientMath;
+import de.jpx3.intave.share.HistoryWindow;
 import de.jpx3.intave.share.Position;
 import de.jpx3.intave.user.User;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class Entity {
   /*
@@ -55,8 +52,7 @@ public class Entity {
   public EntityPositionContext position;
   public EntityPositionContext lastPosition;
   public EntityPositionContext alternativePosition;
-  public ReentrantLock positionHistoryLock = new ReentrantLock();
-  public List<EntityPositionContext> positionHistory = new LinkedList<>();
+  public HistoryWindow<EntityPositionContext> positionHistory = new HistoryWindow<>(25);
   public boolean dead, fakeDead;
   public boolean verifiedPosition;
   public float health;
@@ -374,9 +370,9 @@ public class Entity {
     if (!temporaryCopy) {
       try {
 //        positionHistoryLock.lock();
-        if (positionHistory.size() > 25) {
-          positionHistory.remove(0);
-        }
+//        if (positionHistory.size() > 25) {
+//          positionHistory.remove(0);
+//        }
         positionHistory.add(position.clone());
       } finally {
 //        positionHistoryLock.unlock();

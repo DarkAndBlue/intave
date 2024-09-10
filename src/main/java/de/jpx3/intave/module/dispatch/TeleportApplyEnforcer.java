@@ -214,7 +214,7 @@ public final class TeleportApplyEnforcer implements PacketEventSubscriber {
       Synchronizer.synchronize(() -> {
         Location randomLocation = player.getLocation().clone().add(Math.random() * 1000 - 500, 0, Math.random() * 1000 - 500);
         Block highestBlockAt = randomLocation.getWorld().getHighestBlockAt(randomLocation);
-        randomLocation.setY(highestBlockAt.getY() + 1);
+        randomLocation.setY(highestBlockAt.getY());
         player.teleport(randomLocation);
 
         if (user.receives(MessageChannel.DEBUG_TELEPORT)) {
