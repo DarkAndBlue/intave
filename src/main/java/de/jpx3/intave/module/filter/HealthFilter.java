@@ -45,22 +45,20 @@ public final class HealthFilter extends Filter {
       reader.release();
       return;
     }
-    List<WrappedWatchableObject> watchables = reader.metadataObjects();
+    List<WrappedWatchableObject> watchables = reader.legacyMetadataObjects();
     if (entity instanceof LivingEntity && entity.getEntityId() != event.getPlayer().getEntityId()) {
       if (watchables != null) {
-//        WrappedWatchableObject healthWatchable = null;
         for (int i = 0; i < watchables.size(); i++) {
           WrappedWatchableObject watchable = watchables.get(i);
           if (watchable.getIndex() == 6 && watchable.getValue() instanceof Float) {
             watchable = new WrappedWatchableObject(watchable.getIndex(), watchable.getRawValue());
             stripHealthFrom(watchable);
             watchables.set(i, watchable);
-//            System.out.println("Stripped health from " + entity.getName() + " (" + entity.getEntityId() + ") " + "receiver id: " + event.getPlayer().getEntityId());
           }
         }
       }
     }
-    reader.setMetadataObjects(watchables);
+    reader.setLegacyMetadataObjects(watchables);
     reader.release();
   }
 
@@ -71,19 +69,7 @@ public final class HealthFilter extends Filter {
   }
 
   private float createFakeHealth() {
-    float fakeHealth;
-    if (chanceOf(0.05f)) {
-      fakeHealth = Float.POSITIVE_INFINITY;
-    } else if (chanceOf(0.05f)) {
-      fakeHealth = Math.max(1, (float) (Math.random() * 20.0F));
-    } else {
-      fakeHealth = Float.NaN;
-    }
-    return fakeHealth;
-  }
-
-  private boolean chanceOf(float chance) {
-    return Math.random() < chance;
+    return Math.max(1, (float) (Math.random() * 20.0F));
   }
 
   @Override

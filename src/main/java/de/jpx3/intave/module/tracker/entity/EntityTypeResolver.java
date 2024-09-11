@@ -4,7 +4,6 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.FieldAccessException;
 import com.comphenix.protocol.wrappers.WrappedDataWatcher;
-import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
@@ -15,6 +14,7 @@ import de.jpx3.intave.entity.size.HitboxSizeAccess;
 import de.jpx3.intave.entity.type.EntityTypeData;
 import de.jpx3.intave.entity.type.EntityTypeDataAccessor;
 import de.jpx3.intave.klass.Lookup;
+import de.jpx3.intave.packet.reader.EntityMetadataReader;
 import de.jpx3.intave.packet.reader.EntityReader;
 import de.jpx3.intave.packet.reader.PacketReaders;
 import de.jpx3.intave.reflect.access.ReflectiveHandleAccess;
@@ -24,7 +24,6 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Zombie;
 
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -131,14 +130,14 @@ public final class EntityTypeResolver {
     }
   }
 
-  public EntityTypeData entityTypeDataOfEntityMetadata(PacketEvent event, int entityTypeId, List<WrappedWatchableObject> watchableObjects) {
+  public EntityTypeData entityTypeDataOfEntityMetadata(PacketEvent event, int entityTypeId, EntityMetadataReader reader) {
     PacketContainer packet = event.getPacket();
     int entityId = packet.getIntegers().read(0);
     Entity entity = EntityTracker.serverEntityByIdentifier(event.getPlayer(), entityId);
     if (entity != null) {
       return entityTypeDataOfBukkitEntity(entity);
     } else {
-      AgeCategory age = entityAgeByWatchableObjects(watchableObjects, entityTypeId);
+      AgeCategory age = entityAgeByWatchableObjects(reader, entityTypeId);
       if (age == UNKNOWN) {
         return null;
       } else {
@@ -153,28 +152,22 @@ public final class EntityTypeResolver {
   }
 
   private AgeCategory entityAgeByWatchableObjects(
-    List<? extends WrappedWatchableObject> watchableObjects, int entityTypeId
+    EntityMetadataReader reader, int entityTypeId
   ) {
     int correctIndex = hardcodedAgeMetaIndexFor(entityTypeId);
-    for (WrappedWatchableObject watchableObject : watchableObjects) {
-      // needs a lot of performance and affects tps
-      if (watchableObject.getIndex() == correctIndex) {
-        // needs a lot of performance and affects tps
-        Object object = watchableObject.getRawValue();
-        if (object != null) {
-          if (object instanceof Boolean) {
-            return (boolean) object ? BABY : ADULT;
-          } else if (object instanceof Byte) {
-            byte isChild = (byte) object;
-            if (AT_OR_ABOVE_1_14 && entityTypeId == 30) {
-              return isChild == 1 ? BABY : ADULT;
-            } else {
-              return isChild < 0 ? BABY : ADULT;
-            }
-          } else {
-            return UNKNOWN;
-          }
+    Object object = reader.fetchRaw(correctIndex);
+    if (object != null) {
+      if (object instanceof Boolean) {
+        return (boolean) object ? BABY : ADULT;
+      } else if (object instanceof Byte) {
+        byte isChild = (byte) object;
+        if (AT_OR_ABOVE_1_14 && entityTypeId == 30) {
+          return isChild == 1 ? BABY : ADULT;
+        } else {
+          return isChild < 0 ? BABY : ADULT;
         }
+      } else {
+        return UNKNOWN;
       }
     }
     return UNKNOWN;

@@ -8,7 +8,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
@@ -69,7 +68,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -953,13 +951,7 @@ public final class MovementDispatcher extends Module {
     }
 
     EntityMetadataReader reader = PacketReaders.readerOf(packet);
-    List<WrappedWatchableObject> watchableObjects = reader.metadataObjects();
-
-    WrappedWatchableObject elytraObject = watchableObjects
-      .stream()
-      .filter(wrappedWatchableObject -> wrappedWatchableObject.getIndex() == 0)
-      .findFirst()
-      .orElse(null);
+    Object elytraObject = reader.fetchRaw(0);
 
     if (elytraObject == null) {
       reader.release();
@@ -980,7 +972,7 @@ public final class MovementDispatcher extends Module {
       player.sendMessage("Elytra update received");
     }
 
-    byte data = (byte) elytraObject.getValue();
+    byte data = (byte) elytraObject;
     boolean gliding = (data & 1 << 7) != 0;
 
     user.tickFeedback(() -> {

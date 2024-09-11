@@ -3,6 +3,7 @@ package de.jpx3.intave.module.tracker.entity;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.WrappedWatchableObject;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
@@ -667,9 +668,10 @@ public final class EntityTracker extends Module {
     int entityId, boolean isPlayer
   ) {
     if (NEW_POSITION_PROCESSING_1_9) {
-      double posX = packet.getDoubles().read(0);
-      double posY = packet.getDoubles().read(1);
-      double posZ = packet.getDoubles().read(2);
+      StructureModifier<Double> doubles = packet.getDoubles();
+      double posX = doubles.read(0);
+      double posY = doubles.read(1);
+      double posZ = doubles.read(2);
 
       processEntitySpawnNewVersion(
         user, entityTypeData, entityId,
@@ -681,16 +683,17 @@ public final class EntityTracker extends Module {
       Integer serverPosY;
       Integer serverPosZ;
 
+      StructureModifier<Integer> integers = packet.getIntegers();
       if (packet.getType() == PacketType.Play.Server.SPAWN_ENTITY_LIVING) {
         // dead or living entities
-        serverPosX = packet.getIntegers().read(2);
-        serverPosY = packet.getIntegers().read(3);
-        serverPosZ = packet.getIntegers().read(4);
+        serverPosX = integers.read(2);
+        serverPosY = integers.read(3);
+        serverPosZ = integers.read(4);
       } else {
         // players
-        serverPosX = packet.getIntegers().read(1);
-        serverPosY = packet.getIntegers().read(2);
-        serverPosZ = packet.getIntegers().read(3);
+        serverPosX = integers.read(1);
+        serverPosY = integers.read(2);
+        serverPosZ = integers.read(3);
       }
 
       return processEntitySpawn(
@@ -835,10 +838,9 @@ public final class EntityTracker extends Module {
 
     EntityMetadataReader reader = PacketReaders.readerOf(packet);
     int entityId = reader.entityId();
-    List<WrappedWatchableObject> watchableObjects = reader.metadataObjects();
 
     if (player.getEntityId() == entityId) {
-      synchronizePlayerHealth(player, watchableObjects);
+      synchronizePlayerHealth(player, reader);
       reader.release();
       return;
     }
@@ -853,16 +855,15 @@ public final class EntityTracker extends Module {
       MovementMetadata movement = user.meta().movement();
       double distance = entity.position.toPosition().distance(player.getLocation());
       if (distance < 2) {
-        for (WrappedWatchableObject watchableObject : watchableObjects) {
-          if (watchableObject.getIndex() == 17) {
-            user.tickFeedback(() -> {
-              movement.lowestShulkerY = Math.min(movement.lowestShulkerY,(int) entity.position.posY - 1);
-              movement.highestShulkerY = Math.max(movement.highestShulkerY,(int) entity.position.posY + 1);
-              movement.shulkerXToleranceRemaining = 20;
-              movement.shulkerYToleranceRemaining = 20;
-              movement.shulkerZToleranceRemaining = 20;
-            });
-          }
+        Object raw = reader.fetchRaw(17);
+        if (raw != null) {
+          user.tickFeedback(() -> {
+            movement.lowestShulkerY = Math.min(movement.lowestShulkerY, (int) entity.position.posY - 1);
+            movement.highestShulkerY = Math.max(movement.highestShulkerY, (int) entity.position.posY + 1);
+            movement.shulkerXToleranceRemaining = 20;
+            movement.shulkerYToleranceRemaining = 20;
+            movement.shulkerZToleranceRemaining = 20;
+          });
         }
       }
     }
@@ -905,130 +906,113 @@ public final class EntityTracker extends Module {
 
     // Firework
     if (isFireworkRocket) {
-      handleFirework(player, watchableObjects);
-    } else if (isLivingEntity && watchableObjects != null) {
+      handleFirework(player, reader);
+    } else if (isLivingEntity) {
       // Health
-      processHealthMetadata(player, entity, watchableObjects);
+      processHealthMetadata(player, entity, reader);
 
       // Entity Size
-      EntityTypeData entityTypedata = entityTypeResolver.entityTypeDataOfEntityMetadata(event, entityTypeId, watchableObjects);
+      EntityTypeData entityTypedata = entityTypeResolver.entityTypeDataOfEntityMetadata(event, entityTypeId, reader);
       if (entityTypedata != null) {
         entity.setTypeData(entityTypedata);
-      } else {
-//        IntaveLogger.logger().info("Unable to update entity metadata of entity " + entityId + " of type " + entityTypeId);
       }
     }
     reader.release();
   }
 
-  private void handleFirework(
-    Player player, List<? extends WrappedWatchableObject> watchableObjects
-  ) {
+  private void handleFirework(Player player, EntityMetadataReader reader) {
     if (!MinecraftVersions.VER1_11_0.atOrAbove()) {
       return;
     }
-    for (WrappedWatchableObject watchableObject : watchableObjects) {
-      if (watchableObject != null) {
-        int index = watchableObject.getIndex();
-        Object value = watchableObject.getValue();
-        if (MinecraftVersions.VER1_14_0.atOrAbove()) {
-          if (processFireworkModern(player, index, value)) {
-            // ?
-            return;
-          }
-        } else {
-          if (processFireworkLegacy(player, index, value)) {
-            // ?
-            return;
-          }
-        }
-      }
+    if (MinecraftVersions.VER1_14_0.atOrAbove()) {
+      processFireworkModern(player, reader);
+    } else {
+      processFireworkLegacy(player, reader);
     }
   }
 
-  private boolean processFireworkLegacy(Player player, int index, Object value) {
+  private void processFireworkLegacy(Player player, EntityMetadataReader reader) {
     User user = UserRepository.userOf(player);
-    if (index == 7) {
-      if (!(value instanceof Integer)) {
-        return false;
-      }
-      int entityId = (int) value;
-      MovementMetadata movement = user.meta().movement();
-      InventoryMetadata inventory = user.meta().inventory();
-      if (movement.pose() == Pose.FALL_FLYING && entityId == player.getEntityId()) {
-        int power = 1;
-        ItemStack firework = null;
-        // Choose firework item
-        if (inventory.heldItemType().name().contains(FIREWORK_IDENTIFIER)) {
-          firework = inventory.heldItem();
-        } else if (inventory.offhandItemType().name().contains(FIREWORK_IDENTIFIER)) {
-          firework = inventory.offhandItem();
-        }
-        // Only process if firework exists
-        if (firework != null) {
-          ItemMeta itemMeta = firework.getItemMeta();
-          if (itemMeta instanceof FireworkMeta) {
-            FireworkMeta fireworkMeta = (FireworkMeta) itemMeta;
-            power = Math.max(fireworkMeta.getPower(), 1);
-          }
-        }
-        movement.fireworkRocketsTicks = 0;
-        movement.fireworkRocketsPower = power;
-      }
-      return true;
+    Object value = reader.fetchRaw(7);
+    if (!(value instanceof Integer)) {
+      return;
     }
-    return false;
+    int entityId = (int) value;
+    MovementMetadata movement = user.meta().movement();
+    InventoryMetadata inventory = user.meta().inventory();
+    if (movement.pose() == Pose.FALL_FLYING && entityId == player.getEntityId()) {
+      int power = 1;
+      ItemStack firework = null;
+      // Choose firework item
+      if (inventory.heldItemType().name().contains(FIREWORK_IDENTIFIER)) {
+        firework = inventory.heldItem();
+      } else if (inventory.offhandItemType().name().contains(FIREWORK_IDENTIFIER)) {
+        firework = inventory.offhandItem();
+      }
+      // Only process if firework exists
+      if (firework != null) {
+        ItemMeta itemMeta = firework.getItemMeta();
+        if (itemMeta instanceof FireworkMeta) {
+          FireworkMeta fireworkMeta = (FireworkMeta) itemMeta;
+          power = Math.max(fireworkMeta.getPower(), 1);
+        }
+      }
+      movement.fireworkRocketsTicks = 0;
+      movement.fireworkRocketsPower = power;
+    }
   }
 
   private static final int MODERN_ENTITY_ID_ACCESS_INDEX = MinecraftVersions.VER1_17_0.atOrAbove() ? 9 : 8;
 
-  private boolean processFireworkModern(Player player, int index, Object value) {
+  private void processFireworkModern(Player player, EntityMetadataReader reader) {
     User user = UserRepository.userOf(player);
-    if (index == MODERN_ENTITY_ID_ACCESS_INDEX && value instanceof OptionalInt) {
-      OptionalInt optionalId = (OptionalInt) value;
-      if (!optionalId.isPresent()) {
-        return false;
-      }
-      int entityId = optionalId.getAsInt();
-      MovementMetadata movement = user.meta().movement();
-      InventoryMetadata inventory = user.meta().inventory();
-      if ((movement.pose() == Pose.FALL_FLYING || movement.elytraFlying) && entityId == player.getEntityId()) {
-        int power = 1;
-        ItemStack firework = null;
-        // Choose firework item
-        if (inventory.heldItemType().name().contains(FIREWORK_IDENTIFIER)) {
-          firework = inventory.heldItem();
-        } else if (inventory.offhandItemType().name().contains(FIREWORK_IDENTIFIER)) {
-          firework = inventory.offhandItem();
-        }
-        // Only process if firework exists
-        if (firework != null) {
-          ItemMeta itemMeta = firework.getItemMeta();
-          if (itemMeta instanceof FireworkMeta) {
-            FireworkMeta fireworkMeta = (FireworkMeta) itemMeta;
-            power = Math.max(fireworkMeta.getPower(), 1);
-          }
-        }
-        movement.fireworkRocketsTicks = 0;
-        movement.fireworkRocketsPower = power;
-      }
-      return true;
+    Object value = reader.fetchRaw(MODERN_ENTITY_ID_ACCESS_INDEX);
+    if (!(value instanceof OptionalInt)) {
+      return;
     }
-    return false;
+    OptionalInt optionalId = (OptionalInt) value;
+    if (!optionalId.isPresent()) {
+      return;
+    }
+    int entityId = optionalId.getAsInt();
+    MovementMetadata movement = user.meta().movement();
+    InventoryMetadata inventory = user.meta().inventory();
+    if ((movement.pose() == Pose.FALL_FLYING || movement.elytraFlying) && entityId == player.getEntityId()) {
+      int power = 1;
+      ItemStack firework = null;
+      // Choose firework item
+      if (inventory.heldItemType().name().contains(FIREWORK_IDENTIFIER)) {
+        firework = inventory.heldItem();
+      } else if (inventory.offhandItemType().name().contains(FIREWORK_IDENTIFIER)) {
+        firework = inventory.offhandItem();
+      }
+      // Only process if firework exists
+      if (firework != null) {
+        ItemMeta itemMeta = firework.getItemMeta();
+        if (itemMeta instanceof FireworkMeta) {
+          FireworkMeta fireworkMeta = (FireworkMeta) itemMeta;
+          power = Math.max(fireworkMeta.getPower(), 1);
+        }
+      }
+      movement.fireworkRocketsTicks = 0;
+      movement.fireworkRocketsPower = power;
+    }
   }
 
   private static final String FIREWORK_IDENTIFIER = "FIREWORK";
 
   private void processHealthMetadata(
     Player player, Entity entity,
-    List<? extends WrappedWatchableObject> watchableObjects
+    EntityMetadataReader reader
   ) {
-    Float health = readHealthOf(watchableObjects);
+    Object raw = reader.fetchRaw(HEALTH_INDEX);
+    if (raw == null) {
+      return;
+    }
+    Float health = readHealthFromRaw(raw);
     if (health != null) {
       boolean synchronize = entity.clientSynchronized && entity.tracingEnabled();
       if (synchronize) {
-//        FeedbackObserver tracker = entity.feedbackTracker();
-//        Modules.feedback().tracedSingleSynchronize(player, entity, (p, e) -> updateHealthState(e, health), tracker);
         User user = UserRepository.userOf(player);
         user.tracedTickFeedback(() -> updateHealthState(entity, health), entity.feedbackTracker());
       } else {
@@ -1037,11 +1021,14 @@ public final class EntityTracker extends Module {
     }
   }
 
-  private void synchronizePlayerHealth(Player player, List<? extends WrappedWatchableObject> watchableObjects) {
-    if (watchableObjects == null) {
+  private void synchronizePlayerHealth(
+    Player player, EntityMetadataReader reader
+  ) {
+    Object raw = reader.fetchRaw(HEALTH_INDEX);
+    if (raw == null) {
       return;
     }
-    Float health = readHealthOf(watchableObjects);
+    Float health = readHealthFromRaw(raw);
     if (health != null) {
       User user = UserRepository.userOf(player);
       AbilityMetadata abilityData = user.meta().abilities();
@@ -1053,31 +1040,26 @@ public final class EntityTracker extends Module {
     }
   }
 
-  private final boolean HEALTH_PROCESSING_1_10 = MinecraftVersions.VER1_10_0.atOrAbove();
-  private final boolean HEALTH_PROCESSING_1_14 = MinecraftVersions.VER1_14_0.atOrAbove();
+  private static final boolean HEALTH_PROCESSING_1_10 = MinecraftVersions.VER1_10_0.atOrAbove();
+  private static final boolean HEALTH_PROCESSING_1_14 = MinecraftVersions.VER1_14_0.atOrAbove();
 
-  private Float readHealthOf(List<? extends WrappedWatchableObject> watchableObjects) {
-    for (WrappedWatchableObject watchableObject : watchableObjects) {
-      int index = watchableObject.getIndex();
-      int requiredIndex;
-      if (MinecraftVersions.VER1_17_0.atOrAbove()) {
-        requiredIndex = 9;
-      } else if (HEALTH_PROCESSING_1_14) {
-        requiredIndex = 8;
-      } else if (HEALTH_PROCESSING_1_10) {
-        requiredIndex = 7;
-      } else {
-        requiredIndex = 6;
-      }
-      if (index == requiredIndex) {
-        return readHealthFromWatchableObject(watchableObject);
-      }
+  private static final int HEALTH_INDEX = resolveRequiredIndex();
+
+  private static int resolveRequiredIndex() {
+    int requiredIndex;
+    if (MinecraftVersions.VER1_17_0.atOrAbove()) {
+      requiredIndex = 9;
+    } else if (HEALTH_PROCESSING_1_14) {
+      requiredIndex = 8;
+    } else if (HEALTH_PROCESSING_1_10) {
+      requiredIndex = 7;
+    } else {
+      requiredIndex = 6;
     }
-    return null;
+    return requiredIndex;
   }
 
-  private Float readHealthFromWatchableObject(WrappedWatchableObject watchableObject) {
-    Object rawValue = watchableObject.getRawValue();
+  private Float readHealthFromRaw(Object rawValue) {
     if (rawValue instanceof OptionalInt) {
       OptionalInt optionalInt = (OptionalInt) rawValue;
       if (!optionalInt.isPresent()) {
