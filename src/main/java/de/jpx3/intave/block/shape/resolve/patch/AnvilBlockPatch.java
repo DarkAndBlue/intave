@@ -1,6 +1,5 @@
 package de.jpx3.intave.block.shape.resolve.patch;
 
-import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.variant.BlockVariant;
 import de.jpx3.intave.block.variant.BlockVariantRegister;
@@ -50,22 +49,8 @@ final class AnvilBlockPatch extends BlockShapePatch {
     return boundingBoxBuilder.resolveAsShape();
   }
 
-  private static final boolean CORRUPTED = MinecraftVersions.VER1_14_0.atOrAbove();
-
   private Direction.Axis axisOf(int variantIndex) {
     BlockVariant variant = BlockVariantRegister.variantOf(Material.ANVIL, variantIndex);
-//    System.out.println("Anvil Index: " + variantIndex);
-//    variant.dumpStates();
     return variant.enumProperty(Direction.class, "facing").axis();
-//    if (CORRUPTED) {
-//      switch (variantIndex) {
-//        case 1:
-//          return Direction.Axis.Z_AXIS;
-//        case 2:
-//          return Direction.Axis.X_AXIS;
-//      }
-//    }
-//    return Direction.getHorizontal(variantIndex & 3).axis();
-//    return Direction.Axis.X_AXIS;
   }
 }

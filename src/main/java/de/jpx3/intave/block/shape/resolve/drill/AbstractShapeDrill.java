@@ -27,8 +27,10 @@ abstract class AbstractShapeDrill implements ShapeResolverPipeline {
     }
     List<BoundingBox> list = new ArrayList<>();
     for (Object bb : bbs) {
-      list.add(BoundingBox.fromNative(bb).offset(posX, posY, posZ));
+      BoundingBox boundingBox = BoundingBox.fromNative(bb);
+      boundingBox.makeOriginBox();
+      list.add(boundingBox);
     }
-    return BlockShapes.mergeBoxes(list);
+    return BlockShapes.mergeBoxes(list).contextualized(posX, posY, posZ);
   }
 }

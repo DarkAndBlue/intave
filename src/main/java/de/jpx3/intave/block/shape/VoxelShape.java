@@ -285,12 +285,18 @@ public final class VoxelShape implements BlockShape {
   }
 
   @Override
-  public BlockShape contextualized(int posX, int posY, int posZ) {
-    return new VoxelShape(this, posX, posY, posZ);
+  public VoxelShape contextualized(int xTranslation, int yTranslation, int zTranslation) {
+    if (xTranslation == 0 && yTranslation == 0 && zTranslation == 0) {
+      return this;
+    }
+    return new VoxelShape(this, xTranslation, yTranslation, zTranslation);
   }
 
   @Override
   public BlockShape normalized(int posX, int posY, int posZ) {
+    if (this.positionX == 0 && this.positionY == 0 && this.positionZ == 0) {
+      return this;
+    }
     return new VoxelShape(this, 0, 0, 0);
   }
 
@@ -567,16 +573,6 @@ public final class VoxelShape implements BlockShape {
     }
   }
 
-  public static VoxelShape fromBox(
-    double minX, double minY, double minZ,
-    double maxX, double maxY, double maxZ
-  ) {
-    if (maxX - minX < EPSILON || maxY - minY < EPSILON || maxZ - minZ < EPSILON) {
-      throw new IllegalArgumentException("Empty shape");
-    }
-    return new VoxelShape(minX, minY, minZ, maxX, maxY, maxZ);
-  }
-
   static VoxelShape fromBoxes(List<? extends BoundingBox> boxes) {
     if (boxes.isEmpty()) {
       throw new IllegalArgumentException("Empty shape");
@@ -594,7 +590,29 @@ public final class VoxelShape implements BlockShape {
   }
 
   static VoxelShape fromBox(BoundingBox shape) {
+    if (!shape.isOriginBox()) {
+      int originXGuess = (int) Math.floor(shape.minX);
+      int originYGuess = (int) Math.floor(shape.minY);
+      int originZGuess = (int) Math.floor(shape.minZ);
+      return new VoxelShape(
+        shape.minX - originXGuess, shape.minY - originYGuess, shape.minZ - originZGuess,
+        shape.maxX - originXGuess, shape.maxY - originYGuess, shape.maxZ - originZGuess
+      ).contextualized(originXGuess, originYGuess, originZGuess);
+    }
     return new VoxelShape(shape.minX, shape.minY, shape.minZ, shape.maxX, shape.maxY, shape.maxZ);
+  }
+
+  public static VoxelShape fromBox(
+    double minX, double minY, double minZ,
+    double maxX, double maxY, double maxZ
+  ) {
+    if (maxX - minX < EPSILON || maxY - minY < EPSILON || maxZ - minZ < EPSILON) {
+      throw new IllegalArgumentException("Empty shape");
+    }
+    if (Math.abs(minX) > 10 || Math.abs(minY) > 10 || Math.abs(minZ) > 10) {
+      throw new IllegalArgumentException("Box must be within 10 blocks of the origin");
+    }
+    return new VoxelShape(minX, minY, minZ, maxX, maxY, maxZ);
   }
 
   public VoxelShape optimized() {
