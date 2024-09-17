@@ -1,8 +1,5 @@
 package de.jpx3.intave.block.shape.voxel;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-import it.unimi.dsi.fastutil.doubles.DoubleList;
-
 public final class OverlappingGridMerger implements IndexMerger {
   private final double[] firstValues;
   private final double[] secondValues;
@@ -81,11 +78,11 @@ public final class OverlappingGridMerger implements IndexMerger {
   }
 
   @Override
-  public DoubleList mergedIndexes() {
+  public IndexList mergedIndexes() {
     if (resultLength < 1) {
-      return DoubleArrayList.wrap(new double[0]);
+      return IndexList.empty();
     } else {
-      return DoubleArrayList.wrap(result, resultLength);
+      return IndexList.of(result, 0, resultLength);
     }
   }
 

@@ -458,13 +458,12 @@ public final class PredictiveSimulationProcessor implements SimulationProcessor 
             boolean canExpectCorrectReduce = !protocol.combatUpdate() && movementData.pastVelocity > 1 && movementData.motion().horizontalLength() > 0.2;
             boolean enforceCorrectReduction = movementData.forceCorrectReduce && canExpectCorrectReduce;
             for (int reduceIndex = 0; reduceIndex <= Math.min(movementData.reduceTicks, 3); reduceIndex++) {
-              if (enforceCorrectReduction && reduceIndex > movementData.reduceTicks) {
-                continue;
-              }
-              if (!sprinting && reduceIndex > 0) {// && !protocol.combatUpdate()) {
-                continue;
-              }
-
+//              if (enforceCorrectReduction && reduceIndex > movementData.reduceTicks) {
+//                continue;
+//              }
+//              if (!sprinting && reduceIndex > 0) {// && !protocol.combatUpdate()) {
+//                continue;
+//              }
               for (boolean reduceBefore : (reduceIndex > 0 ? PESSIMISTIC : NEVER)) {
                 IterativeStudy.ATTACK_REDUCE_ITERATOR.run();
                 for (boolean jumped : estimatedJump ? OPTIMISTIC : PESSIMISTIC) {

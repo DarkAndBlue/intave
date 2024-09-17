@@ -9,9 +9,7 @@ import java.io.Closeable;
 import java.io.DataOutput;
 import java.io.Flushable;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -19,9 +17,11 @@ import static de.jpx3.intave.module.nayoro.SampleFlags.*;
 
 class RecordEventSink extends EventSink {
   private long last = System.currentTimeMillis();
+  private long lastDebug = System.currentTimeMillis();
   private final Environment environment;
   private final DataOutput dataOutput;
   private final Set<Integer> entities = new HashSet<>();
+  private final Map<Integer, Map<Integer, Inventory.Item>> windowItems = new HashMap<>();
   private boolean setup = false;
   private final Classifier classifier;
   private final Lock writeLock = new ReentrantLock();
@@ -113,6 +113,26 @@ class RecordEventSink extends EventSink {
   }
 
   @Override
+  public void visit(WindowItemsEvent event) {
+//    Map<Integer, Inventory.Item> savedInventory = windowItems.computeIfAbsent(event.windowId(), id -> new HashMap<>());
+//    // Only send if one of the items changed
+//    boolean changed = false;
+//    for (Map.Entry<Integer, Inventory.Item> entry : event.items().entrySet()) {
+//      Inventory.Item oldItem = savedInventory.get(entry.getKey());
+//      if (oldItem == null || !oldItem.equals(entry.getValue())) {
+//        System.out.println("Item changed: " + entry.getKey());
+//        changed = true;
+//        break;
+//      }
+//    }
+//    if (changed) {
+//      savedInventory.clear();
+//      savedInventory.putAll(event.items());
+      visitAny(event);
+//    }
+  }
+
+  @Override
   public synchronized void visitAny(Event event) {
     setupIfNeeded();
     try {
@@ -122,6 +142,11 @@ class RecordEventSink extends EventSink {
       dataOutput.writeShort(duration);
       dataOutput.writeByte(EventRegistry.idOf(event));
       event.serialize(environment, dataOutput);
+//      System.out.print(event.getClass().getName());
+//      if (System.currentTimeMillis() - lastDebug > 1000) {
+//        lastDebug = System.currentTimeMillis();
+//        System.out.println();
+//      }
       if (checkFullEventRead) {
         dataOutput.writeByte(0xa);
       }

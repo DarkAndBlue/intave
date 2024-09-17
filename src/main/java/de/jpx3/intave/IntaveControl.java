@@ -27,6 +27,7 @@ public final class IntaveControl {
   public static final boolean DEBUG_ELYTRA = false;
   public static final boolean DEBUG_PLAYER_ACTIONS = false;
   public static boolean DEBUG_TELEPORT_LOCKS = false; // if SG
+  public static final boolean SCAFFOLD_ACTION_DEBUG = false;
   public static final boolean DEBUG_TELEPORT_CAUSE_AND_CAUSER = false;
   public static final boolean DEBUG_TELEPORT_PACKET_STACKTRACE = false;
   public static final boolean TELEPORT_FAR_AWAY_ON_Q_PRESS = false;

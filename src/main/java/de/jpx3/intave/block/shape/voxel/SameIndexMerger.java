@@ -1,7 +1,5 @@
 package de.jpx3.intave.block.shape.voxel;
 
-import it.unimi.dsi.fastutil.doubles.DoubleList;
-
 public final class SameIndexMerger implements IndexMerger {
   private final double[] coords;
 
@@ -26,8 +24,8 @@ public final class SameIndexMerger implements IndexMerger {
   }
 
   @Override
-  public DoubleList mergedIndexes() {
-    return DoubleList.of(this.coords);
+  public IndexList mergedIndexes() {
+    return IndexList.of(this.coords);
   }
 
   @Override

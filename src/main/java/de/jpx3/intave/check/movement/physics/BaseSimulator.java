@@ -75,7 +75,11 @@ class BaseSimulator extends Simulator {
     boolean waterUpdate = protocol.waterUpdate();
 
     if (crouching || (!protocol.beeUpdate() && environment.isSneaking())) {
-      double sneakingModifier = clamp_double(0.3 + Enchantments.resolveSwiftSpeedModifier(user.player()) * 0.15f, 0.0f, 1.0f);
+      double sneakingSpeed = user.meta().abilities().attributeValue("player.sneaking_speed");
+      if (Double.isNaN(sneakingSpeed)) {
+        sneakingSpeed = 0.3 + Enchantments.resolveSwiftSpeedModifier(user.player()) * 0.15f;
+      }
+      double sneakingModifier = clamp_double(sneakingSpeed, 0.0f, 1.0f);
       forward = (float) ((double) forward * sneakingModifier);
       strafe = (float) ((double) strafe * sneakingModifier);
     }

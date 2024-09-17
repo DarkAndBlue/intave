@@ -4,10 +4,7 @@ import de.jpx3.intave.block.shape.voxel.IndexMerger;
 import de.jpx3.intave.block.shape.voxel.NonOverlappingGridMerger;
 import de.jpx3.intave.block.shape.voxel.OverlappingGridMerger;
 import de.jpx3.intave.block.shape.voxel.SameIndexMerger;
-import de.jpx3.intave.share.AxisRotation;
-import de.jpx3.intave.share.BoundingBox;
-import de.jpx3.intave.share.Direction;
-import de.jpx3.intave.share.Position;
+import de.jpx3.intave.share.*;
 import it.unimi.dsi.fastutil.doubles.DoubleSet;
 
 import java.util.ArrayList;
@@ -181,7 +178,7 @@ public final class VoxelShape implements BlockShape {
 
   @Override
   public double allowedOffset(Direction.Axis axis, BoundingBox entity, double offset) {
-    AxisRotation differential = AxisRotation.differential(axis, Direction.Axis.X_AXIS).inverse();
+    AxisRotation differential = AxisRotations.inverse(AxisRotation.differential(axis, Direction.Axis.X_AXIS));
     double output = allowedOffsetX(differential, entity, offset);
     if (Math.abs(output) < EPSILON) {
       output = 0;

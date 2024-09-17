@@ -87,6 +87,9 @@ public final class AbilityMetadata {
     setupAttribute("generic.maxHealth", 20.0D);
     setupAttribute("generic.knockbackResistance", 0.0D);
     setupAttribute("generic.attackDamage", 1.0D);
+    if (MinecraftVersions.VER1_19.atOrAbove()) {
+      setupAttribute("player.sneaking_speed", 0.3D);
+    }
     if (MinecraftVersions.VER1_21.atOrAbove()) {
       setupAttribute("generic.scale", 1.0D);
     }
@@ -164,6 +167,10 @@ public final class AbilityMetadata {
   public WrappedAttribute findAttribute(String key) {
     key = keyTranslation(key);
     return attributes.get(key);
+  }
+
+  public List<? extends String> attributeKeys() {
+    return new ArrayList<>(attributes.keySet());
   }
 
   private static final boolean KEY_WRAPPED;

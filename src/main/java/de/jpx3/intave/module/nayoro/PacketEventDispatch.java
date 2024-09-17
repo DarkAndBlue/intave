@@ -17,7 +17,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -218,9 +217,9 @@ public final class PacketEventDispatch implements PacketEventSubscriber {
 
     // inventory
     slots += 4 * 9;
-
-    Map<Integer, ItemStack> items = reader.itemMap();
-    WindowItemsEvent event = WindowItemsEvent.create(container, slots, items);
-    reverseSink.accept(user, event::accept);
+//    System.out.println("Sent window items: " + slots);
+//    Map<Integer, ItemStack> items = reader.itemMap();
+//    WindowItemsEvent event = WindowItemsEvent.create(container, slots, items);
+//    reverseSink.accept(user, event::accept);
   }
 }

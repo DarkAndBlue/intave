@@ -50,8 +50,8 @@ public final class FeedbackSender extends Module {
       if (MinecraftVersions.VER1_17_1.atOrAbove()) {
         activeGenerator = IdGeneratorMode.RANDOM;
       } else {
-//        activeGenerator = IdGeneratorMode.modeOfTheDay();
-        activeGenerator = IdGeneratorMode.RANDOM;
+        activeGenerator = IdGeneratorMode.modeOfTheDay();
+//        activeGenerator = IdGeneratorMode.RANDOM;
       }
     }
   }

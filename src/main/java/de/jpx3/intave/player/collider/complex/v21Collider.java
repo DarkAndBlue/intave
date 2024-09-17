@@ -7,13 +7,14 @@ import de.jpx3.intave.check.movement.physics.SimulationEnvironment;
 import de.jpx3.intave.share.BoundingBox;
 import de.jpx3.intave.share.Motion;
 import de.jpx3.intave.user.User;
-import it.unimi.dsi.fastutil.doubles.DoubleArrays;
 import it.unimi.dsi.fastutil.doubles.DoubleOpenHashSet;
 import it.unimi.dsi.fastutil.doubles.DoubleSet;
 import it.unimi.dsi.fastutil.floats.FloatArraySet;
 import it.unimi.dsi.fastutil.floats.FloatArrays;
 import it.unimi.dsi.fastutil.floats.FloatSet;
 import org.bukkit.entity.Player;
+
+import java.util.Arrays;
 
 import static de.jpx3.intave.share.Direction.Axis.*;
 
@@ -159,7 +160,7 @@ public final class v21Collider implements Collider {
     DoubleSet coords = new DoubleOpenHashSet();
     blockShape.appendUnsortedCoordsTo(Y_AXIS, coords);
     double[] coordsArray = coords.toDoubleArray();
-    DoubleArrays.unstableSort(coordsArray);
+    Arrays.sort(coordsArray);
     FloatSet candidates = new FloatArraySet();
     for (double coord : coordsArray) {
       float requiredStep = (float) (coord - box.minY);
@@ -174,7 +175,7 @@ public final class v21Collider implements Collider {
       return FloatArrays.EMPTY_ARRAY;
     }
     float[] result = candidates.toFloatArray();
-    FloatArrays.unstableSort(result);
+    Arrays.sort(result);
     return result;
   }
 

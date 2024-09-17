@@ -122,6 +122,7 @@ public class RotationFlick extends PlayerCheckPart<PlacementAnalysis> {
       rotations[i] = eyePosition.rotationTo(edgeMidpoints[i]);
     }
 
+    float horizontalLineLength = Math.abs(rotations[0].yaw() - rotations[1].yaw());
     float verticalLineLength = Math.abs(rotations[0].pitch() - rotations[1].pitch());
 
     float prevPitch = lastPitch;

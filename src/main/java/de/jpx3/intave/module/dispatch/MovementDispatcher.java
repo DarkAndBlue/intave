@@ -383,13 +383,9 @@ public final class MovementDispatcher extends Module {
         movementData.dropPostTickMotionProcessing = true;
         Float yaw = packet.getFloat().read(0);
         Float pitch = packet.getFloat().read(1);
-//        movementData.rotationYaw = yaw;
-//        movementData.rotationPitch = pitch;
-
         if (DEBUG_MOVEMENT_IGNORE) {
           double yawDifference = MathHelper.noAbsDistanceInDegrees(movementData.lastRotationYaw, yaw);
           double pitchDifference = MathHelper.noAbsDistanceInDegrees(movementData.lastRotationPitch, pitch);
-
           System.out.println("[Intave] Click movement ignore distance: " + distance + " yaw: " + yawDifference + " pitch: " + pitchDifference);
           IntavePlugin.singletonInstance().logTransmittor().addPlayerLog(player, "(DEBUG/MOVEMENTIGNORE) Click movement ignore distance: " + distance + " yaw: " + yawDifference + " pitch: " + pitchDifference);
         }
@@ -398,9 +394,9 @@ public final class MovementDispatcher extends Module {
         if (!MinecraftVersions.VER1_9_0.atOrAbove()) {
           event.setCancelled(true);
         } else {
-          modifier.write(0, movementData.positionX);
-          modifier.write(1, movementData.positionY);
-          modifier.write(2, movementData.positionZ);
+          modifier.write(0, movementData.verifiedPositionX);
+          modifier.write(1, movementData.verifiedPositionY);
+          modifier.write(2, movementData.verifiedPositionZ);
         }
         return;
       }
@@ -489,7 +485,6 @@ public final class MovementDispatcher extends Module {
 
     if (violationLevelData.isInActiveTeleportBundle) {
       if (DEBUG_MOVEMENT_IGNORE) {
-//        player.sendMessage("Teleport bundle movement ignore");
         System.out.println("[Intave] Teleport bundle movement ignore");
         IntavePlugin.singletonInstance().logTransmittor().addPlayerLog(player, "(DEBUG/MOVEMENTIGNORE) Teleport bundle movement ignore");
       }
@@ -508,7 +503,6 @@ public final class MovementDispatcher extends Module {
       movementData.motionZ() == 0
     ) {
       if (DEBUG_MOVEMENT_IGNORE) {
-//        player.sendMessage("Movement reset ignore");
         System.out.println("[Intave] Movement reset ignore");
         IntavePlugin.singletonInstance().logTransmittor().addPlayerLog(player, "(DEBUG/MOVEMENTIGNORE) Movement reset ignore");
       }

@@ -1,9 +1,6 @@
 package de.jpx3.intave.block.shape.voxel;
 
-import it.unimi.dsi.fastutil.doubles.AbstractDoubleList;
-import it.unimi.dsi.fastutil.doubles.DoubleList;
-
-public final class NonOverlappingGridMerger extends AbstractDoubleList implements IndexMerger {
+public final class NonOverlappingGridMerger implements IndexMerger, IndexList {
   private final double[] lower;
   private final double[] upper;
   private final boolean swap;
@@ -41,7 +38,7 @@ public final class NonOverlappingGridMerger extends AbstractDoubleList implement
   }
 
   @Override
-  public DoubleList mergedIndexes() {
+  public IndexList mergedIndexes() {
     return this;
   }
 
@@ -51,7 +48,7 @@ public final class NonOverlappingGridMerger extends AbstractDoubleList implement
   }
 
   @Override
-  public double getDouble(int index) {
+  public double get(int index) {
     return index < lower.length ? lower[index] : upper[index - lower.length];
   }
 }

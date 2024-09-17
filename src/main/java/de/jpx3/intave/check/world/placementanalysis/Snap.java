@@ -1,27 +1,27 @@
 package de.jpx3.intave.check.world.placementanalysis;
 
 import com.comphenix.protocol.events.PacketEvent;
+import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.world.PlacementAnalysis;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
-import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.violation.Violation;
-import de.jpx3.intave.module.violation.ViolationContext;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 import de.jpx3.intave.user.meta.MovementMetadata;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 import static de.jpx3.intave.check.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
+import static de.jpx3.intave.math.MathHelper.formatDouble;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_IN_ALL_VERBOSE_MODES;
 
-//@Reserved
 public final class Snap extends MetaCheckPart<PlacementAnalysis, Snap.SnapMeta> {
   public Snap(PlacementAnalysis parentCheck) {
     super(parentCheck, SnapMeta.class);
@@ -44,7 +44,9 @@ public final class Snap extends MetaCheckPart<PlacementAnalysis, Snap.SnapMeta> 
     SnapMeta meta = metaOf(user);
     double yawMotion = Math.abs(movementData.lastRotationYaw - movementData.rotationYaw);
     double pitchMotion = Math.abs(movementData.lastRotationPitch - movementData.rotationPitch);
-
+    if (IntaveControl.SCAFFOLD_ACTION_DEBUG) {
+      player.sendMessage(formatDouble(yawMotion,4) + ", " + formatDouble(pitchMotion,4));
+    }
     boolean alphaCondition = meta.pitchAt(1) > 70;
     int pitchLimit = alphaCondition ? 20 : 40;
 
@@ -62,8 +64,6 @@ public final class Snap extends MetaCheckPart<PlacementAnalysis, Snap.SnapMeta> 
       meta.snapYaw = meta.yawAt(1);
       meta.snapPitch = meta.pitchAt(1);
       meta.snapAge = 0;
-      meta.degree = 1;
-//      player.sendMessage(ChatColor.RED + "1st degree snap");
     }
 
     // 2nd degree snap
@@ -77,7 +77,6 @@ public final class Snap extends MetaCheckPart<PlacementAnalysis, Snap.SnapMeta> 
       meta.snapPitch = meta.pitchAt(1);
       meta.snapAge = 0;
       meta.degree = 2;
-//      player.sendMessage(ChatColor.RED + "2nd degree snap " + absYawDiff(meta.yawAt(1), meta.yawAt(3)) + " " + absPitchDiff(meta.pitchAt(1), meta.pitchAt(3)));
     }
 
     // 3rd degree snap
@@ -132,7 +131,9 @@ public final class Snap extends MetaCheckPart<PlacementAnalysis, Snap.SnapMeta> 
     Location location = player.getLocation();
     float yaw = location.getYaw();
     float pitch = location.getPitch();
-
+    if (IntaveControl.SCAFFOLD_ACTION_DEBUG) {
+      player.sendMessage(ChatColor.DARK_PURPLE + " PLACE: " + yaw + " " + pitch);
+    }
 
     if (System.currentTimeMillis() - meta.detectionTime < 2_500) {
       Violation violation = Violation.builderFor(PlacementAnalysis.class)

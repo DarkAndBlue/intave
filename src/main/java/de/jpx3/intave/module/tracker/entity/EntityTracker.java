@@ -206,16 +206,18 @@ public final class EntityTracker extends Module {
     Set<Integer> duplicatedEntityIds = connection.duplicatedEntityIds;
     Map<Integer, Integer> duplicationOwners = connection.duplicationOwners;
 
-    int entityId = event.getPacket().getIntegers().read(0);
+    Integer entityIdBoxed = event.getPacket().getIntegers().readSafely(0);
+    if (entityIdBoxed == null) {
+      return;
+    }
+    int entityId = entityIdBoxed;
     if (duplicatedEntityIds.contains(entityId)) {
       return;
     }
-
     Entity entity = processEntitySpawn(player, event);
     if (entity == null) {
       return;
     }
-
     boolean isLivingEntity = (event.getPacketType() == PacketType.Play.Server.SPAWN_ENTITY_LIVING ||
       event.getPacketType() == PacketType.Play.Server.NAMED_ENTITY_SPAWN) && entity.typeData().isLivingEntity();
     boolean isPlayer = event.getPacketType() == PacketType.Play.Server.NAMED_ENTITY_SPAWN;
@@ -342,7 +344,6 @@ public final class EntityTracker extends Module {
     if ("ServerPlayer".equalsIgnoreCase(typeData.name())) {
       entityIsPlayer = true;
     }
-//    player.sendMessage("Spawned " + entityId + ". "+typeData.name()+ " ? " +typeData.isLivingEntity() + " " + typeData.size() + " player:"+entityIsPlayer);
     return processPacketSpawnMob(user, packet, typeData, entityId, entityIsPlayer);
   }
 
@@ -361,22 +362,16 @@ public final class EntityTracker extends Module {
 
   private void enterEntityDestroy(Player player, int entityID) {
     // Entity destroy packets are NEVER to be synchronized
-
     /*
     Important: When the destroy entity packet is synchronised the spawn entity packet needs also be synchronized because:
     When you respawn the server sends a destroy entity packet and a spawn entity packet pretty fast one after another and if the
     destroy entity packet gets executed after the spawn packet the entity will be destroyed right after it gets spawned
      */
-//    User user = UserRepository.userOf(player);
-//    ConnectionMetadata synchronizeData = user.meta().connection();
-//    EntityShade entityShade = synchronizeData.entityBy(entityID);
-
     User user = UserRepository.userOf(player);
     ConnectionMetadata connection = user.meta().connection();
     if (connection.duplicatedEntityIds.contains(entityID)) {
       return;
     }
-
     processEntityDestroy(player, entityID);
   }
 
@@ -514,9 +509,12 @@ public final class EntityTracker extends Module {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     PacketContainer packet = event.getPacket();
-    int entityId = packet.getIntegers().read(0);
+    Integer entityIdBoxed = packet.getIntegers().readSafely(0);
+    if (entityIdBoxed == null) {
+      return null;
+    }
+    int entityId = entityIdBoxed;
     Entity entity = entityByIdentifier(user, entityId);
-
     if (entity == null) {
       org.bukkit.entity.Entity bukkitEntity = serverEntityByIdentifier(player, entityId);
       if (bukkitEntity != null) {
@@ -540,11 +538,15 @@ public final class EntityTracker extends Module {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
     PacketContainer packet = event.getPacket();
-    int entityId = packet.getIntegers().read(0);
+    Integer entityIdBoxed = packet.getIntegers().read(0);
+    if (entityIdBoxed == null) {
+      return;
+    }
+    int entityId = entityIdBoxed;
     /* NOTE: An entity can't be created by the entityID when the entity doesn't
      gets teleported afterwards because the Bukkit location isn't specific enough */
-    Entity entity = entityByIdentifier(user, entityId);
 
+    Entity entity = entityByIdentifier(user, entityId);
     if (entity == null) {
       return;
     }
@@ -669,9 +671,17 @@ public final class EntityTracker extends Module {
   ) {
     if (NEW_POSITION_PROCESSING_1_9) {
       StructureModifier<Double> doubles = packet.getDoubles();
-      double posX = doubles.read(0);
-      double posY = doubles.read(1);
-      double posZ = doubles.read(2);
+      Double posXBoxed = doubles.readSafely(0);
+      Double posYBoxed = doubles.read(1);
+      Double posZBoxed = doubles.read(2);
+
+      if (posXBoxed == null || posYBoxed == null || posZBoxed == null) {
+        return null;
+      }
+
+      double posX = posXBoxed;
+      double posY = posYBoxed;
+      double posZ = posZBoxed;
 
       processEntitySpawnNewVersion(
         user, entityTypeData, entityId,
@@ -686,16 +696,18 @@ public final class EntityTracker extends Module {
       StructureModifier<Integer> integers = packet.getIntegers();
       if (packet.getType() == PacketType.Play.Server.SPAWN_ENTITY_LIVING) {
         // dead or living entities
-        serverPosX = integers.read(2);
-        serverPosY = integers.read(3);
-        serverPosZ = integers.read(4);
+        serverPosX = integers.readSafely(2);
+        serverPosY = integers.readSafely(3);
+        serverPosZ = integers.readSafely(4);
       } else {
         // players
-        serverPosX = integers.read(1);
-        serverPosY = integers.read(2);
-        serverPosZ = integers.read(3);
+        serverPosX = integers.readSafely(1);
+        serverPosY = integers.readSafely(2);
+        serverPosZ = integers.readSafely(3);
       }
-
+      if (serverPosX == null || serverPosY == null || serverPosZ == null) {
+        return null;
+      }
       return processEntitySpawn(
         user, entityId, entityTypeData,
         serverPosX, serverPosY, serverPosZ,
@@ -777,7 +789,11 @@ public final class EntityTracker extends Module {
     PacketContainer packet = event.getPacket();
     ConnectionMetadata connection = user.meta().connection();
 
-    int entityId = packet.getIntegers().read(0);
+    Integer entityIdBoxed = packet.getIntegers().readSafely(0);
+    if (entityIdBoxed == null) {
+      return;
+    }
+    int entityId = entityIdBoxed;
     Map<Integer, Integer> duplicationOwners = connection.duplicationOwners;
     Set<Integer> shouldNotBeAttacked = connection.shouldNotBeAttacked;
 
@@ -806,6 +822,9 @@ public final class EntityTracker extends Module {
     }
     PacketContainer packet = event.getPacket();
     Integer entityID = packet.getIntegers().read(0);
+    if (entityID == null) {
+      return;
+    }
     Byte type = packet.getBytes().read(0);
     Entity entity = entityByIdentifier(user, entityID);
     if (entity == null || type != 3) {

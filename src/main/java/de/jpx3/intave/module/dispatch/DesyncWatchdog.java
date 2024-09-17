@@ -65,7 +65,8 @@ public final class DesyncWatchdog extends Module {
         Violation violation = Violation.builderFor(Physics.class)
           .forPlayer(user.player())
           .withMessage("seems to be desynced, trying to reset position [REPORT THIS TO US IMMEDIATELY]")
-          .withDetails("i/a: " + positionBundle.intaveAcceptedPosition() +
+          .withDetails(
+            "i/a: " + positionBundle.intaveAcceptedPosition() +
             ", s: " + positionBundle.serverPosition() +
             ", p: " + positionBundle.prefilteredPendingPosition())
           .withVL(0.5)
