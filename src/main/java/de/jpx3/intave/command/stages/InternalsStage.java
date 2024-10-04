@@ -1,44 +1,29 @@
 package de.jpx3.intave.command.stages;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.wrappers.WrappedDataWatcher;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.command.CommandStage;
 import de.jpx3.intave.command.Forward;
 import de.jpx3.intave.command.SubCommand;
 import de.jpx3.intave.executor.Synchronizer;
-import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.module.Modules;
-import de.jpx3.intave.packet.PacketSender;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.storage.LongTermViolationStorage;
-import de.jpx3.intave.world.WorldHeight;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public final class InternalsStage extends CommandStage {
   private static InternalsStage singletonInstance;
   private final IntavePlugin plugin;
 
-  private final WrappedDataWatcher fallbackDatawatcher;
-
   private InternalsStage() {
     super(BaseStage.singletonInstance(), "internals");
     plugin = IntavePlugin.singletonInstance();
-
-    fallbackDatawatcher = defaultWatcherOf(Bukkit.getWorlds().get(0), EntityType.ARMOR_STAND);
   }
 
   @SubCommand(
@@ -64,57 +49,58 @@ public final class InternalsStage extends CommandStage {
   public void botCommand(CommandSender commandSender) {
   }
 
-  @SubCommand(
-    selectors = "entitylag",
-    usage = "<player>",
-    permission = "intave.command.internals.entitylag",
-    description = "Causes severe lag to a user"
-  )
-  public void lagPlayer(CommandSender commandSender, Player target) {
-    int[] task = new int[]{0};
-    task[0] = Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, () -> {
-      if (!target.isOnline()) {
-        Bukkit.getScheduler().cancelTask(task[0]);
-        TaskTracker.stopped(task[0]);
-        return;
-      }
-      Synchronizer.synchronize(() -> {
-        for (int i = 0; i < 1000; i++) {
-          sendPacket(target);
-        }
-        target.closeInventory();
-      });
-    }, 20 * 2, 20);
-    TaskTracker.begun(task[0]);
+//  @SubCommand(
+//    selectors = "entitylag",
+//    usage = "<player>",
+//    permission = "intave.command.internals.entitylag",
+//    description = "Causes severe lag to a user"
+//  )
+//  public void lagPlayer(CommandSender commandSender, Player target) {
+//    commandSender.sendMessage(IntavePlugin.prefix() + ChatColor.RED + "Command no longer available.");
+//    int[] task = new int[]{0};
+//    task[0] = Bukkit.getScheduler().scheduleAsyncRepeatingTask(plugin, () -> {
+//      if (!target.isOnline()) {
+//        Bukkit.getScheduler().cancelTask(task[0]);
+//        TaskTracker.stopped(task[0]);
+//        return;
+//      }
+//      Synchronizer.synchronize(() -> {
+//        for (int i = 0; i < 1000; i++) {
+//          sendPacket(target);
+//        }
+//        target.closeInventory();
+//      });
+//    }, 20 * 2, 20);
+//    TaskTracker.begun(task[0]);
+//
+//    commandSender.sendMessage(IntavePlugin.prefix() + ChatColor.RED + target.getName() + " " + IntavePlugin.defaultColor() + "will now slowly begin to lag");
+//  }
 
-    commandSender.sendMessage(IntavePlugin.prefix() + ChatColor.RED + target.getName() + " " + IntavePlugin.defaultColor() + "will now slowly begin to lag");
-  }
+//  private void sendPacket(Player player) {
+//    PacketContainer newPacket = new PacketContainer(PacketType.Play.Server.SPAWN_ENTITY_LIVING);
+//
+//    newPacket.getIntegers().
+//      write(0, ThreadLocalRandom.current().nextInt(100000000, 200000000)).
+//      write(1, (int) EntityType.ARMOR_STAND.getTypeId()).
+//      write(2, (int) (player.getLocation().getX() * 32)).
+//      write(3, -2 * 32).
+//      write(4, (int) (player.getLocation().getZ() * 32));
+//
+//    newPacket.getDataWatcherModifier().
+//      write(0, fallbackDatawatcher);
+//
+//    User user = UserRepository.userOf(player);
+//    user.ignoreNextOutboundPacket();
+//    PacketSender.sendServerPacket(player, newPacket);
+//    user.receiveNextOutboundPacketAgain();
+//  }
 
-  private void sendPacket(Player player) {
-    PacketContainer newPacket = new PacketContainer(PacketType.Play.Server.SPAWN_ENTITY_LIVING);
-
-    newPacket.getIntegers().
-      write(0, ThreadLocalRandom.current().nextInt(100000000, 200000000)).
-      write(1, (int) EntityType.ARMOR_STAND.getTypeId()).
-      write(2, (int) (player.getLocation().getX() * 32)).
-      write(3, -2 * 32).
-      write(4, (int) (player.getLocation().getZ() * 32));
-
-    newPacket.getDataWatcherModifier().
-      write(0, fallbackDatawatcher);
-
-    User user = UserRepository.userOf(player);
-    user.ignoreNextOutboundPacket();
-    PacketSender.sendServerPacket(player, newPacket);
-    user.receiveNextOutboundPacketAgain();
-  }
-
-  private WrappedDataWatcher defaultWatcherOf(World world, EntityType type) {
-    Entity entity = world.spawnEntity(new Location(world, 0, WorldHeight.UPPER_WORLD_LIMIT, 0), type);
-    WrappedDataWatcher watcher = WrappedDataWatcher.getEntityWatcher(entity).deepClone();
-    entity.remove();
-    return watcher;
-  }
+//  private WrappedDataWatcher defaultWatcherOf(World world, EntityType type) {
+//    Entity entity = world.spawnEntity(new Location(world, 0, WorldHeight.UPPER_WORLD_LIMIT, 0), type);
+//    WrappedDataWatcher watcher = WrappedDataWatcher.getEntityWatcher(entity).deepClone();
+//    entity.remove();
+//    return watcher;
+//  }
 
   @SubCommand(
     selectors = "storelog",
