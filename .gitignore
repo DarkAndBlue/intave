@@ -1,6 +1,7 @@
 /*
 
 # Whitelist source
+!.github/
 !docs/
 !docs/assets/
 !gradle/
