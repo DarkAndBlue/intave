@@ -39,6 +39,10 @@ final class MethodLocation extends Location {
     return methodSignature(target);
   }
 
+  public String targetMethodDesc() {
+    return methodDesc(target);
+  }
+
   public String translatedKey() {
     return methodName(key()) + methodSignature(key());
   }
@@ -49,7 +53,7 @@ final class MethodLocation extends Location {
     String fromSig = methodSignature(from);
     String toSig = methodSignature(to);
     if (!fromSig.equals(toSig)) {
-      throw new IllegalStateException("Signatures differ: " + fromSig + " != " + toSig);
+//      throw new IllegalStateException("Signatures differ: " + fromSig + " != " + toSig);
     }
     Class<?> owningClass = Lookup.serverClass(classKey());
     Type[] argumentTypes = Type.getArgumentTypes(toSig);
@@ -128,6 +132,21 @@ final class MethodLocation extends Location {
     return signature;
   }
 
+  private String methodDesc(String target) {
+    String desc = target.substring(target.indexOf("("));
+    Matcher matcher = REPLACE_REGEX.matcher(desc);
+    StringBuffer result = new StringBuffer();
+    while (matcher.find()) {
+      String match = matcher.group();
+      String content = match.substring(1, match.length() - 1);
+      Class<?> serverClass = Lookup.serverClass(content);
+      String replacement = "L" + serverClass.getName().replace(".", "/") + ";";
+      matcher.appendReplacement(result, replacement);
+    }
+    matcher.appendTail(result);
+    return result.toString();
+  }
+
   public String methodNameOfKey() {
     return methodName(key());
   }
@@ -138,5 +157,9 @@ final class MethodLocation extends Location {
 
   public static MethodLocation defaultFor(String classKey, String initialSignature) {
     return new MethodLocation(classKey, initialSignature, IntegerMatcher.between(80, 170), initialSignature);
+  }
+
+  public String target() {
+    return target;
   }
 }

@@ -94,6 +94,23 @@ public final class Locate {
     return outputName;
   }
 
+  public static String patchyDescConvert(String classInput, String methodName, String methodDescription) {
+    classInput = classInput.replace("/", ".");
+    String outputDesc;
+    String methodKey = methodName + methodDescription;
+    if (classInput.startsWith("net.minecraft.server.v")) {
+      String classKey = classInput.split("\\.")[4];
+      outputDesc = descByKey(classKey, methodKey, methodDescription);
+    } else if (classInput.startsWith("net.minecraft")) {
+      String[] packages = classInput.split("\\.");
+      String classKey = packages[packages.length - 1];
+      outputDesc = descByKey(classKey, methodKey, methodDescription);
+    } else {
+      outputDesc = descByKey(classInput, methodKey, methodDescription);
+    }
+    return outputDesc;
+  }
+
   public static Method methodByKey(String classKey, String methodKey) {
     String key = classKey + "." + methodKey;
     MethodLocation methodLocation = methodLocationCache.computeIfAbsent(key, s -> methodLookupByKey(classKey, methodKey));
@@ -104,6 +121,15 @@ public final class Locate {
     String key = classKey + "." + methodKey;
     MethodLocation methodLocation = methodLocationCache.computeIfAbsent(key, s -> methodLookupByKey(classKey, methodKey));
     return methodLocation.targetMethodName();
+  }
+
+  private static String descByKey(String classKey, String methodKey, String orig) {
+    String key = classKey + "." + methodKey;
+    MethodLocation methodLocation = methodLocationCache.computeIfAbsent(key, s -> methodLookupByKey(classKey, methodKey));
+    if (methodLocation.key().equals(methodLocation.target())) {
+      return orig;
+    }
+    return methodLocation.targetMethodDesc();
   }
 
   private static MethodLocation methodLookupByKey(String classKey, String methodKey) {

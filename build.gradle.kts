@@ -248,6 +248,7 @@ val serverVersions = mapOf(
 //  Pair("1.20.6", 21),
 //  Pair("1.21", 21),
   Pair("1.21.1", 21),
+  Pair("1.21.3", 21),
   Pair("1.21.4", 21)
 )
 

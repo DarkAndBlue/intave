@@ -27,6 +27,15 @@ public final class PatchyLoadingInjector {
         classBytes = PatchyTranslator.translateClass(classBytes);
         classLoad(classBytes);
       }
+      try {
+        File dumpFile = File.createTempFile("intave-patchy-" + className, ".class");
+        FileOutputStream fileOutputStream = new FileOutputStream(dumpFile);
+        fileOutputStream.write(classBytes);
+        fileOutputStream.close();
+        System.out.println("Dumped class bytes to " + dumpFile.getAbsolutePath());
+      } catch (IOException exception2) {
+        exception2.printStackTrace();
+      }
       return classByName(className);
     } catch (Error | Exception exception) {
       if (classBytes.length > 0 && IntaveControl.DISABLE_LICENSE_CHECK) {

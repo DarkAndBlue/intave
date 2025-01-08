@@ -78,54 +78,13 @@ final class PatchyTranslator {
       if (instruction instanceof MethodInsnNode) {
         MethodInsnNode methodInsnNode = (MethodInsnNode) instruction;
         InstructionTarget originalInstruction = InstructionTarget.methodInstructionTarget(
-          methodInsnNode.owner, methodInsnNode.name, methodInsnNode.desc
+            methodInsnNode.owner, methodInsnNode.name, methodInsnNode.desc
         ), instructionTarget = originalInstruction;
         instructionTarget = process(instructionTarget, configuration);
-//        if (instructionTarget.modifiedFrom(methodInsnNode) && isPrivate(instructionTarget)) {
-//          /*
-//          INVOKEDYNAMIC run()Ljava/lang/Runnable; [
-//            // handle kind 0x6 : INVOKESTATIC
-//            java/lang/invoke/LambdaMetafactory.metafactory(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;
-//            // arguments:
-//            ()V,
-//            // handle kind 0x6 : INVOKESTATIC
-//            de/jpx3/intave/klass/rewrite/PatchyTranslator.lambda$static$0()V,
-//            ()V
-//          ]
-//           */
-//          InvokeDynamicInsnNode indy = new InvokeDynamicInsnNode(
-//            instructionTarget.name,
-//            instructionTarget.desc,
-//            new Handle(
-//              H_INVOKESTATIC,
-//              "java/lang/invoke/LambdaMetafactory",
-//              "metafactory",
-//              "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;",
-//              false
-//            ),
-//            // args:
-//            instructionTarget.desc,
-//            new Handle(
-//              methodInsnNode.getOpcode(),
-//              instructionTarget.owner,
-//              instructionTarget.name,
-//              instructionTarget.desc,
-//              false
-//            ),
-//            instructionTarget.desc
-//          );
-//          System.out.println(indy);
-////          iterator.set(indy);
-//          try {
-//            Thread.sleep(100);
-//          } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//          }
-//        } else {
-          methodInsnNode.owner = instructionTarget.owner;
-          methodInsnNode.name = instructionTarget.name;
-          methodInsnNode.desc = instructionTarget.desc;
-//        }
+        System.out.println("Original: " + methodInsnNode.name + methodInsnNode.desc + " new " + instructionTarget.name + instructionTarget.desc);
+        methodInsnNode.owner = instructionTarget.owner;
+        methodInsnNode.name = instructionTarget.name;
+        methodInsnNode.desc = instructionTarget.desc;
       } else if (instruction instanceof LdcInsnNode) {
         LdcInsnNode ldcInsnNode = (LdcInsnNode) instruction;
         Object cst = ldcInsnNode.cst;
@@ -141,7 +100,7 @@ final class PatchyTranslator {
       } else if (instruction instanceof FieldInsnNode) {
         FieldInsnNode fieldInsnNode = (FieldInsnNode) instruction;
         InstructionTarget instructionTarget = InstructionTarget.fieldInstructionTarget(
-          fieldInsnNode.owner, fieldInsnNode.name, fieldInsnNode.desc
+            fieldInsnNode.owner, fieldInsnNode.name, fieldInsnNode.desc
         );
         instructionTarget = process(instructionTarget, configuration);
         fieldInsnNode.owner = instructionTarget.owner;
@@ -157,11 +116,11 @@ final class PatchyTranslator {
             InstructionTarget instructionTarget;
             if (tag == H_PUTFIELD || tag == H_GETFIELD || tag == H_GETSTATIC || tag == H_PUTSTATIC) {
               instructionTarget = InstructionTarget.fieldInstructionTarget(
-                arg.getOwner(), arg.getName(), arg.getDesc()
+                  arg.getOwner(), arg.getName(), arg.getDesc()
               );
             } else {
               instructionTarget = InstructionTarget.methodInstructionTarget(
-                arg.getOwner(), arg.getName(), arg.getDesc()
+                  arg.getOwner(), arg.getName(), arg.getDesc()
               );
             }
             instructionTarget = process(instructionTarget, configuration);
@@ -233,7 +192,7 @@ final class PatchyTranslator {
         if (original.type == InstructionTargetType.FIELD) {
           name = Locate.patchyFieldCovert(original.owner, name);
         }
-        return InstructionTarget.methodInstructionTarget(translate(original.owner), name, translate(original.desc));
+        return InstructionTarget.methodInstructionTarget(translate(original.owner), name, translate(Locate.patchyDescConvert(original.owner, original.name, original.desc)));
       }
       return original;
     } else {
@@ -290,8 +249,8 @@ final class PatchyTranslator {
 
   private static List<MethodNode> selectedMethodsIn(ClassNode classNode) {
     return classNode.methods.stream()
-      .filter(PatchyTranslator::methodSelected)
-      .collect(Collectors.toList());
+        .filter(PatchyTranslator::methodSelected)
+        .collect(Collectors.toList());
   }
 
   @Native
