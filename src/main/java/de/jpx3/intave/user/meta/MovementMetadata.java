@@ -253,6 +253,8 @@ public final class MovementMetadata implements SimulationEnvironment {
   public double criticalEnterPosX, criticalEnterPosY, criticalEnterPosZ;
   public final RateLimiter criticalTeleportRateLimiter = new RateLimiter(10, 2, TimeUnit.SECONDS);
   private volatile Location verifiedLocation;
+  public Input input = new Input();
+  public Input lastInput = new Input();
 
   public MovementMetadata(Player player, User user) {
     this.player = player;

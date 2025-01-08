@@ -3,6 +3,7 @@ package de.jpx3.intave.module.dispatch;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.events.InternalStructure;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
@@ -972,22 +973,36 @@ public final class MovementDispatcher extends Module {
     }
   )
   public void receiveClientKeys(PacketEvent event) {
-//    Player player = event.getPlayer();
-//    User user = UserRepository.userOf(player);
-//    MovementMetadata movementData = user.meta().movement();
-//    PacketContainer packet = event.getPacket();
-//    int strafeKey = (int) (packet.getFloat().read(0) / 0.98f);
-//    int forwardKey = (int) (packet.getFloat().read(1) / 0.98f);
-//    if ((Math.abs(strafeKey) > 1 || Math.abs(forwardKey) > 1) && FaultKicks.INVALID_KEY_INPUT) {
-//      user.kick("Invalid key input");
-//      return;
-//    }
-////    System.out.println("Steering the vehicle: " + strafeKey + " " + forwardKey);
-//    Boolean jumping = packet.getBooleans().read(0);
-//    movementData.externalKeyApply = true;
-//    movementData.clientStrafeKey = strafeKey;
-//    movementData.clientForwardKey = forwardKey;
-//    movementData.clientPressedJump = jumping;
+    Player player = event.getPlayer();
+    User user = UserRepository.userOf(player);
+    MovementMetadata movementData = user.meta().movement();
+    PacketContainer packet = event.getPacket();
+    if (MinecraftVersions.VER1_21_4.atOrAbove()) {
+      StructureModifier<Boolean> inputBooleans = packet.getStructures().read(0).getBooleans();
+      movementData.lastInput = movementData.input;
+      Input input = new Input();
+      input.setForward(inputBooleans.read(0));
+      input.setBackward(inputBooleans.read(1));
+      input.setLeft(inputBooleans.read(2));
+      input.setRight(inputBooleans.read(3));
+      input.setJump(inputBooleans.read(4));
+      input.setShift(inputBooleans.read(5));
+      input.setSprint(inputBooleans.read(6));
+      movementData.input = input;
+    } else {
+      int strafeKey = (int) (packet.getFloat().read(0) / 0.98f);
+      int forwardKey = (int) (packet.getFloat().read(1) / 0.98f);
+      if ((Math.abs(strafeKey) > 1 || Math.abs(forwardKey) > 1) && FaultKicks.INVALID_KEY_INPUT) {
+        user.kick("Invalid key input");
+        return;
+      }
+//    System.out.println("Steering the vehicle: " + strafeKey + " " + forwardKey);
+      Boolean jumping = packet.getBooleans().read(0);
+      movementData.externalKeyApply = true;
+      movementData.clientStrafeKey = strafeKey;
+      movementData.clientForwardKey = forwardKey;
+      movementData.clientPressedJump = jumping;
+    }
   }
 
 
