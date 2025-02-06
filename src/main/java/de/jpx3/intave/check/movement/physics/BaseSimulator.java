@@ -128,7 +128,9 @@ class BaseSimulator extends Simulator {
         // #handleJumpLava
         motion.motionY += 0.04F;
       } else {
-        motion.motionY = environment.jumpMotion();
+        motion.motionY = user.protocolVersion() >= 768 ?
+          Math.max(environment.jumpMotion(), meta.movement().baseMotionY) :
+          environment.jumpMotion();
         if (/*movementData.sprintingAllowed()*/ sprinting) {
           motion.motionX -= yawSine * 0.2F;
           motion.motionZ += yawCosine * 0.2F;
