@@ -8,7 +8,6 @@ import io.netty.buffer.Unpooled;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.util.Optional;
 
 public final class FriendlyByteBuf {
   public static ByteBuf from256Unpooled() {
@@ -38,12 +37,13 @@ public final class FriendlyByteBuf {
 
   static {
     MethodHandle method;
-    Optional<Class<?>> rfbbclassoptional = MinecraftReflection.getRegistryFriendlyByteBufClass();
-    if (!rfbbclassoptional.isPresent()) {
-      method = null;
-    } else {
+    Class<?> rfbbclassoptional = null;
+    try {
+      rfbbclassoptional = Class.forName("net.minecraft.network.RegistryFriendlyByteBuf");
+    } catch (ClassNotFoundException ignored) {}
+    if (rfbbclassoptional != null) {
       try {
-        method = MethodHandles.lookup().unreflect(rfbbclassoptional.get().getDeclaredMethod("readUtf", int.class));
+        method = MethodHandles.lookup().unreflect(rfbbclassoptional.getDeclaredMethod("readUtf", int.class));
       } catch (NoSuchMethodException e) {
         method = MethodSearchBySignature.ofClass(MinecraftReflection.getPacketDataSerializerClass())
           .withReturnType(String.class)
@@ -52,6 +52,8 @@ public final class FriendlyByteBuf {
       } catch (IllegalAccessException e) {
         throw new RuntimeException(e);
       }
+    } else {
+      method = null;
     }
     readUtfMethod = method;
   }
