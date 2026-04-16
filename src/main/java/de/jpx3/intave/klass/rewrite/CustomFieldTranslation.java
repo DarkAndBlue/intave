@@ -1,7 +1,6 @@
 package de.jpx3.intave.klass.rewrite;
 
 import com.google.common.collect.ImmutableList;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.library.asm.tree.AnnotationNode;
 
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ final class CustomFieldTranslation {
     return versionFieldReferences;
   }
 
-  @Native
   public static CustomFieldTranslation buildFrom(AnnotationNode annotationNode) {
     if (!PatchyTranslationConfiguration.className(annotationNode).equals(PatchyTranslationConfiguration.CUSTOM_FIELD_TRANSLATION_ANNOTATION_PATH)) {
       throw new IllegalArgumentException("Invalid annotation type");

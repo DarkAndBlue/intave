@@ -4,7 +4,6 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.EquivalentConverter;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.google.common.collect.Maps;
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.klass.Lookup;
 
 import java.lang.reflect.InvocationTargetException;
@@ -14,7 +13,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-@KeepEnumInternalNames
 public enum Relative {
   X(0),
   Y(1),

@@ -1,11 +1,9 @@
 package de.jpx3.intave.connect.cloud.protocol;
 
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.connect.cloud.protocol.listener.Clientbound;
 import de.jpx3.intave.connect.cloud.protocol.listener.PacketListener;
 import de.jpx3.intave.connect.cloud.protocol.listener.Serverbound;
 
-@KeepEnumInternalNames
 public enum Direction {
   CLIENTBOUND(Clientbound.class),
   SERVERBOUND(Serverbound.class)

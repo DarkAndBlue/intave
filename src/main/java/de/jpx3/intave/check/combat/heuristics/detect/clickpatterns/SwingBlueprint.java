@@ -4,7 +4,6 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.google.common.util.concurrent.AtomicDouble;
-import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.check.Blueprint;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
@@ -22,7 +21,6 @@ import java.util.List;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
-@Reserved
 public abstract class SwingBlueprint<M extends SwingBlueprintMeta>
   extends Blueprint<Heuristics, SwingBlueprintMeta, M> {
   private final int sampleSize;

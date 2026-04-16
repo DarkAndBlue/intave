@@ -1,8 +1,6 @@
 package de.jpx3.intave.check.world;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.DoNotFlowObfuscate;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.CheckViolationLevelDecrementer;
 import de.jpx3.intave.check.world.placementanalysis.*;
@@ -17,7 +15,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import static de.jpx3.intave.IntaveControl.DISABLE_LICENSE_CHECK;
 import static de.jpx3.intave.IntaveControl.GOMME_MODE;
 
-@DoNotFlowObfuscate
 public final class PlacementAnalysis extends Check {
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer decrementer;
@@ -30,7 +27,6 @@ public final class PlacementAnalysis extends Check {
     decrementer = new CheckViolationLevelDecrementer(this, 0.15);
   }
 
-  @Native
   public void setupSubChecks() {
     boolean useTimings = configuration().settings().boolBy("check-timings", configuration().settings().boolBy("check_timings", true));
     if (DISABLE_LICENSE_CHECK && !GOMME_MODE) {

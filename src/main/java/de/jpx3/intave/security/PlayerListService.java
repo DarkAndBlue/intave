@@ -3,7 +3,6 @@ package de.jpx3.intave.security;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.annotate.HighOrderService;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.cleanup.ShutdownTasks;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscriber;
@@ -59,7 +58,6 @@ public final class PlayerListService implements BukkitEventSubscriber {
     }
   }
 
-  @Native
   public String encryptedGrayKnowledgeData() {
     String input = graylistKnowledgeResource.readAsString();
     try {
@@ -82,7 +80,6 @@ public final class PlayerListService implements BukkitEventSubscriber {
     }
   }
 
-  @Native
   public String encryptedBlueKnowledgeData() {
     String input = bluelistKnowledgeResource.readAsString();
     try {
@@ -102,7 +99,6 @@ public final class PlayerListService implements BukkitEventSubscriber {
     }
   }
 
-  @Native
   public void saveGraylistKnowledgeToResource() {
     List<String> strings;
     if (graylistKnowledgeResource.available()) {
@@ -119,7 +115,6 @@ public final class PlayerListService implements BukkitEventSubscriber {
     graylistKnowledgeResource.write(strings);
   }
 
-  @Native
   public void saveBluelistKnowledgeToResource() {
     List<String> strings;
     if (bluelistKnowledgeResource.available()) {
@@ -136,7 +131,6 @@ public final class PlayerListService implements BukkitEventSubscriber {
     bluelistKnowledgeResource.write(strings);
   }
 
-  @Native
   private void loadFilterList() {
     blackList = HashList.from(blacklistResource);
     grayList = HashList.from(graylistResource);
@@ -172,7 +166,6 @@ public final class PlayerListService implements BukkitEventSubscriber {
     }
   }
 
-  @Native
   private void graylistEvent(Player player) {
     if (graylistKnowledge.contains(player.getUniqueId().toString())) {
       return;
@@ -184,7 +177,6 @@ public final class PlayerListService implements BukkitEventSubscriber {
     graylistKnowledge.add(player.getUniqueId().toString());
   }
 
-  @Native
   private void bluelistEvent(Player player) {
     if (bluelistKnowledge.contains(player.getUniqueId().toString())) {
       return;

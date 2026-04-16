@@ -1,10 +1,8 @@
 package de.jpx3.intave.user.meta;
 
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.user.User;
 import org.bukkit.entity.Player;
 
-@Relocate
 public final class MetadataBundle {
   private final AbilityMetadata ability;
   private final AttackMetadata attack;

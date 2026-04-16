@@ -12,7 +12,6 @@ import com.google.gson.JsonObject;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.connect.IntaveDomains;
 import de.jpx3.intave.connect.sibyl.LabyModChannelHelper;
@@ -67,7 +66,6 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
     Modules.linker().bukkitEvents().registerEventsIn(this);
   }
 
-  @Native
   private void processIncomingMessage(Player player, JsonElement element) {
     if (!element.isJsonObject()) {
       return;
@@ -107,7 +105,6 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
               authkey,
               new Consumer<Boolean>() {
                 @Override
-                @Native
                 public void accept(Boolean success) {
                   JsonObject object = new JsonObject();
                   object.addProperty("action", "verify");
@@ -128,19 +125,16 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
     }
   }
 
-  @Native
   private void onSuccessfulAuthentication(Player player) {
     MessageChannelSubscriptions.setSibyl(player, true);
     authenticationSubscribers.forEach(authenticationSubscriber ->
       authenticationSubscriber.accept(player.getUniqueId()));
   }
 
-  @Native
   private void verifyAuthKey(String authKey, Consumer<? super Boolean> callback) {
     String url_path = "https://" + IntaveDomains.primaryServiceDomain() + "/sibyl/verify";
     BackgroundExecutors.execute(new Runnable() {
       @Override
-      @Native
       public void run() {
         try {
           URL url = new URL(url_path);
@@ -177,7 +171,6 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
     registerWhitelisted(null);
   }
 
-  @Native
   private void registerWhitelisted(UUID id) {
     if (id != null) {
       return;
@@ -202,13 +195,11 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
     internalWhitelist = ImmutableList.copyOf(internalWhitelist);
   }
 
-  @Native
   @BukkitEventSubscription
   public void on(PlayerQuitEvent quit) {
     authStates.remove(quit.getPlayer().getUniqueId());
   }
 
-  @Native
   private Object whitelisted(Object player) {
     if (player instanceof Player) {
       UUID uniqueId = ((Player) player).getUniqueId();
@@ -219,13 +210,11 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
     }
   }
 
-  @Native
   public SibylAuthenticationState authStateOf(Player player) {
     UUID id = player.getUniqueId();
     return authStates.computeIfAbsent(id, uuid -> SibylAuthenticationState.N);
   }
 
-  @Native
   private void setAuthState(Player player, SibylAuthenticationState state) {
     if (SIBYL_DEBUG) {
       player.sendMessage("Sibyl -> " + state + "/" + state.ordinal());
@@ -233,7 +222,6 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
     authStates.put(player.getUniqueId(), state);
   }
 
-  @Native
   public boolean isAuthenticated(Player player) {
     List<String> names = Arrays.asList("Jpx3", "Richy");
     if (IntaveControl.SIBYL_ALLOW_ALL && names.stream().anyMatch(s -> s.equalsIgnoreCase(player.getName()))) {
@@ -242,7 +230,6 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
     return authStateOf(player) == SibylAuthenticationState.ATH;
   }
 
-  @Native
   public void sendMessageToClient(
     Player player, String channel, String messageKey, JsonElement jsonElement
   ) {
@@ -304,7 +291,6 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
     }
   }
 
-  @Native
   private String messageChannelOf(Player player) {
     User user = UserRepository.userOf(player);
     return user.protocolVersion() >= 393 ? "labymod3:main" : "LMC";

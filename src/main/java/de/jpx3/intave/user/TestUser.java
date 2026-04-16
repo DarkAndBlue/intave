@@ -2,7 +2,6 @@ package de.jpx3.intave.user;
 
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.access.player.trust.TrustFactor;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.cache.BlockCache;
 import de.jpx3.intave.block.fluid.FluidFlow;
 import de.jpx3.intave.check.movement.physics.Pose;
@@ -32,7 +31,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-@Relocate
 final class TestUser implements User {
   private final Map<Class<? extends CheckCustomMetadata>, CheckCustomMetadata> metadataPool = new ConcurrentHashMap<>();
   private final Player player;

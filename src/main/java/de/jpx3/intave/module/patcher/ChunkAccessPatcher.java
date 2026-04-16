@@ -5,7 +5,6 @@ import com.google.common.collect.Sets;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.annotate.DoNotFlowObfuscate;
 import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.klass.rewrite.PatchyLoadingInjector;
 import de.jpx3.intave.module.Module;
@@ -23,7 +22,6 @@ import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.Iterator;
 
-@DoNotFlowObfuscate
 public final class ChunkAccessPatcher extends Module {
   private static final boolean ENABLED = !MinecraftVersions.VER1_14_0.atOrAbove();
 

@@ -12,9 +12,6 @@ import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.analytics.GlobalStatisticsRecorder;
 import de.jpx3.intave.annotate.DispatchTarget;
-import de.jpx3.intave.annotate.Relocate;
-import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
-import de.jpx3.intave.annotate.refactoring.SplitMeUp;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.cache.BlockCache;
 import de.jpx3.intave.block.collision.Collision;
@@ -75,7 +72,6 @@ import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_I
 import static de.jpx3.intave.share.ClientMath.floor;
 import static org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.ENDER_PEARL;
 
-@Relocate
 public final class Physics extends Check {
   private static final double VL_DECREMENT_PER_VALID_MOVE = 0.08;
   private static final double VELOCITY_VL_THRESHOLD = 6;
@@ -365,7 +361,6 @@ public final class Physics extends Check {
   /**
    * This method is too big, please refactor
    */
-  @SplitMeUp
   private void evaluateBestSimulation(User user, Simulation simulation) {
     Player player = user.player();
     MetadataBundle meta = user.meta();
@@ -1183,7 +1178,6 @@ public final class Physics extends Check {
     return key;
   }
 
-  @IdoNotBelongHere
   public void applyFallDamageUpdate(User user) {
     if (!user.hasPlayer()) {
       return;

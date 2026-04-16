@@ -9,7 +9,6 @@ import com.google.gson.JsonObject;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.annotate.DispatchTarget;
 import de.jpx3.intave.annotate.Nullable;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.executor.RateLimiter;
 import de.jpx3.intave.math.Occurrences;
 import de.jpx3.intave.module.feedback.DelayedPacket;
@@ -27,7 +26,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
 
-@Relocate
 public final class ConnectionMetadata {
   private final Player player;
   private final FeedbackQueue feedbackQueue = new FeedbackQueue();

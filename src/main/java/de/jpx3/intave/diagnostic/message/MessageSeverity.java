@@ -1,8 +1,5 @@
 package de.jpx3.intave.diagnostic.message;
 
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
-
-@KeepEnumInternalNames
 public enum MessageSeverity {
   LOW(1),
   MEDIUM(2),

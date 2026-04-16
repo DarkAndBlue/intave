@@ -3,7 +3,6 @@ package de.jpx3.intave.check.combat.heuristics.detect.other;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.check.combat.heuristics.Anomaly;
@@ -18,7 +17,6 @@ import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
-@Reserved
 public class ToolSwitchHeuristic extends MetaCheckPart<Heuristics, ToolSwitchHeuristic.ToolSwitchHeuristicMeta> {
   public ToolSwitchHeuristic(Heuristics parentCheck) {
     super(parentCheck, ToolSwitchHeuristicMeta.class);

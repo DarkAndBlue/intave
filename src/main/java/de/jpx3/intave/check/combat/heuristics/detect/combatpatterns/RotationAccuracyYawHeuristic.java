@@ -2,7 +2,6 @@ package de.jpx3.intave.check.combat.heuristics.detect.combatpatterns;
 
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.check.combat.heuristics.Anomaly;
@@ -25,7 +24,6 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Client.LOOK;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION_LOOK;
 import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.DMG_LIGHT;
 
-@Reserved
 public final class RotationAccuracyYawHeuristic extends MetaCheckPart<Heuristics, RotationAccuracyYawHeuristic.RotationAccuracyHeuristicMeta> {
   private final IntavePlugin plugin;
 

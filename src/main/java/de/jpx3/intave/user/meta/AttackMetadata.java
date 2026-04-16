@@ -1,7 +1,6 @@
 package de.jpx3.intave.user.meta;
 
 import de.jpx3.intave.annotate.Nullable;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.check.combat.heuristics.MiningStrategy;
 import de.jpx3.intave.check.combat.heuristics.mine.MiningStrategyContainer;
 import de.jpx3.intave.module.tracker.entity.Entity;
@@ -14,7 +13,6 @@ import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.entity.Player;
 
-@Relocate
 public final class AttackMetadata {
   private final Player player;
   private double lastReach;

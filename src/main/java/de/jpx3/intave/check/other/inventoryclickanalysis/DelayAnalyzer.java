@@ -5,8 +5,6 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.other.InventoryClickAnalysis;
 import de.jpx3.intave.klass.Lookup;
@@ -100,7 +98,6 @@ public final class DelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, D
     processClickDelayAnalyzerCheck(player, meta, slot, time);
   }
 
-  @Native
   private boolean isPartner() {
     return (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
   }
@@ -207,7 +204,6 @@ public final class DelayAnalyzer extends MetaCheckPart<InventoryClickAnalysis, D
     private long lastFlagTimeStamp;
   }
 
-  @KeepEnumInternalNames
   public enum InventoryClickTypes {
     PICKUP,
     QUICK_MOVE,

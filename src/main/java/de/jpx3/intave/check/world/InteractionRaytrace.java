@@ -13,8 +13,6 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.DispatchTarget;
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.access.BlockInteractionAccess;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.cache.BlockCache;
@@ -72,7 +70,6 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.BLOCK_BREAK_ANIMATION;
 import static de.jpx3.intave.module.tracker.player.AbilityTracker.GameMode.CREATIVE;
 
-@Relocate
 public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.InteractionMeta> {
   private final IntavePlugin plugin;
   private final CheckViolationLevelDecrementer decrementer;
@@ -617,7 +614,6 @@ public final class InteractionRaytrace extends MetaCheck<InteractionRaytrace.Int
     return PreprocessResult.OK;
   }
 
-  @KeepEnumInternalNames
   private enum PreprocessResult {
     OK,
     FAILED_MINOR,

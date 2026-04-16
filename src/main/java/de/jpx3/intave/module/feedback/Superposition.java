@@ -1,7 +1,6 @@
 package de.jpx3.intave.module.feedback;
 
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.user.User;
 import org.jetbrains.annotations.Nullable;
 
@@ -273,7 +272,6 @@ public final class Superposition<T> {
     return variationStatusMap.getOrDefault(target, Status.AWAIT_START);
   }
 
-  @KeepEnumInternalNames
   public enum Status {
     AWAIT_START(false),
     RUNNING(true),

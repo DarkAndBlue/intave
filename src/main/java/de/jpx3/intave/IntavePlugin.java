@@ -8,8 +8,6 @@ import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.adapter.ViaVersionAdapter;
 import de.jpx3.intave.agent.AgentAccessor;
 import de.jpx3.intave.analytics.Analytics;
-import de.jpx3.intave.annotate.NameIntrinsicallyImportant;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.block.access.BlockAccess;
 import de.jpx3.intave.block.access.BlockInteractionAccess;
 import de.jpx3.intave.block.access.BlockWrapper;
@@ -109,7 +107,6 @@ import static de.jpx3.intave.user.meta.ProtocolMetadata.MARKED_FOR_PLAYER_REPORT
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VERSION_DETAILS;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-@NameIntrinsicallyImportant
 public final class IntavePlugin extends JavaPlugin {
   private static IntavePlugin singletonInstance;
   private static String version = "UNKNOWN";
@@ -149,7 +146,6 @@ public final class IntavePlugin extends JavaPlugin {
     stage2();
   }
 
-  @Native
   public void stage2() {
     singletonInstance = this;
     version = getDescription().getVersion();
@@ -178,14 +174,12 @@ public final class IntavePlugin extends JavaPlugin {
     prefix = ChatColor.translateAlternateColorCodes('&', prefix);
   }
 
-  @Native
   @Override
   public void onLoad() {
     // stage 3
     Modules.proceedBoot(BootSegment.STAGE_3);
   }
 
-  @Native
   @Override
   public void onEnable() {
     logger.info("Please stand by..");
@@ -1000,7 +994,6 @@ public final class IntavePlugin extends JavaPlugin {
     }
   }
 
-  @Native
   public void displayVersionInformation() {
     IntaveVersion version = versions.versionInformation(version());
     if (version == null) {
@@ -1036,7 +1029,6 @@ public final class IntavePlugin extends JavaPlugin {
 
   public static final long INTEGRITY_ERASE_BUFFER = TimeUnit.MINUTES.toMillis(1);
 
-  @Native
   public void clearIntegrityGarbage() {
     File tempDir = new File(System.getProperty("java.io.tmpdir"));
     try {
@@ -1059,7 +1051,6 @@ public final class IntavePlugin extends JavaPlugin {
     }
   }
 
-  @Native
   public void clearUnusedSamples() {
     String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.ROOT);
     File workDirectory;
@@ -1147,7 +1138,6 @@ public final class IntavePlugin extends JavaPlugin {
 
   private static final long FILE_EXPIRE = TimeUnit.DAYS.toMillis(90);
 
-  @Native
   public void clearSaveFolderGarbage() {
     String operatingSystem = System.getProperty("os.name").toLowerCase(Locale.ROOT);
     File workDirectory;
@@ -1202,7 +1192,6 @@ public final class IntavePlugin extends JavaPlugin {
     }
   }
 
-  @Native
   public void invalidateCaches() {
     if (NativeCheck.checkActive()) {
       return;
@@ -1210,7 +1199,6 @@ public final class IntavePlugin extends JavaPlugin {
     clearIntegrityGarbage();
   }
 
-  @Native
   public void bootFailure(String reason) {
     if (NativeCheck.checkActive()) {
       return;
@@ -1221,13 +1209,11 @@ public final class IntavePlugin extends JavaPlugin {
     });
   }
 
-  @Native
   @Override
   public void onDisable() {
     performShutdown();
   }
 
-  @Native
   public void performShutdown() {
     logger.info("Stopping Intave");
     try {

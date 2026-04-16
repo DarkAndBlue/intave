@@ -2,7 +2,6 @@ package de.jpx3.intave.packet.reader;
 
 import com.comphenix.protocol.reflect.StructureModifier;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
@@ -83,7 +82,6 @@ public final class WindowClickReader extends AbstractPacketReader {
     }
   }
 
-  @KeepEnumInternalNames
   public enum InventoryClickType {
     PICKUP,
     QUICK_MOVE,

@@ -1,8 +1,5 @@
 package de.jpx3.intave.share;
 
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
-
-@KeepEnumInternalNames
 public enum AxisRotation {
   NONE {
     public int cycle(int x, int y, int z, Direction.Axis axis) {

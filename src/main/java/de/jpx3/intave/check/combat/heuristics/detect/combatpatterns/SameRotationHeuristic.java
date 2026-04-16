@@ -5,8 +5,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
-import de.jpx3.intave.annotate.Native;
-import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.check.combat.heuristics.Anomaly;
@@ -26,7 +24,6 @@ import static de.jpx3.intave.check.combat.heuristics.Anomaly.AnomalyOption.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_9;
 
-@Reserved
 public final class SameRotationHeuristic extends MetaCheckPart<Heuristics, SameRotationHeuristic.SameRotationHeuristicMeta> {
   public SameRotationHeuristic(Heuristics parentCheck) {
     super(parentCheck, SameRotationHeuristicMeta.class);
@@ -103,7 +100,6 @@ public final class SameRotationHeuristic extends MetaCheckPart<Heuristics, SameR
     NativeCheck.registerNative(this::isPartner);
   }
 
-  @Native
   public boolean isPartner() {
     if (NativeCheck.checkActive()) {
       return false;
@@ -212,7 +208,6 @@ public final class SameRotationHeuristic extends MetaCheckPart<Heuristics, SameR
     return confidence;
   }
 
-  @Native
   private int options() {
     int options;
     if (IntaveControl.GOMME_MODE) {
@@ -247,7 +242,6 @@ public final class SameRotationHeuristic extends MetaCheckPart<Heuristics, SameR
     }
   }
 
-  @Reserved
   public static final class SameRotationHeuristicMeta extends CheckCustomMetadata {
     private int violationLevel;
     private final List<Float> yawRotations = new ArrayList<>();

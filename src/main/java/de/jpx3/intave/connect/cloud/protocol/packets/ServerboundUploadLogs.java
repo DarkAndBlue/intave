@@ -1,6 +1,5 @@
 package de.jpx3.intave.connect.cloud.protocol.packets;
 
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.connect.cloud.protocol.BinaryPacket;
 import de.jpx3.intave.connect.cloud.protocol.Direction;
 import de.jpx3.intave.connect.cloud.protocol.Identity;
@@ -66,7 +65,6 @@ public final class ServerboundUploadLogs extends BinaryPacket<Serverbound> {
     }
   }
 
-  @KeepEnumInternalNames
   public enum Type {
     SERVER,
     PLAYER_VIOLATION,

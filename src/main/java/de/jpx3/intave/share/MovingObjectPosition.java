@@ -1,7 +1,6 @@
 package de.jpx3.intave.share;
 
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.block.shape.BlockRaytrace;
 import de.jpx3.intave.klass.Lookup;
 import de.jpx3.intave.share.link.WrapperConverter;
@@ -202,7 +201,6 @@ public class MovingObjectPosition {
       + '}';
   }
 
-  @KeepEnumInternalNames
   public enum MovingObjectType {
     MISS,
     BLOCK,

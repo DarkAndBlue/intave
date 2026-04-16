@@ -3,7 +3,6 @@ package de.jpx3.intave.connect.cloud.protocol.packets;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.connect.cloud.protocol.Direction;
 import de.jpx3.intave.connect.cloud.protocol.Identity;
@@ -73,7 +72,6 @@ public class ServerboundStatusInquiry extends JsonPacket<Serverbound> {
     }
   }
 
-  @KeepEnumInternalNames
   public enum Type {
     GENERAL,
     PLAYER

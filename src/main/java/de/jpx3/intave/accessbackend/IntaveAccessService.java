@@ -18,7 +18,6 @@ import de.jpx3.intave.accessbackend.check.CheckAccessor;
 import de.jpx3.intave.accessbackend.player.PlayerAccessor;
 import de.jpx3.intave.accessbackend.server.ServerAccessor;
 import de.jpx3.intave.annotate.HighOrderService;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.check.combat.heuristics.detect.mods.LabyModsHeuristic;
 import de.jpx3.intave.diagnostic.natives.NativeCheck;
 import de.jpx3.intave.module.Modules;
@@ -61,7 +60,6 @@ public final class IntaveAccessService {
       }
 
       @Override
-      @Native
       public void setTrustFactorResolver(TrustFactorResolver resolver) {
         if (NativeCheck.checkActive()) {
           return;
@@ -71,7 +69,6 @@ public final class IntaveAccessService {
       }
 
       @Override
-      @Native
       public void setDefaultTrustFactor(TrustFactor defaultTrustFactor) {
         if (NativeCheck.checkActive()) {
           return;
@@ -100,7 +97,6 @@ public final class IntaveAccessService {
       }
 
       @Override
-      @Native
       public void fallback(Object subscription) {
         if (NativeCheck.checkActive()) {
           return;

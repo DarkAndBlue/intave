@@ -6,7 +6,6 @@ import com.comphenix.protocol.wrappers.MinecraftKey;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.connect.sibyl.LabyModChannelHelper;
 import de.jpx3.intave.connect.sibyl.SibylIntegrationService;
 import de.jpx3.intave.connect.sibyl.auth.SibylAuthentication;
@@ -42,7 +41,6 @@ public final class SibylPacketTransmitter {
     this.service = service;
   }
 
-  @Native
   public void transmitPacket(Player player, SibylPacket sibylPacket) {
     String packetName = sibylPacket.packetName();
     JsonObject packetContent = new JsonObject();
@@ -65,7 +63,6 @@ public final class SibylPacketTransmitter {
     transmitPacketDataToPlayer(player, packetContent);
   }
 
-  @Native
   private void transmitPacketDataToPlayer(Player player, JsonElement jsonElement) {
     if (!authenticated(player)) {
       return;
@@ -90,7 +87,6 @@ public final class SibylPacketTransmitter {
     }
   }
 
-  @Native
   private boolean authenticated(Player player) {
     return authentication.isAuthenticated(player);
   }

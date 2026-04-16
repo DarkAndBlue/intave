@@ -3,7 +3,6 @@ package de.jpx3.intave.user.meta;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ViaVersionAdapter;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.share.Position;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.version.ProtocolVersionConverter;
@@ -11,7 +10,6 @@ import org.bukkit.entity.Player;
 
 import java.util.*;
 
-@Relocate
 public final class ProtocolMetadata {
   public static int VER_1_21_3 = 768; // 1.21.3
   public static int VER_1_21 = 767; // 1.21

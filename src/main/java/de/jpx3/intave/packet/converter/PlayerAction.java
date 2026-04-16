@@ -1,8 +1,5 @@
 package de.jpx3.intave.packet.converter;
 
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
-
-@KeepEnumInternalNames
 public enum PlayerAction {
   @Deprecated
   PRESS_SHIFT_KEY,

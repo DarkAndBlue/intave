@@ -1,6 +1,5 @@
 package de.jpx3.intave.resource;
 
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.library.asm.ByteVector;
 
 import javax.crypto.Cipher;
@@ -41,7 +40,6 @@ final class EncryptionLayer implements Resource {
   }
 
   @Override
-  @Native
   public void write(InputStream inputStream) {
     try {
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -119,7 +117,6 @@ final class EncryptionLayer implements Resource {
   }
 
   @Override
-  @Native
   public OutputStream writeStream() {
     if (!writeStreamSupported()) {
       throw new UnsupportedOperationException();
@@ -195,7 +192,6 @@ final class EncryptionLayer implements Resource {
   }
 
   @Override
-  @Native
   public InputStream read() {
     try {
       ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

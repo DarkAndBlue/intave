@@ -9,7 +9,6 @@ import com.comphenix.protocol.wrappers.WrappedAttribute;
 import com.google.common.collect.Lists;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.annotate.refactoring.SplitMeUp;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Module;
@@ -45,7 +44,6 @@ import static de.jpx3.intave.module.linker.packet.PacketId.Server.RESPAWN;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.SET_SLOT;
 import static org.bukkit.event.entity.EntityDamageEvent.DamageModifier.BLOCKING;
 
-@SplitMeUp
 public final class AttackDispatcher extends Module {
   public static boolean REDUCING_DISABLED;
   public static boolean COMBAT_SAMPLING = true;

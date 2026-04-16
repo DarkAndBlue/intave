@@ -1,6 +1,5 @@
 package de.jpx3.intave.module;
 
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.cleanup.ShutdownTasks;
 import de.jpx3.intave.module.actionbar.ActionBarDisplayer;
 import de.jpx3.intave.module.event.CustomEvents;
@@ -22,7 +21,6 @@ public final class Modules {
   private static final ModulePool pool = new ModulePool();
   private static final ModuleLoader loader = new ModuleLoader();
 
-  @Native
   public static void prepareModules() {
     loader.setup();
     ShutdownTasks.add(Modules::shutdown);
@@ -30,7 +28,6 @@ public final class Modules {
 
   private static long lastBootSegment = 0L;
 
-  @Native
   public static void proceedBoot(BootSegment bootSegment) {
     loader.loadRequests(bootSegment).forEach(pool::loadModule);
     pool.bootRequests(bootSegment).forEach(pool::enableModule);

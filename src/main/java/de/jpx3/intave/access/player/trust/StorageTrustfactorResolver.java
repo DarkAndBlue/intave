@@ -1,7 +1,6 @@
 package de.jpx3.intave.access.player.trust;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.storage.*;
@@ -11,13 +10,11 @@ import java.util.function.Consumer;
 
 public final class StorageTrustfactorResolver implements TrustFactorResolver {
   @Override
-  @Native
   public void resolve(Player player, Consumer<TrustFactor> callback) {
     User user = UserRepository.userOf(player);
     user.onStorageReady(storage -> callback.accept(calculateTrustfactorFor(storage)));
   }
 
-  @Native
   private TrustFactor calculateTrustfactorFor(Storage storage) {
     try {
       PlayerStorage playerStorage = (PlayerStorage) storage;

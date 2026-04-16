@@ -4,7 +4,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.connect.sibyl.SibylMessageTransmitter;
 import de.jpx3.intave.diagnostic.natives.NativeCheck;
 import de.jpx3.intave.executor.Synchronizer;
@@ -311,7 +310,6 @@ public final class CombatMitigator extends Module {
     notify(user, attackNerfer, checkId, false);
   }
 
-  @Native
   private static void notify(User user, AttackNerfer attackNerfer, String checkId, boolean hide) {
     if (NativeCheck.checkActive()) {
       return;

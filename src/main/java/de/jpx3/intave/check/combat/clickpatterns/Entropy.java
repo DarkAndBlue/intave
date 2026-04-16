@@ -1,7 +1,6 @@
 package de.jpx3.intave.check.combat.clickpatterns;
 
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.ClickPatterns;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
@@ -17,7 +16,6 @@ import java.util.*;
 import static de.jpx3.intave.math.MathHelper.formatDouble;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.ARM_ANIMATION;
 
-@Relocate
 public final class Entropy extends MetaCheckPart<ClickPatterns, Entropy.EntropyMeta> {
     private static final int BUFFER_TIMEOUT = 4000;
     private static final int BUFFER_LENGTH = 100;

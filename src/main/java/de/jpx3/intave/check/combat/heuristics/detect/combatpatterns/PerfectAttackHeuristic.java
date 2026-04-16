@@ -5,7 +5,6 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.google.common.collect.Lists;
-import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.check.combat.heuristics.Anomaly;
@@ -26,7 +25,6 @@ import java.util.List;
 import static de.jpx3.intave.check.combat.heuristics.Anomaly.AnomalyOption.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
-@Reserved
 public final class PerfectAttackHeuristic extends MetaCheckPart<Heuristics, PerfectAttackHeuristic.PerfectAttackMeta> {
   public PerfectAttackHeuristic(Heuristics parentCheck) {
     super(parentCheck, PerfectAttackMeta.class);

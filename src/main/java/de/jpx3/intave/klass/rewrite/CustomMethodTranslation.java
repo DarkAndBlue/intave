@@ -1,7 +1,6 @@
 package de.jpx3.intave.klass.rewrite;
 
 import com.google.common.collect.ImmutableList;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.library.asm.tree.AnnotationNode;
 
 import java.util.ArrayList;
@@ -13,7 +12,6 @@ final class CustomMethodTranslation {
   private List<VersionMethodReference> versionMethodReferences = new ArrayList<>();
   private VersionMethodReference compiledTranslation;
 
-  @Native
   public VersionMethodReference selectedTranslationOf(VersionMethodReference original) {
     if (compiledTranslation == null) {
       compiledTranslation = compileTranslation(original);
@@ -21,7 +19,6 @@ final class CustomMethodTranslation {
     return compiledTranslation;
   }
 
-  @Native
   private VersionMethodReference compileTranslation(VersionMethodReference original) {
     String version = PatchyTranslationConfiguration.selectSuitableVersion(this, original);
     for (VersionMethodReference versionMethodReference : versionMethodReferences) {
@@ -40,7 +37,6 @@ final class CustomMethodTranslation {
     return versionMethodReferences;
   }
 
-  @Native
   public static CustomMethodTranslation buildFrom(AnnotationNode annotationNode) {
     if (!PatchyTranslationConfiguration.className(annotationNode).equals(PatchyTranslationConfiguration.CUSTOM_METHOD_TRANSLATION_ANNOTATION_PATH)) {
       throw new IllegalArgumentException("Invalid annotation type");

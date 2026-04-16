@@ -3,7 +3,6 @@ package de.jpx3.intave.user;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.access.UnsupportedFallbackOperationException;
 import de.jpx3.intave.access.player.trust.TrustFactor;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.cache.BlockCache;
 import de.jpx3.intave.block.cache.BlockCaches;
 import de.jpx3.intave.block.fluid.FluidFlow;
@@ -37,7 +36,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-@Relocate
 final class FallbackUser implements User {
   private final MetadataBundle metadata;
   private final PermissionCache permissionCache;

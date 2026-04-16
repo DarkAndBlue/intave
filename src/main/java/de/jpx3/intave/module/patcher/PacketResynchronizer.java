@@ -2,7 +2,6 @@ package de.jpx3.intave.module.patcher;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.annotate.DoNotFlowObfuscate;
 import de.jpx3.intave.diagnostic.PacketSynchronizations;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.module.Module;
@@ -16,7 +15,6 @@ import java.util.Map;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.*;
 
-@DoNotFlowObfuscate
 public final class PacketResynchronizer extends Module {
   @PacketSubscription(
     priority = ListenerPriority.LOWEST,

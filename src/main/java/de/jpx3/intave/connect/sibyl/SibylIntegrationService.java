@@ -3,7 +3,6 @@ package de.jpx3.intave.connect.sibyl;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.annotate.HighOrderService;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.connect.sibyl.auth.SibylAuthentication;
 import de.jpx3.intave.connect.sibyl.data.SibylPacketReceiver;
@@ -75,7 +74,6 @@ public final class SibylIntegrationService implements BukkitEventSubscriber {
     }
   }
 
-  @Native
   public void confirmEncryption(Player player, SibylPacketInConfirmEncryption packet) {
     if (!encryptionAvailable()) {
       return;
@@ -114,7 +112,6 @@ public final class SibylIntegrationService implements BukkitEventSubscriber {
     return KEYS.containsKey(player.getUniqueId());
   }
 
-  @Native
   private void broadcastRestart() {
     for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
       authentication.sendMessageToClient(onlinePlayer, "MC|Brand", "INTAVE", null);
@@ -130,7 +127,6 @@ public final class SibylIntegrationService implements BukkitEventSubscriber {
     }
   }
 
-  @Native
   public void authenticatePlayer(Player player) {
     if (!authentication.isAuthenticated(player)) {
       authentication.sendMessageToClient(player, "MC|Brand", "INTAVE", null);
@@ -165,7 +161,6 @@ public final class SibylIntegrationService implements BukkitEventSubscriber {
     sendTrustedPacket(player, packet);
   }
 
-  @Native
   public void broadcastTrustedPacket(SibylPacket packet) {
     for (Player player : Bukkit.getOnlinePlayers()) {
       if (authentication.isAuthenticated(player)) {
@@ -174,7 +169,6 @@ public final class SibylIntegrationService implements BukkitEventSubscriber {
     }
   }
 
-  @Native
   public void sendTrustedPacket(Player player, SibylPacket packet) {
     if (!Bukkit.isPrimaryThread()) {
       Synchronizer.synchronize(() -> sendTrustedPacket(player, packet));
@@ -193,7 +187,6 @@ public final class SibylIntegrationService implements BukkitEventSubscriber {
     return authentication;
   }
 
-  @Native
   public boolean isAuthenticated(Player user) {
     return authentication.isAuthenticated(user);
   }

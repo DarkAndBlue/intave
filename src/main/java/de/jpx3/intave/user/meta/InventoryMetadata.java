@@ -4,7 +4,6 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.Nullable;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.type.MaterialSearch;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.player.Enchantments;
@@ -22,7 +21,6 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-@Relocate
 public final class InventoryMetadata {
   private final Player player;
   private final List<String> whitelistedItemIdRequests = new ArrayList<>();

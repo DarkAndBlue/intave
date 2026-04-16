@@ -4,7 +4,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.connect.sibyl.LabymodClientListener;
 import de.jpx3.intave.connect.sibyl.SibylIntegrationService;
 import de.jpx3.intave.connect.sibyl.data.packet.SibylPacket;
@@ -37,7 +36,6 @@ public final class SibylPacketReceiver {
     this.service = service;
   }
 
-  @Native
   public void receiveData(Player player, JsonElement element) {
     if (!service.isAuthenticated(player)) {
       return;

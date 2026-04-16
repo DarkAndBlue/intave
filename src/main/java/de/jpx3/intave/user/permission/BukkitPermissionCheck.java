@@ -1,14 +1,12 @@
 package de.jpx3.intave.user.permission;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permissible;
 
 public final class BukkitPermissionCheck {
-  @Native
   public static boolean permissionCheck(Permissible permissible, String permission) {
     if (permissible instanceof Player) {
       if ("sibyl".equalsIgnoreCase(permission)) {

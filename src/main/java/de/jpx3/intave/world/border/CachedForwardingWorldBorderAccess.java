@@ -1,6 +1,5 @@
 package de.jpx3.intave.world.border;
 
-import de.jpx3.intave.annotate.refactoring.MyNameIsTooAbstract;
 import de.jpx3.intave.cleanup.GarbageCollector;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -9,7 +8,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
-@MyNameIsTooAbstract
 final class CachedForwardingWorldBorderAccess implements WorldBorderAccess {
   private static final long CACHE_EXPIRY = TimeUnit.MILLISECONDS.toMillis(50);
   private final WorldBorderAccess forward;

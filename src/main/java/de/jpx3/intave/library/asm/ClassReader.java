@@ -27,8 +27,6 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package de.jpx3.intave.library.asm;
 
-import de.jpx3.intave.annotate.Relocate;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +41,6 @@ import java.io.InputStream;
  * @author Eugene Kuleshov
  * @see <a href="https://docs.oracle.com/javase/specs/jvms/se9/html/jvms-4.html">JVMS 4</a>
  */
-@Relocate
 public class ClassReader {
 
   /**

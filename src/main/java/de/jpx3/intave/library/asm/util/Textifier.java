@@ -27,7 +27,6 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package de.jpx3.intave.library.asm.util;
 
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.library.asm.*;
 import de.jpx3.intave.library.asm.signature.SignatureReader;
 
@@ -40,7 +39,6 @@ import java.util.*;
  *
  * @author Eric Bruneton
  */
-@Relocate
 public class Textifier extends Printer {
 
   /**

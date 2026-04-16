@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
 import de.jpx3.intave.annotate.HighOrderService;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.check.combat.AttackRaytrace;
 import de.jpx3.intave.check.combat.ClickPatterns;
 import de.jpx3.intave.check.combat.ClickSpeedLimiter;
@@ -57,7 +56,6 @@ public final class CheckService {
   /**
    * Load known checks, bake quick access, and link packet- and bukkit-subscriptions
    */
-  @Native
   public void setup() {
     addCheck(Physics.class);
     addCheck(InteractionRaytrace.class);
@@ -82,7 +80,6 @@ public final class CheckService {
   /**
    * Remove packet- and bukkit-subscriptions, reset quick access, remove checks
    */
-  @Native
   public void reset() {
     checkLinker.removeBukkitEventSubscriptions(checks);
     checkLinker.removePacketEventSubscriptions(checks);
@@ -93,7 +90,6 @@ public final class CheckService {
     nameRequestCache = new HashMap<>();
   }
 
-  @Native
   private void addCheck(Class<? extends Check> checkClass) {
     try {
       Check check;
@@ -113,7 +109,6 @@ public final class CheckService {
     checks.add(check);
   }
 
-  @Native
   private void bakeQuickAccess() {
     classRequestCache = new HashMap<>();
     nameRequestCache = new HashMap<>();
@@ -129,7 +124,6 @@ public final class CheckService {
     checks = ImmutableList.copyOf(checks);
   }
 
-  @Native
   private void resetQuickAccess() {
     classRequestCache = new HashMap<>();
     nameRequestCache = new HashMap<>();

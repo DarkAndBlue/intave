@@ -3,7 +3,6 @@ package de.jpx3.intave.check.world.placementanalysis;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.world.PlacementAnalysis;
 import de.jpx3.intave.math.MathHelper;
@@ -29,7 +28,6 @@ import java.util.List;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
-@Reserved
 public class SmartSpeed extends MetaCheckPart<PlacementAnalysis, SmartSpeed.SmartSpeedMeta> {
   public SmartSpeed(PlacementAnalysis parent) {
     super(parent, SmartSpeedMeta.class);

@@ -13,7 +13,6 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.CheckStatistics;
@@ -198,7 +197,6 @@ public final class DiagnosticsStage extends CommandStage {
     usage = "",
     permission = "sibyl"
   )
-  @Native
   public void trustfactorMap(User user) {
     Map<TrustFactor, AtomicLong> trustfactorDistribution = new HashMap<>();
     for (Player player : Bukkit.getOnlinePlayers()) {
@@ -347,7 +345,6 @@ public final class DiagnosticsStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void playtimeOf(User user, @Optional Player target) {
     Player player = user.player();
     Player targetPlayer = target == null ? player : target;
@@ -432,7 +429,6 @@ public final class DiagnosticsStage extends CommandStage {
   }
 
   @SubCommand(selectors = "timings", usage = "", description = "Output timing data", permission = "intave.command.diagnostics.performance")
-  @Native
   public void timingsCommand(User user, @Optional String[] specifier) {
     Player player = user.player();
     if (!IntaveControl.DISABLE_LICENSE_CHECK) {

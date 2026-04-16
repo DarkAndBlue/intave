@@ -1,6 +1,5 @@
 package de.jpx3.intave.block.shape.resolve.patch;
 
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.variant.BlockVariant;
 import de.jpx3.intave.block.variant.BlockVariantRegister;
@@ -79,7 +78,6 @@ final class PointedDripstoneBlockPatch extends BlockShapePatch {
     return material.name().endsWith("_DRIPSTONE");
   }
 
-  @KeepEnumInternalNames
   public enum DripstoneThickness {
     TIP_MERGE, TIP, FRUSTUM, MIDDLE, BASE
   }

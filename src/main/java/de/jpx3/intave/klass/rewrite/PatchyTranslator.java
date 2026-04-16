@@ -1,6 +1,5 @@
 package de.jpx3.intave.klass.rewrite;
 
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.klass.locate.Locate;
 import de.jpx3.intave.library.asm.ClassReader;
 import de.jpx3.intave.library.asm.ClassWriter;
@@ -70,7 +69,6 @@ final class PatchyTranslator {
     methodNode.desc = translate(methodNode.desc);
   }
 
-  @Native
   private static void processMethodInstructions(MethodNode methodNode) {
     PatchyTranslationConfiguration configuration = PatchyTranslationConfiguration.createFrom(methodNode);
     for (ListIterator<AbstractInsnNode> iterator = methodNode.instructions.iterator(); iterator.hasNext(); ) {
@@ -252,7 +250,6 @@ final class PatchyTranslator {
         .collect(Collectors.toList());
   }
 
-  @Native
   private static boolean methodSelected(MethodNode methodNode) {
     List<AnnotationNode> annotationNodes = new ArrayList<>();
     annotationNodes.addAll(methodNode.visibleAnnotations == null ? Collections.emptyList() : methodNode.visibleAnnotations);

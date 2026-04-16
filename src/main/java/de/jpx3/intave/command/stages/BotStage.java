@@ -2,7 +2,6 @@ package de.jpx3.intave.command.stages;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.check.combat.heuristics.MiningStrategy;
 import de.jpx3.intave.command.CommandStage;
 import de.jpx3.intave.command.SubCommand;
@@ -51,7 +50,6 @@ public final class BotStage extends CommandStage {
     commandSender.sendMessage(IntavePlugin.prefix() + "Summoned bot to " + ChatColor.RED + target.player().getName());
   }
 
-  @KeepEnumInternalNames
   private enum Type {
     INVISIBLE,
     MODERATE,

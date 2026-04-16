@@ -2,7 +2,6 @@ package de.jpx3.intave.resource.legacy;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.klass.trace.Caller;
 import de.jpx3.intave.klass.trace.PluginInvocation;
 import de.jpx3.intave.security.ContextSecrets;
@@ -43,7 +42,6 @@ public final class EncryptedLegacyResource implements LegacyResource {
     this.versionDependent = versionDependent;
   }
 
-  @Native
   public InputStream read() {
     if (!fileStore().exists()) {
       throw new IllegalStateException();
@@ -78,7 +76,6 @@ public final class EncryptedLegacyResource implements LegacyResource {
     }
   }
 
-  @Native
   public boolean write(InputStream inputStream) {
     File file = fileStore();
     if (file.exists()) {
@@ -144,7 +141,6 @@ public final class EncryptedLegacyResource implements LegacyResource {
     write(String.join(System.lineSeparator(), lines));
   }
 
-  @Native
   private FileChannel acquireInputFileChannel() {
     acquireFileChannel();
     FileInputStream in;
@@ -156,7 +152,6 @@ public final class EncryptedLegacyResource implements LegacyResource {
     }
   }
 
-  @Native
   private FileChannel acquireOutputFileChannel() {
     acquireFileChannel();
     FileOutputStream in;
@@ -168,7 +163,6 @@ public final class EncryptedLegacyResource implements LegacyResource {
     }
   }
 
-  @Native
   private void acquireFileChannel() {
     File file = fileStore();
     File lockFile = new File(file + ".sig");
@@ -184,7 +178,6 @@ public final class EncryptedLegacyResource implements LegacyResource {
     }
   }
 
-  @Native
   private void removeFileLock(FileChannel channel) {
     File file = fileStore();
     File lockFile = new File(file + ".sig");
@@ -225,7 +218,6 @@ public final class EncryptedLegacyResource implements LegacyResource {
     return new File(workDirectory, resourceId());
   }
 
-  @Native
   private String resourceId() {
     return new UUID(~name.hashCode() | (CLASS_VERSION | CLASS_VERSION << 2), versionDependent ? ~intaveVersion().hashCode() : -391180952) + "e";
   }

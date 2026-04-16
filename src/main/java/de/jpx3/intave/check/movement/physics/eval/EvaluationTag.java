@@ -1,8 +1,5 @@
 package de.jpx3.intave.check.movement.physics.eval;
 
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
-
-@KeepEnumInternalNames
 public enum EvaluationTag {
   ATTACH,
   BOAT,

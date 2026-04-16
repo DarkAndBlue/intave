@@ -1,7 +1,5 @@
 package de.jpx3.intave.security;
 
-import de.jpx3.intave.annotate.Native;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,7 +8,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public final class HashAccess {
-  @Native
   public static String hashOf(File file) {
     StringBuilder jarChecksum = new StringBuilder();
     try {
@@ -33,7 +30,6 @@ public final class HashAccess {
     return jarChecksum.toString();
   }
 
-  @Native
   public static String readHashFromStream(InputStream inputStream) {
     StringBuilder jarChecksum = new StringBuilder();
     try {

@@ -2,7 +2,6 @@ package de.jpx3.intave.check.world.placementanalysis;
 
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.world.PlacementAnalysis;
 import de.jpx3.intave.connect.sibyl.SibylMessageTransmitter;
@@ -69,7 +68,6 @@ public class RoundedRotation extends MetaCheckPart<PlacementAnalysis, RoundedRot
     }
   }
 
-  @Native
   private void sendDebug(String message) {
     for (Player authenticatedPlayer : MessageChannelSubscriptions.sibylReceivers()) {
       if (plugin.sibyl().isAuthenticated(authenticatedPlayer)) {

@@ -7,7 +7,6 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
-import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.block.access.BlockInteractionAccess;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.check.MetaCheckPart;
@@ -33,7 +32,6 @@ import org.bukkit.entity.Player;
 
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
-@Reserved
 public final class OldAirClickLimitHeuristic extends MetaCheckPart<Heuristics, OldAirClickLimitHeuristic.AirClickLimitHeuristicMeta> {
 
   public OldAirClickLimitHeuristic(Heuristics parentCheck) {

@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.NameIntrinsicallyImportant;
 import de.jpx3.intave.executor.BackgroundExecutors;
 import de.jpx3.intave.executor.IntaveThreadFactory;
 import org.bukkit.Bukkit;
@@ -26,11 +25,9 @@ import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.zip.GZIPOutputStream;
 
-@NameIntrinsicallyImportant
 public final class Metrics {
 
   // The version of this bStats class
-  @NameIntrinsicallyImportant
   public static final int B_STATS_VERSION = 1;
   // The url to which the data is sent
   private static final String BSTATS_URL = "https://bstats.org/submitData/bukkit";
@@ -239,7 +236,6 @@ public final class Metrics {
    *
    * @return The plugin specific data.
    */
-  @NameIntrinsicallyImportant
   public JsonObject getPluginData() {
     JsonObject data = new JsonObject();
     String pluginName = plugin.getDescription().getName();

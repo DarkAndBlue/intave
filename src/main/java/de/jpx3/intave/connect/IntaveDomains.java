@@ -2,7 +2,6 @@ package de.jpx3.intave.connect;
 
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.resource.Resource;
 import de.jpx3.intave.resource.Resources;
 
@@ -60,7 +59,6 @@ public final class IntaveDomains {
     }
   }
 
-  @Native
   public static String primaryServiceDomain() {
     return DOMAIN_CACHE.serviceDomain();
   }

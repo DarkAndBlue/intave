@@ -4,7 +4,6 @@ import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import org.bukkit.util.Vector;
 
 import java.util.Iterator;
@@ -16,7 +15,6 @@ import static de.jpx3.intave.share.Direction.Axis.*;
 import static de.jpx3.intave.share.Direction.AxisDirection.NEGATIVE;
 import static de.jpx3.intave.share.Direction.AxisDirection.POSITIVE;
 
-@KeepEnumInternalNames
 public enum Direction {
   DOWN(0, 1, -1, "down", NEGATIVE, Y_AXIS, new NativeVector(0, -1, 0)),
   UP(1, 0, -1, "up", POSITIVE, Y_AXIS, new NativeVector(0, 1, 0)),

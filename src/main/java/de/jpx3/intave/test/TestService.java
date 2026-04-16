@@ -5,7 +5,6 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.annotate.HighOrderService;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.block.access.BlockAccessTests;
 import de.jpx3.intave.block.fluid.FluidTests;
 import de.jpx3.intave.block.shape.BlockShapeTests;
@@ -65,7 +64,6 @@ public final class TestService implements EventProcessor {
     );
   private static final String environmentHash = environmentHash();
 
-  @Native
   private static String environmentHash() {
     StringBuilder bigString = new StringBuilder(Bukkit.getServer().getName());
     try {
@@ -147,7 +145,6 @@ public final class TestService implements EventProcessor {
     }
   }
 
-  @Native
   public void performTests() {
     if (Bukkit.getWorlds().isEmpty()) {
       IntaveLogger.logger().info("No worlds loaded, delaying self-tests");

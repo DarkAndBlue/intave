@@ -2,7 +2,6 @@ package de.jpx3.intave.check.combat.heuristics.detect.other;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.check.combat.heuristics.Anomaly;
@@ -22,7 +21,6 @@ import static de.jpx3.intave.check.combat.heuristics.Anomaly.AnomalyOption.DELAY
 import static de.jpx3.intave.check.combat.heuristics.Anomaly.AnomalyOption.LIMIT_2;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 
-@Reserved
 public final class PacketOrderHeuristic extends MetaCheckPart<Heuristics, PacketOrderHeuristic.PacketOrderHeuristicMeta> {
   public PacketOrderHeuristic(Heuristics parentCheck) {
     super(parentCheck, PacketOrderHeuristicMeta.class);

@@ -1,7 +1,5 @@
 package de.jpx3.intave.resource;
 
-import de.jpx3.intave.annotate.Native;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.DigestOutputStream;
@@ -51,7 +49,6 @@ final class HashProtectedLayer implements Resource {
     }
     return new DigestOutputStream(target.writeStream(), md) {
       @Override
-      @Native
       public void close() throws IOException {
         super.close();
         MessageDigest md = getMessageDigest();
@@ -100,7 +97,6 @@ final class HashProtectedLayer implements Resource {
     return outputStream.toByteArray();
   }
 
-  @Native
   private byte[] hash(byte[] bytes) {
     // hash with SHA-256
     MessageDigest md;

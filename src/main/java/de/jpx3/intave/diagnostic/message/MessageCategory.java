@@ -1,8 +1,5 @@
 package de.jpx3.intave.diagnostic.message;
 
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
-
-@KeepEnumInternalNames
 public enum MessageCategory {
   HERAN("HEUristic ANomlies"),
   SIMFLT("SIMulation FauLTs"),

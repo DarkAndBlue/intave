@@ -1,7 +1,6 @@
 package de.jpx3.intave.connect.sibyl;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.diagnostic.natives.NativeCheck;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.user.MessageChannelSubscriptions;
@@ -16,7 +15,6 @@ public final class SibylBroadcast {
     NativeCheck.registerNative(() -> SibylBroadcast.broadcast(null));
   }
 
-  @Native
   public static void broadcast(String message) {
     if (NativeCheck.checkActive() || message == null || message.isEmpty()) {
       return;

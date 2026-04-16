@@ -3,7 +3,6 @@ package de.jpx3.intave.check.combat.heuristics.detect.combatpatterns;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
-import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.check.combat.heuristics.Anomaly;
@@ -22,7 +21,6 @@ import org.bukkit.inventory.ItemStack;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_8;
 
-@Reserved
 public final class AttackRequiredHeuristic extends MetaCheckPart<Heuristics, AttackRequiredHeuristic.AttackRequiredMeta> {
   public AttackRequiredHeuristic(Heuristics parentCheck) {
     super(parentCheck, AttackRequiredMeta.class);

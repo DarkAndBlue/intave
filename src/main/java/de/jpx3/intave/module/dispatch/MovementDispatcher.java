@@ -14,7 +14,6 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.Nullable;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.shape.BlockShape;
@@ -78,7 +77,6 @@ import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_I
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_16;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_9;
 
-@Relocate
 public final class MovementDispatcher extends Module {
   private final static boolean NEW_EXPLOSION = MinecraftVersions.VER1_21_3.atOrAbove();
   private static final boolean ELYTRA_SUPPORTED = MinecraftVersions.VER1_9_0.atOrAbove();

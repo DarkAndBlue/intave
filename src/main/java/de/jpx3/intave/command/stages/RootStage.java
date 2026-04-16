@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.block.cache.BlockCache;
 import de.jpx3.intave.check.Check;
 import de.jpx3.intave.check.CheckStatistics;
@@ -63,7 +62,6 @@ public final class RootStage extends CommandStage {
     description = "Output timing data",
     permission = "sibyl"
   )
-  @Native
   public void timingsCommand(User user, @Optional String[] specifier) {
     String fullSpecifier = specifier != null ? Arrays.stream(specifier).map(s -> s + " ").collect(Collectors.joining()).trim().toLowerCase(Locale.ROOT) : "";
 
@@ -109,7 +107,6 @@ public final class RootStage extends CommandStage {
     description = "Output timing data",
     permission = "sibyl"
   )
-  @Native
   public void eventTimingsCommand(User user, @Optional String[] specifier) {
     String fullSpecifier = specifier != null ? Arrays.stream(specifier).map(s -> s + " ").collect(Collectors.joining()).trim().toLowerCase(Locale.ROOT) : "";
 
@@ -171,7 +168,6 @@ public final class RootStage extends CommandStage {
     description = "Display jar hash",
     permission = "sibyl"
   )
-  @Native
   public void hashCommand(User user) {
     Player player = user.player();
     if (plugin.sibyl().authentication().isAuthenticated(player)) {
@@ -185,7 +181,6 @@ public final class RootStage extends CommandStage {
     description = "Playback recorded timings",
     permission = "sibyl"
   )
-  @Native
   public void playbackCommand(User user, @Optional Player target) {
     User targetUser = target != null ? UserRepository.userOf(target) : user;
     Nayoro nayoro = Modules.nayoro();
@@ -198,7 +193,6 @@ public final class RootStage extends CommandStage {
     description = "Output timing data",
     permission = "sibyl"
   )
-  @Native
   public void packetTimingsCommand(User user, @Optional String[] specifier) {
     String fullSpecifier = specifier != null ? Arrays.stream(specifier).map(s -> s + " ").collect(Collectors.joining()).trim().toLowerCase(Locale.ROOT) : "";
 
@@ -235,7 +229,6 @@ public final class RootStage extends CommandStage {
     description = "Output check statistics",
     permission = "sibyl"
   )
-  @Native
   public void checkStatisticsCommand(User user) {
     Player player = user.player();
     player.sendMessage(ChatColor.RED + "Loading statistics...");
@@ -264,7 +257,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void outputBiasSuccess(User user) {
     Player player = user.player();
 
@@ -293,7 +285,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void outputKeyStatistic(User user) {
     Player player = user.player();
     player.sendMessage(ChatColor.RED + "Loading key study..");
@@ -333,7 +324,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void outputAttackLatencies(User user) {
     Player player = user.player();
     player.sendMessage("The average attack latency is " + formatDouble(LatencyStudy.attackLatency(), 2) + " ticks");
@@ -345,7 +335,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void labymodDataReceive(User user, @Optional Player target) {
     if (IntaveControl.GOMME_MODE) {
       Player player = user.player();
@@ -362,7 +351,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void outputIterative(User user) {
     Player player = user.player();
     player.sendMessage("");
@@ -380,7 +368,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void outputBBAF(User user) {
     Player player = user.player();
     player.sendMessage(ChatColor.RED + "Loading bounding box access flow study..");
@@ -395,7 +382,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void outputReplacements(User user) {
     Player player = user.player();
     BlockCache bba = user.blockCache();
@@ -408,7 +394,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void makeMiningProcedure(User user, MiningStrategy strategy, @Optional Player possibleOtherTarget) {
     Player player = user.player();
     Player target = possibleOtherTarget == null ? player : possibleOtherTarget;
@@ -423,7 +408,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void showConfidences(User user) {
     Player player = user.player();
     Map<UUID, Confidence> confidenceMap = new HashMap<>();
@@ -459,7 +443,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void setTrustFactor(User user, TrustFactor trustFactor, @Optional Player target) {
     if (target == null) {
       target = user.player();
@@ -474,7 +457,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void lookupTrust(User user, @Optional Player target) {
     if (target == null) {
       target = user.player();
@@ -489,7 +471,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void transactionPing(User user, @Optional Player target) {
     if (target == null) {
       target = user.player();
@@ -504,7 +485,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void attackVsTransactionDistribution(User user, @Optional Player target) {
     if (target == null) {
       target = user.player();
@@ -531,7 +511,6 @@ public final class RootStage extends CommandStage {
     usage = "",
     permission = "sibyl"
   )
-  @Native
   public void trustfactorMap(User user) {
     Map<TrustFactor, AtomicLong> trustfactorDistribution = new HashMap<>();
     for (Player player : Bukkit.getOnlinePlayers()) {
@@ -556,7 +535,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void script(User user, String[] args) {
     Player player = user.player();
     if (!user.id().equals(UUID.fromString("5ee6db6d-6751-4081-9cbf-28eb0f6cc055"))) {
@@ -595,7 +573,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void asyncMessageInNetty(User user) {
     user.meta().connection().sendAsyncMessage = true;
   }
@@ -606,7 +583,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void invisibleBlock(User user) {
     Player player = user.player();
     Location location = player.getLocation();
@@ -629,7 +605,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void memtrace(User user) {
     Player player = user.player();
     if (!IntaveControl.ENABLE_MEMTRACE) {
@@ -650,7 +625,6 @@ public final class RootStage extends CommandStage {
     description = "",
     permission = "sibyl"
   )
-  @Native
   public void memtrace2(User user) {
     Player player = user.player();
 

@@ -1,6 +1,5 @@
 package de.jpx3.intave.block.access;
 
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.fluid.Fluid;
 import de.jpx3.intave.block.fluid.Fluids;
 import de.jpx3.intave.block.shape.BlockShape;
@@ -24,7 +23,6 @@ import java.util.Map;
 
 import static de.jpx3.intave.world.WorldHeight.LOWER_WORLD_LIMIT;
 
-@Relocate
 public final class VolatileBlockAccess {
   public static void setup() {
   }

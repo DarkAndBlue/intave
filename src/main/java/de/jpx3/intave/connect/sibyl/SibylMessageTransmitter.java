@@ -1,14 +1,12 @@
 package de.jpx3.intave.connect.sibyl;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.executor.Synchronizer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public final class SibylMessageTransmitter {
-  @Native
   public static void sendMessage(Player player, String message, String... args) {
     if (!Bukkit.isPrimaryThread()) {
       Synchronizer.synchronize(() -> sendMessage(player, message, args));

@@ -2,8 +2,6 @@ package de.jpx3.intave.check.movement.physics;
 
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.annotate.Relocate;
-import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.modifier.PowderSnowCollisionModifier;
 import de.jpx3.intave.block.fluid.Fluids;
@@ -40,7 +38,6 @@ import static de.jpx3.intave.share.ClientMath.clamp_double;
 import static de.jpx3.intave.share.ClientMath.floor;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.VER_1_14;
 
-@Relocate
 class BaseSimulator extends Simulator {
   @Override
   public Simulation simulate(
@@ -251,7 +248,6 @@ class BaseSimulator extends Simulator {
     }
   }
 
-  @IdoNotBelongHere
   private void tryRelinkFlyingPosition(
     User user, Motion context, SimulationEnvironment environment) {
     Player player = user.player();
@@ -369,7 +365,6 @@ class BaseSimulator extends Simulator {
     motion.motionZ = colliderResult.motionZ();
   }
 
-  @IdoNotBelongHere
   public void notePossibleFlyingPacket(User user, ColliderResult collisionResult) {
     MovementMetadata movementData = user.meta().movement();
     Motion context = collisionResult.motion();

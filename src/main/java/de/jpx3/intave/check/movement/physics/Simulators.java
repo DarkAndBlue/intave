@@ -1,11 +1,8 @@
 package de.jpx3.intave.check.movement.physics;
 
-import de.jpx3.intave.annotate.Relocate;
-
 import java.util.Arrays;
 import java.util.List;
 
-@Relocate
 public final class Simulators {
   public static final Simulator PLAYER = new BaseSimulator();
   public static final Simulator ELYTRA = new ElytraSimulator();

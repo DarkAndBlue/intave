@@ -1,13 +1,11 @@
 package de.jpx3.intave.module.patcher;
 
-import de.jpx3.intave.annotate.DoNotFlowObfuscate;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 
-@DoNotFlowObfuscate
 public final class SynchronizedSet<E> implements Set<E> {
   private final Set<E> parent;
 

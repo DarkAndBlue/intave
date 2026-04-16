@@ -1,6 +1,5 @@
 package de.jpx3.intave.security;
 
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.resource.legacy.EncryptedLegacyResource;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -9,7 +8,6 @@ public final class HWIDVerification {
   private static EncryptedLegacyResource encryptedResource;
   private static String identifier;
 
-  @Native
   public static String publicHardwareIdentifier() {
     if (encryptedResource == null) {
       encryptedResource = new EncryptedLegacyResource("hardware-id", false);
@@ -29,7 +27,6 @@ public final class HWIDVerification {
     return identifier;
   }
 
-  @Native
   private static String randomString() {
     char[] available = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz01234567890_-$@?".toCharArray();
     StringBuilder str = new StringBuilder();

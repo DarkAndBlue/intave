@@ -2,7 +2,6 @@ package de.jpx3.intave.module.player;
 
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.user.storage.Storage;
 
 import javax.crypto.Cipher;
@@ -19,7 +18,6 @@ import java.util.zip.InflaterOutputStream;
 import static java.util.zip.Deflater.BEST_COMPRESSION;
 
 public final class StorageIOProcessor {
-  @Native
   public static void inputTo(Storage storage, ByteBuffer buffer) {
     if (buffer == null) {
       return;
@@ -50,7 +48,6 @@ public final class StorageIOProcessor {
     storage.readFrom(ByteStreams.newDataInput(bytes));
   }
 
-  @Native
   public static ByteBuffer outputFrom(Storage storage) {
     ByteArrayDataOutput output = ByteStreams.newDataOutput();
     storage.writeTo(output);

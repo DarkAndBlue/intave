@@ -3,7 +3,6 @@ package de.jpx3.intave.command.stages;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.trust.TrustFactor;
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.command.CommandStage;
 import de.jpx3.intave.command.Forward;
 import de.jpx3.intave.command.Optional;
@@ -194,7 +193,6 @@ public final class BaseStage extends CommandStage {
     }
   }
 
-  @KeepEnumInternalNames
   public enum DebugType {
     TELEPORT(MessageChannel.DEBUG_TELEPORT),
     MOUNTS(MessageChannel.DEBUG_MOUNTS),

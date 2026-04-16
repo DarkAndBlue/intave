@@ -1,7 +1,6 @@
 package de.jpx3.intave.check.combat.heuristics.detect.combatpatterns;
 
 import com.google.common.collect.Lists;
-import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
@@ -16,7 +15,6 @@ import de.jpx3.intave.user.meta.CheckCustomMetadata;
 
 import java.util.List;
 
-@Reserved
 public final class RotationStandardDeviationRelayHeuristic extends MetaCheckPart<Heuristics, RotationStandardDeviationRelayHeuristic.RotationStandardDeviationMeta> {
   public RotationStandardDeviationRelayHeuristic(Heuristics parentCheck) {
     super(parentCheck, RotationStandardDeviationMeta.class);

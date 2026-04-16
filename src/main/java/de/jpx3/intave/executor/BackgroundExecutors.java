@@ -3,7 +3,6 @@ package de.jpx3.intave.executor;
 import com.google.common.collect.Maps;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.diagnostic.timings.Timing;
 import de.jpx3.intave.diagnostic.timings.Timings;
 
@@ -124,7 +123,6 @@ public final class BackgroundExecutors {
     }
   }
 
-  @KeepEnumInternalNames
   public enum ExecutorType {
     IN_TIME(Timings.EXE_BACKGROUND_PRIMARY, false, TimeUnit.MILLISECONDS),
     SCHEDULED(Timings.EXE_BACKGROUND_TERTIARY, false, TimeUnit.SECONDS),

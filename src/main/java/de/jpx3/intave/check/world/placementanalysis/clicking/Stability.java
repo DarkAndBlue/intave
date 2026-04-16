@@ -1,7 +1,6 @@
 package de.jpx3.intave.check.world.placementanalysis.clicking;
 
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.world.PlacementAnalysis;
 import de.jpx3.intave.module.Modules;
@@ -23,7 +22,6 @@ import static de.jpx3.intave.check.world.PlacementAnalysis.COMMON_FLAG_MESSAGE;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.BLOCK_PLACE;
 import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_IN_ALL_VERBOSE_MODES;
 
-@Relocate
 public final class Stability extends MetaCheckPart<PlacementAnalysis, Stability.StabilityMeta> {
     private static final int BUFFER_TIMEOUT = 4000;
     private static final int BUFFER_LENGTH = 50;

@@ -2,7 +2,6 @@ package de.jpx3.intave.klass.rewrite;
 
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
-import de.jpx3.intave.annotate.Native;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -14,7 +13,6 @@ import static de.jpx3.classloader.ClassLoader.classLoad;
 import static de.jpx3.classloader.ClassLoader.classLoaded;
 
 public final class PatchyLoadingInjector {
-  @Native
   public static <T> Class<T> loadUnloadedClassPatched(ClassLoader classLoader, String className) {
     if (className.isEmpty()) {
       return null;
@@ -44,7 +42,6 @@ public final class PatchyLoadingInjector {
     }
   }
 
-  @Native
   private static byte[] classBytesOf(ClassLoader classLoader, String className) throws IOException {
     className = className.replace('.', '/') + ".class";
     InputStream stream = classLoader.getResourceAsStream(className);
@@ -61,7 +58,6 @@ public final class PatchyLoadingInjector {
     return byteArrayFrom(stream);
   }
 
-  @Native
   private static byte[] resourceFromJar(File inputFile, String fileName) {
     try {
       ZipFile zipFile = new ZipFile(inputFile);
@@ -82,7 +78,6 @@ public final class PatchyLoadingInjector {
     throw new IllegalStateException("Unable to locate " + fileName);
   }
 
-  @Native
   private static byte[] byteArrayFrom(InputStream inputStream) throws IOException {
     ByteArrayOutputStream var1 = new ByteArrayOutputStream();
     copy(inputStream, var1);

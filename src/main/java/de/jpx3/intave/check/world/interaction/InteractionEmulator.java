@@ -6,8 +6,6 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.player.event.BucketAction;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.access.BlockInteractionAccess;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.cache.BlockCache;
@@ -55,7 +53,6 @@ import java.util.stream.Collectors;
 import static de.jpx3.intave.IntaveControl.DUMP_BLOCK_HITBOX_ON_RIGHT_CLICK;
 import static de.jpx3.intave.IntaveControl.REMOVE_PLACED_BLOCKS_WITH_DELAY;
 
-@Relocate
 public final class InteractionEmulator implements EventProcessor {
   private final IntavePlugin plugin;
 
@@ -478,7 +475,6 @@ public final class InteractionEmulator implements EventProcessor {
     }
   }
 
-  @KeepEnumInternalNames
   public enum EnumHalf {
     TOP("top"),
     BOTTOM("bottom"),

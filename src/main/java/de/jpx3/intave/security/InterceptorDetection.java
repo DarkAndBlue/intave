@@ -1,10 +1,7 @@
 package de.jpx3.intave.security;
 
-import de.jpx3.intave.annotate.Relocate;
-
 import java.io.PrintStream;
 
-@Relocate
 public final class InterceptorDetection {
   private static PrintStream original;
 

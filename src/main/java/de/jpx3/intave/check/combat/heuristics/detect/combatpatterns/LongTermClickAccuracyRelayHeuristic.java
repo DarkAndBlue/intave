@@ -1,6 +1,5 @@
 package de.jpx3.intave.check.combat.heuristics.detect.combatpatterns;
 
-import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
@@ -11,7 +10,6 @@ import de.jpx3.intave.module.nayoro.event.AttackEvent;
 import de.jpx3.intave.module.nayoro.event.ClickEvent;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
 
-@Reserved
 public final class LongTermClickAccuracyRelayHeuristic extends MetaCheckPart<Heuristics, LongTermClickAccuracyRelayHeuristic.ClickAccuracyMeta> {
   public LongTermClickAccuracyRelayHeuristic(Heuristics parentCheck) {
     super(parentCheck, LongTermClickAccuracyRelayHeuristic.ClickAccuracyMeta.class);

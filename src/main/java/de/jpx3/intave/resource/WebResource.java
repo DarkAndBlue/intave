@@ -2,7 +2,6 @@ package de.jpx3.intave.resource;
 
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.security.LicenseAccess;
 
@@ -48,7 +47,6 @@ final class WebResource implements Resource {
   }
 
   @Override
-  @Native
   public InputStream read() {
     boolean debug = System.getProperty("intave.kdebug", "NA").equalsIgnoreCase("UPSFF0Y8Y7H4UJQL8QCRSI857S4DVBKS");
     try {

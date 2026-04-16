@@ -8,7 +8,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.injector.packet.PacketRegistry;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.DoNotFlowObfuscate;
 import de.jpx3.intave.klass.create.IRXClassFactory;
 import de.jpx3.intave.library.asm.Type;
 import de.jpx3.intave.module.Module;
@@ -34,7 +33,6 @@ import java.util.function.IntUnaryOperator;
 
 import static de.jpx3.intave.IntaveControl.IGNORE_CHUNK_PACKETS;
 
-@DoNotFlowObfuscate
 public final class PacketSubscriptionLinker extends Module {
   private static boolean IGNORE_CHAT_PACKETS = false;
   private static boolean IGNORE_SCOREBOARD_TEAM_PACKETS = false;

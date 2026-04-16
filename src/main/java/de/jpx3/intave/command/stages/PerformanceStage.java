@@ -1,7 +1,6 @@
 package de.jpx3.intave.command.stages;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.command.CommandStage;
 import de.jpx3.intave.command.Optional;
 import de.jpx3.intave.command.SubCommand;
@@ -34,7 +33,6 @@ public final class PerformanceStage extends CommandStage {
     description = "Output timing data",
     permission = "intave.command.diagnostics"
   )
-  @Native
   public void eventTimingsCommand(User user, @Optional String[] specifier) {
     String fullSpecifier = specifier != null ? Arrays.stream(specifier).map(s -> s + " ").collect(Collectors.joining()).trim().toLowerCase(Locale.ROOT) : "";
 
@@ -72,7 +70,6 @@ public final class PerformanceStage extends CommandStage {
     description = "Output timing data",
     permission = "intave.command.diagnostics"
   )
-  @Native
   public void packetTimingsCommand(User user, @Optional String[] specifier) {
     String fullSpecifier = specifier != null ? Arrays.stream(specifier).map(s -> s + " ").collect(Collectors.joining()).trim().toLowerCase(Locale.ROOT) : "";
 

@@ -2,7 +2,6 @@ package de.jpx3.intave.check.world.placementanalysis;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.world.PlacementAnalysis;
 import de.jpx3.intave.module.Modules;
@@ -27,7 +26,6 @@ import static de.jpx3.intave.module.violation.Violation.ViolationFlags.DISPLAY_I
 
 // this does not work yet, like at all
 
-@Reserved
 public final class JumpAndPlace extends MetaCheckPart<PlacementAnalysis, JumpAndPlace.JumpAndPlaceMeta> {
   public JumpAndPlace(PlacementAnalysis parentCheck) {
     super(parentCheck, JumpAndPlaceMeta.class);

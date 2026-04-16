@@ -1,7 +1,6 @@
 package de.jpx3.intave.user.meta;
 
 import com.google.common.collect.Lists;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.module.mitigate.AttackNerfStrategy;
 import de.jpx3.intave.module.mitigate.HurttimeModifier;
 import de.jpx3.intave.player.DamageModify;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
 
 import static org.bukkit.event.entity.EntityDamageEvent.DamageModifier.*;
 
-@Relocate
 public final class PunishmentMetadata {
   public static final long DAMAGE_CANCEL_LIGHT_DURATION = 80_000;
   private static final long DAMAGE_CANCEL_MEDIUM_DURATION = 40_000;

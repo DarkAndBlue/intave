@@ -1,7 +1,6 @@
 package de.jpx3.intave.resource;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.connect.IntaveDomains;
 import de.jpx3.intave.library.asm.ByteVector;
 import de.jpx3.intave.security.ContextSecrets;
@@ -98,7 +97,6 @@ public final class Resources {
     return new FileSpreadLayer(file, resourcer, spreads);
   }
 
-  @Native
   public static Resource fileCache(
     String identifier
   ) {
@@ -110,7 +108,6 @@ public final class Resources {
     }
   }
 
-  @Native
   public static Resource cacheResourceChain(
     String urlString,
     String identifier,
@@ -142,7 +139,6 @@ public final class Resources {
     );
   }
 
-  @Native
   private static Resource cacheResourceChainWithMultipleDomains(
     String pattern,
     List<String> domains,
@@ -165,7 +161,6 @@ public final class Resources {
     return resourceCache;
   }
 
-  @Native
   private static String nameFrom(URL url, String identifier, long expires) {
     long seed = expires % (1L << 32);
     seed *= 31;
@@ -192,7 +187,6 @@ public final class Resources {
 
   private static int fileHashCode = 0;
 
-  @Native
   private static long versionResourceKey() {
     if ((!DISABLE_LICENSE_CHECK || GOMME_MODE) && fileHashCode == 0) {
       try {

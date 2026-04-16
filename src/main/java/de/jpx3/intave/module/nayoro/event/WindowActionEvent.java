@@ -1,6 +1,5 @@
 package de.jpx3.intave.module.nayoro.event;
 
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.module.nayoro.Environment;
 import de.jpx3.intave.module.nayoro.Inventory;
 import de.jpx3.intave.module.nayoro.event.sink.EventSink;
@@ -68,7 +67,6 @@ public final class WindowActionEvent extends Event {
     return new WindowActionEvent(action, armorContents);
   }
 
-  @KeepEnumInternalNames
   public enum Action {
     OPEN,
     INFER_OPEN,

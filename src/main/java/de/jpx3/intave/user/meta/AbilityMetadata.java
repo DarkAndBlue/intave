@@ -8,7 +8,6 @@ import com.comphenix.protocol.wrappers.WrappedAttributeModifier;
 import com.google.common.collect.ImmutableMap;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.module.tracker.player.AbilityTracker;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -20,7 +19,6 @@ import java.util.function.Predicate;
 
 import static de.jpx3.intave.module.tracker.player.AbilityTracker.GameMode.NOT_SET;
 
-@Relocate
 public final class AbilityMetadata {
   private static final UUID SPEED_MODIFIER_SPRINTING_UUID = UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D");
   public static final Predicate<WrappedAttributeModifier> EXCLUDE_SPRINT_MODIFIER = modifier -> modifier.getUUID() == null ?

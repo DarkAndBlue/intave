@@ -1,7 +1,6 @@
 package de.jpx3.intave.check.combat.heuristics.detect.combatpatterns;
 
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.annotate.Reserved;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.math.MathHelper;
@@ -18,7 +17,6 @@ import org.bukkit.entity.Player;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.LOOK;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.POSITION_LOOK;
 
-@Reserved
 public final class BaritoneRotationCheck extends MetaCheckPart<Heuristics, BaritoneRotationCheck.BaritoneRotationMeta> {
   public BaritoneRotationCheck(Heuristics parentCheck) {
     super(parentCheck, BaritoneRotationMeta.class);

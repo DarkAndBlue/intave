@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.klass.create.IRXClassFactory;
 import de.jpx3.intave.library.asm.Type;
 import de.jpx3.intave.module.Module;
@@ -26,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.IntUnaryOperator;
 
-@Relocate
 public final class BukkitEventSubscriptionLinker extends Module {
   private final IntavePlugin plugin;
   private int totalLoaded = 0;

@@ -3,7 +3,6 @@ package de.jpx3.intave.config;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveBootFailureException;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.connect.IntaveDomains;
 import de.jpx3.intave.resource.legacy.EncryptedLegacyResource;
 import de.jpx3.intave.security.ContextSecrets;
@@ -84,7 +83,6 @@ public final class OldConfigurationLoader {
     this.configurationKey = configurationKey;
   }
 
-  @Native
   public int latestState() {
     if (!configurationStates.exists()) {
       return 0;
@@ -96,7 +94,6 @@ public final class OldConfigurationLoader {
     return mappings.get(configurationKey.toLowerCase());
   }
 
-  @Native
   public void saveState(int state) {
     Map<String, Integer> mappings = new HashMap<>();
     if (configurationStates.exists()) {
@@ -108,7 +105,6 @@ public final class OldConfigurationLoader {
     configurationStates.write(new ByteArrayInputStream(content.toString().getBytes(StandardCharsets.UTF_8)));
   }
 
-  @Native
   public void loadConfigurationUpdatedForcefully() {
     YamlConfiguration configuration = tryDownloadConfiguration();
     if (configuration == null) {
@@ -243,7 +239,6 @@ public final class OldConfigurationLoader {
     }
   }
 
-  @Native
   private Object readConfiguration() {
     try {
       File configurationCache = configurationCache();
@@ -279,7 +274,6 @@ public final class OldConfigurationLoader {
     }
   }
 
-  @Native
   private void saveConfiguration(Object configurationObj) {
     try {
       YamlConfiguration configuration = (YamlConfiguration) configurationObj;

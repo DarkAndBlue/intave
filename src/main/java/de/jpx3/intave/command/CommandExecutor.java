@@ -2,7 +2,6 @@ package de.jpx3.intave.command;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.UserRepository;
 import de.jpx3.intave.user.permission.BukkitPermissionCheck;
@@ -88,7 +87,6 @@ public final class CommandExecutor {
 
   private static final String NO_PERMISSION_MESSAGE = ChatColor.RED + "I'm sorry, but you do not have permission to perform this command. Please contact the server administrators if you believe that this is in error.";
 
-  @Native
   public CommandStage execute(CommandSender sender, String executedCommand) {
     String prefix = IntavePlugin.prefix();
     String[] args = executedCommand.split(" ");

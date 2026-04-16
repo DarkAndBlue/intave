@@ -1,7 +1,6 @@
 package de.jpx3.intave.block.cache;
 
 import de.jpx3.intave.IntaveControl;
-import de.jpx3.intave.annotate.DoNotFlowObfuscate;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.shape.BlockShape;
 import de.jpx3.intave.block.shape.ShapeResolverPipeline;
@@ -29,7 +28,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static de.jpx3.intave.IntaveControl.DISABLE_BLOCK_CACHING_ENTIRELY;
 
-@DoNotFlowObfuscate
 final class MultiChunkKeyBlockCache implements BlockCache {
   private final Player player;
   private final ShapeResolverPipeline shapeResolver;

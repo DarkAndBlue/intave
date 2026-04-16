@@ -1,7 +1,6 @@
 package de.jpx3.intave.resource.legacy;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.security.ContextSecrets;
 import de.jpx3.intave.security.HashAccess;
 
@@ -88,7 +87,6 @@ public final class CachedLegacyResource implements LegacyResource {
     }
   }
 
-  @Native
   public InputStream read() {
     if (!fileStore().exists()) {
       return new ByteArrayInputStream(new byte[0]);
@@ -119,7 +117,6 @@ public final class CachedLegacyResource implements LegacyResource {
     }
   }
 
-  @Native
   private FileChannel acquireInputFileChannel() {
     acquireFileChannel();
     FileInputStream in;
@@ -131,7 +128,6 @@ public final class CachedLegacyResource implements LegacyResource {
     }
   }
 
-  @Native
   private FileChannel acquireOutputFileChannel() {
     acquireFileChannel();
     FileOutputStream in;
@@ -143,7 +139,6 @@ public final class CachedLegacyResource implements LegacyResource {
     }
   }
 
-  @Native
   private void acquireFileChannel() {
     File file = fileStore();
     File lockFile = new File(file + ".sig");
@@ -177,7 +172,6 @@ public final class CachedLegacyResource implements LegacyResource {
     }
   }
 
-  @Native
   private void removeFileLock(FileChannel channel) {
     File file = fileStore();
     File lockFile = new File(file + ".sig");
@@ -191,7 +185,6 @@ public final class CachedLegacyResource implements LegacyResource {
     }
   }
 
-  @Native
   private boolean refreshFile() {
     File file = fileStore();
 
@@ -268,7 +261,6 @@ public final class CachedLegacyResource implements LegacyResource {
     return new File(workDirectory, resourceId());
   }
 
-  @Native
   private String resourceId() {
     return new UUID(~name.hashCode(), ~intaveVersion().hashCode()) + "e";
   }

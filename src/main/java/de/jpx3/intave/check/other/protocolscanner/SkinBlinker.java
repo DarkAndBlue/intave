@@ -3,7 +3,6 @@ package de.jpx3.intave.check.other.protocolscanner;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.adapter.MinecraftVersions;
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.check.CheckPart;
 import de.jpx3.intave.check.other.ProtocolScanner;
 import de.jpx3.intave.klass.Lookup;
@@ -66,7 +65,6 @@ public final class SkinBlinker extends CheckPart<ProtocolScanner> {
       || bukkitHand == MainHand.RIGHT && hand == HandSlot.RIGHT;
   }
 
-  @KeepEnumInternalNames
   public enum HandSlot {
     LEFT,
     RIGHT

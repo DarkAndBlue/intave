@@ -1,7 +1,5 @@
 package de.jpx3.intave.block.collision;
 
-import de.jpx3.intave.annotate.DoNotFlowObfuscate;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.cache.BlockCache;
 import de.jpx3.intave.block.collision.entity.StaticEntityCollisions;
@@ -38,8 +36,6 @@ import java.util.stream.Collectors;
 
 import static de.jpx3.intave.share.ClientMath.floor;
 
-@Relocate
-@DoNotFlowObfuscate
 public final class Collision {
   // usually we collide with 8 blocks, so a limit of 64 comes with a very big margin
   private static final int COLLISION_CHECK_LIMIT = 8 * 8;

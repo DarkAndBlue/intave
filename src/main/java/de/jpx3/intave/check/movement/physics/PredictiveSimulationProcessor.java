@@ -1,7 +1,6 @@
 package de.jpx3.intave.check.movement.physics;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.diagnostic.IterativeStudy;
 import de.jpx3.intave.diagnostic.KeyPressStudy;
 import de.jpx3.intave.diagnostic.timings.Timings;
@@ -17,7 +16,6 @@ import org.bukkit.Material;
 
 import java.util.List;
 
-@Relocate
 public final class PredictiveSimulationProcessor implements SimulationProcessor {
 
   /*

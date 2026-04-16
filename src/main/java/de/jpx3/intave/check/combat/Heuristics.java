@@ -8,8 +8,6 @@ import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.UnsupportedFallbackOperationException;
-import de.jpx3.intave.annotate.DoNotFlowObfuscate;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.annotate.Nullable;
 import de.jpx3.intave.check.CheckPart;
 import de.jpx3.intave.check.MetaCheck;
@@ -58,8 +56,6 @@ import java.util.stream.Collectors;
 
 import static de.jpx3.intave.check.combat.heuristics.Confidence.*;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.*;
-
-@DoNotFlowObfuscate
 
 public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
   private final IntavePlugin plugin;
@@ -569,7 +565,6 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     return anomalies;
   }
 
-  @Native
   private String encryptAnomalies(List<Anomaly> anomalies) {
     if (NativeCheck.checkActive()) {
       return null;

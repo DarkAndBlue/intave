@@ -3,7 +3,6 @@ package de.jpx3.intave.connect.cloud.protocol.packets;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
 import de.jpx3.intave.connect.cloud.protocol.Direction;
 import de.jpx3.intave.connect.cloud.protocol.Identity;
 import de.jpx3.intave.connect.cloud.protocol.JsonPacket;
@@ -64,13 +63,11 @@ public final class ClientboundSampleTransmissionAcknowledgement extends JsonPack
 		}
 	}
 
-	@KeepEnumInternalNames
 	public enum AcceptedState {
 		ACCEPTED,
 		REJECTED
 	}
 
-	@KeepEnumInternalNames
 	public enum Classification {
 		LEGIT, CHEAT,
 		UNKNOWN

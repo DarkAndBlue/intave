@@ -1,11 +1,8 @@
 package de.jpx3.intave.module.violation;
 
-import de.jpx3.intave.annotate.KeepEnumInternalNames;
-
 import java.util.Arrays;
 import java.util.List;
 
-@KeepEnumInternalNames
 public enum ViolationVerboseMode {
   ALL {
     @Override

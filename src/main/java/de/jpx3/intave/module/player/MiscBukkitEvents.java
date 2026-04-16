@@ -3,8 +3,6 @@ package de.jpx3.intave.module.player;
 import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.ViaVersionAdapter;
-import de.jpx3.intave.annotate.refactoring.IdoNotBelongHere;
-import de.jpx3.intave.annotate.refactoring.SplitMeUp;
 import de.jpx3.intave.cleanup.GarbageCollector;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.klass.trace.Caller;
@@ -31,10 +29,8 @@ import org.bukkit.inventory.ItemStack;
 import static de.jpx3.intave.IntaveControl.DISALLOW_ALL_BLOCK_PLACEMENTS_WITH_EVENT;
 import static org.bukkit.event.EventPriority.MONITOR;
 
-@SplitMeUp
 public final class MiscBukkitEvents extends Module {
   @BukkitEventSubscription
-  @IdoNotBelongHere
   public void on(PlayerJoinEvent join) {
     Player player = join.getPlayer();
     boolean hasNotificationPermission = BukkitPermissionCheck.permissionCheck(player, "intave.command") && !BukkitPermissionCheck.permissionCheck(player, "intave.command.noupdate");
@@ -61,7 +57,6 @@ public final class MiscBukkitEvents extends Module {
   }
 
   @BukkitEventSubscription
-  @IdoNotBelongHere
   public void on(PlayerTeleportEvent teleport) {
     if (IntaveControl.DEBUG_TELEPORT_CAUSE_AND_CAUSER) {
       PluginInvocation pluginInvocation = Caller.pluginInfo(false);
@@ -78,7 +73,6 @@ public final class MiscBukkitEvents extends Module {
   }
 
   @BukkitEventSubscription
-  @IdoNotBelongHere
   public void on(WorldUnloadEvent unloadEvent) {
     World world = unloadEvent.getWorld();
     GarbageCollector.clear(world);
@@ -87,7 +81,6 @@ public final class MiscBukkitEvents extends Module {
   }
 
   @BukkitEventSubscription(priority = MONITOR)
-  @IdoNotBelongHere
   public void on(PlayerQuitEvent quit) {
     Player player = quit.getPlayer();
     GarbageCollector.clear(player);
@@ -98,7 +91,6 @@ public final class MiscBukkitEvents extends Module {
    * fixes a bug where players drop their sword whilst blocking, tricking the server into letting them constantly block - even whilst attacking
    */
   @BukkitEventSubscription(ignoreCancelled = true)
-  @IdoNotBelongHere
   public void on(PlayerDropItemEvent event) {
     Player player = event.getPlayer();
     User user = UserRepository.userOf(player);
@@ -161,7 +153,6 @@ public final class MiscBukkitEvents extends Module {
     }
   }
 
-  @IdoNotBelongHere
   private void sendPrefixedMessage(String message, CommandSender target) {
     if (!Bukkit.isPrimaryThread()) {
       Synchronizer.synchronize(() -> sendPrefixedMessage(message, target));

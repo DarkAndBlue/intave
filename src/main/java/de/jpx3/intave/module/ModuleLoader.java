@@ -2,7 +2,6 @@ package de.jpx3.intave.module;
 
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
-import de.jpx3.intave.annotate.Native;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
@@ -14,7 +13,6 @@ import java.util.stream.Collectors;
 final class ModuleLoader {
   private final Map<String, ModuleSettings> pendingModuleClasses = new HashMap<>();
 
-  @Native
   public void setup() {
     ModuleSettings eventBoot = ModuleSettings.builder().doNotLinkSubscriptions().bootBeforeIntave().build();
     ModuleSettings packetBoot = ModuleSettings.builder()

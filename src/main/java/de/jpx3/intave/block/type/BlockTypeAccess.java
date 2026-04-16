@@ -3,7 +3,6 @@ package de.jpx3.intave.block.type;
 import com.comphenix.protocol.utility.MinecraftVersion;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveInternalException;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.access.BlockAccess;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.resource.Resource;
@@ -20,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 import static de.jpx3.intave.diagnostic.timings.Timings.SERVICE_TYPE_LOOKUP;
 
-@Relocate
 public final class BlockTypeAccess {
   public static final Material WEB = resolveFrom("COBWEB", "WEB");
   public static final Material SNOW_LAYER = resolveFrom("SNOW", "SNOW_LAYER");

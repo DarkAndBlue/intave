@@ -1,7 +1,6 @@
 package de.jpx3.intave.command;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.diagnostic.natives.NativeCheck;
 import de.jpx3.intave.user.permission.BukkitPermissionCheck;
 import org.bukkit.ChatColor;
@@ -46,7 +45,6 @@ public abstract class CommandStage {
     NativeCheck.registerNative(() -> execute(null, null));
   }
 
-  @Native
   public void execute(CommandSender sender, String currentCommand) {
     if (NativeCheck.checkActive()) {
       return;
@@ -95,7 +93,6 @@ public abstract class CommandStage {
     }
   }
 
-  @Native
   public List<String> tabComplete(CommandSender sender, String currentCommand) {
     if (currentCommand.isEmpty()) {
       return subcommandCompletions(sender);
@@ -120,7 +117,6 @@ public abstract class CommandStage {
     }
   }
 
-  @Native
   private List<String> subcommandCompletions(CommandSender player) {
     return commandExecutors.stream()
       .filter(subCommand -> BukkitPermissionCheck.permissionCheck(player, subCommand.permission()))
@@ -131,7 +127,6 @@ public abstract class CommandStage {
 
   private static final int COMMAND_SHOW_LIMIT = 8;
 
-  @Native
   protected void showAllCommands(CommandSender sender) {
     List<String> messages = new ArrayList<>();
     for (CommandExecutor commandExecutor : commandExecutors) {
@@ -178,7 +173,6 @@ public abstract class CommandStage {
     return number > 12 || number < 0 ? String.valueOf(number) : LITERALS[number];
   }
 
-  @Native
   protected void showInconclusiveCommandSelection(CommandSender sender, List<CommandExecutor> subCommandList) {
     List<String> availableSelectors = new ArrayList<>();
     for (CommandExecutor commandExecutor : subCommandList) {
@@ -220,7 +214,6 @@ public abstract class CommandStage {
       .findFirst().orElse(null);
   }
 
-  @Native
   private LevenshteinPicker.SearchResult levenshteinSubCommandPick(CommandSender sender, String search) {
     Set<String> haystacks = new HashSet<>();
     for (CommandExecutor commandExecutor : commandExecutors) {
@@ -235,7 +228,6 @@ public abstract class CommandStage {
     return LevenshteinPicker.search(haystacks, search);
   }
 
-  @Native
   private CommandExecutor subcommandBySelector(CommandSender sender, String search) {
     for (CommandExecutor subCommand : commandExecutors) {
       String permission = subCommand.permission();

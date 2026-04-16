@@ -27,7 +27,6 @@
 // THE POSSIBILITY OF SUCH DAMAGE.
 package de.jpx3.intave.library.asm.util;
 
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.library.asm.*;
 
 import java.io.IOException;
@@ -40,7 +39,6 @@ import java.util.*;
  * @author Eric Bruneton
  */
 // DontCheck(AbbreviationAsWordInName): can't be renamed (for backward binary compatibility).
-@Relocate
 public class ASMifier extends Printer {
 
   /**

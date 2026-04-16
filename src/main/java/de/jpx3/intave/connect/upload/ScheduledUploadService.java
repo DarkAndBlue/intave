@@ -1,7 +1,6 @@
 package de.jpx3.intave.connect.upload;
 
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.cleanup.ShutdownTasks;
 import de.jpx3.intave.connect.IntaveDomains;
 import de.jpx3.intave.executor.BackgroundExecutors;
@@ -54,7 +53,6 @@ public final class ScheduledUploadService {
     scheduledUpload(name, new ByteArrayInputStream(data));
   }
 
-  @Native
   public void scheduledUpload(String name, InputStream inputStream) throws IOException {
     // encrypt inputStream with public key
     if (storageSize + inputStream.available() > STORAGE_BYTE_LIMIT) {

@@ -5,14 +5,12 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.injector.packet.PacketRegistry;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.DoNotFlowObfuscate;
 import de.jpx3.intave.module.linker.packet.FilteringPacketAdapter;
 import io.netty.channel.Channel;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
 
-@DoNotFlowObfuscate
 final class EventTinyProtocol extends TinyProtocol {
   private final InjectionService injectionService;
 

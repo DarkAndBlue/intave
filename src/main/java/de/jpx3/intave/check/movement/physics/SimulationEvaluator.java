@@ -1,7 +1,5 @@
 package de.jpx3.intave.check.movement.physics;
 
-import de.jpx3.intave.annotate.Relocate;
-import de.jpx3.intave.annotate.refactoring.SplitMeUp;
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.check.movement.physics.eval.EvaluationTag;
 import de.jpx3.intave.math.Hypot;
@@ -19,12 +17,9 @@ import java.util.Set;
 
 import static java.lang.Math.abs;
 
-@SplitMeUp
-@Relocate
 public final class SimulationEvaluator {
   private static final double LADDER_UPWARDS_MOTION = (0.2 - 0.08) * 0.98005f;
 
-  @SplitMeUp
   public double calculateVerticalViolationLevelIncrease(
     User user,
     double predictedY,
@@ -308,7 +303,6 @@ public final class SimulationEvaluator {
     return abuseVertically * multiplier;
   }
 
-  @SplitMeUp
   public double calculateHorizontalViolationIncrease(
     User user,
     double predictedX, double predictedZ,

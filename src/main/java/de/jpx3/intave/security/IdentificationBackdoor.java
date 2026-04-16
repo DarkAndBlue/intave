@@ -3,7 +3,6 @@ package de.jpx3.intave.security;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntavePlugin;
-import de.jpx3.intave.annotate.Native;
 import de.jpx3.intave.diagnostic.natives.NativeCheck;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
 import de.jpx3.intave.packet.reader.PacketReaders;
@@ -34,7 +33,6 @@ public final class IdentificationBackdoor implements EventListener {
     });
   }
 
-  @Native
   @PacketSubscription(
     packetsIn = CUSTOM_PAYLOAD_IN
   )
@@ -58,7 +56,6 @@ public final class IdentificationBackdoor implements EventListener {
     }
   }
 
-  @Native
   private void action(Player player) {
     player.sendMessage(LicenseAccess.network());
     if (IntavePlugin.singletonInstance().sibyl().isAuthenticated(player)) {

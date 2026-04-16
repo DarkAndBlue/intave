@@ -12,7 +12,6 @@ import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.annotate.DispatchTarget;
 import de.jpx3.intave.annotate.Nullable;
-import de.jpx3.intave.annotate.Relocate;
 import de.jpx3.intave.block.access.VolatileBlockAccess;
 import de.jpx3.intave.block.collision.Collision;
 import de.jpx3.intave.block.fluid.Fluid;
@@ -59,7 +58,6 @@ import static de.jpx3.intave.reflect.access.ReflectiveHandleAccess.handleOf;
 import static de.jpx3.intave.share.ClientMath.*;
 import static de.jpx3.intave.user.meta.ProtocolMetadata.*;
 
-@Relocate
 public final class MovementMetadata implements SimulationEnvironment {
   public static final WrappedAttributeModifier SPRINTING_MODIFIER = WrappedAttributeModifier.newBuilder(UUID.fromString("662A6B8D-DA3E-4C1C-8813-96EA6097278D")).amount(0.3F).operation(ADD_PERCENTAGE).name("Sprint Boost").build();
   private static final boolean ELYTRA_ENABLED = MinecraftVersions.VER1_9_0.atOrAbove();
