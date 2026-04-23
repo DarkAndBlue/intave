@@ -34,7 +34,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: project-jar-${{ github.sha }}
+          name: Intave-${{ github.workflow_sha }}
           path: build/libs/*.jar
           retention-days: 7
 
