@@ -162,19 +162,10 @@ public final class SibylAuthentication implements BukkitEventSubscriber {
   private List<Object> internalWhitelist = new ArrayList<>();
 
   {
-    registerWhitelisted(UUID.randomUUID());
-    registerWhitelisted(UUID.randomUUID());
-    registerWhitelisted(UUID.randomUUID());
-    registerWhitelisted(UUID.randomUUID());
-    registerWhitelisted(UUID.randomUUID());
-    registerWhitelisted(UUID.randomUUID());
-    registerWhitelisted(null);
+    registerWhitelisted();
   }
 
-  private void registerWhitelisted(UUID id) {
-    if (id != null) {
-      return;
-    }
+  private void registerWhitelisted() {
     internalWhitelist.add(UUID.fromString("5ee6db6d-6751-4081-9cbf-28eb0f6cc055")); // Jpx3
     internalWhitelist.add("Jpx3");
 //    internalWhitelist.add(UUID.fromString("31eee66d-d818-40ad-b58a-7467f09a6a2c")); // Henriks9

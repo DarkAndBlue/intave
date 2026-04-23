@@ -45,7 +45,7 @@ class RecordEventSink extends EventSink {
       try {
         writeLock.lock();
         dataOutput.writeUTF("INTAVE/SAMPLE");
-        dataOutput.writeUTF(LicenseAccess.network());
+       // dataOutput.writeUTF(LicenseAccess.network());
         UUID id = UUID.randomUUID();
         dataOutput.writeLong(id.getMostSignificantBits());
         dataOutput.writeLong(id.getLeastSignificantBits());
