@@ -125,7 +125,7 @@ public final class RotationSpeed extends MetaCheckPart<PlacementAnalysis, Rotati
       Vector current =  blocks.get(i);
       Vector next = blocks.get(i);
       boolean placedAgainst = current.distanceSquared(next) <= 1;
-      boolean placedHorizontally = current.clone().setY(0).distance(next.clone().setY(0)) <= 1;
+      boolean placedHorizontally = current.getBlockY() == next.getBlockY();
 
       if (placedAgainst) {
         placedAgainstCount++;
