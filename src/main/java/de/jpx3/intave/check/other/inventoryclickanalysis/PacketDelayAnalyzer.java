@@ -34,7 +34,6 @@ public final class PacketDelayAnalyzer extends MetaCheckPart<InventoryClickAnaly
     }
   }
 
-//  @Native
 //  private void processSibylDebug(String message) {
 //    IntavePlugin plugin = IntavePlugin.singletonInstance();
 //    for (Player onlinePlayer : MessageChannelSubscriptions.sibylReceiver()/*Bukkit.getOnlinePlayers()*/) {

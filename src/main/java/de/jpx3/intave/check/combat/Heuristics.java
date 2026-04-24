@@ -24,7 +24,6 @@ import de.jpx3.intave.check.combat.heuristics.mine.MiningStrategyExecutor;
 import de.jpx3.intave.diagnostic.message.DebugBroadcast;
 import de.jpx3.intave.diagnostic.message.MessageCategory;
 import de.jpx3.intave.diagnostic.message.MessageSeverity;
-import de.jpx3.intave.diagnostic.natives.NativeCheck;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.executor.TaskTracker;
 import de.jpx3.intave.module.Modules;
@@ -34,7 +33,6 @@ import de.jpx3.intave.module.violation.Violation;
 import de.jpx3.intave.user.User;
 import de.jpx3.intave.user.meta.AttackMetadata;
 import de.jpx3.intave.user.meta.CheckCustomMetadata;
-import de.jpx3.intave.user.meta.ProtocolMetadata;
 import de.jpx3.intave.user.storage.HeuristicsStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -66,7 +64,6 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
 
     this.setupSubChecks();
     this.setupEvaluationScheduler(plugin);
-    this.registerNativeCheck();
   }
 
   private void setupEvaluationScheduler(IntavePlugin plugin) {
@@ -75,7 +72,6 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     TaskTracker.begun(taskId);
   }
 
-  //  @Native
   public void setupSubChecks() {
     appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.clickpatterns.OldAirClickLimitHeuristic");
 //        appendCheckPart("de.jpx3.intave.check.combat.heuristics.detect.other.AttackReduceIgnoreHeuristic");
@@ -151,18 +147,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     Synchronizer.synchronize(() -> debug(player, anomaly));
   }
 
-  public void registerNativeCheck() {
-    NativeCheck.registerNative(() -> debug(null, null));
-    NativeCheck.registerNative(() -> evaluate(null, false));
-    NativeCheck.registerNative(() -> catchAnomaliesOf(null, false));
-    NativeCheck.registerNative(() -> resolveIdentifier(null));
-  }
-
-  //  @Native
   private void debug(Player player, Anomaly anomaly) {
-    if (NativeCheck.checkActive() || anomaly == null) {
-      return;
-    }
     User user = userOf(player);
     List<Anomaly> anomalies = catchAnomaliesOf(user, false);
     List<Confidence> allConfidences = resolveConfidencesOf(anomalies);
@@ -196,11 +181,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
 
   private static final long MAXIMUM_STORAGE_SAVE = 1000 * 60 * 30; // 30 minutes
 
-  //  @Native
   public void evaluate(Player player, boolean enforceDecision) {
-    if (NativeCheck.checkActive()) {
-      return;
-    }
     User user = userOf(player);
     AttackMetadata attackData = user.meta().attack();
     HeuristicsStorage storage = user.storageOf(HeuristicsStorage.class);
@@ -307,22 +288,11 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     }
   }
 
-  //  @Native
   @NotNull
-  @SuppressWarnings("UnusedAssignment")
   public List<Anomaly> catchAnomaliesOf(User user, boolean delay) {
-    if (NativeCheck.checkActive()) {
-      return null;
-    }
     if (user.hasPlayer()) {
       return Collections.emptyList();
     }
-    Player player = user.player();
-    Collection<? extends Player> onlinePlayers = Bukkit.getOnlinePlayers();
-    boolean isPartner = (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
-    boolean isEnterprise = (ProtocolMetadata.VERSION_DETAILS & 0x200) != 0;
-    int amountOfPlugins = Bukkit.getPluginManager().getPlugins().length;
-    boolean trust = IntaveControl.DISABLE_LICENSE_CHECK || !plugin.getServer().getOnlineMode() || isPartner || isEnterprise || !(onlinePlayers.size() <= 5 || player.isOp() || amountOfPlugins <= 5);
 
     List<Anomaly> anomalies = metaOf(user).anomalies;
     anomalies.removeIf(Anomaly::expired);
@@ -330,9 +300,6 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
     if (delay) {
       // filter non-active (delay)
       anomalies.removeIf(anomaly -> !anomaly.active());
-    }
-    if (!trust) {
-      anomalies.removeIf(anomaly -> !anomaly.forceApply());
     }
     Anomaly combined = combinator.combined(anomalies);
     if (combined != null) {
@@ -493,11 +460,7 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
 
   // encryption
 
-  //  @Native
   private String resolveIdentifier(List<Anomaly> anomalies) {
-    if (NativeCheck.checkActive()) {
-      return null;
-    }
     return encryptAnomalies(restructureForOutput(anomalies));
   }
 
@@ -532,9 +495,6 @@ public final class Heuristics extends MetaCheck<Heuristics.HeuristicMeta> {
   }
 
   private String encryptAnomalies(List<Anomaly> anomalies) {
-    if (NativeCheck.checkActive()) {
-      return null;
-    }
     List<String> usableAnomalies = new ArrayList<>();
     int limit = 10;
     for (Anomaly anomaly : anomalies) {

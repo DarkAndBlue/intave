@@ -2,10 +2,8 @@ package de.jpx3.intave.module.mitigate;
 
 import com.comphenix.protocol.events.PacketEvent;
 import de.jpx3.intave.IntaveControl;
-import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.connect.sibyl.SibylMessageTransmitter;
-import de.jpx3.intave.diagnostic.natives.NativeCheck;
 import de.jpx3.intave.executor.Synchronizer;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.Module;
@@ -35,12 +33,9 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static de.jpx3.intave.access.player.trust.TrustFactor.ORANGE;
 import static de.jpx3.intave.access.player.trust.TrustFactor.RED;
 import static de.jpx3.intave.module.mitigate.AttackNerfStrategy.RECEIVE_MORE_KNOCKBACK;
 
@@ -315,9 +310,6 @@ public final class CombatMitigator extends Module {
   }
 
   private static void notify(User user, AttackNerfer attackNerfer, String checkId, boolean hide) {
-    if (NativeCheck.checkActive()) {
-      return;
-    }
     IntavePlugin plugin = IntavePlugin.singletonInstance();
 
     if (!attackNerfer.active()) {
@@ -361,16 +353,10 @@ public final class CombatMitigator extends Module {
       }
     }
 
-    for (Player authenticatedPlayer : MessageChannelSubscriptions.sibylReceivers()/*Bukkit.getOnlinePlayers()*/) {
+    for (Player authenticatedPlayer : MessageChannelSubscriptions.sibylReceivers()) {
       if (plugin.sibyl().isAuthenticated(authenticatedPlayer)) {
         SibylMessageTransmitter.sendMessage(authenticatedPlayer, message);
       }
     }
-  }
-
-  static {
-    NativeCheck.registerNative(() -> {
-      notify(null, null, "00", true);
-    });
   }
 }

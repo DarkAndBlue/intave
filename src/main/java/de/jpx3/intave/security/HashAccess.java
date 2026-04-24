@@ -51,7 +51,6 @@ public final class HashAccess {
     return jarChecksum.toString();
   }
 
-//  @Native
 //  public static void push(FileInputStream stream, MessageDigest digest) {
 //    byte[] dataBytes = new byte[1024];
 //    int nread;

@@ -35,7 +35,6 @@ import de.jpx3.intave.connect.sibyl.SibylBroadcast;
 import de.jpx3.intave.connect.sibyl.SibylIntegrationService;
 import de.jpx3.intave.connect.upload.ScheduledUploadService;
 import de.jpx3.intave.diagnostic.ConsoleOutput;
-import de.jpx3.intave.diagnostic.natives.NativeCheck;
 import de.jpx3.intave.entity.EntityLookup;
 import de.jpx3.intave.entity.size.HitboxSizeAccess;
 import de.jpx3.intave.entity.type.EntityTypeDataAccessor;
@@ -62,7 +61,6 @@ import de.jpx3.intave.reflect.access.ReflectiveAccess;
 import de.jpx3.intave.resource.Resources;
 import de.jpx3.intave.resource.legacy.EncryptedLegacyResource;
 import de.jpx3.intave.security.PlayerListService;
-import de.jpx3.intave.security.letis.Letis;
 import de.jpx3.intave.share.FriendlyByteBuf;
 import de.jpx3.intave.share.link.WrapperConverter;
 import de.jpx3.intave.test.TestService;
@@ -130,7 +128,6 @@ public final class IntavePlugin extends JavaPlugin {
   private YamlConfiguration configuration;
   private PlayerListService blackListService; // module candidate
   private ScheduledUploadService uploadService; // module candidate
-  private Letis letis; // module candidate
   private Analytics analytics; // module candidate
   private Metrics metrics;
   private TestService testService;
@@ -346,7 +343,6 @@ public final class IntavePlugin extends JavaPlugin {
       testService.scheduleTestsForFifthTick();
       uploadService = new ScheduledUploadService();
       uploadService.enable();
-      letis = new Letis(this);
 
       getCommand("intave").setExecutor(new CommandForwarder());
 
@@ -431,7 +427,6 @@ public final class IntavePlugin extends JavaPlugin {
       }
     }
 
-    registerNativeCheck();
     Modules.linker().packetEvents().refreshLinkages();
     displayVersionInformation();
     successfullyBooted = true;
@@ -443,15 +438,7 @@ public final class IntavePlugin extends JavaPlugin {
       Modules.proceedBoot(BootSegment.STAGE_11);
 
       StartupTasks.runAll();
-
-      // perform a complete native self-check
-      BackgroundExecutors.execute(NativeCheck::run);
     });
-  }
-
-  private void registerNativeCheck() {
-    NativeCheck.registerNative(this::invalidateCaches);
-    NativeCheck.registerNative(() -> bootFailure(null));
   }
 
   public void createDataFolder() {
@@ -628,16 +615,10 @@ public final class IntavePlugin extends JavaPlugin {
   }
 
   public void invalidateCaches() {
-    if (NativeCheck.checkActive()) {
-      return;
-    }
     clearIntegrityGarbage();
   }
 
   public void bootFailure(String reason) {
-    if (NativeCheck.checkActive()) {
-      return;
-    }
     getCommand("intave").setExecutor((commandSender, command, s, strings) -> {
       commandSender.sendMessage(prefix() + ChatColor.RED + "Intave couldn't boot properly: " + reason);
       return false;

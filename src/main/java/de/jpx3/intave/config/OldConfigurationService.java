@@ -113,7 +113,6 @@ public final class OldConfigurationService {
     }
   }
 
-  //  @Native
   public void setupConfiguration(String requiredState) {
     boolean useExternalConfigurationFile = (/*enterprise && */configurationKey.equalsIgnoreCase("file")) || IntaveControl.USE_EXTERNAL_CONFIGURATION_FILE;
     boolean configurationCacheOutdated = System.currentTimeMillis() - loader().configurationCache().lastModified() > 1000 * 60 * 60 * 2;

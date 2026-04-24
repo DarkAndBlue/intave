@@ -1,7 +1,6 @@
 package de.jpx3.intave.accessbackend;
 
 import com.google.common.base.Preconditions;
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.IntaveLogger;
 import de.jpx3.intave.IntavePlugin;
 import de.jpx3.intave.access.IntaveAccess;
@@ -18,7 +17,6 @@ import de.jpx3.intave.accessbackend.check.CheckAccessor;
 import de.jpx3.intave.accessbackend.player.PlayerAccessor;
 import de.jpx3.intave.accessbackend.server.ServerAccessor;
 import de.jpx3.intave.annotate.HighOrderService;
-import de.jpx3.intave.diagnostic.natives.NativeCheck;
 import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.user.UserRepository;
 import org.bukkit.entity.Player;
@@ -49,26 +47,14 @@ public final class IntaveAccessService {
 
   private IntaveAccess newIntaveAccess() {
     return new IntaveAccess() {
-      {
-        NativeCheck.registerNative(() -> setDefaultTrustFactor(null));
-        NativeCheck.registerNative(() -> setDefaultTrustFactor(null));
-        NativeCheck.registerNative(() -> fallback(null));
-      }
-
       @Override
       public void setTrustFactorResolver(TrustFactorResolver resolver) {
-        if (NativeCheck.checkActive()) {
-          return;
-        }
         IntaveLogger.logger().info("Set trust factor resolver to " + resolver);
         plugin.trustFactorService().setCustomTrustFactorResolver(resolver);
       }
 
       @Override
       public void setDefaultTrustFactor(TrustFactor defaultTrustFactor) {
-        if (NativeCheck.checkActive()) {
-          return;
-        }
         if (defaultTrustFactor == null) {
           throw new NullPointerException("Default TrustFactor must not be null");
         }

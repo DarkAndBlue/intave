@@ -2,14 +2,12 @@ package de.jpx3.intave.check.combat.heuristics.detect.combatpatterns;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketEvent;
-import de.jpx3.intave.IntaveControl;
 import de.jpx3.intave.adapter.MinecraftVersions;
 import de.jpx3.intave.adapter.ProtocolLibraryAdapter;
 import de.jpx3.intave.check.MetaCheckPart;
 import de.jpx3.intave.check.combat.Heuristics;
 import de.jpx3.intave.check.combat.heuristics.Anomaly;
 import de.jpx3.intave.check.combat.heuristics.Confidence;
-import de.jpx3.intave.diagnostic.natives.NativeCheck;
 import de.jpx3.intave.math.MathHelper;
 import de.jpx3.intave.module.linker.packet.ListenerPriority;
 import de.jpx3.intave.module.linker.packet.PacketSubscription;
@@ -96,14 +94,7 @@ public final class SameRotationHeuristic extends MetaCheckPart<Heuristics, SameR
     prepareNextTick(user, currentTick, event.getPacketType());
   }
 
-  {
-    NativeCheck.registerNative(this::isPartner);
-  }
-
   public boolean isPartner() {
-    if (NativeCheck.checkActive()) {
-      return false;
-    }
     return (ProtocolMetadata.VERSION_DETAILS & 0x100) != 0;
   }
 
