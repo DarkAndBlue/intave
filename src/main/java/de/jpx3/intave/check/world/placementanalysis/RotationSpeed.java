@@ -123,7 +123,7 @@ public final class RotationSpeed extends MetaCheckPart<PlacementAnalysis, Rotati
 
     for (int i = 0; i < blocks.size() - 1; i++) {
       Vector current =  blocks.get(i);
-      Vector next = blocks.get(i);
+      Vector next = blocks.get(i + 1);
       boolean placedAgainst = current.distanceSquared(next) <= 1;
       boolean placedHorizontally = current.getBlockY() == next.getBlockY();
 
