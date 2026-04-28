@@ -171,7 +171,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
       }
     }
 
-    boolean isSuspicious = (meta.yawMotions[1] == 0 && meta.yawMotions[0] > 25 && meta.yawMotions[0] > 9);
+    boolean isSuspicious = (meta.yawMotions[1] == 0 && meta.yawMotions[0] > 25 && yawMotion < 9);
     boolean liteFlag = isSuspicious && meta.silentMovements[1] == KeyStates.SILENTMOVE && meta.rotationPacketCounter > 10 && movementData.lastTeleport > 7;
 
     isSuspicious = meta.yawMotions[1] < 9 && meta.yawMotions[0] > 40 && yawMotion < 9;
