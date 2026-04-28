@@ -118,7 +118,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
     RotationSnapHeuristicMeta meta = metaOf(user);
 
     if (movementData.motionX() != 0 && movementData.motionZ() != 0) {
-      meta.internalViolation -= 0.01;
+      meta.internalViolation -= 0.01f;
       if (meta.internalViolation < 0)
         meta.internalViolation = 0;
     }
@@ -246,7 +246,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
     Player player = user.player();
 
     meta.internalViolation += violationToAdd;
-    Confidence confidence = Confidence.confidenceFrom(meta.internalViolation);
+    Confidence confidence = Confidence.confidenceFrom((int) meta.internalViolation);
 
     if (confidence.level() >= 30) {
       meta.internalViolation -= confidence.level();
@@ -331,7 +331,7 @@ public final class RotationSnapHeuristic extends MetaCheckPart<Heuristics, Rotat
     private final Tick[] movementAtTick = new Tick[2];
     private final double[] yawMotions = new double[2];
     private final KeyStates[] silentMovements = new KeyStates[2];
-    private int internalViolation;
+    private float internalViolation;
     private int lastKeyForward;
     private int lastKeyStrafe;
     // used to disable the check on startup
