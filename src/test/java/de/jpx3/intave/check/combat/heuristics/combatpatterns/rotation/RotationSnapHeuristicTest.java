@@ -12,12 +12,49 @@
 package de.jpx3.intave.check.combat.heuristics.combatpatterns.rotation;
 
 import org.junit.jupiter.api.Test;
+import de.jpx3.intave.adapter.MinecraftVersion;
+import de.jpx3.intave.adapter.MinecraftVersions;
+import de.jpx3.intave.user.UserFactory;
+import de.jpx3.intave.user.meta.MovementMetadata;
 
 import static de.jpx3.intave.check.combat.heuristics.combatpatterns.rotation.RotationSnapHeuristic.computeYawMotion;
 import static de.jpx3.intave.check.combat.heuristics.combatpatterns.rotation.RotationSnapHeuristic.isRotationSnapDetected;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RotationSnapHeuristicTest {
+  @Test
+  void teleportDiscardsPendingSnapAndSilentMovementEvidence() throws Exception {
+    MinecraftVersion.setCurrent(MinecraftVersions.VER1_21_4);
+    MovementMetadata movement = UserFactory.createFallback().meta().movement();
+    RotationSnapHeuristic.RotationSnapHeuristicMeta meta = new RotationSnapHeuristic.RotationSnapHeuristicMeta();
+    double[] motions = (double[]) historyField(meta, "yawMotions");
+    RotationSnapHeuristic.KeyStates[] keys = (RotationSnapHeuristic.KeyStates[]) historyField(meta, "silentMovements");
+    RotationSnapHeuristic.Tick[] positions = (RotationSnapHeuristic.Tick[]) historyField(meta, "movementAtTick");
+    motions[0] = 270;
+    motions[1] = 0;
+    keys[1] = RotationSnapHeuristic.KeyStates.SILENTMOVE;
+    positions[1] = new RotationSnapHeuristic.Tick(0, 64, 0, 0, 0);
+    assertTrue(detected(motions[1], motions[0], 0, 8));
+
+    meta.resetRotationHistory(movement);
+
+    assertFalse(detected(motions[1], motions[0], 0, 8));
+    // A missing sample cannot supply the quiet tick for a new snap either.
+    assertFalse(detected(motions[0], 270, 0, 8));
+    assertFalse(motions[1] == 0); // The scaffolding path requires an exact zero.
+    assertArrayEquals(new RotationSnapHeuristic.KeyStates[] {
+      RotationSnapHeuristic.KeyStates.NONE, RotationSnapHeuristic.KeyStates.NONE
+    }, keys);
+    assertArrayEquals(new RotationSnapHeuristic.Tick[2], positions);
+    assertTrue(detected(0, 270, 0, 8)); // Fresh, complete evidence still detects.
+  }
+
+  private Object historyField(RotationSnapHeuristic.RotationSnapHeuristicMeta meta, String name) throws Exception {
+    java.lang.reflect.Field field = meta.getClass().getDeclaredField(name);
+    field.setAccessible(true);
+    return field.get(meta);
+  }
+
   // rotationPacketCounter and the swing/attack-recency gate are not under test here;
   // hold them at values that always satisfy the gate so only yaw motion + teleport ticks vary.
   private static final int DEFAULT_ROTATION_PACKET_COUNTER = 20;

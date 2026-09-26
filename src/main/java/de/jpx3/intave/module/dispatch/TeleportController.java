@@ -53,6 +53,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 
+import static de.jpx3.intave.check.movement.physics.environment.MoveMetric.TELEPORT;
 import static de.jpx3.intave.module.linker.packet.PacketId.Client.TELEPORT_ACCEPT;
 import static de.jpx3.intave.module.linker.packet.PacketId.Server.POSITION;
 
@@ -289,23 +290,31 @@ public final class TeleportController implements PacketEventSubscriber {
 
 			int teleportId = movementData.lastTeleportAcceptId;
 			Position lastPosition = movementData.verifiedLastPosition();
-			Rotation lastRotation = movementData.lastRotation();
+			Rotation currentRotation = movementData.rotation();
 
 			PositionMoveRotation expected = first.expectedPositionMoveRotation(
-				lastPosition, lastRotation, movementData.mutableBaseMotionCopy()
+				lastPosition, currentRotation, movementData.mutableBaseMotionCopy()
 			);
 
 			double positionOffset = expected.position().distanceTo(sentPosition);
 			float rotationOffset = expected.rotation().distanceTo(sentRotation);
 
 			if (first.matchesId(teleportId) && first.matches(
-				lastPosition, lastRotation,
+				lastPosition, currentRotation,
 				sentPosition, sentRotation,
 				0.001, Float.NaN
 			)) {
 				teleports.pollFirst();
 				first.accept();
 				expected.applyTo(movementData);
+				// Rotation matching is deliberately tolerant: retain the client's accepted
+				// view, including turns made while the teleport was in flight. Start a
+				// new rotation baseline so the teleport itself is never a mouse delta.
+				movementData.setRotation(sentRotation);
+				movementData.lastRotationYaw = sentRotation.yaw();
+				movementData.lastRotationPitch = sentRotation.pitch();
+				// Shared by movement confirmations and the 26.3 combined acknowledgement.
+				movementData.activeTick(TELEPORT);
 				if (first.simulatedOnGround() != null) {
 					movementData.onGround = first.simulatedOnGround();
 					movementData.setLastOnGround(first.simulatedOnGround());
@@ -345,7 +354,7 @@ public final class TeleportController implements PacketEventSubscriber {
 			// Resolve the outstanding chain in send order. Replaying an older relative
 			// request can apply its offset twice or undo a newer server destination.
 			PositionMoveRotation target = new PositionMoveRotation(
-				movementData.verifiedLastPosition(), movementData.mutableBaseMotionCopy(), movementData.lastRotation());
+				movementData.verifiedLastPosition(), movementData.mutableBaseMotionCopy(), movementData.rotation());
 			Boolean onGround = null;
 			for (Teleport pending : teleports) {
 				target = target.merge(pending.change(), pending.relativeSet());

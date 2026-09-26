@@ -33,6 +33,7 @@ import de.jpx3.intave.world.raytrace.Raytracing;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockPlaceEvent;
 
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static de.jpx3.intave.check.movement.physics.environment.MoveMetric.TELEPORT;
@@ -123,10 +124,11 @@ public final class RotationSnapHeuristic extends ClassicHeuristic<RotationSnapHe
     User user = userOf(player);
     MovementMetadata movementData = user.meta().movement();
 
-    if (movementData.ticksPast(TELEPORT) == 0) {
+    RotationSnapHeuristicMeta meta = metaOf(user);
+    if (movementData.ticksPast(TELEPORT) <= 7) {
+      meta.resetRotationHistory(movementData);
       return;
     }
-    RotationSnapHeuristicMeta meta = metaOf(user);
 
     if (movementData.offsetMotionX() != 0 && movementData.offsetMotionZ() != 0) {
       meta.internalViolation -= 0.01f;
@@ -333,6 +335,18 @@ public final class RotationSnapHeuristic extends ClassicHeuristic<RotationSnapHe
 
     // AtomicLong is being used because it gets set in a Bukkit thread.
     private AtomicLong lastBlockPlace = new AtomicLong();
+
+    void resetRotationHistory(MovementMetadata movement) {
+      // Missing samples must not count as quiet rotations in either snap path.
+      Arrays.fill(yawMotions, Double.NaN);
+      Arrays.fill(silentMovements, KeyStates.NONE);
+      Arrays.fill(movementAtTick, null);
+      lastKeyForward = movement.keyForward;
+      lastKeyStrafe = movement.keyStrafe;
+      lastLastPosX = movement.lastPositionX;
+      lastLastPosY = movement.lastPositionY;
+      lastLastPosZ = movement.lastPositionZ;
+    }
   }
 
   static class Tick {
