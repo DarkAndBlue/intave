@@ -51,6 +51,7 @@ import de.jpx3.intave.user.meta.ProtocolMetadata;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
@@ -127,6 +128,7 @@ public final class TeleportController implements PacketEventSubscriber {
 			long teleportSequence = movementData.teleportSequence;
 			movementData.teleportSequence = teleportSequence + 1;
 			Teleport teleport = reader.readTeleport(teleportSequence);
+			movementData.expectServerTeleport(teleport.id());
 
 			if (IntaveControl.DEBUG_TELEPORT_PACKET_STACKTRACE) {
 				System.out.println("Teleporting " + player.getName() + " with " + teleport);
@@ -172,22 +174,28 @@ public final class TeleportController implements PacketEventSubscriber {
 		packetsIn = {TELEPORT_ACCEPT}
 	)
 	public void receiveTeleportAccept(
-		User user, TeleportAcceptReader reader
+		User user, Cancellable cancellable, TeleportAcceptReader reader
 	) {
-		receiveTeleportAccept(user, reader.teleportId(), reader.positionAndRotation());
+		if (!receiveTeleportAccept(user, reader.teleportId(), reader.positionAndRotation())) {
+			cancellable.setCancelled(true);
+		}
 	}
 
-	void receiveTeleportAccept(User user, int teleportId, PositionAndRotation acceptedState) {
+	boolean receiveTeleportAccept(User user, int teleportId, PositionAndRotation acceptedState) {
 		// Combined acknowledgements bypass the movement packet's finite-value check.
 		if (acceptedState != null && !acceptedState.isFinite()) {
-			return;
+			return false;
 		}
 		MovementMetadata movementData = user.meta().movement();
+		boolean forwardToServer = movementData.acknowledgeServerTeleport(teleportId);
 		movementData.lastTeleportAcceptId = teleportId;
 		movementData.sentTeleportIdBefore = true;
+		// A retry still confirms Intave's recovery even when the native server has
+		// consumed this ID already. Forwarding it twice would disconnect the player.
 		if (acceptedState != null && user.meta().protocol().teleportAcceptIncludesPositionAndRotation()) {
 			confirmTeleport(user, acceptedState.position(), acceptedState.rotation());
 		}
+		return forwardToServer;
 	}
 
 	public boolean setbackTeleportsAllowed(User user) {

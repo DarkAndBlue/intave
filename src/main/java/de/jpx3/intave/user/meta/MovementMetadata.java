@@ -179,6 +179,8 @@ public final class MovementMetadata implements SimulationEnvironment {
   public volatile boolean sentTeleportIdBefore = false;
   public volatile int lastTeleportAcceptId = -1;
   public volatile long teleportSequence = 0;
+  private OptionalInt serverTeleportId = OptionalInt.empty();
+  private boolean serverTeleportAcknowledged;
   public final ReentrantLock teleportLock = new ReentrantLock();
   private long recoveryGeneration;
   private long recoveryFinalTeleportSequence = Long.MAX_VALUE;
@@ -1898,6 +1900,31 @@ public final class MovementMetadata implements SimulationEnvironment {
   @Override
   public SimulationEnvironment immutableView() {
     return unmodifiableView;
+  }
+
+  /** Only native outgoing teleports reset the server's acknowledgement state; Intave retries do not. */
+  public void expectServerTeleport(OptionalInt id) {
+    teleportLock.lock();
+    try {
+      serverTeleportId = id;
+      serverTeleportAcknowledged = false;
+    } finally {
+      teleportLock.unlock();
+    }
+  }
+
+  /** Returns whether this acknowledgement may still be forwarded to the native server. */
+  public boolean acknowledgeServerTeleport(int id) {
+    teleportLock.lock();
+    try {
+      // The server only acts on its latest ID; older and Intave-owned IDs are ignored.
+      if (!serverTeleportId.isPresent() || serverTeleportId.getAsInt() != id) return true;
+      if (serverTeleportAcknowledged) return false;
+      serverTeleportAcknowledged = true;
+      return true;
+    } finally {
+      teleportLock.unlock();
+    }
   }
 
   public long beginRecovery() {
