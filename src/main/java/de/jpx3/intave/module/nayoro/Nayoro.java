@@ -26,6 +26,7 @@ import de.jpx3.intave.module.Modules;
 import de.jpx3.intave.module.linker.bukkit.BukkitEventSubscription;
 import de.jpx3.intave.module.nayoro.sink.ForwardEventSink;
 import de.jpx3.intave.module.nayoro.stream.ManualBufferedOutputStream;
+import de.jpx3.intave.module.tracker.player.AttributeTracker;
 import de.jpx3.intave.module.tracker.player.PlayerScoreboardRecorder;
 import de.jpx3.intave.module.tracker.player.PlayerVitalsTracker;
 import de.jpx3.intave.user.User;
@@ -138,6 +139,7 @@ public final class Nayoro extends Module {
         )
       );
       Modules.find(PlayerVitalsTracker.class).synchronizeSnapshot(user);
+      Modules.find(AttributeTracker.class).synchronizeSnapshot(user);
     } finally {
       localRecordingLock.unlock();
     }
